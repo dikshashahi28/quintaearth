@@ -7,22 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --ink: #1c3328;
-    --muted: #3d5748;
-    --gold: #d4a24a;
-    --gold-deep: #8a6420;
-    --leaf: #1f7a4d;
-    --sky: #7ec8c3;
-  }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    color: var(--ink);
+    color: #3a2a14;
     font-family: Outfit, sans-serif;
     font-weight: 300;
-    background: #e7f6ee;
+    background: #f7f1e4;
   }
   a { color: inherit; text-decoration: none; }
   .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
@@ -30,22 +22,22 @@
     position: sticky; top: 0; z-index: 5;
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 28px;
-    background: rgba(255, 252, 244, 0.82);
+    background: rgba(255, 251, 244, 0.92);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(31, 122, 77, 0.18);
+    border-bottom: 1px solid rgba(196, 137, 42, 0.28);
   }
-  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; color: #1a4d34; }
-  .brand span { color: #c4842a; }
-  nav { display: flex; gap: 16px; font-size: 13px; color: #2f5a45; flex-wrap: wrap; justify-content: flex-end; }
-  nav a:hover { color: #0f8a62; }
+  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; color: #5a3d16; }
+  .brand span { color: #c4892a; }
+  nav { display: flex; gap: 16px; font-size: 13px; color: #7a5a28; flex-wrap: wrap; justify-content: flex-end; }
+  nav a:hover { color: #b8860b; }
   .hero {
     text-align: center;
     padding: 78px 20px 56px;
     background:
-      radial-gradient(700px 280px at 50% 0%, rgba(255, 214, 120, 0.55), transparent 70%),
-      radial-gradient(500px 240px at 12% 80%, rgba(126, 200, 160, 0.45), transparent 70%),
-      radial-gradient(480px 220px at 88% 70%, rgba(120, 196, 214, 0.4), transparent 70%),
-      linear-gradient(180deg, #fff8e8 0%, #e8f8ef 55%, #d7f0ea 100%);
+      radial-gradient(720px 300px at 50% 0%, rgba(255, 214, 120, 0.75), transparent 68%),
+      radial-gradient(420px 220px at 8% 78%, rgba(232, 196, 122, 0.5), transparent 70%),
+      radial-gradient(460px 200px at 92% 72%, rgba(255, 248, 230, 0.95), transparent 70%),
+      linear-gradient(180deg, #fffdf8 0%, #f8efd8 48%, #f3e2b8 100%);
   }
   .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #9a6a1e; }
   h1 {
@@ -54,70 +46,70 @@
     font-size: clamp(56px, 8vw, 88px);
     margin: 12px 0 8px;
     line-height: 0.95;
-    color: #173f2d;
+    color: #4a3012;
   }
-  .lead { max-width: 640px; margin: 16px auto 0; font-size: 20px; line-height: 1.55; color: #355746; }
-  .rule { width: 88px; height: 2px; margin: 24px auto; background: linear-gradient(90deg, transparent, #e0b15a, #3caf78, transparent); }
+  .lead { max-width: 640px; margin: 16px auto 0; font-size: 20px; line-height: 1.55; color: #6d5430; }
+  .rule { width: 88px; height: 2px; margin: 24px auto; background: linear-gradient(90deg, transparent, #f0d078, #c4892a, transparent); }
   .band { padding: 36px 0 28px; }
-  .band h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 40px; margin: 0 0 8px; }
-  .mist { background: linear-gradient(180deg, #f3fff6 0%, #e5f7ee 100%); }
-  .sky { background: linear-gradient(180deg, #e7f7fb 0%, #d9f3ea 100%); }
-  .gold { background: linear-gradient(180deg, #fff6df 0%, #f7ecd0 100%); }
-  .leaf { background: linear-gradient(160deg, #dff6e6 0%, #c8ecd8 100%); }
-  .garden { background: linear-gradient(180deg, #e8f8e4 0%, #d4f0c8 100%); }
-  .water { background: linear-gradient(180deg, #e4f6f4 0%, #d5efe8 100%); }
-  .dawn { background: linear-gradient(180deg, #fff3d6 0%, #e7f6df 100%); }
-  .grove { background: linear-gradient(165deg, #d9f3e4 0%, #c5e9c8 45%, #bfe3d4 100%); }
-  .sanctum { background: linear-gradient(180deg, #f7fbe8 0%, #e4f3d8 100%); }
-  .note { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 680px; }
+  .band h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 40px; margin: 0 0 8px; color: #4a3012; }
+  .mist { background: linear-gradient(180deg, #fffdf8 0%, #f6efe2 100%); }
+  .sky { background: linear-gradient(180deg, #fff8e8 0%, #f3e6c4 100%); }
+  .gold { background: linear-gradient(180deg, #fff4d6 0%, #efd39a 100%); }
+  .leaf { background: linear-gradient(160deg, #fffaf0 0%, #f0ddb0 100%); }
+  .garden { background: linear-gradient(180deg, #fbf6ea 0%, #e8c97a 55%, #f7f1e4 100%); }
+  .water { background: linear-gradient(180deg, #fffdf8 0%, #f8e7c0 100%); }
+  .dawn { background: linear-gradient(180deg, #fff6dc 0%, #e6c56a 100%); }
+  .grove { background: linear-gradient(165deg, #fff9ee 0%, #f0d48a 48%, #f7edd8 100%); }
+  .sanctum { background: linear-gradient(180deg, #fbf7ef 0%, #f3e6c8 100%); }
+  .note { color: #6b5433; font-size: 15px; line-height: 1.6; max-width: 680px; }
   .panel {
     margin-top: 16px;
-    background: rgba(255, 253, 248, 0.78);
-    border: 1px solid rgba(31, 122, 77, 0.16);
+    background: rgba(255, 252, 246, 0.9);
+    border: 1px solid rgba(196, 137, 42, 0.28);
     border-radius: 22px;
     padding: 28px;
-    box-shadow: 0 12px 30px rgba(28, 90, 60, 0.06);
+    box-shadow: 0 12px 30px rgba(122, 84, 24, 0.08);
   }
   .about p { font-size: 18px; line-height: 1.7; margin: 0 0 12px; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
   .card {
-    background: linear-gradient(180deg, #fffef9, #f3fbf6);
-    border: 1px solid rgba(46, 140, 90, 0.16);
-    border-top: 3px solid #7dcaa0;
+    background: linear-gradient(180deg, #fffdf8, #f8f1e2);
+    border: 1px solid rgba(196, 137, 42, 0.24);
+    border-top: 3px solid #e0b15a;
     border-radius: 18px;
     padding: 18px;
     min-height: 130px;
   }
-  .card:nth-child(2) { border-top-color: #e0b15a; }
-  .card:nth-child(3) { border-top-color: #7ec8c3; }
+  .card:nth-child(2) { border-top-color: #c4892a; }
+  .card:nth-child(3) { border-top-color: #f0d078; }
   .card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
-  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
-  .tag { display: inline-block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #1c8a5a; margin-bottom: 8px; }
+  .card p { margin: 0; color: #6b5433; font-size: 14px; line-height: 1.55; }
+  .tag { display: inline-block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #a56b16; margin-bottom: 8px; }
   .cta {
     display: inline-block;
     margin-top: 16px;
     padding: 12px 18px;
     border-radius: 999px;
-    background: linear-gradient(180deg, #3caf78, #1f7a4d);
-    color: white;
+    background: linear-gradient(180deg, #e0b15a, #c4892a);
+    color: #fffdf8;
     font-size: 14px;
-    box-shadow: 0 8px 18px rgba(31, 122, 77, 0.22);
+    box-shadow: 0 8px 18px rgba(166, 110, 24, 0.22);
   }
   .soon { font-size: 12px; color: #9a6a1e; margin-top: 8px; }
   .tease {
-    background: linear-gradient(180deg, #fffef8, #e7f7ee);
+    background: linear-gradient(180deg, #fffdf8, #f6ead0);
     border-radius: 18px;
     padding: 18px;
-    border: 1px solid rgba(31, 122, 77, 0.16);
+    border: 1px solid rgba(196, 137, 42, 0.24);
   }
   .tease h3 { font-family: "Cormorant Garamond", serif; font-size: 26px; margin: 0 0 6px; }
   footer {
     margin: 0;
     padding: 32px;
     text-align: center;
-    color: #e8f6ee;
+    color: #fff6e4;
     font-size: 13px;
-    background: linear-gradient(180deg, #1f6b48, #143d2c);
+    background: linear-gradient(180deg, #c4892a, #8a5a16);
   }
   @media (max-width: 860px) {
     nav { display: none; }
