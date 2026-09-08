@@ -12,87 +12,43 @@
   body {
     margin: 0;
     color: #3f3426;
+    background: #f7f4ee;
     font-family: Outfit, sans-serif;
     font-weight: 300;
-    background: #f7f4ee;
   }
   a { color: inherit; text-decoration: none; }
   .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
   header {
     position: sticky; top: 0; z-index: 5;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 28px;
-    background: #fbfaf6;
+    padding: 18px 28px;
+    background: rgba(251, 248, 241, 0.92);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid #e6dcc8;
   }
-  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; color: #3b3024; }
-  .brand span { color: #b08a3e; }
-  nav { display: flex; gap: 16px; font-size: 13px; color: #8a7353; flex-wrap: wrap; justify-content: flex-end; }
-  nav a:hover { color: #8d6b2f; }
-  .hero {
-    text-align: center;
-    padding: 78px 20px 56px;
-    background: #f7f4ee;
-  }
-  .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #a07b38; }
-  h1 {
-    font-family: "Cormorant Garamond", serif;
-    font-weight: 500;
-    font-size: clamp(56px, 8vw, 88px);
-    margin: 12px 0 8px;
-    line-height: 0.95;
-    color: #3b3024;
-  }
+  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
+  .brand span { color: #8d6b2f; }
+  nav { display: flex; gap: 16px; font-size: 13px; color: #6d5c45; flex-wrap: wrap; justify-content: flex-end; }
+  .hero { text-align: center; padding: 72px 20px 28px; background: #f7f4ee; }
+  .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #8d6b2f; }
+  h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95; }
   .lead { max-width: 640px; margin: 16px auto 0; font-size: 20px; line-height: 1.55; color: #6d5c45; }
-  .rule { width: 72px; height: 1px; margin: 24px auto; background: #c4a15a; }
-  .band { padding: 36px 0 28px; background: #f7f4ee; }
-  .band h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 40px; margin: 0 0 8px; color: #3b3024; }
+  .rule { width: 72px; height: 1px; margin: 24px auto; background: linear-gradient(90deg, transparent, #c4a15a, transparent); }
+  .band { padding: 22px 0 10px; background: #f7f4ee; }
+  .band h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 40px; margin: 0 0 8px; }
   .note { color: #6d5c45; font-size: 15px; line-height: 1.6; max-width: 680px; }
-  .panel {
-    margin-top: 16px;
-    background: #fffdf9;
-    border: 1px solid #eadfcd;
-    border-radius: 8px;
-    padding: 28px;
-  }
+  .panel { margin-top: 16px; background: #fffdf8; border: 1px solid #eadfcd; border-radius: 22px; padding: 28px; }
   .about p { font-size: 18px; line-height: 1.7; margin: 0 0 12px; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-  .card {
-    background: #fffdf9;
-    border: 1px solid #eadfcd;
-    border-radius: 8px;
-    padding: 18px;
-    min-height: 130px;
-  }
+  .card { background: #fffdf8; border: 1px solid #eadfcd; border-radius: 18px; padding: 18px; min-height: 130px; }
   .card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
   .card p { margin: 0; color: #6d5c45; font-size: 14px; line-height: 1.55; }
-  .tag { display: inline-block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #a07b38; margin-bottom: 8px; }
-  .cta {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 12px 18px;
-    border-radius: 999px;
-    background: #b08a3e;
-    color: #fffdf9;
-    font-size: 14px;
-  }
-  .soon { font-size: 12px; color: #a07b38; margin-top: 8px; }
-  .tease {
-    background: #fffdf9;
-    border-radius: 8px;
-    padding: 18px;
-    border: 1px solid #eadfcd;
-  }
+  .tag { display: inline-block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #8d6b2f; margin-bottom: 8px; }
+  .cta { display: inline-block; margin-top: 16px; padding: 12px 18px; border-radius: 999px; background: #b08a3e; color: #fffdf8; font-size: 14px; }
+  .soon { font-size: 12px; color: #8d6b2f; margin-top: 8px; }
+  .tease { background: #fffdf8; border-radius: 18px; padding: 18px; border: 1px solid #eadfcd; }
   .tease h3 { font-family: "Cormorant Garamond", serif; font-size: 26px; margin: 0 0 6px; }
-  footer {
-    margin: 0;
-    padding: 32px;
-    text-align: center;
-    color: #6d5c45;
-    font-size: 13px;
-    background: #fbfaf6;
-    border-top: 1px solid #e6dcc8;
-  }
+  footer { margin-top: 36px; padding: 28px; text-align: center; color: #6d5c45; font-size: 13px; border-top: 1px solid #e6dcc8; background: #fbfaf6; }
   @media (max-width: 860px) {
     nav { display: none; }
     .grid { grid-template-columns: 1fr; }
