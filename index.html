@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuintaEarth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ivory: #f7f3ea;
+    --cream: #fffdf8;
+    --ink: #243028;
+    --muted: #5c6b62;
+    --gold: #c4a15a;
+    --gold-deep: #8d6b2f;
+    --leaf: #3f7d62;
+    --leaf-soft: #e7f3ec;
+    --line: rgba(141, 107, 47, 0.22);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      radial-gradient(900px 420px at 50% -80px, #fff7e4 0%, transparent 60%),
+      linear-gradient(180deg, #fbf8f1 0%, var(--ivory) 40%, #f3f7f4 100%);
+    font-family: Outfit, sans-serif;
+    font-weight: 300;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+  header {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    background: rgba(251, 248, 241, 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
+  .brand span { color: var(--gold-deep); }
+  nav { display: flex; gap: 16px; font-size: 13px; color: var(--muted); flex-wrap: wrap; justify-content: flex-end; }
+  .hero { text-align: center; padding: 72px 20px 28px; }
+  .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: var(--gold-deep); }
+  h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95; }
+  .lead { max-width: 640px; margin: 16px auto 0; font-size: 20px; line-height: 1.55; color: var(--muted); }
+  .rule { width: 72px; height: 1px; margin: 24px auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  section { padding: 22px 0 10px; }
+  h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 40px; margin: 0 0 8px; }
+  .note { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 680px; }
+  .panel { margin-top: 16px; background: rgba(255, 253, 248, 0.8); border: 1px solid var(--line); border-radius: 22px; padding: 28px; }
+  .about p { font-size: 18px; line-height: 1.7; margin: 0 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+  .card { background: var(--cream); border: 1px solid var(--line); border-radius: 18px; padding: 18px; min-height: 130px; }
+  .card h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .tag { display: inline-block; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--leaf); margin-bottom: 8px; }
+  .cta { display: inline-block; margin-top: 16px; padding: 12px 18px; border-radius: 999px; background: linear-gradient(180deg, #4f9574, #3a7a60); color: white; font-size: 14px; }
+  .soon { font-size: 12px; color: var(--gold-deep); margin-top: 8px; }
+  .row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+  .tease { background: linear-gradient(180deg, #fff, var(--leaf-soft)); border-radius: 18px; padding: 18px; border: 1px solid var(--line); }
+  .tease h3 { font-family: "Cormorant Garamond", serif; font-size: 26px; margin: 0 0 6px; }
+  footer { margin-top: 36px; padding: 28px; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+  @media (max-width: 860px) {
+    nav { display: none; }
+    .grid, .row4 { grid-template-columns: 1fr; }
+    .panel.split { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Quinta<span>Earth</span></div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#youtube">YouTube</a>
+    <a href="#press">Press</a>
+    <a href="#news">News</a>
+    <a href="#collaborators">Collaborators</a>
+    <a href="discussion.html">Discussion</a>
+    <a href="#community">Community</a>
+  </nav>
+</header>
+<main>
+  <section class="hero" id="about">
+    <div class="kicker">A living commons</div>
+    <h1>QuintaEarth</h1>
+    <div class="rule"></div>
+    <p class="lead">A luminous place for greentech, cleantech, and the people who build with care. Sustainability as craft. A community held in the open.</p>
+  </section>
+  <section class="wrap">
+    <h2>About</h2>
+    <div class="panel about">
+      <p>QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
+      <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
+      <p>This page is the threshold. The deeper rooms — testimonials, recognitions, and generatives — open beside it.</p>
+    </div>
+  </section>
+  <section class="wrap" id="youtube">
+    <h2>YouTube</h2>
+    <div class="panel">
+      <div class="tag">Channel</div>
+      <p class="note" style="margin:0;">The QuintaEarth channel will sit here. Name, films, and links when you have them.</p>
+      <div class="soon">Details coming</div>
+    </div>
+  </section>
+  <section class="wrap" id="press">
+    <h2>Press releases</h2>
+    <p class="note">Your own releases — upcoming launches, new products, and work from companies already in the world.</p>
+    <div class="grid">
+      <article class="card"><div class="tag">Release</div><h3>Launch title</h3><p>Placeholder. Written and issued by you.</p></article>
+      <article class="card"><div class="tag">Release</div><h3>Product news</h3><p>Placeholder for a newly launching product or startup.</p></article>
+      <article class="card"><div class="tag">Release</div><h3>From an established house</h3><p>Placeholder for a release you prepare.</p></article>
+    </div>
+  </section>
+  <section class="wrap" id="news">
+    <h2>News, blogs and articles</h2>
+    <p class="note">What is new: startups, companies, and people working the same ground.</p>
+    <div class="grid">
+      <article class="card"><div class="tag">Coming</div><h3>Article title</h3><p>Your notes and pieces will live here.</p></article>
+      <article class="card"><div class="tag">Coming</div><h3>A company in the field</h3><p>Placeholder for news you choose to carry.</p></article>
+      <article class="card"><div class="tag">Coming</div><h3>A person at work</h3><p>Placeholder for people you want seen.</p></article>
+    </div>
+  </section>
+  <section class="wrap" id="collaborators">
+    <h2>Collaborators</h2>
+    <p class="note">Startups, entrepreneurs, and professionals in the same field, shown for the work they are building.</p>
+    <div class="grid">
+      <article class="card"><div class="tag">Example</div><h3>A collaborator</h3><p>Placeholder. Names and work go here when you have them.</p></article>
+      <article class="card"><div class="tag">Example</div><h3>A startup</h3><p>Placeholder. What they are making, in a few lines.</p></article>
+      <article class="card"><div class="tag">Example</div><h3>A practice</h3><p>Placeholder. Room for others on the same path.</p></article>
+    </div>
+  </section>
+  <section class="wrap" id="discussion">
+    <h2>Discussion</h2>
+    <div class="panel">
+      <div class="tag">Own room</div>
+      <p class="note" style="margin:0;">Insights and ideas about what people are building for sustainable development, greentech, and cleantech live on their own page, not here.</p>
+      <a class="cta" href="discussion.html">Open the discussion</a>
+    </div>
+  </section>
+  <section class="wrap" id="generatives">
+    <h2>Generatives</h2>
+    <div class="panel">
+      <div class="tag">Brief</div>
+      <p class="note" style="margin:0;">Actions and what is being made. Named here, expanded on its own page next.</p>
+      <div class="soon">Own page next</div>
+    </div>
+  </section>
+  <section class="wrap" id="community">
+    <h2>Community</h2>
+    <p class="note">A WhatsApp circle for collaborators, startup owners, and anyone walking the same path. Not a broadcast — a place to show what you are building.</p>
+    <div class="panel split" style="display:grid; grid-template-columns: 1.4fr 220px; gap: 28px; align-items: center;">
+      <div>
+        <div class="tag">WhatsApp</div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; margin: 0 0 8px;">Green Tech Community</h3>
+        <p class="note">Come in. Share the work, the ideas, and what you are making in greentech and cleantech.</p>
+        <a class="cta" href="https://chat.whatsapp.com/DLLpwsKL4Qf8C6aM5AvDWi?s=cl&amp;p=a&amp;mlu=4&amp;ilr=4" target="_blank" rel="noopener">Join Green Tech Community</a>
+      </div>
+      <img src="/green-tech-community-qr.jpg" alt="QR code for Green Tech Community on WhatsApp" style="width: 200px; height: auto; border-radius: 16px; background: white; justify-self: center;" />
+    </div>
+  </section>
+  <section class="wrap" id="rooms">
+    <h2>Further rooms</h2>
+    <p class="note">Named here, opened as their own pages next.</p>
+    <div class="grid">
+      <article class="tease"><h3>Testimonials</h3><p class="note">Reviews from audience, clients, collaborators, startup owners, and entrepreneurs.</p><div class="soon">Own page next</div></article>
+      <article class="tease"><h3>Recognitions</h3><p class="note">Marks of regard, held simply, on their own page.</p><div class="soon">Own page next</div></article>
+    </div>
+  </section>
+</main>
+<footer>QuintaEarth · preview, not yet published</footer>
+</body>
+</html>
