@@ -86,6 +86,39 @@
   }
   nav#site-nav a:last-child { border-bottom: 0; }
   nav#site-nav a:hover { color: #c45c26; }
+  .nav-group { width: 100%; }
+  .nav-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; margin: 0; padding: 14px 0;
+    border: 0; border-bottom: 1px solid #efe6d6;
+    background: transparent; cursor: pointer;
+    font: inherit; font-size: 16px; color: #2c2419;
+    letter-spacing: 0.02em; text-align: left;
+  }
+  .nav-toggle::after {
+    content: "";
+    width: 7px; height: 7px;
+    border-right: 1.5px solid #2c2419;
+    border-bottom: 1.5px solid #2c2419;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    margin-left: 12px; flex-shrink: 0;
+  }
+  .nav-group.is-open .nav-toggle::after { transform: rotate(-135deg); }
+  .nav-group.is-open .nav-toggle { color: #c45c26; }
+  .nav-sub {
+    display: flex; flex-direction: column;
+    padding: 4px 0 10px 14px;
+  }
+  .nav-sub[hidden] { display: none; }
+  .nav-sub a {
+    display: block; width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3ebe0;
+    color: #2c2419; font-size: 15px;
+  }
+  .nav-sub a:last-child { border-bottom: 0; }
+  .nav-sub a:hover { color: #c45c26; }
   body.menu-open { overflow: hidden; }
   .hero {
     position: relative;
@@ -191,7 +224,19 @@
 <div class="menu-backdrop" hidden></div>
 <nav id="site-nav" aria-hidden="true">
   <a href="#home">Home</a>
-  <a href="#industries">Industries</a>
+  <div class="nav-group">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="industries-sub">Industries</button>
+    <div class="nav-sub" id="industries-sub" hidden>
+      <a href="#industry-technology">Technology</a>
+      <a href="#industry-energy">Energy</a>
+      <a href="#industry-materials-science">Materials Science</a>
+      <a href="#industry-green-architecture">Green Architecture</a>
+      <a href="#industry-transportation-logistics">Transportation and Logistics</a>
+      <a href="#industry-eco-restoration">Eco-restoration</a>
+      <a href="#industry-planetary-engineering">Planetary Engineering</a>
+      <a href="#industry-advanced-technology">Advanced Technology</a>
+    </div>
+  </div>
   <a href="#insights">Insights</a>
   <a href="#press">Press Release</a>
   <a href="#datalabs">Datalabs</a>
@@ -211,11 +256,31 @@
     btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     nav.setAttribute("aria-hidden", open ? "false" : "true");
     backdrop.hidden = !open;
+    if (!open) {
+      nav.querySelectorAll(".nav-group.is-open").forEach(function (group) {
+        group.classList.remove("is-open");
+        var t = group.querySelector(".nav-toggle");
+        var sub = group.querySelector(".nav-sub");
+        if (t) t.setAttribute("aria-expanded", "false");
+        if (sub) sub.hidden = true;
+      });
+    }
   }
   btn.addEventListener("click", function () {
     setOpen(!document.body.classList.contains("menu-open"));
   });
   backdrop.addEventListener("click", function () { setOpen(false); });
+  nav.querySelectorAll(".nav-toggle").forEach(function (toggle) {
+    toggle.addEventListener("click", function () {
+      var group = toggle.closest(".nav-group");
+      var sub = group && group.querySelector(".nav-sub");
+      if (!group || !sub) return;
+      var open = !group.classList.contains("is-open");
+      group.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      sub.hidden = !open;
+    });
+  });
   nav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () { setOpen(false); });
   });
@@ -240,20 +305,6 @@
       <p>QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
       <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
       <p>This page is the threshold. The deeper rooms — testimonials, recognitions, and generatives — open beside it.</p>
-    </div>
-  </div></section>
-  <section class="band mist" id="industries"><div class="wrap">
-    <h2>Industries</h2>
-    <p class="note">Fields QuintaEarth works across — where ecology and ambition meet.</p>
-    <div class="grid">
-      <article class="card"><div class="tag">Industry</div><h3>Technology</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Energy</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Materials Science</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Green Architecture</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Transportation and Logistics</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Eco-restoration</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Planetary Engineering</h3><p>Placeholder. Stories and work in this field.</p></article>
-      <article class="card"><div class="tag">Industry</div><h3>Advanced Technology</h3><p>Placeholder. Stories and work in this field.</p></article>
     </div>
   </div></section>
   <section class="band sky" id="youtube"><div class="wrap">
