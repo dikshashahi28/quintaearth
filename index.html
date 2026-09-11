@@ -98,38 +98,43 @@
   .nav-toggle::after {
     content: "";
     width: 7px; height: 7px;
-    border-right: 1.5px solid #2c2419;
-    border-bottom: 1.5px solid #2c2419;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
     transform: rotate(45deg);
     transition: transform 0.2s ease;
     margin-left: 12px; flex-shrink: 0;
   }
-  .nav-group.is-open .nav-toggle::after { transform: rotate(-135deg); }
-  .nav-group.is-open .nav-toggle { color: #c45c26; }
+  /* only the direct toggle of an open group — no cascade into children */
+  .nav-group.is-open > .nav-toggle { color: #c45c26; }
+  .nav-group.is-open > .nav-toggle::after { transform: rotate(-135deg); }
   .nav-sub {
     display: flex; flex-direction: column;
-    padding: 4px 0 10px 14px;
+    padding: 4px 0 10px 0;
   }
-  .nav-sub[hidden] { display: none; }
-  .nav-sub a {
+  .nav-sub[hidden] { display: none !important; }
+  .nav-item {
     display: block; width: 100%;
-    padding: 10px 0;
+    padding: 10px 0 10px 14px;
     border-bottom: 1px solid #f3ebe0;
     color: #2c2419; font-size: 15px;
   }
-  .nav-sub a:last-child { border-bottom: 0; }
-  .nav-sub a:hover { color: #c45c26; }
-  .nav-group-nested { width: 100%; border-bottom: 1px solid #f3ebe0; }
+  .nav-item:hover { color: #c45c26; }
+  .nav-group-nested {
+    width: 100%;
+    border-bottom: 1px solid #f3ebe0;
+  }
   .nav-toggle-nested {
-    padding: 10px 0;
+    padding: 10px 0 10px 14px;
     border-bottom: 0;
     font-size: 15px;
   }
   .nav-sub-nested {
-    padding: 2px 0 8px 14px;
+    padding: 0 0 8px 0;
+    margin: 0;
+    border: 0;
   }
-  .nav-sub-nested a {
-    padding: 8px 0;
+  .nav-sub-nested .nav-item {
+    padding: 8px 0 8px 28px;
     font-size: 14px;
     border-bottom: 1px solid #f7f1e8;
   }
@@ -245,23 +250,23 @@
       <div class="nav-group nav-group-nested">
         <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="technology-sub">Technology</button>
         <div class="nav-sub nav-sub-nested" id="technology-sub" hidden>
-          <a href="#tech-agriculture">Agriculture</a>
-          <a href="#tech-biology">Biology</a>
-          <a href="#tech-finance">Finance</a>
-          <a href="#tech-food">Food</a>
-          <a href="#tech-nuclear">Nuclear</a>
-          <a href="#tech-ocean">Ocean</a>
-          <a href="#tech-space">Space</a>
-          <a href="#tech-water">Water</a>
+          <a class="nav-item" href="#tech-agriculture">Agriculture</a>
+          <a class="nav-item" href="#tech-biology">Biology</a>
+          <a class="nav-item" href="#tech-finance">Finance</a>
+          <a class="nav-item" href="#tech-food">Food</a>
+          <a class="nav-item" href="#tech-nuclear">Nuclear</a>
+          <a class="nav-item" href="#tech-ocean">Ocean</a>
+          <a class="nav-item" href="#tech-space">Space</a>
+          <a class="nav-item" href="#tech-water">Water</a>
         </div>
       </div>
-      <a href="#industry-energy">Energy</a>
-      <a href="#industry-materials-science">Materials Science</a>
-      <a href="#industry-green-architecture">Green Architecture</a>
-      <a href="#industry-transportation-logistics">Transportation and Logistics</a>
-      <a href="#industry-eco-restoration">Eco-restoration</a>
-      <a href="#industry-planetary-engineering">Planetary Engineering</a>
-      <a href="#industry-advanced-technology">Advanced Technology</a>
+      <a class="nav-item" href="#industry-energy">Energy</a>
+      <a class="nav-item" href="#industry-materials-science">Materials Science</a>
+      <a class="nav-item" href="#industry-green-architecture">Green Architecture</a>
+      <a class="nav-item" href="#industry-transportation-logistics">Transportation and Logistics</a>
+      <a class="nav-item" href="#industry-eco-restoration">Eco-restoration</a>
+      <a class="nav-item" href="#industry-planetary-engineering">Planetary Engineering</a>
+      <a class="nav-item" href="#industry-advanced-technology">Advanced Technology</a>
     </div>
   </div>
   <a href="#insights">Insights</a>
@@ -286,10 +291,11 @@
     if (!open) {
       nav.querySelectorAll(".nav-group.is-open").forEach(function (group) {
         group.classList.remove("is-open");
-        var t = group.querySelector(".nav-toggle");
-        var sub = group.querySelector(".nav-sub");
+        var t = group.querySelector(":scope > .nav-toggle");
+        var subId = t && t.getAttribute("aria-controls");
+        var sub = subId ? document.getElementById(subId) : null;
         if (t) t.setAttribute("aria-expanded", "false");
-        if (sub) sub.hidden = true;
+        if (sub) sub.setAttribute("hidden", "");
       });
     }
   }
@@ -298,14 +304,18 @@
   });
   backdrop.addEventListener("click", function () { setOpen(false); });
   nav.querySelectorAll(".nav-toggle").forEach(function (toggle) {
-    toggle.addEventListener("click", function () {
-      var group = toggle.closest(".nav-group");
-      var sub = group && group.querySelector(".nav-sub");
-      if (!group || !sub) return;
-      var open = !group.classList.contains("is-open");
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var group = toggle.parentElement;
+      var subId = toggle.getAttribute("aria-controls");
+      var sub = subId ? document.getElementById(subId) : null;
+      if (!group || !sub || !group.classList.contains("nav-group")) return;
+      var open = sub.hasAttribute("hidden");
       group.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      sub.hidden = !open;
+      if (open) sub.removeAttribute("hidden");
+      else sub.setAttribute("hidden", "");
     });
   });
   nav.querySelectorAll("a").forEach(function (link) {
