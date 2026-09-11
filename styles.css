@@ -1,11 +1,11 @@
 /* QuintaEarth — quiet luxury */
 :root {
-  --paper: #F4F1EA;
+  --paper: #FFFEFC;
   --ink: #1C1B18;
   --muted: #6A655C;
   --brass: #7D6A4F;
   --line: #D8D2C6;
-  --paper-elevated: #FBF9F4;
+  --paper-elevated: #FFFFFF;
   --focus: #7D6A4F;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
