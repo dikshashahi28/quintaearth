@@ -55,6 +55,7 @@ body {
   font-weight: 400;
   font-size: 1.0625rem;
   line-height: 1.55;
+  overflow-x: hidden;
   overflow-x: clip;
 }
 
@@ -137,9 +138,10 @@ textarea {
   top: 0;
   z-index: 2;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: var(--s-4);
+  gap: var(--s-2) var(--s-4);
   min-height: 3.25rem;
   padding: calc(env(safe-area-inset-top, 0px) + var(--s-1)) var(--gutter-end) var(--s-1) var(--gutter);
   background: color-mix(in srgb, var(--paper) 92%, var(--ink));
@@ -359,8 +361,11 @@ main,
 }
 
 #brainerd-note:not([hidden]) {
-  display: inline;
-  margin-left: var(--s-3);
+  display: inline-block;
+  margin-top: var(--s-2);
+  margin-left: 0;
+  max-width: 62ch;
+  overflow-wrap: anywhere;
 }
 
 .form:not([hidden]) {
@@ -440,6 +445,7 @@ dialog#index::backdrop {
 dialog#index .contents {
   margin-top: var(--s-6);
   max-width: var(--col);
+  min-width: 0;
 }
 
 .index-head {
@@ -665,4 +671,16 @@ dialog#index .contents {
 
 .section .cta {
   margin-top: var(--s-3);
+}
+
+/* Community CTA + empty-invite note stack on narrow widths */
+#community > p:has(.cta) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-3);
+}
+
+#community > p:has(.cta) .cta {
+  margin-top: 0;
 }

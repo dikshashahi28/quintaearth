@@ -16,25 +16,58 @@ const formSlot = document.getElementById("contact-slot");
 const topicField = document.getElementById("contact-topic");
 
 if (openBtn && dialog && closeBtn) {
+  let restoreFocus = true;
   openBtn.addEventListener("click", () => {
     dialog.showModal();
     openBtn.setAttribute("aria-expanded", "true");
   });
-  closeBtn.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("close", () => openBtn.setAttribute("aria-expanded", "false"));
-  dialog.addEventListener("click", (e) => {
-    if (e.target.closest("a")) dialog.close();
+  closeBtn.addEventListener("click", () => {
+    restoreFocus = true;
+    dialog.close();
   });
+  dialog.addEventListener("close", () => {
+    openBtn.setAttribute("aria-expanded", "false");
+    if (restoreFocus && document.body.contains(openBtn)) openBtn.focus();
+    restoreFocus = true;
+  });
+  dialog.addEventListener("click", (e) => {
+    const link = e.target.closest("a");
+    if (!link) return;
+    const href = link.getAttribute("href") || "";
+    if (href.startsWith("#")) {
+      // Leave focus on the in-page target instead of bouncing back to Index.
+      restoreFocus = false;
+      dialog.close();
+      const id = href.slice(1).split("?")[0];
+      const target = id && document.getElementById(id);
+      if (target) {
+        if (!target.hasAttribute("tabindex")) target.tabIndex = -1;
+        target.focus({ preventScroll: true });
+      }
+      return;
+    }
+    restoreFocus = true;
+    dialog.close();
+  });
+  // Escape is handled by the native modal dialog; close handler restores focus.
 }
 
-if (cta && BRAINERD_INVITE_URL) {
-  cta.href = BRAINERD_INVITE_URL;
-  cta.textContent = de ? "Brainerd auf WhatsApp beitreten" : "Join Brainerd on WhatsApp";
-  cta.rel = "noopener";
-  cta.target = "_blank";
-  if (ctaNote) {
+if (cta) {
+  if (BRAINERD_INVITE_URL) {
+    cta.href = BRAINERD_INVITE_URL;
+    cta.textContent = de ? "Brainerd auf WhatsApp beitreten" : "Join Brainerd on WhatsApp";
+    cta.rel = "noopener";
+    cta.target = "_blank";
+    if (ctaNote) {
+      ctaNote.hidden = false;
+      ctaNote.textContent = de ? "öffnet WhatsApp" : "opens WhatsApp";
+    }
+  } else if (ctaNote) {
+    // Invite not confirmed: keep Contact route, surface honest empty state (no dead end).
     ctaNote.hidden = false;
-    ctaNote.textContent = de ? "öffnet WhatsApp" : "opens WhatsApp";
+    ctaNote.textContent = de
+      ? "Einladung noch nicht live — Adresse folgt unter Kontakt."
+      : "Invite not live yet — address follows under Contact.";
   }
 }
 
