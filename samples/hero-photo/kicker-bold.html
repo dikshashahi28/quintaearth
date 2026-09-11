@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sample · Living commons bold · QuintaEarth</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #3f3426; background: #FFFFFE; font-family: Outfit, sans-serif; font-weight: 300; }
+  a { color: #c45c26; }
+  .bar { padding: 14px 20px; border-bottom: 1px solid #e6dcc8; font-size: 13px; color: #6d5c45; }
+  .bar strong { color: #3f3426; font-weight: 500; }
+  header {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    background: rgba(255,255,255,0.94);
+    border-bottom: 1px solid #e6dcc8;
+  }
+  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
+  .brand span { color: #c45c26; }
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 88px 20px 72px;
+    min-height: 52vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: transparent;
+  }
+  .hero-photo {
+    position: absolute; inset: 0; z-index: 0;
+    background: center / cover no-repeat url("../assets/hero-bg.jpg");
+  }
+  .hero-inner {
+    position: relative; z-index: 1; max-width: 900px; padding: 28px 18px;
+  }
+  .hero-inner::before {
+    content: "";
+    position: absolute; z-index: -1;
+    left: 50%; top: 50%;
+    width: min(920px, 118%);
+    height: 118%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at center, rgba(20, 28, 18, 0.55) 0%, rgba(20, 28, 18, 0.28) 48%, rgba(20, 28, 18, 0) 76%);
+    pointer-events: none;
+  }
+  .hero .kicker {
+    letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px;
+    color: #FFFEFC;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 18px rgba(0,0,0,0.35);
+  }
+  .hero h1 {
+    font-family: "Cormorant Garamond", serif; font-weight: 500;
+    font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95;
+    color: #FFFEFC;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.55), 0 0 22px rgba(0,0,0,0.35);
+  }
+  .hero .lead.quote {
+    font-family: "Cormorant Garamond", serif; font-weight: 500; font-style: italic;
+    font-size: 17px; line-height: 1.6; color: #FFFEFC; max-width: 820px; margin: 16px auto 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.35);
+  }
+  .hero .rule {
+    width: 72px; height: 1px; margin: 24px auto;
+    background: linear-gradient(90deg, transparent, #F0E2C4, transparent);
+    box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  }
+  .note { padding: 24px 20px; max-width: 640px; margin: 0 auto; color: #6d5c45; font-size: 14px; line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="bar"><strong>Sample only</strong> · “A LIVING COMMONS” in bold · live site unchanged · <a href="https://dikshashahi28.github.io/quintaearth/">Live site</a></div>
+<header>
+  <div class="brand">Quinta<span>Earth</span></div>
+  <div style="font-size:13px;color:#6d5c45;">☰</div>
+</header>
+<section class="hero" id="home">
+  <div class="hero-photo" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="kicker">A living commons</div>
+    <h1>QuintaEarth</h1>
+    <div class="rule"></div>
+    <p class="lead quote">“The future isn’t about using less; it’s about engineering better. Here we are bridging the gap between ecological health and technological ambition.”</p>
+  </div>
+</section>
+<p class="note">Only the kicker is bold here. Say yes if you want this on the live hero.</p>
+</body>
+</html>
