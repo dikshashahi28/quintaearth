@@ -138,14 +138,16 @@
     background: transparent;
   }
   .nav-sub-nested[hidden] { display: none !important; }
-  .nav-sub-nested .nav-item {
+  nav#site-nav .nav-sub-nested a,
+  nav#site-nav .nav-sub-nested .nav-item {
     padding: 10px 0;
     font-size: 14px;
     font-weight: 400;
     color: #5c4a36;
-    border: 0;
-    border-bottom: 0;
-    border-top: 0;
+    border: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
   }
   .nav-item-peer {
     padding: 10px 0 10px 14px;
