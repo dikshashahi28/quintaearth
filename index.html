@@ -28,6 +28,26 @@
   }
   .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
   .brand span { color: #c45c26; }
+
+  .brand.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    line-height: 0;
+  }
+  .brand.brand-logo img {
+    display: block;
+    height: 40px;
+    width: auto;
+    max-width: min(240px, 58vw);
+    object-fit: contain;
+  }
+  @media (max-width: 600px) {
+    .brand.brand-logo img { height: 34px; }
+  }
+
   .menu-btn {
     display: inline-flex;
     width: 40px; height: 40px;
@@ -383,7 +403,9 @@
 </head>
 <body>
 <header>
-  <div class="brand">Quinta<span>Earth</span></div>
+  <a class="brand brand-logo" href="#home" aria-label="QuintaEarth home">
+    <img src="assets/logo-quintaearth.png" alt="QuintaEarth" width="220" height="40"/>
+  </a>
   <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
     <span></span><span></span><span></span>
   </button>
