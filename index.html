@@ -300,46 +300,66 @@
 
   #youtube .wrap { text-align: center; }
   #youtube .yt-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     max-width: 680px;
     margin: 0 auto;
-    padding: 36px 40px 40px;
-    background: #F3F5EC;
+    padding: 48px 40px 44px;
     border: 1px solid #d5dbc8;
     text-align: center;
+    background-color: #24301A;
+    background-image: url("assets/youtube-bg.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  #youtube .yt-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 45%, rgba(20, 28, 12, 0.55), rgba(20, 28, 12, 0.72)),
+      linear-gradient(180deg, rgba(20, 28, 12, 0.35), rgba(20, 28, 12, 0.55));
   }
   #youtube .yt-card .tag {
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #6B7A45;
+    color: #E8EDE0;
     margin-bottom: 14px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.35);
   }
   #youtube .yt-card h2 {
     margin: 0 0 10px;
-    color: #24301A;
+    color: #FFFFFE;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.4);
   }
   #youtube .yt-card p {
     margin: 0;
     font-size: 16px;
     line-height: 1.65;
-    color: #5c4a36;
+    color: #F3F5EC;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.35);
   }
   #youtube .yt-btn {
     display: inline-block;
     margin-top: 18px;
     padding: 10px 18px;
-    border: 1px solid #24301A;
-    color: #24301A;
+    border: 1px solid #FFFFFE;
+    color: #FFFFFE;
     text-decoration: none;
     font-size: 14px;
     letter-spacing: 0.02em;
+    background: transparent;
   }
   #youtube .yt-btn:hover {
-    background: #24301A;
-    color: #F3F5EC;
+    background: #FFFFFE;
+    color: #24301A;
   }
   @media (max-width: 600px) {
-    #youtube .yt-card { padding: 28px 22px; }
+    #youtube .yt-card { padding: 36px 22px; }
   }
 
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 18px; }
