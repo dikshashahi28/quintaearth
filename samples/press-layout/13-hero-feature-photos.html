@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Press Release sample — Hero feature + photos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #FFFFFE; color: #2c2419; }
+  .label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #6B7A45; padding: 16px 20px 8px; margin: 0; }
+  .band { padding: 28px 0 48px; }
+  .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+  h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 36px; margin: 0 0 12px; color: #24301A; }
+  h3 { font-family: "Cormorant Garamond", serif; font-weight: 500; margin: 0 0 8px; color: #24301A; }
+  .note { font-size: 15px; line-height: 1.65; max-width: 640px; margin: 0 0 22px; color: #5c4a36; }
+  .tag { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6B7A45; margin-bottom: 8px; }
+  p { margin: 0; font-size: 14px; line-height: 1.55; color: #5c4a36; }
+  .ph { background-size: cover; background-position: center; background-repeat: no-repeat; }
+</style>
+</head>
+<body>
+<p class="label">Sample 13 — Hero feature + photos</p>
+
+<style>
+  .hero {
+    display: grid; grid-template-columns: 1.35fr 1fr; gap: 0;
+    border: 1px solid #d5dbc8; overflow: hidden; margin-bottom: 14px; background: #FFFFFE;
+  }
+  @media (max-width: 800px) { .hero { grid-template-columns: 1fr; } }
+  .hero .ph { min-height: 280px; }
+  .hero .body { padding: 28px 26px; display: flex; flex-direction: column; justify-content: center; }
+  .hero h3 { font-size: 30px; }
+  .hero p { font-size: 15px; max-width: 360px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .mini { display: grid; grid-template-columns: 140px 1fr; gap: 0; border: 1px solid #d5dbc8; overflow: hidden; background: #FFFFFE; }
+  .mini .ph { min-height: 110px; }
+  .mini .body { padding: 14px 16px; }
+  @media (max-width: 500px) { .mini { grid-template-columns: 1fr; } .mini .ph { min-height: 140px; } }
+</style>
+<section class="band"><div class="wrap">
+  <h2>Press Release</h2>
+  <p class="note">This is QuintaEarth’s press desk — a clear public record of launches, partnerships, and milestones for greentech and cleantech companies, written so the work can be seen, quoted, and carried forward.</p>
+  <article class="hero">
+    <div class="ph" style="background-image:url('../../assets/hero-bg.jpg')"></div>
+    <div class="body"><div class="tag">Latest</div><h3>Launch title</h3><p>Placeholder. Written and issued by you — the lead story of the desk.</p></div>
+  </article>
+  <div class="row">
+    <article class="mini"><div class="ph" style="background-image:url('../../assets/youtube-bg.jpg')"></div><div class="body"><div class="tag">Release</div><h3>Product news</h3><p>Placeholder for a newly launching product.</p></div></article>
+    <article class="mini"><div class="ph" style="background-image:url('../../assets/youtube-banner-2560.jpg')"></div><div class="body"><div class="tag">Release</div><h3>Established house</h3><p>Placeholder for a release you prepare.</p></div></article>
+  </div>
+</div></section>
+</body></html>
