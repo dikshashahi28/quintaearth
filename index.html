@@ -327,112 +327,88 @@
     font-size: 15px;
     line-height: 1.65;
   }
-  #press .press-hero {
+  #press .press-mosaic {
     display: grid;
-    grid-template-columns: 1.35fr 1fr;
-    gap: 0;
-    border: 1px solid #6B7A45;
-    overflow: hidden;
-    margin-bottom: 14px;
-    background: #FFFFFE;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 12px;
+  }
+  #press .press-mosaic .side {
+    display: grid;
+    gap: 12px;
   }
   @media (max-width: 800px) {
-    #press .press-hero { grid-template-columns: 1fr; }
+    #press .press-mosaic { grid-template-columns: 1fr; }
   }
-  #press .press-hero .ph {
-    min-height: 280px;
+  #press .press-tile {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid #6B7A45;
+    min-height: 220px;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+  #press .press-tile.big { min-height: 452px; }
+  #press .press-tile .ph {
+    position: absolute;
+    inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    transition: transform 0.45s ease;
   }
-  #press .press-hero .body {
-    padding: 28px 26px;
+  #press .press-tile:hover .ph { transform: scale(1.04); }
+  #press .press-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(180deg, rgba(20,28,12,0.1), rgba(20,28,12,0.72));
+  }
+  #press .press-tile .body {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    height: 100%;
+    min-height: inherit;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
   }
-  #press .press-hero h3 {
+  #press .press-tile .tag {
+    color: #E8EDE0;
+    margin-bottom: 8px;
+  }
+  #press .press-tile h3 {
+    color: #FFFFFE;
     font-family: "Cormorant Garamond", serif;
     font-weight: 500;
-    font-size: 30px;
+    font-size: 26px;
     margin: 0 0 8px;
-    color: #24301A;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.35);
   }
-  #press .press-hero p {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.55;
-    color: #5c4a36;
-    max-width: 360px;
-  }
-  #press .press-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  @media (max-width: 720px) {
-    #press .press-row { grid-template-columns: 1fr; }
-  }
-  #press .press-mini {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 0;
-    border: 1px solid #6B7A45;
-    overflow: hidden;
-    background: #FFFFFE;
-  }
-  #press .press-mini .ph {
-    min-height: 110px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  #press .press-mini .body { padding: 14px 16px; }
-  #press .press-mini h3 {
-    font-family: "Cormorant Garamond", serif;
-    font-weight: 500;
-    font-size: 22px;
-    margin: 0 0 6px;
-    color: #24301A;
-  }
-  #press .press-mini p {
+  #press .press-tile p {
+    color: #F3F5EC;
     margin: 0;
     font-size: 14px;
     line-height: 1.55;
-    color: #5c4a36;
-  }
-  @media (max-width: 500px) {
-    #press .press-mini { grid-template-columns: 1fr; }
-    #press .press-mini .ph { min-height: 140px; }
-  }
-  #press .press-hero .ph,
-  #press .press-mini .ph {
-    transition: transform 0.45s ease;
-  }
-  #press .press-hero:hover .ph,
-  #press .press-mini:hover .ph {
-    transform: scale(1.04);
-  }
-  #press .press-hero,
-  #press .press-mini {
-    overflow: hidden;
   }
   #press .press-read {
     display: inline-block;
     margin-top: 12px;
     font-size: 13px;
     letter-spacing: 0.02em;
-    color: #24301A;
+    color: #F3F5EC;
     text-decoration: none;
-    border-bottom: 1px solid #6B7A45;
+    border-bottom: 1px solid rgba(243,245,236,0.55);
     padding-bottom: 2px;
   }
   #press .press-read:hover {
-    color: #c45c26;
-    border-bottom-color: #c45c26;
+    color: #FFFFFE;
+    border-bottom-color: #FFFFFE;
   }
-
-
   #press .press-archives {
     margin-top: 28px;
     padding: 22px 20px 24px;
@@ -846,34 +822,36 @@
   <section class="band gold" id="press"><div class="wrap">
     <h2>Press Release</h2>
     <p class="note">Official releases from the practice: upcoming products, client announcements, and stories from startups already building cleaner industry across energy, materials, and the living commons.</p>
-    <article class="press-hero">
-      <div class="ph" style="background-image:url('assets/hero-bg.jpg')" aria-hidden="true"></div>
-      <div class="body">
-        <div class="tag">Latest</div>
-        <h3>Launch title</h3>
-        <p>Placeholder. Written and issued by you — the lead story of the desk.</p>
-        <a class="press-read" href="#press-archives">Read release →</a>
+    <div class="press-mosaic">
+      <article class="press-tile big">
+        <div class="ph" style="background-image:url('assets/hero-bg.jpg')" aria-hidden="true"></div>
+        <div class="body">
+          <div class="tag">Latest</div>
+          <h3>Launch title</h3>
+          <p>Placeholder. Written and issued by you.</p>
+          <a class="press-read" href="#press-archives">Read release →</a>
+        </div>
+      </article>
+      <div class="side">
+        <article class="press-tile">
+          <div class="ph" style="background-image:url('assets/youtube-bg.jpg')" aria-hidden="true"></div>
+          <div class="body">
+            <div class="tag">Release</div>
+            <h3>Product news</h3>
+            <p>Placeholder product launch.</p>
+            <a class="press-read" href="#press-archives">Read release →</a>
+          </div>
+        </article>
+        <article class="press-tile">
+          <div class="ph" style="background-image:url('assets/youtube-banner-2560.jpg')" aria-hidden="true"></div>
+          <div class="body">
+            <div class="tag">Release</div>
+            <h3>Established house</h3>
+            <p>Placeholder release.</p>
+            <a class="press-read" href="#press-archives">Read release →</a>
+          </div>
+        </article>
       </div>
-    </article>
-    <div class="press-row">
-      <article class="press-mini">
-        <div class="ph" style="background-image:url('assets/youtube-bg.jpg')" aria-hidden="true"></div>
-        <div class="body">
-          <div class="tag">Release</div>
-          <h3>Product news</h3>
-          <p>Placeholder for a newly launching product.</p>
-          <a class="press-read" href="#press-archives">Read release →</a>
-        </div>
-      </article>
-      <article class="press-mini">
-        <div class="ph" style="background-image:url('assets/youtube-banner-2560.jpg')" aria-hidden="true"></div>
-        <div class="body">
-          <div class="tag">Release</div>
-          <h3>Established house</h3>
-          <p>Placeholder for a release you prepare.</p>
-          <a class="press-read" href="#press-archives">Read release →</a>
-        </div>
-      </article>
     </div>
     <aside class="press-archives" id="press-archives">
       <h3>Archives</h3>
