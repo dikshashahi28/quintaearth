@@ -27,28 +27,27 @@
     min-height: 58vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     overflow: hidden;
-    background: transparent;
+    background: #FFFFFE;
   }
   .hero-photo {
     position: absolute; inset: 0; z-index: 0;
     background: center / cover no-repeat url("img/18-city-park-green.jpg");
+    opacity: 0.22;
+    filter: saturate(0.65) brightness(1.08) contrast(0.95);
   }
   .hero-inner { position: relative; z-index: 2; }
   .kicker {
     letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #c45c26;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.55), 0 0 18px rgba(255,255,255,0.35);
   }
   h1 {
     font-family: "Cormorant Garamond", serif; font-weight: 500;
     font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95;
-    color: #2c2419;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.7), 0 0 22px rgba(255,255,255,0.4);
+    color: #3f3426;
   }
   .rule { width: 72px; height: 1px; margin: 24px auto; background: linear-gradient(90deg, transparent, #c4a15a, transparent); }
   .lead.quote {
     font-family: "Cormorant Garamond", serif; font-weight: 500; font-style: italic;
-    font-size: 16px; line-height: 1.55; max-width: 820px; margin: 0 auto; color: #2c2419;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.75), 0 0 20px rgba(255,255,255,0.45);
+    font-size: 16px; line-height: 1.55; max-width: 820px; margin: 0 auto; color: #5c4a36;
   }
   .below { padding: 24px 20px 48px; max-width: 680px; margin: 0 auto; color: #6d5c45; font-size: 14px; line-height: 1.6; }
   .about-fake { padding: 28px 20px; max-width: 640px; margin: 0 auto; border-top: 1px solid #d9cbb4; }
@@ -72,7 +71,7 @@
 </section>
 <div class="about-fake">
   <h2>About</h2>
-  <p style="color:#5c4a36;line-height:1.65;font-size:15px;">Only the hero above has the photo. About and the rest stay plain — matching your marked section.</p>
+  <p style="color:#5c4a36;line-height:1.65;font-size:15px;">Hero photo is subtle (faded) so the type stays clear. About below stays plain.</p>
 </div>
 <p class="below">Urban nature — city meets canopy. Reply with this number if you want it on the live site.</p>
 </body>

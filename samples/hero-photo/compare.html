@@ -13,7 +13,8 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; margin-top: 28px; }
   a.card { display: block; border: 1px solid #e6dcc8; background: #fff; text-decoration: none; color: inherit; overflow: hidden; }
   a.card:hover { border-color: #c4a15a; }
-  .thumb { height: 150px; background: center / cover no-repeat #eee; }
+  .thumb { height: 150px; background-color: #FFFFFE; background-position: center; background-size: cover; background-repeat: no-repeat; opacity: 1; position: relative; }
+  .thumb::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,254,0.72); }
   .meta { padding: 14px 16px 16px; }
   .tag { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #c45c26; margin-bottom: 4px; }
   a.card h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 22px; margin: 0 0 6px; }
@@ -24,7 +25,7 @@
 <body>
 <div class="wrap">
   <h1>Hero photo backgrounds · 30</h1>
-  <p class="lead">For the marked hero section only. Full photograph (no white sheet). Live homepage unchanged until you pick a number.</p>
+  <p class="lead">For the marked hero section only. Subtle faded photograph behind clear type (no loud image, no heavy white sheet). Live homepage unchanged until you pick a number.</p>
   <div class="grid">
     <a class="card" href="01.html">
       <div class="thumb" style="background-image:url('img/01-soft-forest-light.jpg')"></div>
