@@ -320,67 +320,108 @@
   #about .about p:last-child { margin-bottom: 0; }
 
   #youtube .wrap { text-align: center; }
-  #youtube .yt-card {
+  #youtube .yt-cover {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    max-width: 680px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 48px 40px 44px;
+    aspect-ratio: 16 / 9;
     border: 1px solid #d5dbc8;
-    text-align: center;
-    background-color: #24301A;
+    background: #24301A center / cover no-repeat;
     background-image: url("assets/youtube-bg.jpg");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+    cursor: pointer;
   }
-  #youtube .yt-card::before {
+  #youtube .yt-cover::before {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(ellipse 70% 55% at 50% 45%, rgba(20, 28, 12, 0.55), rgba(20, 28, 12, 0.72)),
-      linear-gradient(180deg, rgba(20, 28, 12, 0.35), rgba(20, 28, 12, 0.55));
+    z-index: 0;
+    background: radial-gradient(ellipse 70% 55% at 50% 45%, rgba(20,28,12,0.4), rgba(20,28,12,0.65));
   }
-  #youtube .yt-card .tag {
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #E8EDE0;
-    margin-bottom: 14px;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.35);
+  #youtube .yt-cover .yt-play {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid #FFFFFE;
+    background: rgba(20, 28, 12, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
   }
-  #youtube .yt-card h2 {
-    margin: 0 0 10px;
-    color: #FFFFFE;
-    text-shadow: 0 1px 12px rgba(0,0,0,0.4);
+  #youtube .yt-cover .yt-play::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    margin-left: 4px;
+    border-left: 18px solid #FFFFFE;
+    border-top: 11px solid transparent;
+    border-bottom: 11px solid transparent;
   }
-  #youtube .yt-card p {
+  #youtube .yt-cover .yt-caption {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 18px;
     margin: 0;
-    font-size: 16px;
-    line-height: 1.65;
     color: #F3F5EC;
-    text-shadow: 0 1px 10px rgba(0,0,0,0.35);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 28px;
+    font-weight: 500;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.45);
+    pointer-events: none;
+  }
+  #youtube .yt-cover .yt-player {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #000;
+  }
+  #youtube .yt-cover .yt-player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  #youtube .yt-cover.is-playing::before,
+  #youtube .yt-cover.is-playing .yt-play,
+  #youtube .yt-cover.is-playing .yt-caption {
+    display: none;
+  }
+  #youtube .yt-cover.is-playing .yt-player {
+    display: block;
+  }
+  #youtube .yt-sub {
+    max-width: 520px;
+    margin: 16px auto 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #5c4a36;
   }
   #youtube .yt-btn {
     display: inline-block;
-    margin-top: 18px;
+    margin-top: 14px;
     padding: 10px 18px;
-    border: 1px solid #FFFFFE;
-    color: #FFFFFE;
+    border: 1px solid #24301A;
+    color: #24301A;
     text-decoration: none;
     font-size: 14px;
     letter-spacing: 0.02em;
     background: transparent;
   }
   #youtube .yt-btn:hover {
-    background: #FFFFFE;
-    color: #24301A;
-  }
-  @media (max-width: 600px) {
-    #youtube .yt-card { padding: 36px 22px; }
+    background: #24301A;
+    color: #F3F5EC;
   }
 
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 18px; }
@@ -628,6 +669,29 @@
   });
 })();
 </script>
+<script>
+
+(function () {
+  var cover = document.getElementById("yt-cover");
+  if (!cover) return;
+  function play() {
+    if (cover.classList.contains("is-playing")) return;
+    var frame = cover.querySelector("iframe");
+    if (frame && frame.getAttribute("data-src")) {
+      frame.src = frame.getAttribute("data-src");
+    }
+    cover.classList.add("is-playing");
+    cover.setAttribute("aria-label", "QuintaEarth video playing");
+  }
+  cover.addEventListener("click", play);
+  cover.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      play();
+    }
+  });
+})();
+</script>
 <main>
   <section class="hero" id="home">
     <div class="hero-photo" aria-hidden="true"></div>
@@ -647,11 +711,16 @@
     </div>
   </div></section>
   <section class="band sky" id="youtube"><div class="wrap">
-    <div class="yt-card">
-      <h2>YouTube</h2>
-      <p>Films, maker notes, and greentech conversations from QuintaEarth.</p>
-      <a class="yt-btn" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
+    <h2>YouTube</h2>
+    <div class="yt-cover" id="yt-cover" role="button" tabindex="0" aria-label="Play QuintaEarth video">
+      <div class="yt-play" aria-hidden="true"></div>
+      <p class="yt-caption">Watch</p>
+      <div class="yt-player">
+        <iframe data-src="https://www.youtube-nocookie.com/embed/T_udYF5L6OQ?autoplay=1&rel=0" title="QuintaEarth — Earth is our home" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
+    <p class="yt-sub">Films, maker notes, and greentech conversations from QuintaEarth.</p>
+    <a class="yt-btn" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
   </div></section>
   <section class="band gold" id="press"><div class="wrap">
     <h2>Press releases</h2>
