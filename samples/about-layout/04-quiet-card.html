@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>About sample — Quiet card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: Inter, system-ui, sans-serif;
+    background: #FFFFFE; color: #2c2419;
+  }
+  .label {
+    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #6B7A45; padding: 16px 20px 0; margin: 0;
+  }
+  .band { padding: 28px 0 48px; background: #FFFFFE; }
+  .band::before {
+    content: ""; display: block;
+    width: min(920px, calc(100% - 64px));
+    height: 1px; margin: 0 auto 20px; background: #d9cbb4;
+  }
+  .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+  .band h2 {
+    font-family: "Cormorant Garamond", serif; font-weight: 500;
+    font-size: 36px; margin: 0 0 14px; letter-spacing: -0.01em;
+  }
+  p { margin: 0 0 10px; }
+</style>
+</head>
+<body>
+<p class="label">Sample 4 — Quiet card</p>
+
+<style>
+  #about .wrap { text-align: center; }
+  .card {
+    max-width: 680px; margin: 8px auto 0;
+    padding: 36px 40px 40px;
+    background: #F3F5EC;
+    border: 1px solid #d5dbc8;
+    text-align: center;
+  }
+  .card h2 { margin: 0 0 18px; color: #24301A; }
+  .card p { font-size: 16px; line-height: 1.65; color: #5c4a36; }
+  .card p:last-child { margin: 0; }
+  @media (max-width: 600px) { .card { padding: 28px 22px; } }
+</style>
+<section class="band" id="about"><div class="wrap">
+  <div class="card">
+    <h2>About</h2>
+    <p>QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
+    <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
+    <p>This page is the threshold. The deeper rooms — testimonials, recognitions, and generatives — open beside it.</p>
+  </div>
+</div></section>
+</body></html>
