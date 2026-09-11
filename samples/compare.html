@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuintaEarth — Compare partner samples</title>
+<style>
+:root{
+  --paper:#F4F1EA; --ink:#1C1B18; --muted:#6A655C; --brass:#7D6A4F; --line:#D8D2C6; --elev:#FBF9F4;
+  --ease:240ms cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Source Sans Pro",Inter,Geist,"Segoe UI",system-ui,sans-serif;
+  font-size:1.0625rem; line-height:1.65;
+}
+a{color:var(--brass)}
+a:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--brass); outline-offset:3px}
+.sample-badge{
+  position:sticky; top:0; z-index:20; padding:.4rem 1rem;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper);
+}
+.wrap{width:min(56rem, calc(100% - 2.5rem)); margin:0 auto; padding:2.75rem 0 3.5rem}
+h1{
+  margin:0 0 .75rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500;
+  font-size:clamp(2rem, 5vw, 2.8rem); letter-spacing:-.02em;
+}
+.lead{margin:0 0 2rem; color:var(--muted); max-width:40rem}
+.grid{display:grid; gap:1rem}
+.card{
+  display:block; padding:1.5rem 1.4rem; border:1px solid var(--line); background:var(--elev);
+  text-decoration:none; color:inherit;
+  transition:border-color var(--ease), transform var(--ease);
+}
+.card:hover{border-color:var(--brass); transform:translateY(-2px)}
+.card .tag{display:block; margin-bottom:.45rem; font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brass)}
+.card h2{margin:0 0 .45rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.45rem}
+.card p{margin:0; color:var(--muted); font-size:.95rem}
+.card .go{display:inline-block; margin-top:1rem; color:var(--brass); font-size:.9rem}
+.meta{margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem}
+.meta code{font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="sample-badge">SAMPLE hub — not live</div>
+<main class="wrap">
+  <h1>Compare QuintaEarth samples</h1>
+  <p class="lead">Three competing partner angles + a temporary components kit. Same product (sustainable-luxury PR, craft CSR, Brainerd, Europe ↔ SEA). Pick the craft that beats Greenhouse — don’t clone it.</p>
+  <div class="grid">
+    <a class="card" href="partner-greenhouse.html">
+      <span class="tag">Partner A</span>
+      <h2>Greenhouse craft</h2>
+      <p>Calm practice desk — clear purpose, story shapes, early Join Brainerd. QuintaEarth voice, not NGO “positive change”.</p>
+      <span class="go">Open sample →</span>
+    </a>
+    <a class="card" href="partner-agora.html">
+      <span class="tag">Partner B</span>
+      <h2>Agora intelligence</h2>
+      <p>Structured rooms for Press, Collaborators, Reports, Community, Discussion. EN/DE nod, quiet data feel.</p>
+      <span class="go">Open sample →</span>
+    </a>
+    <a class="card" href="partner-pact.html">
+      <span class="tag">Partner C</span>
+      <h2>Pact editorial</h2>
+      <p>Manifesto + scroll-tour chapters. Fashion Pact pacing, PR practice voice — not a coalition site.</p>
+      <span class="go">Open sample →</span>
+    </a>
+    <a class="card" href="components.html">
+      <span class="tag">Kit</span>
+      <h2>Components</h2>
+      <p>Temporary UI kit: tokens, type, buttons, header, hero, story card, empty state, Join CTA, motion.</p>
+      <span class="go">Open kit →</span>
+    </a>
+  </div>
+  <p class="meta">Preview locally: <code>http://127.0.0.1:8766/samples/compare.html</code> · No fake clients · No AI image mockups</p>
+</main>
+</body>
+</html>

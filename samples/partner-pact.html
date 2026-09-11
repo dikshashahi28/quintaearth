@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuintaEarth — Partner sample: Pact editorial</title>
+<style>
+:root{
+  --paper:#F4F1EA; --ink:#1C1B18; --muted:#6A655C; --brass:#7D6A4F; --line:#D8D2C6; --elev:#FBF9F4;
+  --ease:280ms cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .chapter{opacity:1!important; transform:none!important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Source Sans Pro",Inter,Geist,"Segoe UI",system-ui,sans-serif;
+  font-size:1.1rem; line-height:1.7;
+}
+a{color:var(--brass); text-underline-offset:.2em}
+a:hover{color:var(--ink)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--brass); outline-offset:3px}
+.sample-badge{
+  position:sticky; top:0; z-index:60; padding:.4rem 1rem;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper);
+}
+.skip{
+  position:absolute; left:1rem; top:0; z-index:70; padding:.65rem 1rem;
+  background:var(--ink); color:var(--paper); text-decoration:none;
+  transform:translateY(-120%); transition:transform 150ms ease;
+}
+.skip:focus{transform:translateY(0)}
+.wrap{width:min(46rem, calc(100% - 2.5rem)); margin-inline:auto}
+.wrap-wide{width:min(64rem, calc(100% - 2.5rem)); margin-inline:auto}
+.site-header{
+  position:sticky; top:1.7rem; z-index:40;
+  background:color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.inner{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1rem 0; width:min(64rem, calc(100% - 2.5rem)); margin-inline:auto;
+}
+.brand{
+  font-family:"Crimson Pro","Cormorant Garamond",Georgia,serif;
+  font-size:1.35rem; color:var(--ink); text-decoration:none; letter-spacing:-.01em;
+}
+.brand span{color:var(--brass)}
+.nav{display:flex; gap:1.2rem; flex-wrap:wrap; font-size:.88rem; color:var(--muted)}
+.nav a{color:inherit; text-decoration:none}
+.nav a:hover{color:var(--ink)}
+.menu-btn{
+  display:none; width:2.5rem; height:2.5rem; border:0; background:transparent; cursor:pointer;
+  flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:0;
+}
+.menu-btn span{display:block; width:1.35rem; height:1.5px; background:var(--ink); transition:transform var(--ease), opacity var(--ease)}
+.site-header.is-open .menu-btn span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.site-header.is-open .menu-btn span:nth-child(2){opacity:0}
+.site-header.is-open .menu-btn span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.manifesto{
+  padding:5rem 0 3.5rem; text-align:left; border-bottom:1px solid var(--line);
+}
+.kicker{margin:0 0 1.25rem; font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; color:var(--brass)}
+.manifesto h1{
+  margin:0 0 1.5rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500;
+  font-size:clamp(2.8rem, 8vw, 5rem); line-height:.98; letter-spacing:-.03em;
+}
+.manifesto .dek{
+  margin:0; font-family:"Crimson Pro",Georgia,serif; font-style:italic; font-weight:500;
+  font-size:clamp(1.25rem, 2.5vw, 1.55rem); line-height:1.45; color:color-mix(in srgb, var(--ink) 82%, var(--muted));
+  max-width:34rem;
+}
+.early{
+  margin-top:2.25rem; display:flex; flex-wrap:wrap; gap:.9rem; align-items:center;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.85rem 1.3rem; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+  text-decoration:none; font:inherit; font-size:.95rem;
+  transition:background var(--ease), border-color var(--ease), color var(--ease), transform var(--ease);
+}
+.btn:hover{background:var(--brass); border-color:var(--brass)}
+.btn:active{transform:translateY(1px)}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink); background:transparent; color:var(--ink)}
+.markets{
+  display:flex; flex-wrap:wrap; gap:.55rem 1.25rem; padding:1.15rem 0;
+  width:min(64rem, calc(100% - 2.5rem)); margin-inline:auto;
+  font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  border-bottom:1px solid var(--line);
+}
+.markets strong{color:var(--ink)}
+.toc{
+  width:min(64rem, calc(100% - 2.5rem)); margin:2rem auto 0;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem;
+}
+.toc a{
+  display:block; padding:1rem 1.05rem; border:1px solid var(--line); background:var(--elev);
+  text-decoration:none; color:var(--ink); transition:border-color var(--ease), transform var(--ease);
+}
+.toc a:hover{border-color:var(--brass); transform:translateY(-2px)}
+.toc .n{display:block; font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brass); margin-bottom:.35rem}
+.toc .t{font-family:"Crimson Pro",Georgia,serif; font-size:1.15rem}
+.chapter{
+  padding:4.5rem 0; border-bottom:1px solid var(--line);
+  opacity:0; transform:translateY(12px);
+  transition:opacity 400ms ease, transform 400ms ease;
+}
+.chapter.is-in{opacity:1; transform:none}
+.chapter .num{
+  margin:0 0 1rem; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--brass);
+}
+.chapter h2{
+  margin:0 0 1.25rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500;
+  font-size:clamp(1.9rem, 4vw, 2.6rem); letter-spacing:-.02em; line-height:1.1;
+}
+.chapter p{margin:0 0 1rem; color:color-mix(in srgb, var(--ink) 90%, var(--muted))}
+.chapter p:last-child{margin-bottom:0}
+.pull{
+  margin:2rem 0; padding:1.5rem 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  font-family:"Crimson Pro",Georgia,serif; font-style:italic; font-size:1.45rem; line-height:1.4;
+  color:var(--ink);
+}
+.empty{
+  margin-top:1.5rem; padding:1.5rem 1.25rem; border:1px dashed var(--line); color:var(--muted); font-size:.98rem;
+}
+.empty strong{color:var(--ink)}
+.join-block{
+  margin-top:2rem; padding:2rem 1.75rem; border:1px solid var(--line);
+  background:linear-gradient(180deg, var(--elev), var(--paper));
+}
+.join-block h3{margin:0 0 .6rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.55rem}
+.join-block p{margin:0 0 1.1rem; color:var(--muted)}
+.site-footer{
+  padding:3rem 0 2.75rem; text-align:center; color:var(--muted); font-size:.9rem;
+}
+.site-footer a{color:inherit}
+@media (max-width:800px){
+  .toc{grid-template-columns:1fr 1fr}
+  .manifesto{padding:3.5rem 0 2.5rem}
+}
+@media (max-width:640px){
+  .menu-btn{display:inline-flex}
+  .nav{display:none; width:100%; flex-direction:column; align-items:flex-end; gap:.85rem; padding:.35rem 0 .85rem}
+  .site-header.is-open .nav{display:flex}
+  .inner{flex-wrap:wrap}
+  .toc{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="sample-badge">SAMPLE C — partner Pact editorial — not live</div>
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="#">Quinta<span>Earth</span></a>
+    <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav" id="nav">
+      <a href="#i">Craft</a>
+      <a href="#ii">Markets</a>
+      <a href="#iii">Press</a>
+      <a href="#iv">Brainerd</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <section class="manifesto wrap">
+    <p class="kicker">A practice manifesto</p>
+    <h1>Sustainability as craft, not charity.</h1>
+    <p class="dek">QuintaEarth is a sustainable-luxury PR practice. We write for greentech houses bridging Europe and Southeast Asia — press, collaborators, community. Not a coalition. Not a plant-a-tree wall.</p>
+    <div class="early">
+      <a class="btn" href="#iv">Join Brainerd</a>
+      <a class="btn btn-ghost" href="#i">Begin the scroll</a>
+    </div>
+  </section>
+
+  <div class="markets" aria-label="Markets">
+    <strong>Markets</strong>
+    <span>Europe</span><span>↔</span><span>Southeast Asia</span>
+    <span>·</span><span>Greentech press</span><span>·</span><span>Craft CSR</span>
+  </div>
+
+  <nav class="toc" aria-label="Chapters">
+    <a href="#i"><span class="n">I</span><span class="t">Craft CSR</span></a>
+    <a href="#ii"><span class="n">II</span><span class="t">Markets</span></a>
+    <a href="#iii"><span class="n">III</span><span class="t">Press desk</span></a>
+    <a href="#iv"><span class="n">IV</span><span class="t">Brainerd</span></a>
+  </nav>
+
+  <article class="chapter wrap" id="i">
+    <p class="num">Chapter I</p>
+    <h2>Craft, not performance</h2>
+    <p>CSR that is made — engineered, edited, issued — sits differently from CSR that is donated for appearance. QuintaEarth holds that line for clients and collaborators who refuse charity theatre.</p>
+    <p class="pull">The earth as something sacred. Sustainability as something made.</p>
+    <p>This is PR for greentech ambition: press that travels, collaborators who build, a community that stays literate.</p>
+  </article>
+
+  <article class="chapter wrap" id="ii">
+    <p class="num">Chapter II</p>
+    <h2>Europe ↔ Southeast Asia</h2>
+    <p>The corridor is the practice geography. Stories, releases, and introductions move between European and Southeast Asian desks without flattening either market into tourism or NGO language.</p>
+    <p>Markets strip as constant signal — not a destination gallery.</p>
+  </article>
+
+  <article class="chapter wrap" id="iii">
+    <p class="num">Chapter III</p>
+    <h2>The press desk</h2>
+    <p>Releases live here when they are real: launches, product news, houses already in the field. Until then, the desk stays open and empty — designed, not faked.</p>
+    <div class="empty">
+      <strong>Press desk is open.</strong><br />
+      Releases will appear here. No invented clients. No fake case studies.
+    </div>
+  </article>
+
+  <article class="chapter wrap" id="iv" style="border-bottom:0">
+    <p class="num">Chapter IV</p>
+    <h2>Join Brainerd</h2>
+    <p>Brainerd is the greentech community beside the practice — founders, press partners, collaborators. A room for craft, not a mailing list costume.</p>
+    <div class="join-block">
+      <h3>Request to join</h3>
+      <p>Early CTA on a long scroll — clear purpose, quiet urgency.</p>
+      <a class="btn" href="#">Request to join</a>
+    </div>
+  </article>
+</main>
+<footer class="site-footer wrap-wide">
+  QuintaEarth · SAMPLE C — Pact editorial angle · <a href="compare.html">Compare samples</a>
+</footer>
+<script>
+(function(){
+  var header=document.querySelector('.site-header');
+  var btn=document.querySelector('.menu-btn');
+  if(header&&btn){
+    btn.addEventListener('click', function(){
+      var open=header.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open?'true':'false');
+      btn.setAttribute('aria-label', open?'Close menu':'Open menu');
+    });
+    header.querySelectorAll('nav a').forEach(function(link){
+      link.addEventListener('click', function(){
+        header.classList.remove('is-open');
+        btn.setAttribute('aria-expanded','false');
+        btn.setAttribute('aria-label','Open menu');
+      });
+    });
+  }
+  var chapters=document.querySelectorAll('.chapter');
+  if(!('IntersectionObserver' in window)){
+    chapters.forEach(function(c){ c.classList.add('is-in'); });
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('is-in'); }
+    });
+  }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+  chapters.forEach(function(c){ io.observe(c); });
+})();
+</script>
+</body>
+</html>

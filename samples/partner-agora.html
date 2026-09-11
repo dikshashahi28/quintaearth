@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuintaEarth — Partner sample: Agora intelligence</title>
+<style>
+:root{
+  --paper:#F4F1EA; --ink:#1C1B18; --muted:#6A655C; --brass:#7D6A4F; --line:#D8D2C6; --elev:#FBF9F4;
+  --ease:250ms cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:Inter,"Source Sans Pro",Geist,"Segoe UI",system-ui,sans-serif;
+  font-size:1.05rem; line-height:1.6;
+}
+a{color:var(--brass); text-underline-offset:.18em}
+a:hover{color:var(--ink)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--brass); outline-offset:3px}
+.sample-badge{
+  position:sticky; top:0; z-index:60; padding:.4rem 1rem;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper);
+}
+.skip{
+  position:absolute; left:1rem; top:0; z-index:70; padding:.65rem 1rem;
+  background:var(--ink); color:var(--paper); text-decoration:none;
+  transform:translateY(-120%); transition:transform 150ms ease;
+}
+.skip:focus{transform:translateY(0)}
+.wrap{width:min(72rem, calc(100% - 2.4rem)); margin-inline:auto}
+.site-header{
+  position:sticky; top:1.7rem; z-index:40;
+  border-bottom:1px solid var(--line);
+  background:color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter:blur(12px);
+}
+.inner{display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.95rem 0}
+.brand{
+  font-family:"Crimson Pro",Georgia,serif; font-size:1.3rem; color:var(--ink); text-decoration:none; letter-spacing:-.01em;
+}
+.brand span{color:var(--brass)}
+.header-meta{display:flex; align-items:center; gap:1.25rem}
+.lang{
+  display:inline-flex; border:1px solid var(--line); font-size:.75rem; letter-spacing:.08em;
+}
+.lang a{
+  padding:.35rem .55rem; text-decoration:none; color:var(--muted);
+  transition:background var(--ease), color var(--ease);
+}
+.lang a[aria-current="true"]{background:var(--ink); color:var(--paper)}
+.lang a:hover{color:var(--ink)}
+.nav{display:flex; gap:1.1rem; flex-wrap:wrap; font-size:.86rem; color:var(--muted)}
+.nav a{color:inherit; text-decoration:none}
+.nav a:hover{color:var(--ink)}
+.menu-btn{
+  display:none; width:2.5rem; height:2.5rem; border:0; background:transparent; cursor:pointer;
+  flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:0;
+}
+.menu-btn span{display:block; width:1.35rem; height:1.5px; background:var(--ink); transition:transform var(--ease), opacity var(--ease)}
+.site-header.is-open .menu-btn span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.site-header.is-open .menu-btn span:nth-child(2){opacity:0}
+.site-header.is-open .menu-btn span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.hero{
+  display:grid; grid-template-columns:1.2fr .8fr; gap:2.5rem; align-items:end;
+  padding:3.25rem 0 2.25rem; border-bottom:1px solid var(--line);
+}
+.kicker{margin:0 0 .7rem; font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--brass)}
+.hero h1{
+  margin:0 0 1rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500;
+  font-size:clamp(2.1rem, 4.5vw, 3.2rem); line-height:1.08; letter-spacing:-.02em;
+}
+.lead{margin:0; color:var(--muted); max-width:34rem; font-size:1.05rem}
+.hero-side{
+  border:1px solid var(--line); background:var(--elev); padding:1.35rem 1.3rem;
+  display:grid; gap:.85rem;
+}
+.hero-side h2{margin:0; font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass); font-weight:600}
+.stat-row{display:grid; grid-template-columns:1fr 1fr; gap:.75rem}
+.stat{padding:.75rem .8rem; border:1px solid var(--line); background:var(--paper)}
+.stat b{display:block; font-family:"Crimson Pro",Georgia,serif; font-size:1.35rem; font-weight:500}
+.stat span{font-size:.78rem; color:var(--muted); letter-spacing:.04em}
+.markets{
+  display:flex; flex-wrap:wrap; gap:.55rem 1.2rem; padding:1rem 0;
+  font-size:.76rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted);
+  border-bottom:1px solid var(--line);
+}
+.markets strong{color:var(--ink)}
+.cta-early{padding:1.75rem 0; display:flex; flex-wrap:wrap; gap:.85rem; align-items:center; justify-content:space-between}
+.cta-early p{margin:0; color:var(--muted); max-width:28rem}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.8rem 1.2rem; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+  text-decoration:none; font:inherit; font-size:.92rem;
+  transition:background var(--ease), border-color var(--ease), color var(--ease), transform var(--ease);
+}
+.btn:hover{background:var(--brass); border-color:var(--brass)}
+.btn:active{transform:translateY(1px)}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink); background:transparent; color:var(--ink)}
+.rooms{padding:2.5rem 0 3rem}
+.rooms > h2{
+  margin:0 0 .4rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.85rem;
+}
+.rooms > .note{margin:0 0 1.5rem; color:var(--muted); max-width:40rem}
+.room-grid{
+  display:grid; grid-template-columns:repeat(6, 1fr); gap:1rem;
+}
+.room{
+  grid-column:span 2; min-height:12rem;
+  display:flex; flex-direction:column; justify-content:space-between; gap:1rem;
+  padding:1.35rem 1.3rem; border:1px solid var(--line); background:var(--elev);
+  transition:border-color var(--ease), transform var(--ease);
+}
+.room:hover{border-color:var(--brass); transform:translateY(-2px)}
+.room.wide{grid-column:span 3}
+.room .tag{font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; color:var(--brass)}
+.room h3{margin:.45rem 0 .5rem; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.4rem}
+.room p{margin:0; color:var(--muted); font-size:.92rem; flex:1}
+.room .foot{font-size:.82rem; color:var(--brass); text-decoration:none; border-bottom:1px solid transparent; align-self:flex-start}
+.room .foot:hover{border-bottom-color:var(--brass); color:var(--ink)}
+.empty-line{
+  margin-top:.35rem; padding:.65rem .75rem; border:1px dashed var(--line); color:var(--muted); font-size:.85rem;
+}
+.site-footer{padding:2.25rem 0 2.5rem; border-top:1px solid var(--line); color:var(--muted); font-size:.88rem; text-align:center}
+.site-footer a{color:inherit}
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr; gap:1.5rem}
+  .room-grid{grid-template-columns:1fr 1fr}
+  .room, .room.wide{grid-column:span 1}
+}
+@media (max-width:700px){
+  .menu-btn{display:inline-flex}
+  .nav{display:none; width:100%; flex-direction:column; align-items:flex-end; gap:.85rem; padding:.4rem 0 .9rem}
+  .site-header.is-open .nav{display:flex}
+  .inner{flex-wrap:wrap}
+  .header-meta{margin-left:auto}
+  .room-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="sample-badge">SAMPLE B — partner Agora intelligence — not live</div>
+<header class="site-header">
+  <div class="wrap inner">
+    <a class="brand" href="#">Quinta<span>Earth</span></a>
+    <div class="header-meta">
+      <div class="lang" aria-label="Language">
+        <a href="#" aria-current="true">EN</a>
+        <a href="#" title="German interface nod — sample only">DE</a>
+      </div>
+      <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#rooms">Rooms</a>
+      <a href="#press">Press</a>
+      <a href="#reports">Reports</a>
+      <a href="#community">Community</a>
+      <a href="#join">Join</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap">
+  <section class="hero">
+    <div>
+      <p class="kicker">Intelligence desk · EN / DE</p>
+      <h1>Rooms for press, collaborators, and reports</h1>
+      <p class="lead">QuintaEarth as a structured desk: craft CSR intelligence across Europe ↔ Southeast Asia — calm, data-aware, never charity theatre.</p>
+    </div>
+    <aside class="hero-side" aria-label="Desk signals">
+      <h2>Desk signals</h2>
+      <div class="stat-row">
+        <div class="stat"><b>EU ↔ SEA</b><span>Markets corridor</span></div>
+        <div class="stat"><b>Brainerd</b><span>Community room</span></div>
+        <div class="stat"><b>Press</b><span>Desk open</span></div>
+        <div class="stat"><b>Reports</b><span>Shelf ready</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <div class="markets" aria-label="Markets">
+    <strong>Markets</strong>
+    <span>Europe</span><span>↔</span><span>Southeast Asia</span>
+    <span>·</span><span>Greentech</span><span>·</span><span>Craft CSR</span>
+  </div>
+
+  <div class="cta-early" id="join">
+    <p><strong style="color:var(--ink)">Join Brainerd early.</strong> The greentech community sits beside the intelligence rooms — founders, press, collaborators.</p>
+    <a class="btn" href="#">Request to join</a>
+  </div>
+
+  <section class="rooms" id="rooms">
+    <h2>Intelligence rooms</h2>
+    <p class="note">Five rooms. Honest empty states. Structure first — content when the work is real.</p>
+    <div class="room-grid">
+      <article class="room wide" id="press">
+        <div>
+          <span class="tag">Room 01</span>
+          <h3>Press</h3>
+          <p>Releases and briefings from the practice. Greentech launches, product news, houses already in the world.</p>
+          <div class="empty-line">Press desk is open. Releases will appear here.</div>
+        </div>
+        <a class="foot" href="#">Enter press →</a>
+      </article>
+      <article class="room wide" id="collaborators">
+        <div>
+          <span class="tag">Room 02</span>
+          <h3>Collaborators</h3>
+          <p>Startups, entrepreneurs, and professionals shown for the work they are building — Europe and SEA.</p>
+          <div class="empty-line">No invented names. Collaborators list when invited.</div>
+        </div>
+        <a class="foot" href="#">Enter collaborators →</a>
+      </article>
+      <article class="room" id="reports">
+        <div>
+          <span class="tag">Room 03</span>
+          <h3>Reports</h3>
+          <p>Briefs and intelligence notes with a quiet data feel — shelf ready, not a dashboard.</p>
+          <div class="empty-line">Shelf empty — by design.</div>
+        </div>
+        <a class="foot" href="#">Enter reports →</a>
+      </article>
+      <article class="room" id="community">
+        <div>
+          <span class="tag">Room 04</span>
+          <h3>Community</h3>
+          <p>Brainerd — greentech community adjacent to the practice desk.</p>
+          <div class="empty-line">Join opens above.</div>
+        </div>
+        <a class="foot" href="#join">Enter community →</a>
+      </article>
+      <article class="room" id="discussion">
+        <div>
+          <span class="tag">Room 05</span>
+          <h3>Discussion</h3>
+          <p>Insights on what people are building in greentech and cleantech — its own room.</p>
+          <div class="empty-line">Thread opens when conversation starts.</div>
+        </div>
+        <a class="foot" href="#">Enter discussion →</a>
+      </article>
+    </div>
+  </section>
+</main>
+<footer class="site-footer wrap">
+  QuintaEarth · SAMPLE B — Agora intelligence angle · <a href="compare.html">Compare samples</a>
+</footer>
+<script>
+(function(){
+  var header=document.querySelector('.site-header');
+  var btn=document.querySelector('.menu-btn');
+  if(!header||!btn) return;
+  btn.addEventListener('click', function(){
+    var open=header.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', open?'true':'false');
+    btn.setAttribute('aria-label', open?'Close menu':'Open menu');
+  });
+  header.querySelectorAll('nav a').forEach(function(link){
+    link.addEventListener('click', function(){
+      header.classList.remove('is-open');
+      btn.setAttribute('aria-expanded','false');
+      btn.setAttribute('aria-label','Open menu');
+    });
+  });
+})();
+</script>
+</body>
+</html>

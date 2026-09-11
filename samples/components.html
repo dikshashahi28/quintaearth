@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuintaEarth — Components (sample)</title>
+<style>
+:root {
+  --paper: #F4F1EA; --ink: #1C1B18; --muted: #6A655C;
+  --brass: #7D6A4F; --line: #D8D2C6; --elev: #FBF9F4;
+  --ease: 250ms cubic-bezier(.22,.61,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Source Sans Pro",Inter,Geist,"Segoe UI",system-ui,sans-serif;
+  font-size:1.0625rem; line-height:1.65;
+}
+a{color:var(--brass); text-underline-offset:.18em}
+a:hover{color:var(--ink)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--brass); outline-offset:3px}
+.sample-badge{
+  position:sticky; top:0; z-index:50;
+  padding:.45rem 1rem; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--ink); color:var(--paper); border-bottom:1px solid var(--ink);
+}
+.wrap{width:min(72rem, calc(100% - 2.5rem)); margin-inline:auto}
+.kit-header{padding:2.5rem 0 1.5rem; border-bottom:1px solid var(--line)}
+.kit-header h1{font-family:"Crimson Pro","Cormorant Garamond",Georgia,serif; font-weight:500; font-size:clamp(2rem,4vw,2.75rem); margin:0 0 .4rem; letter-spacing:-.02em}
+.kit-header p{margin:0; color:var(--muted); max-width:40rem}
+.section{padding:2.75rem 0; border-bottom:1px solid var(--line)}
+.section h2{font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.65rem; margin:0 0 .35rem}
+.section .hint{color:var(--muted); font-size:.9rem; margin:0 0 1.5rem}
+.label{
+  display:inline-block; margin-bottom:.65rem;
+  font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--brass);
+}
+.row{display:flex; flex-wrap:wrap; gap:1rem; align-items:center}
+.stack{display:grid; gap:1rem}
+.grid-2{display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+.grid-3{display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))}
+.swatch{
+  border:1px solid var(--line); background:var(--elev); padding:1rem;
+  display:grid; gap:.5rem;
+}
+.swatch .chip{height:4.5rem; border:1px solid var(--line)}
+.swatch code{font-size:.8rem; color:var(--muted)}
+.type-scale{display:grid; gap:1rem}
+.type-scale > div{padding-bottom:1rem; border-bottom:1px solid var(--line)}
+.type-scale .meta{font-size:.75rem; color:var(--muted); letter-spacing:.06em}
+.display{font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:clamp(2.5rem,6vw,4.5rem); line-height:1.05; letter-spacing:-.02em; margin:0}
+.h1{font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:clamp(2rem,4vw,2.75rem); margin:0}
+.h2{font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.65rem; margin:0}
+.h3{font-size:1.05rem; font-weight:600; margin:0}
+.body{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.85rem 1.35rem; border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+  font:inherit; font-size:.95rem; letter-spacing:.02em; text-decoration:none; cursor:pointer;
+  transition:background var(--ease), color var(--ease), border-color var(--ease), transform var(--ease);
+}
+.btn:hover{background:var(--brass); border-color:var(--brass); color:var(--paper)}
+.btn:active{transform:translateY(1px)}
+.btn-ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink); background:transparent; color:var(--ink)}
+.btn-text{
+  background:none; border:0; border-bottom:1px solid var(--brass); color:var(--brass);
+  padding:.2rem 0; border-radius:0; text-decoration:none;
+}
+.btn-text:hover{color:var(--ink); border-bottom-color:var(--ink); background:none}
+.link-inline{color:var(--brass); text-decoration:underline; text-decoration-thickness:1px}
+.demo-header{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1rem 1.25rem; border:1px solid var(--line); background:color-mix(in srgb,var(--paper) 92%, transparent);
+  backdrop-filter:blur(10px);
+}
+.demo-header .brand{font-family:"Crimson Pro",Georgia,serif; font-size:1.35rem; letter-spacing:-.01em; text-decoration:none; color:var(--ink)}
+.demo-header .brand span{color:var(--brass)}
+.demo-header nav{display:flex; gap:1.1rem; flex-wrap:wrap; font-size:.88rem; color:var(--muted)}
+.demo-header nav a{color:inherit; text-decoration:none}
+.demo-header nav a:hover{color:var(--ink)}
+.demo-hero{
+  text-align:center; padding:3.5rem 1.5rem; border:1px solid var(--line); background:var(--elev);
+}
+.kicker{font-size:.72rem; letter-spacing:.22em; text-transform:uppercase; color:var(--brass); margin:0 0 .75rem}
+.rule{width:3.5rem; height:1px; margin:1.25rem auto; background:var(--brass)}
+.story-card{
+  display:grid; gap:.65rem; padding:1.35rem 1.4rem; border:1px solid var(--line); background:var(--elev);
+  transition:border-color var(--ease), transform var(--ease);
+}
+.story-card:hover{border-color:var(--brass); transform:translateY(-2px)}
+.story-card h3{margin:0; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.35rem}
+.empty{
+  padding:2rem 1.5rem; border:1px dashed var(--line); background:transparent; color:var(--muted); text-align:center;
+}
+.join{
+  display:grid; gap:1rem; padding:2rem 1.75rem; border:1px solid var(--line);
+  background:linear-gradient(180deg, var(--elev), var(--paper));
+}
+.join h3{margin:0; font-family:"Crimson Pro",Georgia,serif; font-weight:500; font-size:1.5rem}
+.demo-footer{
+  padding:2rem 1.25rem; border:1px solid var(--line); text-align:center; color:var(--muted); font-size:.9rem;
+}
+.motion-box{
+  width:7rem; height:7rem; border:1px solid var(--line); background:var(--elev);
+  display:grid; place-items:center; color:var(--muted); font-size:.8rem;
+  transition:transform var(--ease), border-color var(--ease), background var(--ease);
+}
+.motion-box:hover{transform:translateY(-6px); border-color:var(--brass); background:#fff}
+.markets{
+  display:flex; flex-wrap:wrap; gap:.75rem 1.5rem; padding:1rem 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  font-size:.85rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+}
+.markets strong{color:var(--ink); font-weight:600}
+.back{margin:1.5rem 0 0; font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="sample-badge">SAMPLE — components kit — not live</div>
+<div class="wrap">
+  <header class="kit-header">
+    <h1>QuintaEarth components</h1>
+    <p>Temporary UI kit for judging craft before a live homepage. Tokens: paper / ink / muted / brass / line. Product: sustainable-luxury PR — craft CSR, Europe ↔ SEA, Brainerd community.</p>
+    <p class="back"><a href="compare.html">← Back to compare hub</a></p>
+  </header>
+
+  <section class="section" id="color">
+    <h2>Color</h2>
+    <p class="hint">Exact practice tokens. No purple SaaS, no NGO green flood.</p>
+    <div class="grid-3">
+      <div class="swatch"><span class="label">Paper</span><div class="chip" style="background:#F4F1EA"></div><code>#F4F1EA</code></div>
+      <div class="swatch"><span class="label">Ink</span><div class="chip" style="background:#1C1B18"></div><code>#1C1B18</code></div>
+      <div class="swatch"><span class="label">Muted</span><div class="chip" style="background:#6A655C"></div><code>#6A655C</code></div>
+      <div class="swatch"><span class="label">Brass</span><div class="chip" style="background:#7D6A4F"></div><code>#7D6A4F</code></div>
+      <div class="swatch"><span class="label">Line</span><div class="chip" style="background:#D8D2C6"></div><code>#D8D2C6</code></div>
+    </div>
+  </section>
+
+  <section class="section" id="type">
+    <h2>Type scale</h2>
+    <p class="hint">Visitor-sized. Display serif + quiet sans. Local fonts: Crimson Pro / Source Sans Pro / Inter.</p>
+    <div class="type-scale">
+      <div><div class="meta">Display</div><p class="display">Craft, not charity</p></div>
+      <div><div class="meta">H1</div><p class="h1">QuintaEarth practice desk</p></div>
+      <div><div class="meta">H2</div><p class="h2">Press &amp; collaborators</p></div>
+      <div><div class="meta">H3</div><p class="h3">Brainerd community</p></div>
+      <div><div class="meta">Body</div><p class="body">Sustainability treated as something made — not donated, not performed. Markets: Europe ↔ Southeast Asia.</p></div>
+      <div><div class="meta">Muted / small</div><p class="body muted small">Press desk is open. Releases will appear here.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="buttons">
+    <h2>Buttons &amp; links</h2>
+    <p class="hint">Primary, ghost, text. 200–300ms hover.</p>
+    <div class="row">
+      <a class="btn" href="#join">Join Brainerd</a>
+      <a class="btn btn-ghost" href="#press">View press desk</a>
+      <a class="btn btn-text" href="#about">Read the practice →</a>
+      <a class="link-inline" href="#markets">Europe ↔ SEA</a>
+    </div>
+  </section>
+
+  <section class="section" id="header">
+    <h2>Header</h2>
+    <p class="hint">Sticky practice header pattern.</p>
+    <div class="demo-header">
+      <a class="brand" href="#">Quinta<span>Earth</span></a>
+      <nav aria-label="Demo">
+        <a href="#about">About</a>
+        <a href="#press">Press</a>
+        <a href="#community">Community</a>
+        <a href="#join">Join</a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="section" id="hero">
+    <h2>Hero</h2>
+    <p class="hint">Centered practice-desk hero.</p>
+    <div class="demo-hero">
+      <p class="kicker">Sustainable-luxury PR</p>
+      <h2 class="h1" style="margin:0">The practice desk</h2>
+      <div class="rule"></div>
+      <p class="muted" style="max-width:34rem;margin:0 auto">Craft CSR across Europe and Southeast Asia. Press, collaborators, and a greentech community — not charity theatre.</p>
+    </div>
+  </section>
+
+  <section class="section" id="markets">
+    <h2>Markets strip</h2>
+    <p class="hint">Europe ↔ SEA as a constant signal.</p>
+    <div class="markets">
+      <span><strong>Markets</strong></span>
+      <span>Europe</span>
+      <span>↔</span>
+      <span>Southeast Asia</span>
+      <span>·</span>
+      <span>Greentech press</span>
+      <span>·</span>
+      <span>Craft CSR</span>
+    </div>
+  </section>
+
+  <section class="section" id="story">
+    <h2>Story card</h2>
+    <p class="hint">Luxury-PR voice. No invented clients — structural empty, designed.</p>
+    <div class="grid-2">
+      <article class="story-card">
+        <span class="label">Press shape</span>
+        <h3>A release waiting for its house</h3>
+        <p class="muted small" style="margin:0">Slot for a greentech launch or collaborator note. Filled only when real work arrives.</p>
+      </article>
+      <article class="story-card">
+        <span class="label">Market</span>
+        <h3>Europe ↔ SEA corridor</h3>
+        <p class="muted small" style="margin:0">Story form for cross-market PR — craft, not NGO tone.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="empty">
+    <h2>Empty state</h2>
+    <p class="hint">Honest. Never fake testimonials.</p>
+    <div class="empty">
+      <p style="margin:0 0 .35rem"><strong style="color:var(--ink)">Press desk is open</strong></p>
+      <p style="margin:0">Releases will appear here. No placeholders posing as clients.</p>
+    </div>
+  </section>
+
+  <section class="section" id="join">
+    <h2>Join CTA</h2>
+    <p class="hint">Brainerd — greentech community. Early, calm, clear.</p>
+    <div class="join">
+      <span class="label">Community</span>
+      <h3>Join Brainerd</h3>
+      <p class="muted" style="margin:0;max-width:36rem">A room for greentech founders, press partners, and collaborators who treat sustainability as craft.</p>
+      <div class="row">
+        <a class="btn" href="#">Request to join</a>
+        <a class="btn btn-ghost" href="#">How it works</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="motion">
+    <h2>Motion</h2>
+    <p class="hint">~250ms lift. Disabled when prefers-reduced-motion.</p>
+    <div class="row">
+      <div class="motion-box" tabindex="0">Hover me</div>
+      <p class="muted small" style="max-width:22rem;margin:0">Cards and primary buttons use the same ease. No bounce, no purple glow.</p>
+    </div>
+  </section>
+
+  <section class="section" id="footer" style="border-bottom:0">
+    <h2>Footer</h2>
+    <div class="demo-footer">
+      QuintaEarth · sustainable-luxury PR · Europe ↔ SEA · SAMPLE kit — not live
+    </div>
+    <p class="back"><a href="compare.html">← Compare partner samples</a></p>
+  </section>
+</div>
+</body>
+</html>
