@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>07 · Focus mode · menu sample</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Outfit, sans-serif; font-weight: 300; color: #3f3426; background: #FFFFFE; }
+  .bar { padding: 12px 16px; border-bottom: 1px solid #e6dcc8; font-size: 13px; color: #6d5c45; }
+  .bar a { color: #c45c26; }
+  .stage { max-width: 360px; margin: 24px auto; background: #fff; border: 1px solid #e6dcc8; min-height: 70vh; padding: 24px 22px 32px; }
+  .hint { font-size: 12px; color: #8a7760; margin: 0 0 16px; line-height: 1.45; }
+  nav { display: flex; flex-direction: column; color: #2c2419; font-size: 16px; }
+  nav > a, .nav-item-peer { display: block; width: 100%; padding: 14px 0; border-bottom: 1px solid #efe6d6; color: inherit; text-decoration: none; }
+  .nav-item-peer { padding: 10px 0 10px 14px; font-size: 15px; }
+  .nav-group { width: 100%; }
+  .nav-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; margin: 0; padding: 14px 0; border: 0; border-bottom: 1px solid #efe6d6;
+    background: transparent; cursor: pointer; font: inherit; font-size: 16px; color: #2c2419; text-align: left;
+  }
+  .nav-toggle-nested { padding-left: 14px; font-size: 15px; }
+  .nav-toggle::after {
+    content: ""; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg); margin-left: 12px;
+  }
+  .nav-group.is-open > .nav-toggle { color: #c45c26; }
+  .nav-group.is-open > .nav-toggle::after { transform: rotate(-135deg); }
+  .nav-sub { display: flex; flex-direction: column; padding: 4px 0 10px; }
+  .nav-sub[hidden] { display: none !important; }
+  .nav-item { display: block; padding: 8px 0 8px 28px; border-bottom: 1px solid #f3ebe0; color: #2c2419; text-decoration: none; font-size: 14px; }
+  .peers-hidden .nav-peers { display: none; }
+  .back-note { font-size: 11px; color: #8a7760; padding: 8px 14px 4px; }
+</style>
+</head>
+<body>
+<div class="bar"><strong>07 · Focus mode</strong> · <a href="compare-b.html">Round 2</a></div>
+<div class="stage">
+  <p class="hint">When Technology is open, other industries hide. Close Technology to see Energy again.</p>
+  <nav id="nav">
+    <a href="#">Home</a>
+    <div class="nav-group is-open">
+      <button type="button" class="nav-toggle" aria-expanded="true" aria-controls="industries-sub">Industries</button>
+      <div class="nav-sub" id="industries-sub">
+        <div class="nav-group nav-group-nested is-open" id="tech-group">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="true" aria-controls="technology-sub">Technology</button>
+          <div class="nav-sub" id="technology-sub">
+            <div class="back-note">Showing Technology only</div>
+            <a class="nav-item" href="#">Agriculture</a>
+            <a class="nav-item" href="#">Biology</a>
+            <a class="nav-item" href="#">Finance</a>
+            <a class="nav-item" href="#">Food</a>
+            <a class="nav-item" href="#">Nuclear</a>
+            <a class="nav-item" href="#">Ocean</a>
+            <a class="nav-item" href="#">Space</a>
+            <a class="nav-item" href="#">Water</a>
+          </div>
+        </div>
+        <div class="nav-peers">
+          <a class="nav-item-peer" href="#">Energy</a>
+          <a class="nav-item-peer" href="#">Materials Science</a>
+          <a class="nav-item-peer" href="#">Green Architecture</a>
+          <a class="nav-item-peer" href="#">Transportation and Logistics</a>
+          <a class="nav-item-peer" href="#">Eco-restoration</a>
+          <a class="nav-item-peer" href="#">Planetary Engineering</a>
+          <a class="nav-item-peer" href="#">Advanced Technology</a>
+        </div>
+      </div>
+    </div>
+    <a href="#">Insights</a>
+  </nav>
+</div>
+<script>
+(function(){
+  var nav=document.getElementById("nav");
+  var techGroup=document.getElementById("tech-group");
+  var techSub=document.getElementById("technology-sub");
+  function sync(){
+    if(techGroup.classList.contains("is-open") && !techSub.hasAttribute("hidden")) nav.classList.add("peers-hidden");
+    else nav.classList.remove("peers-hidden");
+  }
+  document.querySelectorAll(".nav-toggle").forEach(function(toggle){
+    toggle.addEventListener("click", function(e){
+      e.preventDefault();
+      var group=toggle.parentElement;
+      var sub=document.getElementById(toggle.getAttribute("aria-controls"));
+      if(!group||!sub) return;
+      var open=sub.hasAttribute("hidden");
+      group.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", open?"true":"false");
+      if(open) sub.removeAttribute("hidden"); else sub.setAttribute("hidden","");
+      sync();
+    });
+  });
+  sync();
+})();
+</script>
+</body>
+</html>
