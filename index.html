@@ -689,11 +689,11 @@
   </div></section>
   <section class="band sky" id="youtube"><div class="wrap">
     <h2>YouTube</h2>
-    <div class="yt-cover" id="yt-cover" role="button" tabindex="0" aria-label="Play QuintaEarth video">
+    <div class="yt-cover" id="yt-cover" role="button" tabindex="0" aria-label="Play QuintaEarth video" onclick="window.quintaPlayYt && window.quintaPlayYt(event)">
       <div class="yt-play" aria-hidden="true"></div>
       <p class="yt-caption">Watch</p>
-      <div class="yt-player">
-        <iframe data-src="https://www.youtube.com/embed/T_udYF5L6OQ?autoplay=1&rel=0&playsinline=1" title="QuintaEarth — Earth is our home" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      <div class="yt-player" id="yt-player">
+        <!-- iframe injected on play so autoplay works from the tap -->
       </div>
     </div>
     <p class="yt-sub">Films, maker notes, and greentech conversations from QuintaEarth.</p>
@@ -766,35 +766,38 @@
 </main>
 <footer>QuintaEarth · live</footer>
 
+
 <script>
+window.quintaPlayYt = function (e) {
+  try {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+  } catch (err) {}
+  var cover = document.getElementById("yt-cover");
+  var mount = document.getElementById("yt-player");
+  if (!cover || !mount) return false;
+  if (cover.classList.contains("is-playing")) return false;
+  mount.innerHTML = "";
+  var frame = document.createElement("iframe");
+  frame.src = "https://www.youtube.com/embed/T_udYF5L6OQ?autoplay=1&rel=0&playsinline=1&modestbranding=1";
+  frame.title = "QuintaEarth — Earth is our home";
+  frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  frame.setAttribute("allowfullscreen", "");
+  frame.setAttribute("playsinline", "");
+  frame.referrerPolicy = "strict-origin-when-cross-origin";
+  mount.appendChild(frame);
+  cover.classList.add("is-playing");
+  cover.setAttribute("aria-label", "QuintaEarth video playing");
+  return false;
+};
 (function () {
-  function bindCover() {
-    var cover = document.getElementById("yt-cover");
-    if (!cover || cover.getAttribute("data-bound") === "1") return;
-    cover.setAttribute("data-bound", "1");
-    function play() {
-      if (cover.classList.contains("is-playing")) return;
-      var frame = cover.querySelector("iframe");
-      if (!frame) return;
-      var src = frame.getAttribute("data-src");
-      if (!src) return;
-      frame.setAttribute("src", src);
-      cover.classList.add("is-playing");
-      cover.setAttribute("aria-label", "QuintaEarth video playing");
+  var cover = document.getElementById("yt-cover");
+  if (!cover) return;
+  cover.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      window.quintaPlayYt(e);
     }
-    cover.addEventListener("click", play);
-    cover.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        play();
-      }
-    });
-  }
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindCover);
-  } else {
-    bindCover();
-  }
+  });
 })();
 </script>
 </body>
