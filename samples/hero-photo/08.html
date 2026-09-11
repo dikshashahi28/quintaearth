@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>08 · Misty canopy · Hero photo sample</title>
+<title>08 · Misty canopy · Balanced hero sample</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; }
@@ -32,13 +32,16 @@
   .hero-photo {
     position: absolute; inset: 0; z-index: 0;
     background: center / cover no-repeat url("img/08-misty-canopy.jpg");
-    opacity: 0.22;
-    filter: saturate(0.65) brightness(1.08) contrast(0.95);
+    opacity: 0.46;
+    filter: saturate(0.72) brightness(1.08) contrast(0.96);
   }
-  .hero-inner { position: relative; z-index: 2; }
-  .kicker {
-    letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #c45c26;
+  .hero-balance {
+    position: absolute; inset: 0; z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,254,0.28) 0%, rgba(255,255,254,0.38) 50%, rgba(255,255,254,0.42) 100%);
   }
+  .hero-inner { position: relative; z-index: 2; max-width: 900px; padding: 0 12px; }
+  .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #c45c26; }
   h1 {
     font-family: "Cormorant Garamond", serif; font-weight: 500;
     font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95;
@@ -55,13 +58,14 @@
 </style>
 </head>
 <body>
-<div class="bar"><strong>08 · Misty canopy</strong> · photo sample only · <a href="compare.html">All 30</a></div>
+<div class="bar"><strong>08 · Misty canopy</strong> · balanced sample · <a href="compare.html">All samples</a> · <a href="compare-subtle.html">Soft set 31–50</a></div>
 <header>
   <div class="brand">Quinta<span>Earth</span></div>
   <div style="font-size:13px;color:#6d5c45;">☰</div>
 </header>
 <section class="hero">
   <div class="hero-photo" aria-hidden="true"></div>
+  <div class="hero-balance" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="kicker">A living commons</div>
     <h1>QuintaEarth</h1>
@@ -71,8 +75,8 @@
 </section>
 <div class="about-fake">
   <h2>About</h2>
-  <p style="color:#5c4a36;line-height:1.65;font-size:15px;">Hero photo is subtle (faded) so the type stays clear. About below stays plain.</p>
+  <p style="color:#5c4a36;line-height:1.65;font-size:15px;">Photo and text are balanced on purpose — photo visible, type clear. About stays plain.</p>
 </div>
-<p class="below">Atmospheric forest mist — soft wash behind type. Reply with this number if you want it on the live site.</p>
+<p class="below">Forest mist. Reply with this number if it feels right.</p>
 </body>
 </html>
