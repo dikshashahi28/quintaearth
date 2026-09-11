@@ -345,11 +345,12 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: 2px solid #FFFFFE;
-    background: rgba(20, 28, 12, 0.35);
+    width: 68px;
+    height: 48px;
+    border: 0;
+    border-radius: 14px / 10px;
+    background: #FF0000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -360,24 +361,10 @@
     display: block;
     width: 0;
     height: 0;
-    margin-left: 4px;
-    border-left: 18px solid #FFFFFE;
+    margin-left: 3px;
+    border-left: 18px solid #ffffff;
     border-top: 11px solid transparent;
     border-bottom: 11px solid transparent;
-  }
-  #youtube .yt-cover .yt-caption {
-    position: absolute;
-    z-index: 1;
-    left: 0;
-    right: 0;
-    bottom: 18px;
-    margin: 0;
-    color: #F3F5EC;
-    font-family: "Cormorant Garamond", serif;
-    font-size: 28px;
-    font-weight: 500;
-    text-shadow: 0 1px 12px rgba(0,0,0,0.45);
-    pointer-events: none;
   }
   #youtube .yt-cover .yt-player {
     display: none;
@@ -394,8 +381,7 @@
     border: 0;
   }
   #youtube .yt-cover.is-playing::before,
-  #youtube .yt-cover.is-playing .yt-play,
-  #youtube .yt-cover.is-playing .yt-caption {
+  #youtube .yt-cover.is-playing .yt-play {
     display: none;
   }
   #youtube .yt-cover.is-playing .yt-player {
@@ -691,7 +677,6 @@
     <h2>YouTube</h2>
     <div class="yt-cover" id="yt-cover" role="button" tabindex="0" aria-label="Play QuintaEarth video" onclick="window.quintaPlayYt && window.quintaPlayYt(event)">
       <div class="yt-play" aria-hidden="true"></div>
-      <p class="yt-caption">Watch</p>
       <div class="yt-player" id="yt-player">
         <!-- iframe injected on play so autoplay works from the tap -->
       </div>
