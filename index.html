@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>QuintaEarth</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -86,13 +86,18 @@
   }
   nav#site-nav a:last-child { border-bottom: 0; }
   nav#site-nav a:hover { color: #c45c26; }
+  /* Level 1: main menu sections */
+  nav#site-nav > a {
+    font-weight: 700;
+    font-size: 16px;
+  }
   .nav-group { width: 100%; }
   .nav-toggle {
     display: flex; align-items: center; justify-content: space-between;
     width: 100%; margin: 0; padding: 14px 0;
     border: 0; border-bottom: 1px solid #efe6d6;
     background: transparent; cursor: pointer;
-    font: inherit; font-size: 16px; color: #2c2419;
+    font: inherit; font-size: 16px; font-weight: 700; color: #2c2419;
     letter-spacing: 0.02em; text-align: left;
   }
   .nav-toggle::after {
@@ -104,7 +109,6 @@
     transition: transform 0.2s ease;
     margin-left: 12px; flex-shrink: 0;
   }
-  /* only the direct toggle of an open group — no cascade into children */
   .nav-group.is-open > .nav-toggle { color: #c45c26; }
   .nav-group.is-open > .nav-toggle::after { transform: rotate(-135deg); }
   .nav-sub {
@@ -116,43 +120,47 @@
     display: block; width: 100%;
     padding: 10px 0 10px 14px;
     border-bottom: 1px solid #f3ebe0;
-    color: #2c2419; font-size: 15px;
+    color: #2c2419;
+    text-decoration: none;
   }
   .nav-item:hover { color: #c45c26; }
-  /* peer industries (Energy, etc.) sit at same level as Technology */
+  /* Level 2: industry rows (Technology, Energy, …) */
   .nav-item-peer {
     padding: 10px 0 10px 14px;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 700;
     color: #2c2419;
     border-bottom: 1px solid #efe6d6;
   }
   .nav-group-nested {
     width: 100%;
-    margin: 0 0 8px;
-    padding: 0 0 8px;
-    border-bottom: 1px solid #e6dcc8;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #efe6d6;
+    background: transparent;
   }
   .nav-toggle-nested {
     padding: 10px 0 10px 14px;
     border-bottom: 0;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 700;
   }
+  /* Level 3: Technology children */
   .nav-sub-nested {
     display: flex;
     flex-direction: column;
-    margin: 4px 10px 6px 14px;
-    padding: 4px 0 4px 12px;
+    margin: 0;
+    padding: 2px 0 8px 0;
     border: 0;
-    border-left: 2px solid #e0d4c0;
-    background: #faf8f4;
-    border-radius: 0 4px 4px 0;
+    background: transparent;
   }
   .nav-sub-nested[hidden] { display: none !important; }
   .nav-sub-nested .nav-item {
-    padding: 8px 10px;
-    font-size: 14px;
-    border-bottom: 1px solid #efe8dc;
-    color: #3f3426;
+    padding: 8px 0 8px 28px;
+    font-size: 13px;
+    font-weight: 400;
+    border-bottom: 1px solid #f3ebe0;
+    color: #2c2419;
   }
   .nav-sub-nested .nav-item:last-child { border-bottom: 0; }
 
