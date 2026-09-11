@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Visit channel button samples</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #FFFFFE; color: #2c2419; padding: 28px 20px 48px; }
+  h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 32px; margin: 0 0 8px; }
+  .intro { color: #5c4a36; margin: 0 0 28px; max-width: 560px; line-height: 1.5; }
+  .card {
+    max-width: 720px; margin: 0 auto 22px; padding: 28px 24px;
+    border: 1px solid #d5dbc8; background: #FFFFFE; text-align: center;
+  }
+  .card .label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #6B7A45; margin: 0 0 16px; }
+  .fake-player {
+    max-width: 480px; margin: 0 auto 18px; aspect-ratio: 16/9;
+    background: #24301A center/cover url("../../assets/youtube-bg.jpg");
+    border: 1px solid #d5dbc8; position: relative;
+  }
+  .fake-player::after {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 68px; height: 48px; border-radius: 14px / 10px; background: #FF0000;
+  }
+
+  /* 1 Current outline */
+  .btn-1 {
+    display: inline-block; margin-top: 4px; padding: 10px 18px;
+    border: 1px solid #24301A; color: #24301A; text-decoration: none; font-size: 14px;
+    background: transparent;
+  }
+  .btn-1:hover { background: #24301A; color: #F3F5EC; }
+
+  /* 2 Olive fill pill */
+  .btn-2 {
+    display: inline-block; margin-top: 4px; padding: 11px 22px;
+    border: 0; border-radius: 999px; background: #24301A; color: #F3F5EC;
+    text-decoration: none; font-size: 14px; letter-spacing: 0.02em;
+  }
+  .btn-2:hover { background: #6B7A45; }
+
+  /* 3 Terracotta outline soft */
+  .btn-3 {
+    display: inline-block; margin-top: 4px; padding: 10px 20px;
+    border: 1px solid #c45c26; color: #c45c26; text-decoration: none;
+    font-size: 14px; background: transparent; letter-spacing: 0.03em;
+  }
+  .btn-3:hover { background: #c45c26; color: #FFFFFE; }
+
+  /* 4 Editorial text link */
+  .btn-4 {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 6px;
+    border: 0; background: none; color: #24301A; text-decoration: none;
+    font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 500;
+    border-bottom: 1px solid #d5dbc8; padding: 0 0 4px;
+  }
+  .btn-4:hover { color: #c45c26; border-bottom-color: #c45c26; }
+  .btn-4 span { font-size: 16px; }
+
+  /* 5 Soft olive chip */
+  .btn-5 {
+    display: inline-block; margin-top: 4px; padding: 11px 20px;
+    border: 1px solid #d5dbc8; border-radius: 4px; background: #F3F5EC;
+    color: #24301A; text-decoration: none; font-size: 14px; letter-spacing: 0.02em;
+  }
+  .btn-5:hover { border-color: #6B7A45; color: #6B7A45; }
+</style>
+</head>
+<body>
+<h1>Visit channel — button styles</h1>
+<p class="intro">Same spot under the video. Live site unchanged until you pick one.</p>
+
+<div class="card">
+  <p class="label">1 — Current outline (now live)</p>
+  <div class="fake-player"></div>
+  <a class="btn-1" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
+</div>
+
+<div class="card">
+  <p class="label">2 — Olive fill pill</p>
+  <div class="fake-player"></div>
+  <a class="btn-2" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
+</div>
+
+<div class="card">
+  <p class="label">3 — Terracotta outline</p>
+  <div class="fake-player"></div>
+  <a class="btn-3" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
+</div>
+
+<div class="card">
+  <p class="label">4 — Editorial text link</p>
+  <div class="fake-player"></div>
+  <a class="btn-4" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel <span>→</span></a>
+</div>
+
+<div class="card">
+  <p class="label">5 — Soft olive chip</p>
+  <div class="fake-player"></div>
+  <a class="btn-5" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener">Visit channel</a>
+</div>
+
+</body></html>
