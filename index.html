@@ -29,23 +29,64 @@
   .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
   .brand span { color: #c45c26; }
   .menu-btn {
-    display: none;
+    display: inline-flex;
     width: 40px; height: 40px;
-    margin: 0; padding: 0;
+    margin: 0; margin-left: auto; padding: 0;
     border: 0; background: transparent; cursor: pointer;
     align-items: center; justify-content: center; flex-direction: column; gap: 5px;
+    position: relative; z-index: 30;
   }
   .menu-btn span {
     display: block; width: 22px; height: 1.5px;
     background: #5c4a36; border-radius: 1px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.25s ease, opacity 0.25s ease;
   }
-  header.is-open .menu-btn span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-  header.is-open .menu-btn span:nth-child(2) { opacity: 0; }
-  header.is-open .menu-btn span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-  nav { display: flex; gap: 16px; font-size: 13px; color: #6d5c45; flex-wrap: wrap; justify-content: flex-end; }
-  nav a { color: inherit; text-decoration: none; }
-  nav a:hover { color: #c45c26; }
+  body.menu-open .menu-btn span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  body.menu-open .menu-btn span:nth-child(2) { opacity: 0; }
+  body.menu-open .menu-btn span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+  .menu-backdrop {
+    position: fixed; inset: 0; z-index: 20;
+    background: rgba(63, 52, 38, 0.28);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  body.menu-open .menu-backdrop {
+    opacity: 1; pointer-events: auto;
+  }
+  nav#site-nav {
+    position: fixed;
+    top: 0; right: 0;
+    z-index: 25;
+    width: min(320px, 86vw);
+    height: 100vh;
+    margin: 0;
+    padding: 88px 28px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: #FFFFFF;
+    border-left: 1px solid #e6dcc8;
+    box-shadow: -18px 0 48px rgba(63, 52, 38, 0.12);
+    transform: translateX(100%);
+    transition: transform 0.32s ease;
+    overflow-y: auto;
+    color: #6d5c45;
+    font-size: 16px;
+  }
+  body.menu-open nav#site-nav { transform: translateX(0); }
+  nav#site-nav a {
+    display: block;
+    width: 100%;
+    padding: 14px 0;
+    border-bottom: 1px solid #efe6d6;
+    color: inherit;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  nav#site-nav a:last-child { border-bottom: 0; }
+  nav#site-nav a:hover { color: #c45c26; }
+  body.menu-open { overflow: hidden; }
   .hero { text-align: center; padding: 56px 20px 20px; background: #FFFEFC; }
   .kicker { letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #c45c26; }
   h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95; }
@@ -77,23 +118,8 @@
   .soon { font-size: 12px; color: #c45c26; margin-top: 8px; }
   footer { margin-top: 36px; padding: 28px; text-align: center; color: #6d5c45; font-size: 13px; border-top: 1px solid #e6dcc8; background: #FAFAF9; }
   @media (max-width: 860px) {
-    header {
-      padding: 14px 20px;
-      flex-wrap: wrap;
-      row-gap: 0;
-    }
+    header { padding: 14px 20px; }
     .brand { font-size: 24px; }
-    .menu-btn { display: inline-flex; margin-left: auto; }
-    nav {
-      display: none;
-      width: 100%;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 14px;
-      padding: 12px 0 8px;
-      font-size: 15px;
-    }
-    header.is-open nav { display: flex; }
     .band h2 { font-size: 30px; margin: 0 0 12px; }
     .about p { font-size: 15px; line-height: 1.6; }
     .grid { grid-template-columns: 1fr; }
@@ -107,33 +133,40 @@
   <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
     <span></span><span></span><span></span>
   </button>
-  <nav id="site-nav">
-    <a href="#home">Home</a>
-    <a href="#industries">Industries</a>
-    <a href="#insights">Insights</a>
-    <a href="#press">Press Release</a>
-    <a href="#datalabs">Datalabs</a>
-    <a href="#generatives">Generatives</a>
-    <a href="#testimonials">Testimonials</a>
-    <a href="#shop">Shop</a>
-  </nav>
 </header>
+<div class="menu-backdrop" hidden></div>
+<nav id="site-nav" aria-hidden="true">
+  <a href="#home">Home</a>
+  <a href="#industries">Industries</a>
+  <a href="#insights">Insights</a>
+  <a href="#press">Press Release</a>
+  <a href="#datalabs">Datalabs</a>
+  <a href="#generatives">Generatives</a>
+  <a href="#testimonials">Testimonials</a>
+  <a href="#shop">Shop</a>
+</nav>
 <script>
 (function () {
-  var header = document.querySelector("header");
   var btn = document.querySelector(".menu-btn");
-  if (!header || !btn) return;
-  btn.addEventListener("click", function () {
-    var open = header.classList.toggle("is-open");
+  var nav = document.getElementById("site-nav");
+  var backdrop = document.querySelector(".menu-backdrop");
+  if (!btn || !nav || !backdrop) return;
+  function setOpen(open) {
+    document.body.classList.toggle("menu-open", open);
     btn.setAttribute("aria-expanded", open ? "true" : "false");
     btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    nav.setAttribute("aria-hidden", open ? "false" : "true");
+    backdrop.hidden = !open;
+  }
+  btn.addEventListener("click", function () {
+    setOpen(!document.body.classList.contains("menu-open"));
   });
-  header.querySelectorAll("nav a").forEach(function (link) {
-    link.addEventListener("click", function () {
-      header.classList.remove("is-open");
-      btn.setAttribute("aria-expanded", "false");
-      btn.setAttribute("aria-label", "Open menu");
-    });
+  backdrop.addEventListener("click", function () { setOpen(false); });
+  nav.querySelectorAll("a").forEach(function (link) {
+    link.addEventListener("click", function () { setOpen(false); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") setOpen(false);
   });
 })();
 </script>
