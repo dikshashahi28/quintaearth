@@ -405,6 +405,76 @@
     #press .press-mini { grid-template-columns: 1fr; }
     #press .press-mini .ph { min-height: 140px; }
   }
+  #press .press-hero .ph,
+  #press .press-mini .ph {
+    transition: transform 0.45s ease;
+  }
+  #press .press-hero:hover .ph,
+  #press .press-mini:hover .ph {
+    transform: scale(1.04);
+  }
+  #press .press-hero,
+  #press .press-mini {
+    overflow: hidden;
+  }
+  #press .press-read {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: #24301A;
+    text-decoration: none;
+    border-bottom: 1px solid #d5dbc8;
+    padding-bottom: 2px;
+  }
+  #press .press-read:hover {
+    color: #c45c26;
+    border-bottom-color: #c45c26;
+  }
+  #press .press-archives {
+    margin-top: 28px;
+    padding: 22px 20px 24px;
+    background: #F3F5EC;
+    border: 1px solid #d5dbc8;
+  }
+  #press .press-archives h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 500;
+    font-size: 26px;
+    margin: 0 0 8px;
+    color: #24301A;
+  }
+  #press .press-archives .arch-note {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: #5c4a36;
+    max-width: 520px;
+  }
+  #press .press-archives ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #press .press-archives li {
+    padding: 10px 0;
+    border-bottom: 1px solid #d5dbc8;
+  }
+  #press .press-archives li:last-child { border-bottom: 0; }
+  #press .press-archives a {
+    text-decoration: none;
+    color: #24301A;
+    font-size: 15px;
+  }
+  #press .press-archives a:hover { color: #c45c26; }
+  #press .press-archives .date {
+    display: inline-block;
+    min-width: 88px;
+    margin-right: 10px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6B7A45;
+  }
 
   #youtube .wrap { text-align: center; }
   #youtube .yt-cover {
@@ -780,6 +850,7 @@
         <div class="tag">Latest</div>
         <h3>Launch title</h3>
         <p>Placeholder. Written and issued by you — the lead story of the desk.</p>
+        <a class="press-read" href="#press-archives">Read release →</a>
       </div>
     </article>
     <div class="press-row">
@@ -789,6 +860,7 @@
           <div class="tag">Release</div>
           <h3>Product news</h3>
           <p>Placeholder for a newly launching product.</p>
+          <a class="press-read" href="#press-archives">Read release →</a>
         </div>
       </article>
       <article class="press-mini">
@@ -797,9 +869,19 @@
           <div class="tag">Release</div>
           <h3>Established house</h3>
           <p>Placeholder for a release you prepare.</p>
+          <a class="press-read" href="#press-archives">Read release →</a>
         </div>
       </article>
     </div>
+    <aside class="press-archives" id="press-archives">
+      <h3>Archives</h3>
+      <p class="arch-note">Earlier releases from the desk — open any title for the full note.</p>
+      <ul>
+        <li><a href="#press"><span class="date">Mar 2026</span>Ocean materials brief</a></li>
+        <li><a href="#press"><span class="date">Nov 2025</span>Clean mobility memo</a></li>
+        <li><a href="#press"><span class="date">Jul 2025</span>Green architecture note</a></li>
+      </ul>
+    </aside>
   </div></section>
   <section class="band leaf" id="news"><div class="wrap">
     <h2>News, blogs and articles</h2>
