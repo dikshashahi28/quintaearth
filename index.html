@@ -121,7 +121,7 @@
   .nav-item:hover { color: #c45c26; }
   .nav-group-nested {
     width: 100%;
-    border-bottom: 1px solid #f3ebe0;
+    border-bottom: 1px solid #efe6d6;
   }
   .nav-toggle-nested {
     padding: 10px 0 10px 14px;
@@ -129,15 +129,29 @@
     font-size: 15px;
   }
   .nav-sub-nested {
-    padding: 0 0 8px 0;
-    margin: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 4px 0 10px 14px;
+    padding: 6px 0 8px 14px;
     border: 0;
+    border-left: 2px solid #c45c26;
+    background: transparent;
   }
+  .nav-sub-nested[hidden] { display: none !important; }
   .nav-sub-nested .nav-item {
-    padding: 8px 0 8px 28px;
+    padding: 10px 0;
     font-size: 14px;
-    border-bottom: 1px solid #f7f1e8;
+    font-weight: 400;
+    color: #5c4a36;
+    border-bottom: 0;
   }
+  .nav-sub-nested .nav-item + .nav-item { border-top: 1px solid #f3ebe0; }
+  .nav-item-peer {
+    padding: 10px 0 10px 14px;
+    font-size: 15px;
+    border-bottom: 1px solid #efe6d6;
+  }
+  #industries-sub.focus-tech .nav-peers { display: none; }
 
   body.menu-open { overflow: hidden; }
   .hero {
@@ -260,13 +274,15 @@
           <a class="nav-item" href="#tech-water">Water</a>
         </div>
       </div>
-      <a class="nav-item" href="#industry-energy">Energy</a>
-      <a class="nav-item" href="#industry-materials-science">Materials Science</a>
-      <a class="nav-item" href="#industry-green-architecture">Green Architecture</a>
-      <a class="nav-item" href="#industry-transportation-logistics">Transportation and Logistics</a>
-      <a class="nav-item" href="#industry-eco-restoration">Eco-restoration</a>
-      <a class="nav-item" href="#industry-planetary-engineering">Planetary Engineering</a>
-      <a class="nav-item" href="#industry-advanced-technology">Advanced Technology</a>
+      <div class="nav-peers">
+        <a class="nav-item nav-item-peer" href="#industry-energy">Energy</a>
+        <a class="nav-item nav-item-peer" href="#industry-materials-science">Materials Science</a>
+        <a class="nav-item nav-item-peer" href="#industry-green-architecture">Green Architecture</a>
+        <a class="nav-item nav-item-peer" href="#industry-transportation-logistics">Transportation and Logistics</a>
+        <a class="nav-item nav-item-peer" href="#industry-eco-restoration">Eco-restoration</a>
+        <a class="nav-item nav-item-peer" href="#industry-planetary-engineering">Planetary Engineering</a>
+        <a class="nav-item nav-item-peer" href="#industry-advanced-technology">Advanced Technology</a>
+      </div>
     </div>
   </div>
   <a href="#insights">Insights</a>
@@ -297,12 +313,20 @@
         if (t) t.setAttribute("aria-expanded", "false");
         if (sub) sub.setAttribute("hidden", "");
       });
+      var ind = document.getElementById("industries-sub");
+      if (ind) ind.classList.remove("focus-tech");
     }
   }
   btn.addEventListener("click", function () {
     setOpen(!document.body.classList.contains("menu-open"));
   });
   backdrop.addEventListener("click", function () { setOpen(false); });
+  var industriesSub = document.getElementById("industries-sub");
+  var technologySub = document.getElementById("technology-sub");
+  function syncTechFocus() {
+    if (!industriesSub || !technologySub) return;
+    industriesSub.classList.toggle("focus-tech", !technologySub.hasAttribute("hidden"));
+  }
   nav.querySelectorAll(".nav-toggle").forEach(function (toggle) {
     toggle.addEventListener("click", function (e) {
       e.preventDefault();
@@ -316,8 +340,10 @@
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       if (open) sub.removeAttribute("hidden");
       else sub.setAttribute("hidden", "");
+      syncTechFocus();
     });
   });
+  syncTechFocus();
   nav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () { setOpen(false); });
   });
