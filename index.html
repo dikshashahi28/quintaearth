@@ -273,9 +273,30 @@
   .note { color: #6d5c45; font-size: 15px; line-height: 1.6; max-width: 680px; }
   .panel, .panel.split { margin-top: 8px; background: none; border: 0; border-radius: 0; padding: 0; box-shadow: none; }
   #about .wrap { text-align: center; }
-  .about { max-width: 640px; margin-left: auto; margin-right: auto; text-align: center; }
-  .about p { font-size: 16px; line-height: 1.65; margin: 0 0 10px; color: #5c4a36; text-align: center; }
-  .about p:last-child { margin-bottom: 0; }
+  #about .about-lead {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(22px, 3.2vw, 28px);
+    font-weight: 500;
+    line-height: 1.35;
+    color: #24301A;
+    max-width: 720px;
+    margin: 8px auto 22px;
+    text-align: center;
+  }
+  #about .about {
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  #about .about p {
+    font-size: 15px;
+    line-height: 1.65;
+    margin: 0 0 10px;
+    color: #5c4a36;
+    text-align: center;
+  }
+  #about .about p:last-child { margin-bottom: 0; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 18px; }
   .card, .tease { background: none; border: 0; border-radius: 0; padding: 0 0 0 0; min-height: 0; box-shadow: none; }
   .card h3, .tease h3 { margin: 0 0 8px; font-size: 16px; font-weight: 500; font-family: Outfit, sans-serif; }
@@ -515,8 +536,8 @@
   </section>
   <section class="band mist" id="about"><div class="wrap">
     <h2>About</h2>
+    <p class="about-lead">QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
     <div class="panel about">
-      <p>QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
       <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
       <p>This page is the threshold. The deeper rooms — testimonials, recognitions, and generatives — open beside it.</p>
     </div>
