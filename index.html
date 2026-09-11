@@ -95,8 +95,23 @@
     font: inherit; font-size: 16px; color: #2c2419;
     letter-spacing: 0.02em; text-align: left;
   }
-  /* dropdown chevron symbols removed — expand/collapse still works on tap */
+  /* solid triangle dropdown mark — darker olive */
+  .nav-toggle::after {
+    content: "";
+    width: 0;
+    height: 0;
+    margin-left: 12px;
+    flex-shrink: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #3F4A2A;
+    border-bottom: 0;
+    transition: transform 0.2s ease;
+  }
   .nav-group.is-open > .nav-toggle { color: #c45c26; }
+  .nav-group.is-open > .nav-toggle::after {
+    transform: rotate(180deg);
+  }
   .nav-sub {
     display: flex; flex-direction: column;
     padding: 4px 0 10px 0;
