@@ -154,7 +154,8 @@
     font-size: 15px;
     border-bottom: 1px solid #efe6d6;
   }
-  #industries-sub.focus-tech .nav-peers { display: none; }
+  #industries-sub.focus-nested .nav-peers { display: none; }
+  #industries-sub.focus-nested .nav-group-nested:not(.is-open) { display: none; }
 
   body.menu-open { overflow: hidden; }
   .hero {
@@ -277,8 +278,19 @@
           <a class="nav-item" href="#tech-water">Water</a>
         </div>
       </div>
+      <div class="nav-group nav-group-nested">
+        <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="energy-sub">Energy</button>
+        <div class="nav-sub nav-sub-nested" id="energy-sub" hidden>
+          <a class="nav-item" href="#energy-cleantech">CleanTech</a>
+          <a class="nav-item" href="#energy-decarbonization">Decarbonization</a>
+          <a class="nav-item" href="#energy-storage">Energy Storage</a>
+          <a class="nav-item" href="#energy-geothermal">Geothermal Energy</a>
+          <a class="nav-item" href="#energy-nuclear">Nuclear Energy</a>
+          <a class="nav-item" href="#energy-solar">Solar Energy</a>
+          <a class="nav-item" href="#energy-wind">Wind Energy</a>
+        </div>
+      </div>
       <div class="nav-peers">
-        <a class="nav-item nav-item-peer" href="#industry-energy">Energy</a>
         <a class="nav-item nav-item-peer" href="#industry-materials-science">Materials Science</a>
         <a class="nav-item nav-item-peer" href="#industry-green-architecture">Green Architecture</a>
         <a class="nav-item nav-item-peer" href="#industry-transportation-logistics">Transportation and Logistics</a>
@@ -317,7 +329,7 @@
         if (sub) sub.setAttribute("hidden", "");
       });
       var ind = document.getElementById("industries-sub");
-      if (ind) ind.classList.remove("focus-tech");
+      if (ind) ind.classList.remove("focus-nested");
     }
   }
   btn.addEventListener("click", function () {
@@ -325,10 +337,16 @@
   });
   backdrop.addEventListener("click", function () { setOpen(false); });
   var industriesSub = document.getElementById("industries-sub");
-  var technologySub = document.getElementById("technology-sub");
-  function syncTechFocus() {
-    if (!industriesSub || !technologySub) return;
-    industriesSub.classList.toggle("focus-tech", !technologySub.hasAttribute("hidden"));
+  function syncNestedFocus() {
+    if (!industriesSub) return;
+    var anyOpen = false;
+    industriesSub.querySelectorAll(".nav-group-nested").forEach(function (group) {
+      var t = group.querySelector(":scope > .nav-toggle");
+      var subId = t && t.getAttribute("aria-controls");
+      var sub = subId ? document.getElementById(subId) : null;
+      if (sub && !sub.hasAttribute("hidden")) anyOpen = true;
+    });
+    industriesSub.classList.toggle("focus-nested", anyOpen);
   }
   nav.querySelectorAll(".nav-toggle").forEach(function (toggle) {
     toggle.addEventListener("click", function (e) {
@@ -339,14 +357,26 @@
       var sub = subId ? document.getElementById(subId) : null;
       if (!group || !sub || !group.classList.contains("nav-group")) return;
       var open = sub.hasAttribute("hidden");
+      /* opening one nested industry closes other nested industries */
+      if (open && group.classList.contains("nav-group-nested") && industriesSub) {
+        industriesSub.querySelectorAll(".nav-group-nested").forEach(function (other) {
+          if (other === group) return;
+          other.classList.remove("is-open");
+          var ot = other.querySelector(":scope > .nav-toggle");
+          var osId = ot && ot.getAttribute("aria-controls");
+          var os = osId ? document.getElementById(osId) : null;
+          if (ot) ot.setAttribute("aria-expanded", "false");
+          if (os) os.setAttribute("hidden", "");
+        });
+      }
       group.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       if (open) sub.removeAttribute("hidden");
       else sub.setAttribute("hidden", "");
-      syncTechFocus();
+      syncNestedFocus();
     });
   });
-  syncTechFocus();
+  syncNestedFocus();
   nav.querySelectorAll("a").forEach(function (link) {
     link.addEventListener("click", function () { setOpen(false); });
   });
