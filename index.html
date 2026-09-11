@@ -119,6 +119,21 @@
   }
   .nav-sub a:last-child { border-bottom: 0; }
   .nav-sub a:hover { color: #c45c26; }
+  .nav-group-nested { width: 100%; border-bottom: 1px solid #f3ebe0; }
+  .nav-toggle-nested {
+    padding: 10px 0;
+    border-bottom: 0;
+    font-size: 15px;
+  }
+  .nav-sub-nested {
+    padding: 2px 0 8px 14px;
+  }
+  .nav-sub-nested a {
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #f7f1e8;
+  }
+
   body.menu-open { overflow: hidden; }
   .hero {
     position: relative;
@@ -227,7 +242,21 @@
   <div class="nav-group">
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="industries-sub">Industries</button>
     <div class="nav-sub" id="industries-sub" hidden>
-      <a href="#industry-technology">Technology</a>
+      <div class="nav-group nav-group-nested">
+        <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="technology-sub">Technology</button>
+        <div class="nav-sub nav-sub-nested" id="technology-sub" hidden>
+          <a href="#tech-food">Food</a>
+          <a href="#tech-agri">Agri</a>
+          <a href="#tech-bio">Bio</a>
+          <a href="#tech-nano">Nano</a>
+          <a href="#tech-water">Water</a>
+          <a href="#tech-ocean">Ocean</a>
+          <a href="#tech-nuclear">Nuclear</a>
+          <a href="#tech-space">Space</a>
+          <a href="#tech-climate">Climate</a>
+          <a href="#tech-fintech">Fintech</a>
+        </div>
+      </div>
       <a href="#industry-energy">Energy</a>
       <a href="#industry-materials-science">Materials Science</a>
       <a href="#industry-green-architecture">Green Architecture</a>
