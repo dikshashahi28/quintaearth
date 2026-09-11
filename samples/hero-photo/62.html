@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>62 · Tropical green · Leafy hero sample</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #3f3426; background: #FFFFFE; font-family: Outfit, sans-serif; font-weight: 300; }
+  a { color: #c45c26; }
+  .bar { padding: 14px 20px; border-bottom: 1px solid #e6dcc8; font-size: 13px; color: #6d5c45; display: flex; gap: 14px; flex-wrap: wrap; }
+  .bar strong { color: #3f3426; font-weight: 500; }
+  header {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    background: rgba(255,255,255,0.94);
+    border-bottom: 1px solid #e6dcc8;
+  }
+  .brand { font-family: "Cormorant Garamond", serif; font-size: 28px; }
+  .brand span { color: #c45c26; }
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 96px 20px 80px;
+    min-height: 58vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden;
+    background: transparent;
+  }
+  .hero-photo {
+    position: absolute; inset: 0; z-index: 0;
+    background: center / cover no-repeat url("img/62-tropical-green.jpg");
+  }
+  .hero-inner { position: relative; z-index: 2; max-width: 900px; padding: 0 12px; }
+  .kicker {
+    letter-spacing: 0.28em; text-transform: uppercase; font-size: 12px; color: #c45c26;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.85), 0 0 16px rgba(255,255,255,0.5);
+  }
+  h1 {
+    font-family: "Cormorant Garamond", serif; font-weight: 500;
+    font-size: clamp(56px, 8vw, 88px); margin: 12px 0 8px; line-height: 0.95;
+    color: #2c2419;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.55);
+  }
+  .rule { width: 72px; height: 1px; margin: 24px auto; background: linear-gradient(90deg, transparent, #c4a15a, transparent); }
+  .lead.quote {
+    font-family: "Cormorant Garamond", serif; font-weight: 500; font-style: italic;
+    font-size: 16px; line-height: 1.55; max-width: 820px; margin: 0 auto; color: #2c2419;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.55);
+  }
+  .below { padding: 24px 20px 48px; max-width: 680px; margin: 0 auto; color: #6d5c45; font-size: 14px; line-height: 1.6; }
+  .about-fake { padding: 28px 20px; max-width: 640px; margin: 0 auto; border-top: 1px solid #d9cbb4; }
+  .about-fake h2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 36px; margin: 0 0 12px; }
+</style>
+</head>
+<body>
+<div class="bar"><strong>62 · Tropical green</strong> · balanced sample · <a href="compare-leafy.html">Leafy set</a> · <a href="compare.html">All samples</a></div>
+<header>
+  <div class="brand">Quinta<span>Earth</span></div>
+  <div style="font-size:13px;color:#6d5c45;">☰</div>
+</header>
+<section class="hero">
+  <div class="hero-photo" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="kicker">A living commons</div>
+    <h1>QuintaEarth</h1>
+    <div class="rule"></div>
+    <p class="lead quote">“The future isn’t about using less; it’s about engineering better. Here we are bridging the gap between ecological health and technological ambition.”</p>
+  </div>
+</section>
+<div class="about-fake">
+  <h2>About</h2>
+  <p style="color:#5c4a36;line-height:1.65;font-size:15px;">Leafy photo at full strength — same treatment as sample 50. About stays plain.</p>
+</div>
+<p class="below">Fresh tropical green. Reply with this number if it feels right.</p>
+</body>
+</html>
