@@ -1,43 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Discussion · QuintaEarth</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
-<style>
-  body { margin:0; color:#3a2a14; font-family:Outfit,sans-serif; font-weight:300;
-    background: linear-gradient(180deg, #fffdf8 0%, #f8efd8 46%, #f3e2b8 100%); }
-  header { display:flex; justify-content:space-between; align-items:center; padding:18px 28px;
-    background: rgba(255,251,244,.92); border-bottom:1px solid rgba(196,137,42,.28); }
-  .brand { font-family:"Cormorant Garamond",serif; font-size:28px; color:#5a3d16; } .brand span{color:#c4892a;}
-  a { color:inherit; text-decoration:none; }
-  main { width:min(760px, calc(100% - 40px)); margin:48px auto 80px; }
-  h1 { font-family:"Cormorant Garamond",serif; font-weight:500; font-size:52px; margin:0 0 10px; color:#4a3012; }
-  p { color:#6b5433; line-height:1.6; }
-  .panel { margin-top:24px; background:rgba(255,252,246,.92); border:1px solid rgba(196,137,42,.28); border-radius:22px; padding:22px; }
-  textarea, input { width:100%; border:1px solid rgba(196,137,42,.28); border-radius:12px; padding:12px; font:inherit; background:#fffdf8; }
-  button { margin-top:12px; border:0; border-radius:999px; padding:12px 18px; background:linear-gradient(180deg,#e0b15a,#c4892a); color:#fffdf8; }
-  .note { font-size:13px; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F4F1EA" />
+  <meta name="description" content="Discussion room on QuintaEarth for insights on sustainable development, greentech, and cleantech." />
+  <title>Discussion · QuintaEarth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header>
-  <a class="brand" href="index.html">Quinta<span>Earth</span></a>
-  <a href="index.html">Back to home</a>
-</header>
-<main>
-  <h1>Discussion</h1>
-  <p>A room for insights and ideas about what people are building for sustainable development, greentech, and cleantech.</p>
-  <div class="panel">
-    <p>This is its own page, separate from the home page. Shared posts will gather here. For now the room is ready; live replies from other people are not switched on yet.</p>
-    <form>
-      <input placeholder="Your name" />
-      <textarea rows="5" placeholder="What are you building?" style="margin-top:12px;"></textarea>
-      <button type="button">Share</button>
-      <div class="note">Posts are not public yet. This page is the place they will live.</div>
-    </form>
-  </div>
-</main>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html" translate="no">Quinta<span>Earth</span></a>
+      <a class="back-link" href="index.html">Back to home</a>
+    </div>
+  </header>
+
+  <main id="main" class="page-main">
+    <h1>Discussion</h1>
+    <p class="note">A room for insights and ideas about what people are building for sustainable development, greentech, and cleantech.</p>
+
+    <div class="discussion-panel">
+      <p class="note">This is its own page, separate from the home page. Shared posts will gather here. For now the room is ready; live replies from other people are not switched on yet.</p>
+
+      <form class="form-stack" id="discussion-form" novalidate>
+        <div class="field">
+          <label for="name">Your name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            placeholder="Alex Rivera…"
+            spellcheck="false"
+          />
+        </div>
+        <div class="field">
+          <label for="message">What are you building?</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            autocomplete="off"
+            placeholder="A short note on the work…"
+          ></textarea>
+        </div>
+        <button class="btn" type="submit" id="share-btn">Share</button>
+        <p class="form-note" id="form-status" role="status" aria-live="polite">
+          Posts are not public yet. This page is the place they will live.
+        </p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="index.html" translate="no">QuintaEarth</a> · Discussion</p>
+  </footer>
+
+  <script src="site.js" defer></script>
 </body>
 </html>
