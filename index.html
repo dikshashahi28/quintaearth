@@ -669,29 +669,6 @@
   });
 })();
 </script>
-<script>
-
-(function () {
-  var cover = document.getElementById("yt-cover");
-  if (!cover) return;
-  function play() {
-    if (cover.classList.contains("is-playing")) return;
-    var frame = cover.querySelector("iframe");
-    if (frame && frame.getAttribute("data-src")) {
-      frame.src = frame.getAttribute("data-src");
-    }
-    cover.classList.add("is-playing");
-    cover.setAttribute("aria-label", "QuintaEarth video playing");
-  }
-  cover.addEventListener("click", play);
-  cover.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      play();
-    }
-  });
-})();
-</script>
 <main>
   <section class="hero" id="home">
     <div class="hero-photo" aria-hidden="true"></div>
@@ -716,7 +693,7 @@
       <div class="yt-play" aria-hidden="true"></div>
       <p class="yt-caption">Watch</p>
       <div class="yt-player">
-        <iframe data-src="https://www.youtube-nocookie.com/embed/T_udYF5L6OQ?autoplay=1&rel=0" title="QuintaEarth — Earth is our home" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+        <iframe data-src="https://www.youtube.com/embed/T_udYF5L6OQ?autoplay=1&rel=0&playsinline=1" title="QuintaEarth — Earth is our home" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
       </div>
     </div>
     <p class="yt-sub">Films, maker notes, and greentech conversations from QuintaEarth.</p>
@@ -788,5 +765,37 @@
   </div></section>
 </main>
 <footer>QuintaEarth · live</footer>
+
+<script>
+(function () {
+  function bindCover() {
+    var cover = document.getElementById("yt-cover");
+    if (!cover || cover.getAttribute("data-bound") === "1") return;
+    cover.setAttribute("data-bound", "1");
+    function play() {
+      if (cover.classList.contains("is-playing")) return;
+      var frame = cover.querySelector("iframe");
+      if (!frame) return;
+      var src = frame.getAttribute("data-src");
+      if (!src) return;
+      frame.setAttribute("src", src);
+      cover.classList.add("is-playing");
+      cover.setAttribute("aria-label", "QuintaEarth video playing");
+    }
+    cover.addEventListener("click", play);
+    cover.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        play();
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindCover);
+  } else {
+    bindCover();
+  }
+})();
+</script>
 </body>
 </html>
