@@ -143,6 +143,12 @@ a:hover { color: var(--qe-primary); }
   font-size: 0.92rem;
 }
 .topbar a:hover { color: #F3F5EC !important; }
+.topbar a[href^="mailto:"],
+.topbar a[href^="mailto:"]:hover,
+.topbar a[href^="mailto:"]:focus,
+.topbar a[href^="mailto:"]:focus-visible {
+  text-decoration: none;
+}
 .topbar .social-btn { color: #FFFFFE; }
 
 .navbar {
@@ -795,14 +801,31 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 .chat-skel { height: 12px; background: #d5dbc8; border-radius: 2px; margin: 6px 0; }
 
 .footer { background: #222222 !important; color: #E0B8A0; }
-.footer .row { align-items: flex-start; }
+.footer .row {
+  --bs-gutter-x: 3rem;
+  --bs-gutter-y: 3rem;
+  align-items: flex-start;
+}
+@media (min-width: 768px) {
+  .footer .row {
+    flex-wrap: nowrap;
+  }
+  .footer .row > [class*="col-"] {
+    flex: 1 1 0;
+    width: 33.333%;
+    max-width: 33.333%;
+  }
+}
 .footer .footer-item {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .footer h4 {
   color: #FFFFFE !important;
   font-family: "Cormorant Garamond", serif;
   line-height: 1.2;
+  margin-bottom: 1.5rem;
 }
 .footer .footer-item a,
 .footer .footer-item p,
@@ -821,19 +844,33 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   color: #C45C26;
 }
 .footer .footer-item a:not(.btn):hover { color: #FFFFFE; }
+.footer .footer-community {
+  align-items: flex-start;
+}
+.footer .footer-community-line {
+  margin: 0.75rem 0;
+  line-height: 1.45;
+}
 .footer .footer-join {
   align-self: flex-start;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 .footer .footer-qr {
-  align-self: flex-start;
-  padding: 10px;
+  width: 72px;
+  height: 72px;
+  padding: 3px;
+  background: #FFFFFE;
+  border: 0;
+  overflow: hidden;
+  line-height: 0;
 }
 .footer .qr-mini {
-  width: 120px;
+  width: 190%;
+  max-width: none;
   height: auto;
-  background: #fff;
+  margin: -52% 0 0 -45%;
   padding: 0;
+  background: #FFFFFE;
   display: block;
 }
 .copyright { background: #222222 !important; color: #E0B8A0; }
