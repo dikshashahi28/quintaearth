@@ -149,6 +149,13 @@ a:hover { color: var(--qe-primary); }
 .topbar a[href^="mailto:"]:focus-visible {
   text-decoration: none;
 }
+.topbar a[href^="mailto:"] i {
+  color: #FFFFFE;
+  font-size: 1em;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+}
 .topbar .social-btn { color: #FFFFFE; }
 
 .navbar {
