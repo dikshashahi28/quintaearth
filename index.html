@@ -349,16 +349,19 @@
     display: block;
     max-width: 560px;
     margin: 18px auto 0;
-    text-align: left;
+    text-align: center;
     color: #24301A;
     font-size: 15px;
     line-height: 1.65;
     text-decoration: underline;
     text-underline-offset: 0.18em;
     text-decoration-thickness: 1px;
+    transform-origin: center;
+    transition: color 0.2s ease, transform 0.2s ease;
   }
   #about .about-more:hover {
     color: #c45c26;
+    transform: scale(1.07);
   }
 
 
