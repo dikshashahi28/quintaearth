@@ -800,10 +800,10 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 .chat-avatar.is-soft { background: #C45C26; opacity: .55; }
 .chat-skel { height: 12px; background: #d5dbc8; border-radius: 2px; margin: 6px 0; }
 
-.footer { background: #222222 !important; color: #E0B8A0; }
+.footer { background: #222222 !important; color: #E0B8A0; text-align: left; }
 .footer .row {
   --bs-gutter-x: 3rem;
-  --bs-gutter-y: 3rem;
+  --bs-gutter-y: 2rem;
   align-items: flex-start;
 }
 @media (min-width: 768px) {
@@ -820,21 +820,35 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  text-align: left;
 }
-.footer h4 {
+.footer h4,
+.footer h4.mb-4 {
   color: #FFFFFE !important;
   font-family: "Cormorant Garamond", serif;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
+  min-height: 1.2em;
+  margin-top: 0;
+  margin-bottom: 1rem !important;
+  text-align: left;
+  width: 100%;
 }
 .footer .footer-item a,
 .footer .footer-item p,
-.footer p { color: #E0B8A0; }
-.footer .footer-item a:not(.btn) {
+.footer p { color: #E0B8A0; text-align: left; }
+.footer .footer-item a:not(.btn),
+.footer .footer-item a:not(.btn):hover,
+.footer .footer-item a:not(.btn):focus,
+.footer .footer-item a:not(.btn):focus-visible,
+.footer .footer-item a:not(.btn):visited {
+  display: block;
   line-height: 35px;
   min-height: 35px;
-  display: inline-flex;
-  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-decoration: none !important;
+  text-underline-offset: 0;
 }
 .footer .footer-item a:not(.btn)::before {
   content: "\f105";
@@ -848,21 +862,26 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   align-items: flex-start;
 }
 .footer .footer-community-line {
-  margin: 0.75rem 0;
+  margin: 0.5rem 0 0.4rem;
   line-height: 1.45;
+  min-height: 0;
 }
 .footer .footer-join {
   align-self: flex-start;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.15rem;
+  min-height: 36px;
+  padding: 0.3rem 0.85rem;
 }
 .footer .footer-qr {
-  width: 72px;
-  height: 72px;
-  padding: 3px;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  padding: 2px;
   background: #FFFFFE;
   border: 0;
   overflow: hidden;
   line-height: 0;
+  align-self: flex-start;
 }
 .footer .qr-mini {
   width: 190%;
