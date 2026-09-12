@@ -182,7 +182,16 @@ a:hover { color: var(--qe-primary); }
 }
 .navbar-expand .navbar-toggler { display: inline-flex !important; }
 
-.offcanvas { background: #F3F5EC; }
+.offcanvas {
+  background: #F3F5EC;
+  --bs-accordion-btn-color: #24301A;
+  --bs-accordion-active-color: #C45C26;
+  --bs-accordion-btn-bg: transparent;
+  --bs-accordion-active-bg: transparent;
+  --bs-accordion-btn-focus-box-shadow: none;
+  --bs-accordion-border-color: transparent;
+  --bs-accordion-btn-icon-width: 0.75rem;
+}
 .offcanvas-body {
   display: flex;
   flex-direction: column;
@@ -199,51 +208,89 @@ a:hover { color: var(--qe-primary); }
 }
 .offcanvas-social {
   flex: 0 0 auto;
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
+  gap: 12px;
   margin: 0;
-  padding: 18px 1.25rem calc(18px + env(safe-area-inset-bottom, 0px));
+  padding: 14px 1.25rem calc(14px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #d5dbc8;
   background: #F3F5EC;
 }
-.offcanvas-social a {
-  display: inline-flex;
+.offcanvas-social a,
+.offcanvas-social .nav-link {
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 32px !important;
+  height: 32px;
+  min-height: 0;
+  flex: 0 0 auto;
+  padding: 0 !important;
+  margin: 0;
   color: inherit;
+  border: 0 !important;
 }
 .offcanvas-social a:hover { opacity: 0.7; }
 .offcanvas-social svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   display: block;
 }
-.offcanvas .nav-link, .offcanvas .btn-link {
+.offcanvas .nav-link,
+.offcanvas .btn-link,
+.offcanvas .accordion-button {
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  letter-spacing: normal;
+  line-height: 1.5;
+  text-transform: none;
   color: #24301A;
   min-height: 44px;
   text-align: left;
   display: flex;
   align-items: center;
 }
+.offcanvas .nav-link {
+  padding: 0.5rem 0;
+}
 .offcanvas .nav-link:hover { color: #C45C26; }
+.offcanvas .accordion-header {
+  margin: 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #24301A;
+}
 .offcanvas .accordion-button {
   background: transparent;
   box-shadow: none;
-  color: #24301A;
-  font-size: 1rem;
-  min-height: 44px;
+  padding: 0.5rem 1.75rem 0.5rem 0;
 }
 .offcanvas .accordion-button:not(.collapsed) {
   color: #C45C26;
   background: transparent;
+  box-shadow: none;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  letter-spacing: normal;
 }
 .offcanvas .accordion-button:focus { box-shadow: none; }
 .offcanvas .accordion-body { padding-left: 1rem; border-left: 1px solid #6B7A45; }
 .offcanvas .accordion-item { border: 0; background: transparent; }
+#oc-ind-groups .accordion-button {
+  padding-left: 0.875rem;
+  font-size: 0.9375rem;
+}
+#oc-ind-groups .accordion-button:not(.collapsed) { font-size: 0.9375rem; }
+#oc-ind-groups.focus-nested > .accordion-item:not(.is-focused) {
+  display: none;
+}
 
 .social-btn {
   width: 44px;

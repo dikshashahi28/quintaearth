@@ -16,6 +16,60 @@
     });
   });
 
+  function industryGroupRoot() {
+    return document.getElementById("oc-ind-groups");
+  }
+
+  function isIndustryGroupPanel(panel) {
+    var root = industryGroupRoot();
+    return !!(root && panel && panel.parentElement && panel.parentElement.parentElement === root);
+  }
+
+  function applyIndustryFocus(item) {
+    var root = industryGroupRoot();
+    if (!root) return;
+    root.querySelectorAll(":scope > .accordion-item").forEach(function (other) {
+      other.classList.toggle("is-focused", !!item && other === item);
+    });
+    root.classList.toggle("focus-nested", !!item);
+  }
+
+  function syncIndustryFocus() {
+    var root = industryGroupRoot();
+    if (!root) return;
+    var openItem = null;
+    root.querySelectorAll(":scope > .accordion-item").forEach(function (item) {
+      var panel = item.querySelector(":scope > .accordion-collapse");
+      if (panel && panel.classList.contains("show")) openItem = item;
+    });
+    applyIndustryFocus(openItem);
+  }
+
+  function hideCollapse(el) {
+    if (!el || !window.bootstrap) return;
+    var inst = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
+    inst.hide();
+  }
+
+  var oc = document.getElementById("siteOffcanvas");
+  if (oc) {
+    oc.addEventListener("show.bs.collapse", function (e) {
+      if (isIndustryGroupPanel(e.target)) applyIndustryFocus(e.target.parentElement);
+    });
+    oc.addEventListener("shown.bs.collapse", syncIndustryFocus);
+    oc.addEventListener("hidden.bs.collapse", syncIndustryFocus);
+    oc.addEventListener("hidden.bs.offcanvas", function () {
+      hideCollapse(document.getElementById("oc-ind-root"));
+      hideCollapse(document.getElementById("oc-press-sub"));
+      var root = industryGroupRoot();
+      if (root) {
+        root.querySelectorAll(".accordion-collapse.show").forEach(hideCollapse);
+        applyIndustryFocus(null);
+      }
+    });
+    syncIndustryFocus();
+  }
+
   window.quintaPlayYt = function (e) {
     try { if (e) { e.preventDefault(); e.stopPropagation(); } } catch (err) {}
     var cover = document.getElementById("yt-cover");
