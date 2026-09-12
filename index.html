@@ -49,6 +49,29 @@
     .brand.brand-logo img { height: 24px; }
   }
 
+  .header-links {
+    display: none;
+    align-items: center;
+    gap: 22px;
+    margin-left: auto;
+    margin-right: 10px;
+  }
+  .header-links a {
+    display: inline-block;
+    color: #24301A;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+    transform: scale(1);
+    transition: transform 0.18s ease;
+  }
+  .header-links a:hover,
+  .header-links a:focus-visible {
+    transform: scale(1.08);
+  }
   .menu-btn {
     display: inline-flex;
     width: 40px; height: 40px;
@@ -56,6 +79,10 @@
     border: 0; background: transparent; cursor: pointer;
     align-items: center; justify-content: center; flex-direction: column; gap: 5px;
     position: relative; z-index: 30;
+  }
+  @media (min-width: 861px) {
+    .header-links { display: flex; }
+    .menu-btn { margin-left: 0; }
   }
   .menu-btn span {
     display: block; width: 22px; height: 1.5px;
@@ -584,6 +611,12 @@
   <a class="brand brand-logo" href="#home" aria-label="QuintaEarth home">
     <img src="assets/logo-quintaearth-v8b.png" alt="QuintaEarth" width="140" height="24"/>
   </a>
+  <nav class="header-links" aria-label="Primary">
+    <a href="#" target="_blank" rel="noopener noreferrer">About Us</a>
+    <a href="#" target="_blank" rel="noopener noreferrer">Insights</a>
+    <a href="#" target="_blank" rel="noopener noreferrer">SDGs</a>
+    <a href="#" target="_blank" rel="noopener noreferrer">Contact Us</a>
+  </nav>
   <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">
     <span></span><span></span><span></span>
   </button>
