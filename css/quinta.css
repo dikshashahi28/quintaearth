@@ -242,7 +242,8 @@ a:hover { color: var(--qe-primary); }
   display: block;
 }
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link,
-#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle {
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .accordion-button {
   -webkit-appearance: none !important;
   appearance: none !important;
   font: 400 16px/1.5 Outfit, "Segoe UI", system-ui, sans-serif !important;
@@ -256,23 +257,55 @@ a:hover { color: var(--qe-primary); }
   text-decoration: none !important;
   color: #24301A !important;
   background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
   box-shadow: none !important;
+  outline: none !important;
+  outline-offset: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   min-height: 44px !important;
   height: auto !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 8px 0 !important;
-  border: 0 !important;
   display: flex !important;
   align-items: center !important;
   text-align: left !important;
+  -webkit-tap-highlight-color: transparent;
 }
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link:hover,
-#siteOffcanvas .nav-group.is-open > .nav-toggle {
+#siteOffcanvas .offcanvas-nav-scroll > a.nav-link:focus,
+#siteOffcanvas .offcanvas-nav-scroll > a.nav-link:focus-visible,
+#siteOffcanvas .offcanvas-nav-scroll > a.nav-link:active,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:hover,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:focus,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:focus-visible,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:active,
+#siteOffcanvas .accordion-button,
+#siteOffcanvas .accordion-button:hover,
+#siteOffcanvas .accordion-button:focus,
+#siteOffcanvas .accordion-button:focus-visible,
+#siteOffcanvas .accordion-button:active,
+#siteOffcanvas .accordion-button:not(.collapsed),
+#siteOffcanvas .accordion-button.collapsed {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #24301A !important;
+}
+#siteOffcanvas .offcanvas-nav-scroll > a.nav-link:hover,
+#siteOffcanvas .nav-group.is-open > .nav-toggle,
+#siteOffcanvas .nav-group.is-open > .accordion-button {
   color: #C45C26 !important;
 }
 #siteOffcanvas .nav-group { width: 100%; }
-#siteOffcanvas .nav-toggle {
+#siteOffcanvas .nav-toggle,
+#siteOffcanvas .accordion-button {
   justify-content: space-between;
   cursor: pointer;
 }
@@ -301,7 +334,11 @@ a:hover { color: var(--qe-primary); }
 #siteOffcanvas .nav-group-nested {
   width: 100%;
 }
-#siteOffcanvas .nav-toggle-nested {
+#siteOffcanvas .nav-toggle-nested,
+#siteOffcanvas .nav-toggle-nested:hover,
+#siteOffcanvas .nav-toggle-nested:focus,
+#siteOffcanvas .nav-toggle-nested:focus-visible,
+#siteOffcanvas .nav-toggle-nested:active {
   -webkit-appearance: none !important;
   appearance: none !important;
   font: 400 15px/1.4 Outfit, "Segoe UI", system-ui, sans-serif !important;
@@ -309,16 +346,22 @@ a:hover { color: var(--qe-primary); }
   text-transform: none !important;
   color: #24301A !important;
   background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: none !important;
   min-height: 0 !important;
   height: auto !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 10px 0 10px 14px !important;
   border: 0 !important;
+  border-radius: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   text-align: left !important;
+  -webkit-tap-highlight-color: transparent;
 }
 #siteOffcanvas .nav-group-nested.is-open > .nav-toggle-nested {
   color: #C45C26 !important;

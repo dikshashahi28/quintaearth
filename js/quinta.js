@@ -6,7 +6,7 @@
     });
   });
 
-  document.querySelectorAll("#siteOffcanvas a[href]:not([data-placeholder])").forEach(function (a) {
+  document.querySelectorAll("#siteOffcanvas a[href]:not([data-placeholder]):not(.nav-toggle)").forEach(function (a) {
     a.addEventListener("click", function () {
       var oc = document.getElementById("siteOffcanvas");
       if (oc && window.bootstrap) {
@@ -43,6 +43,12 @@
 
   if (oc) {
     oc.querySelectorAll(".nav-toggle").forEach(function (toggle) {
+      toggle.addEventListener("keydown", function (e) {
+        if (e.key === " ") {
+          e.preventDefault();
+          toggle.click();
+        }
+      });
       toggle.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
