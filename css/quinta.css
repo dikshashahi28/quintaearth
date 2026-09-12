@@ -795,26 +795,59 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 .chat-skel { height: 12px; background: #d5dbc8; border-radius: 2px; margin: 6px 0; }
 
 .footer { background: #222222 !important; color: #E0B8A0; }
-.footer h4 { color: #FFFFFE !important; font-family: "Cormorant Garamond", serif; }
+.footer .row { align-items: flex-start; }
+.footer .footer-item {
+  height: 100%;
+}
+.footer h4 {
+  color: #FFFFFE !important;
+  font-family: "Cormorant Garamond", serif;
+  line-height: 1.2;
+}
 .footer .footer-item a,
 .footer .footer-item p,
 .footer p { color: #E0B8A0; }
-.footer .footer-item a {
-  min-height: 44px;
+.footer .footer-item a:not(.btn) {
+  line-height: 35px;
+  min-height: 35px;
   display: inline-flex;
   align-items: center;
 }
-.footer .footer-item a::before {
+.footer .footer-item a:not(.btn)::before {
   content: "\f105";
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
   margin-right: 10px;
   color: #C45C26;
 }
-.footer .footer-item a:hover { color: #FFFFFE; }
-.footer .social-btn { color: #FFFFFE; }
+.footer .footer-item a:not(.btn):hover { color: #FFFFFE; }
+.footer .footer-join {
+  align-self: flex-start;
+  margin-bottom: 0.75rem;
+}
+.footer .footer-qr {
+  align-self: flex-start;
+  padding: 10px;
+}
+.footer .qr-mini {
+  width: 120px;
+  height: auto;
+  background: #fff;
+  padding: 0;
+  display: block;
+}
 .copyright { background: #222222 !important; color: #E0B8A0; }
 .copyright a { color: #FFFFFE; }
+.copyright .copyright-social .social-btn {
+  width: 36px;
+  height: 36px;
+  background: #C45C26;
+  color: #FFFFFE;
+}
+.copyright .copyright-social .social-btn:hover {
+  background: #A8491C;
+  color: #FFFFFE;
+}
 
 .back-to-top {
   position: fixed;
