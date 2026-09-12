@@ -42,6 +42,12 @@
   }
 
   if (oc) {
+    oc.addEventListener("show.bs.offcanvas", function () {
+      document.body.classList.add("menu-open");
+    });
+    oc.addEventListener("hide.bs.offcanvas", function () {
+      document.body.classList.remove("menu-open");
+    });
     oc.querySelectorAll(".nav-toggle").forEach(function (toggle) {
       toggle.addEventListener("keydown", function (e) {
         if (e.key === " ") {

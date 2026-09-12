@@ -171,16 +171,50 @@ a:hover { color: var(--qe-primary); }
   max-width: min(200px, 52vw);
   display: block;
 }
-.navbar-toggler {
-  display: inline-flex !important;
+.navbar .menu-btn,
+.menu-btn {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  margin: 0 1rem 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  border: 0;
-  padding: 0;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+  z-index: 30;
+  box-shadow: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
-.navbar-expand .navbar-toggler { display: inline-flex !important; }
+@media (min-width: 1200px) {
+  .navbar .menu-btn { margin-left: 0; }
+}
+.menu-btn span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: #5c4a36;
+  border-radius: 1px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+body.menu-open .menu-btn span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+body.menu-open .menu-btn span:nth-child(2) { opacity: 0; }
+body.menu-open .menu-btn span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+.menu-btn:focus,
+.menu-btn:focus-visible,
+.menu-btn:active {
+  box-shadow: none;
+  outline: none;
+  border: 0;
+  background: transparent;
+}
+.navbar-toggler-icon { display: none; }
 
 .offcanvas {
   background: #F3F5EC;
@@ -242,6 +276,7 @@ a:hover { color: var(--qe-primary); }
   display: block;
 }
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > button.nav-link,
 #siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle,
 #siteOffcanvas .offcanvas-nav-scroll > .nav-group > .accordion-button {
   -webkit-appearance: none !important;
@@ -278,6 +313,10 @@ a:hover { color: var(--qe-primary); }
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link:focus,
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link:focus-visible,
 #siteOffcanvas .offcanvas-nav-scroll > a.nav-link:active,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > button.nav-link:hover,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > button.nav-link:focus,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > button.nav-link:focus-visible,
+#siteOffcanvas .offcanvas-nav-scroll > .nav-group > button.nav-link:active,
 #siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:hover,
 #siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:focus,
 #siteOffcanvas .offcanvas-nav-scroll > .nav-group > .nav-toggle:focus-visible,
