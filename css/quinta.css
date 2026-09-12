@@ -554,7 +554,7 @@ a:hover { color: var(--qe-primary); }
 .chat-avatar.is-soft { background: #C45C26; opacity: .55; }
 .chat-skel { height: 12px; background: #d5dbc8; border-radius: 2px; margin: 6px 0; }
 
-.footer { background: #24301A !important; color: #E0B8A0; }
+.footer { background: #222222 !important; color: #E0B8A0; }
 .footer h4 { color: #FFFFFE !important; font-family: "Cormorant Garamond", serif; }
 .footer .footer-item a,
 .footer .footer-item p,
@@ -573,7 +573,7 @@ a:hover { color: var(--qe-primary); }
 }
 .footer .footer-item a:hover { color: #FFFFFE; }
 .footer .social-btn { color: #FFFFFE; }
-.copyright { background: #1a2212 !important; color: #E0B8A0; }
+.copyright { background: #222222 !important; color: #E0B8A0; }
 .copyright a { color: #FFFFFE; }
 
 .back-to-top {
