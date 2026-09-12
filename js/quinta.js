@@ -16,58 +16,58 @@
     });
   });
 
-  function industryGroupRoot() {
-    return document.getElementById("oc-ind-groups");
-  }
-
-  function isIndustryGroupPanel(panel) {
-    var root = industryGroupRoot();
-    return !!(root && panel && panel.parentElement && panel.parentElement.parentElement === root);
-  }
-
-  function applyIndustryFocus(item) {
-    var root = industryGroupRoot();
-    if (!root) return;
-    root.querySelectorAll(":scope > .accordion-item").forEach(function (other) {
-      other.classList.toggle("is-focused", !!item && other === item);
-    });
-    root.classList.toggle("focus-nested", !!item);
-  }
-
-  function syncIndustryFocus() {
-    var root = industryGroupRoot();
-    if (!root) return;
-    var openItem = null;
-    root.querySelectorAll(":scope > .accordion-item").forEach(function (item) {
-      var panel = item.querySelector(":scope > .accordion-collapse");
-      if (panel && panel.classList.contains("show")) openItem = item;
-    });
-    applyIndustryFocus(openItem);
-  }
-
-  function hideCollapse(el) {
-    if (!el || !window.bootstrap) return;
-    var inst = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
-    inst.hide();
-  }
-
   var oc = document.getElementById("siteOffcanvas");
+  var industriesSub = document.getElementById("industries-sub");
+
+  function closeGroup(group) {
+    if (!group) return;
+    group.classList.remove("is-open");
+    var t = group.querySelector(":scope > .nav-toggle");
+    var subId = t && t.getAttribute("aria-controls");
+    var sub = subId ? document.getElementById(subId) : null;
+    if (t) t.setAttribute("aria-expanded", "false");
+    if (sub) sub.setAttribute("hidden", "");
+  }
+
+  function syncNestedFocus() {
+    if (!industriesSub) return;
+    var anyOpen = false;
+    industriesSub.querySelectorAll(":scope > .nav-group-nested").forEach(function (group) {
+      var t = group.querySelector(":scope > .nav-toggle");
+      var subId = t && t.getAttribute("aria-controls");
+      var sub = subId ? document.getElementById(subId) : null;
+      if (sub && !sub.hasAttribute("hidden")) anyOpen = true;
+    });
+    industriesSub.classList.toggle("focus-nested", anyOpen);
+  }
+
   if (oc) {
-    oc.addEventListener("show.bs.collapse", function (e) {
-      if (isIndustryGroupPanel(e.target)) applyIndustryFocus(e.target.parentElement);
+    oc.querySelectorAll(".nav-toggle").forEach(function (toggle) {
+      toggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var group = toggle.parentElement;
+        var subId = toggle.getAttribute("aria-controls");
+        var sub = subId ? document.getElementById(subId) : null;
+        if (!group || !sub || !group.classList.contains("nav-group")) return;
+        var open = sub.hasAttribute("hidden");
+        if (open && group.classList.contains("nav-group-nested") && industriesSub) {
+          industriesSub.querySelectorAll(":scope > .nav-group-nested").forEach(function (other) {
+            if (other !== group) closeGroup(other);
+          });
+        }
+        group.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        if (open) sub.removeAttribute("hidden");
+        else sub.setAttribute("hidden", "");
+        syncNestedFocus();
+      });
     });
-    oc.addEventListener("shown.bs.collapse", syncIndustryFocus);
-    oc.addEventListener("hidden.bs.collapse", syncIndustryFocus);
     oc.addEventListener("hidden.bs.offcanvas", function () {
-      hideCollapse(document.getElementById("oc-ind-root"));
-      hideCollapse(document.getElementById("oc-press-sub"));
-      var root = industryGroupRoot();
-      if (root) {
-        root.querySelectorAll(".accordion-collapse.show").forEach(hideCollapse);
-        applyIndustryFocus(null);
-      }
+      oc.querySelectorAll(".nav-group.is-open").forEach(closeGroup);
+      if (industriesSub) industriesSub.classList.remove("focus-nested");
     });
-    syncIndustryFocus();
+    syncNestedFocus();
   }
 
   window.quintaPlayYt = function (e) {

@@ -72,94 +72,108 @@
   <div class="offcanvas-body">
     <div class="offcanvas-nav-scroll">
     <a class="nav-link" href="index.html#home">Home</a>
-    <div class="accordion" id="oc-industries">
-      <div class="accordion-item">
-        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-ind-root" aria-expanded="false" aria-controls="oc-ind-root">Industries</button></h3>
-        <div id="oc-ind-root" class="accordion-collapse collapse" data-bs-parent="#oc-industries">
-          <div class="accordion-body p-0">
-            <div class="accordion" id="oc-ind-groups">
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-technology-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-technology-sub" aria-expanded="false" aria-controls="oc-technology-sub">Technology</button>
-            </h3>
-            <div id="oc-technology-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#tech-agriculture">Agriculture</a><a class="nav-link py-2" href="index.html#tech-biology">Biology</a><a class="nav-link py-2" href="index.html#tech-finance">Finance</a><a class="nav-link py-2" href="index.html#tech-food">Food</a><a class="nav-link py-2" href="index.html#tech-nuclear">Nuclear</a><a class="nav-link py-2" href="index.html#tech-ocean">Ocean</a><a class="nav-link py-2" href="index.html#tech-space">Space</a><a class="nav-link py-2" href="index.html#tech-water">Water</a></div>
-            </div>
+    <div class="nav-group">
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="industries-sub">Industries</button>
+      <div class="nav-sub" id="industries-sub" hidden>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="technology-sub">Technology</button>
+          <div class="nav-sub nav-sub-nested" id="technology-sub" hidden>
+            <a class="nav-item" href="index.html#tech-agriculture">Agriculture</a>
+            <a class="nav-item" href="index.html#tech-biology">Biology</a>
+            <a class="nav-item" href="index.html#tech-finance">Finance</a>
+            <a class="nav-item" href="index.html#tech-food">Food</a>
+            <a class="nav-item" href="index.html#tech-nuclear">Nuclear</a>
+            <a class="nav-item" href="index.html#tech-ocean">Ocean</a>
+            <a class="nav-item" href="index.html#tech-space">Space</a>
+            <a class="nav-item" href="index.html#tech-water">Water</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-energy-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-energy-sub" aria-expanded="false" aria-controls="oc-energy-sub">Energy</button>
-            </h3>
-            <div id="oc-energy-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#energy-cleantech">CleanTech</a><a class="nav-link py-2" href="index.html#energy-decarbonization">Decarbonization</a><a class="nav-link py-2" href="index.html#energy-storage">Energy Storage</a><a class="nav-link py-2" href="index.html#energy-geothermal">Geothermal Energy</a><a class="nav-link py-2" href="index.html#energy-nuclear">Nuclear Energy</a><a class="nav-link py-2" href="index.html#energy-solar">Solar Energy</a><a class="nav-link py-2" href="index.html#energy-wind">Wind Energy</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="energy-sub">Energy</button>
+          <div class="nav-sub nav-sub-nested" id="energy-sub" hidden>
+            <a class="nav-item" href="index.html#energy-cleantech">CleanTech</a>
+            <a class="nav-item" href="index.html#energy-decarbonization">Decarbonization</a>
+            <a class="nav-item" href="index.html#energy-storage">Energy Storage</a>
+            <a class="nav-item" href="index.html#energy-geothermal">Geothermal Energy</a>
+            <a class="nav-item" href="index.html#energy-nuclear">Nuclear Energy</a>
+            <a class="nav-item" href="index.html#energy-solar">Solar Energy</a>
+            <a class="nav-item" href="index.html#energy-wind">Wind Energy</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-materials-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-materials-sub" aria-expanded="false" aria-controls="oc-materials-sub">Materials Science</button>
-            </h3>
-            <div id="oc-materials-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#materials-circular-economy">Circular economy</a><a class="nav-link py-2" href="index.html#materials-circular-materials">Circular materials</a><a class="nav-link py-2" href="index.html#materials-low-carbon-industry">Low carbon industry</a><a class="nav-link py-2" href="index.html#materials-recyclable-products">Recyclable products</a><a class="nav-link py-2" href="index.html#materials-reusable-products">Reusable products</a><a class="nav-link py-2" href="index.html#materials-sustainable-textiles">Sustainable textiles</a><a class="nav-link py-2" href="index.html#materials-waste-management">Waste management</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="materials-sub">Materials Science</button>
+          <div class="nav-sub nav-sub-nested" id="materials-sub" hidden>
+            <a class="nav-item" href="index.html#materials-circular-economy">Circular economy</a>
+            <a class="nav-item" href="index.html#materials-circular-materials">Circular materials</a>
+            <a class="nav-item" href="index.html#materials-low-carbon-industry">Low carbon industry</a>
+            <a class="nav-item" href="index.html#materials-recyclable-products">Recyclable products</a>
+            <a class="nav-item" href="index.html#materials-reusable-products">Reusable products</a>
+            <a class="nav-item" href="index.html#materials-sustainable-textiles">Sustainable textiles</a>
+            <a class="nav-item" href="index.html#materials-waste-management">Waste management</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-green-architecture-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-green-architecture-sub" aria-expanded="false" aria-controls="oc-green-architecture-sub">Green Architecture</button>
-            </h3>
-            <div id="oc-green-architecture-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#arch-green-buildings">Green Buildings</a><a class="nav-link py-2" href="index.html#arch-micro-climate-systems">Micro Climate Systems</a><a class="nav-link py-2" href="index.html#arch-resource-lifecycle">Resource Lifecycle</a><a class="nav-link py-2" href="index.html#arch-sustainable-site-planning">Sustainable Site Planning</a><a class="nav-link py-2" href="index.html#arch-urban-eco-innovation">Urban Eco Innovation</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="green-architecture-sub">Green Architecture</button>
+          <div class="nav-sub nav-sub-nested" id="green-architecture-sub" hidden>
+            <a class="nav-item" href="index.html#arch-green-buildings">Green Buildings</a>
+            <a class="nav-item" href="index.html#arch-micro-climate-systems">Micro Climate Systems</a>
+            <a class="nav-item" href="index.html#arch-resource-lifecycle">Resource Lifecycle</a>
+            <a class="nav-item" href="index.html#arch-sustainable-site-planning">Sustainable Site Planning</a>
+            <a class="nav-item" href="index.html#arch-urban-eco-innovation">Urban Eco Innovation</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-transportation-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-transportation-sub" aria-expanded="false" aria-controls="oc-transportation-sub">Transportation and Logistics</button>
-            </h3>
-            <div id="oc-transportation-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#transport-biofuels">Biofuels</a><a class="nav-link py-2" href="index.html#transport-clean-mobility">Clean Mobility</a><a class="nav-link py-2" href="index.html#transport-evs">EVs</a><a class="nav-link py-2" href="index.html#transport-hydrogen-aviation">Hydrogen Aviation</a><a class="nav-link py-2" href="index.html#transport-logistics-software">Logistics Software</a><a class="nav-link py-2" href="index.html#transport-supply-chain">Supply Chain</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="transportation-sub">Transportation and Logistics</button>
+          <div class="nav-sub nav-sub-nested" id="transportation-sub" hidden>
+            <a class="nav-item" href="index.html#transport-biofuels">Biofuels</a>
+            <a class="nav-item" href="index.html#transport-clean-mobility">Clean Mobility</a>
+            <a class="nav-item" href="index.html#transport-evs">EVs</a>
+            <a class="nav-item" href="index.html#transport-hydrogen-aviation">Hydrogen Aviation</a>
+            <a class="nav-item" href="index.html#transport-logistics-software">Logistics Software</a>
+            <a class="nav-item" href="index.html#transport-supply-chain">Supply Chain</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-eco-restoration-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-eco-restoration-sub" aria-expanded="false" aria-controls="oc-eco-restoration-sub">Eco-restoration</button>
-            </h3>
-            <div id="oc-eco-restoration-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#eco-cleantech">CleanTech</a><a class="nav-link py-2" href="index.html#eco-climate-resilience-software">Climate Resilience Software</a><a class="nav-link py-2" href="index.html#eco-acoustics">Eco-Acoustics</a><a class="nav-link py-2" href="index.html#eco-robotics">Robotics</a><a class="nav-link py-2" href="index.html#eco-sustainable-forestry">Sustainable Forestry</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="eco-restoration-sub">Eco-restoration</button>
+          <div class="nav-sub nav-sub-nested" id="eco-restoration-sub" hidden>
+            <a class="nav-item" href="index.html#eco-cleantech">CleanTech</a>
+            <a class="nav-item" href="index.html#eco-climate-resilience-software">Climate Resilience Software</a>
+            <a class="nav-item" href="index.html#eco-acoustics">Eco-Acoustics</a>
+            <a class="nav-item" href="index.html#eco-robotics">Robotics</a>
+            <a class="nav-item" href="index.html#eco-sustainable-forestry">Sustainable Forestry</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-planetary-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-planetary-sub" aria-expanded="false" aria-controls="oc-planetary-sub">Planetary Engineering</button>
-            </h3>
-            <div id="oc-planetary-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#planetary-atmospheric-frontiers">Atmospheric Frontiers</a><a class="nav-link py-2" href="index.html#planetary-geological-interventions">Geological Interventions</a><a class="nav-link py-2" href="index.html#planetary-solar-radiation-management">Solar Radiation Management</a><a class="nav-link py-2" href="index.html#planetary-space-frontiers">Space Frontiers</a></div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="planetary-sub">Planetary Engineering</button>
+          <div class="nav-sub nav-sub-nested" id="planetary-sub" hidden>
+            <a class="nav-item" href="index.html#planetary-atmospheric-frontiers">Atmospheric Frontiers</a>
+            <a class="nav-item" href="index.html#planetary-geological-interventions">Geological Interventions</a>
+            <a class="nav-item" href="index.html#planetary-solar-radiation-management">Solar Radiation Management</a>
+            <a class="nav-item" href="index.html#planetary-space-frontiers">Space Frontiers</a>
           </div>
-          <div class="accordion-item">
-            <h3 class="accordion-header" id="h-oc-advanced-tech-sub">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-advanced-tech-sub" aria-expanded="false" aria-controls="oc-advanced-tech-sub">Advanced Technology</button>
-            </h3>
-            <div id="oc-advanced-tech-sub" class="accordion-collapse collapse" data-bs-parent="#oc-ind-groups">
-              <div class="accordion-body p-0"><a class="nav-link py-2" href="index.html#advanced-deep-space-exploration">Deep Space Exploration</a><a class="nav-link py-2" href="index.html#advanced-extreme-environment-engineering">Extreme Environment Engineering</a><a class="nav-link py-2" href="index.html#advanced-nanotech">NanoTech</a><a class="nav-link py-2" href="index.html#advanced-neural-interfaces">Neural Interfaces</a></div>
-            </div>
-          </div>
-            </div>
+        </div>
+        <div class="nav-group nav-group-nested">
+          <button type="button" class="nav-toggle nav-toggle-nested" aria-expanded="false" aria-controls="advanced-tech-sub">Advanced Technology</button>
+          <div class="nav-sub nav-sub-nested" id="advanced-tech-sub" hidden>
+            <a class="nav-item" href="index.html#advanced-deep-space-exploration">Deep Space Exploration</a>
+            <a class="nav-item" href="index.html#advanced-extreme-environment-engineering">Extreme Environment Engineering</a>
+            <a class="nav-item" href="index.html#advanced-nanotech">NanoTech</a>
+            <a class="nav-item" href="index.html#advanced-neural-interfaces">Neural Interfaces</a>
           </div>
         </div>
       </div>
     </div>
     <a class="nav-link" href="index.html#insights">Insights</a>
-    <div class="accordion" id="oc-press">
-      <div class="accordion-item">
-        <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#oc-press-sub" aria-expanded="false" aria-controls="oc-press-sub">Press Release</button></h3>
-        <div id="oc-press-sub" class="accordion-collapse collapse">
-          <div class="accordion-body p-0">
-            <a class="nav-link" href="index.html#press-archives">Archives</a>
-          </div>
-        </div>
+    <div class="nav-group">
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="press-sub">Press Release</button>
+      <div class="nav-sub nav-sub-nested" id="press-sub" hidden>
+        <a class="nav-item" href="index.html#press-archives">Archives</a>
       </div>
     </div>
+    <a class="nav-link" href="#" data-placeholder="datalabs">Datalabs</a>
     <a class="nav-link" href="index.html#generatives">Generatives</a>
     <a class="nav-link" href="index.html#testimonials">Testimonials</a>
+    <a class="nav-link" href="#" data-placeholder="shop">Shop</a>
     </div>
     <div class="offcanvas-social nav-social" aria-label="Social links">
       <a href="#" data-placeholder="social-x" aria-label="X" target="_blank" rel="noopener">
