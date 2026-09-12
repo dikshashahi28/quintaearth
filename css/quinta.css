@@ -325,12 +325,13 @@ a:hover { color: var(--qe-primary); }
   margin-bottom: 1.25rem;
 }
 .qe-hero .carousel-indicators [data-bs-target] {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 2px solid #FFFEFC;
-  background: transparent;
+  background: rgba(255,255,255,0.25);
   opacity: 1;
   border-radius: 50%;
+  margin: 0 5px;
 }
 .qe-hero .carousel-indicators [data-bs-target].active {
   background: #C45C26;
