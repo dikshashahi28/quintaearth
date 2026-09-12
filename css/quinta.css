@@ -874,6 +874,7 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   min-width: 0;
 }
 .footer .footer-qr {
+  order: 2;
   flex: 0 0 96px;
   width: 96px;
   min-width: 96px;
@@ -902,6 +903,7 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   pointer-events: none;
 }
 .footer .footer-item a.footer-join {
+  order: 1;
   position: relative;
   z-index: 1;
   flex: 0 0 auto;
