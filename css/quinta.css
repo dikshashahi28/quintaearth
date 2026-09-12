@@ -861,17 +861,8 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   align-items: flex-start;
 }
 .footer .footer-item a.footer-join {
-  display: inline-flex;
   align-self: stretch;
-  justify-content: flex-start;
   width: 100%;
-  max-width: 100%;
-  margin-top: 0.35rem;
-  min-height: 35px;
-  padding: 0 1.15rem;
-  line-height: 35px;
-  font-size: inherit;
-  font-weight: 500;
 }
 .copyright { background: #222222 !important; color: #E0B8A0; }
 .copyright a { color: #FFFFFE; }
