@@ -5,10 +5,10 @@
     var wrap = document.querySelector(".fixed-top .container");
     if (!wrap) return;
     if (window.scrollY > 300) {
-      wrap.classList.add("shadow-sm");
+      wrap.classList.add("shadow-sm", "is-stuck");
       wrap.style.maxWidth = "100%";
     } else {
-      wrap.classList.remove("shadow-sm");
+      wrap.classList.remove("shadow-sm", "is-stuck");
       wrap.style.maxWidth = "";
     }
     var top = document.querySelector(".back-to-top");

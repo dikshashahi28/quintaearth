@@ -13,8 +13,11 @@ Credit line is kept in the site footer: Designed By HTML Codex · Distributed By
 - `green-tech-community-qr.jpg` — WhatsApp QR
 
 ## Industry tiles
-Olive/mist SVG placeholders in `img/placeholders/` (no stock photos used).
-Unsplash/Pexels may replace them later where Quinta has no own photo.
+Owned Quinta photos, re-cropped in place (`assets/hero-bg.jpg`, `assets/youtube-bg.jpg`, `assets/youtube-banner-2560.jpg`). SVG leaf tiles remain in `img/placeholders/` as unused backups. Collaborator portraits are olive/mist SVG silhouettes in `img/placeholders/portrait-*.svg`.
+Unsplash/Pexels may replace tiles later where Quinta has no own photo.
+
+## Placeholder links
+`href="#"` with `data-placeholder` and `title="Link coming soon"` (no `target="_blank"`). Keys: insights, sdgs, contact, social-x, social-ig, social-tg, social-li, chat-platform.
 
 ## Unused files (kept on purpose)
 `styles.css`, `site.js`, `samples/`, alternate logo files — not deleted.

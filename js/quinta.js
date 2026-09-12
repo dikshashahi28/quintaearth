@@ -1,5 +1,6 @@
 (function () {
-  document.querySelectorAll('[data-placeholder]').forEach(function (el) {
+  document.querySelectorAll("[data-placeholder]").forEach(function (el) {
+    el.setAttribute("aria-describedby", "link-coming-soon");
     el.addEventListener("click", function (e) {
       e.preventDefault();
     });
@@ -37,6 +38,9 @@
 
   var cover = document.getElementById("yt-cover");
   if (cover) {
+    cover.addEventListener("click", function (e) {
+      window.quintaPlayYt(e);
+    });
     cover.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
