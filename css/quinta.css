@@ -476,13 +476,16 @@ a:hover { color: var(--qe-primary); }
   border-radius: 14px / 10px;
   background: #FF0000;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .yt-cover .yt-play::after {
   content: "";
   display: block;
   width: 0;
   height: 0;
-  margin-left: 3px;
+  margin-left: 4px; /* optical center for the triangle */
   border-left: 18px solid #fff;
   border-top: 11px solid transparent;
   border-bottom: 11px solid transparent;
