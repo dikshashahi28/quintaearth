@@ -278,10 +278,12 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   flex-direction: row !important;
   flex-wrap: nowrap !important;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
+  justify-content: space-evenly;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0;
-  padding: 14px 1.25rem calc(14px + env(safe-area-inset-bottom, 0px));
+  padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #d5dbc8;
   background: #F3F5EC;
 }
@@ -557,23 +559,13 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 
 .qe-hero .carousel-control-prev,
 .qe-hero .carousel-control-next {
-  width: 12%;
-  opacity: 1;
+  display: none !important;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
 }
-.qe-hero .hero-arrow {
-  width: 48px;
-  height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #C45C26;
-  color: #FFFFFE;
-  font-size: 1.25rem;
-}
-.qe-hero .carousel-control-prev:hover .hero-arrow,
-.qe-hero .carousel-control-next:hover .hero-arrow {
-  background: #A8491C;
-}
+.qe-hero .hero-arrow { display: none !important; }
 .qe-hero .carousel-indicators {
   margin-bottom: 1.25rem;
 }
@@ -935,5 +927,4 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 
 @media (max-width: 575.98px) {
   .qe-hero .hero-actions .btn { width: 100%; }
-  .qe-hero .hero-arrow { width: 40px; height: 40px; }
 }
