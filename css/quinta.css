@@ -172,6 +172,7 @@ a:hover { color: var(--qe-primary); }
   display: block;
 }
 .navbar .menu-btn,
+button.menu-btn,
 .menu-btn {
   display: inline-flex;
   width: 40px;
@@ -191,21 +192,34 @@ a:hover { color: var(--qe-primary); }
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
 }
 @media (min-width: 1200px) {
   .navbar .menu-btn { margin-left: 0; }
 }
-.menu-btn span {
+.menu-btn > span {
   display: block;
   width: 22px;
   height: 1.5px;
+  min-height: 0;
+  max-height: 1.5px;
+  flex: 0 0 1.5px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   background: #5c4a36;
   border-radius: 1px;
+  font-size: 0;
+  line-height: 0;
+  box-shadow: none;
+  overflow: hidden;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
-body.menu-open .menu-btn span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-body.menu-open .menu-btn span:nth-child(2) { opacity: 0; }
-body.menu-open .menu-btn span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+body.menu-open .menu-btn > span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+body.menu-open .menu-btn > span:nth-child(2) { opacity: 0; }
+body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 .menu-btn:focus,
 .menu-btn:focus-visible,
 .menu-btn:active {
@@ -214,7 +228,10 @@ body.menu-open .menu-btn span:nth-child(3) { transform: translateY(-6.5px) rotat
   border: 0;
   background: transparent;
 }
-.navbar-toggler-icon { display: none; }
+.menu-btn .fa,
+.menu-btn .fa-bars,
+.menu-btn .navbar-toggler-icon,
+.navbar-toggler-icon { display: none !important; }
 
 .offcanvas {
   background: #F3F5EC;
