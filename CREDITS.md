@@ -16,6 +16,9 @@ Credit line is kept in the site footer: Designed By HTML Codex · Distributed By
 ## Temporary Environs Insights photos
 Homepage Insights cards currently use Environs demo JPEGs (`assets/environs-donation-1.jpg`, `environs-donation-2.jpg` from `img/service-2.jpg`, `environs-donation-3.jpg`) until Quinta replacements arrive. Theme demo photos are not for the live site long-term.
 
+## Temporary Environs Press photo
+The Press Release Archives tile uses `assets/environs-service-4.jpg` (Environs `img/service-4.jpg`) until a Quinta photo exists. The other three Press tiles reuse Quinta photos.
+
 ## Industry tiles
 Owned Quinta photos, re-cropped in place (`assets/hero-bg.jpg`, `assets/youtube-bg.jpg`, `assets/youtube-banner-2560.jpg`). SVG leaf tiles remain in `img/placeholders/` as unused backups. Collaborator portraits are olive/mist SVG silhouettes in `img/placeholders/portrait-*.svg`.
 Unsplash/Pexels may replace tiles later where Quinta has no own photo.

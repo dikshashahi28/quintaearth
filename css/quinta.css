@@ -43,7 +43,7 @@ body {
   font-weight: 400;
 }
 
-h1:not(.insights-title), h2, h3, h4, h5, .navbar-brand,
+h1:not(.insights-title):not(.press-title), h2, h3, h4, h5, .navbar-brand,
 .display-1, .display-3, .display-6 {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-weight: 500;
@@ -683,6 +683,40 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   font-family: "Cormorant Garamond", serif;
   font-weight: 500;
   font-size: 1.5rem;
+}
+
+.press-kicker {
+  color: #C45C26 !important;
+  letter-spacing: 0.08em;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+.press-service .press-title,
+h1.press-title {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  line-height: 1.2 !important;
+  letter-spacing: normal !important;
+  font-size: calc(1.375rem + 1.5vw) !important;
+  color: #222;
+  text-transform: none;
+}
+@media (min-width: 1200px) {
+  .press-service .press-title,
+  h1.press-title {
+    font-size: 2.5rem !important;
+  }
+}
+.press-service .service-link a {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 500 !important;
+  color: #fff;
+}
+.press-service .service-item img {
+  aspect-ratio: 5 / 6;
+  object-fit: cover;
 }
 .service .subtopics {
   list-style: none;
