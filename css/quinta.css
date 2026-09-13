@@ -976,6 +976,70 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   z-index: 99;
 }
 
+.insights-kicker {
+  color: #C45C26 !important;
+  letter-spacing: 0.08em;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+
+.donation.insights .donation-item {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  z-index: 1;
+  color: inherit;
+  text-decoration: none;
+}
+.donation.insights .donation-item::after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+.donation.insights .donation-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: 0.5s;
+}
+.donation.insights .donation-item .donation-content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  justify-content: flex-end;
+  bottom: 0;
+  left: 0;
+  transition: 0.5s;
+  z-index: 3;
+}
+.donation.insights .donation-item:hover .donation-content,
+.donation.insights .donation-item:focus-visible .donation-content {
+  background: rgba(0, 0, 0, 0.6);
+}
+.donation.insights .donation-item .display-6 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  line-height: 1.15;
+  text-decoration: none;
+  color: #FFFEFC;
+}
+.donation.insights .donation-item h4 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  color: #FFFEFC;
+}
+.donation.insights .donation-item p {
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+}
+
 .contact {
   background: #FFFFFE;
   border: 1px solid #D9CBB4;
