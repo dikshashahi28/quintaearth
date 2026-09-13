@@ -640,7 +640,7 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   margin: 0;
   font-family: "Cormorant Garamond", serif;
   font-weight: 500;
-  font-size: clamp(42px, 6vw, 72px);
+  font-size: clamp(52px, 7.5vw, 88px);
   line-height: 1;
   color: #FFFEFC;
   text-shadow: 0 2px 4px rgba(0,0,0,0.55), 0 0 22px rgba(0,0,0,0.35);
