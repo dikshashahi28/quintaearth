@@ -598,53 +598,21 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 }
 .bg-breadcrumb .breadcrumb-item + .breadcrumb-item::before { color: #E0B8A0; }
 
-.about-banner {
-  position: relative;
-  width: 100%;
-  height: 240px;
-  overflow: hidden;
-}
-.about-banner img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
-}
-.about-banner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(18, 22, 16, 0.32);
-  pointer-events: none;
-}
-.about-banner-title {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-weight: 500;
-  font-size: clamp(2.5rem, 6vw, 4.25rem);
-  line-height: 1;
-  letter-spacing: 0.04em;
-  color: #F6F1E4;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
-}
-@media (min-width: 768px) {
-  .about-banner { height: 480px; }
-}
-
-.about-copy-wrap {
-  text-align: center;
-}
 .about-block {
   max-width: 40rem;
   margin-inline: auto;
   text-align: center;
+}
+.about-figure {
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+}
+.about-figure img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center 72%;
 }
 
 .about-copy {
