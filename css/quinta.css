@@ -734,7 +734,7 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 
 .yt-band {
   background-color: #12180f;
-  background-image: linear-gradient(rgba(18, 24, 15, 0.42), rgba(18, 24, 15, 0.55)), url("../assets/yt-band-bg.svg");
+  background-image: linear-gradient(rgba(18, 24, 15, 0.18), rgba(18, 24, 15, 0.32)), url("../assets/yt-band-bg.svg");
   background-size: cover;
   background-position: center;
 }

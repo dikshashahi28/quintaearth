@@ -5,19 +5,19 @@
       <stop offset="1" stop-color="#12180f"/>
     </linearGradient>
     <pattern id="ytBandGrid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M48 0H0V48" fill="none" stroke="#d9cbb4" stroke-width="0.7" opacity="0.14"/>
+      <path d="M48 0H0V48" fill="none" stroke="#d9cbb4" stroke-width="0.8" opacity="0.28"/>
     </pattern>
   </defs>
   <rect width="1600" height="900" fill="url(#ytBandWash)"/>
   <rect width="1600" height="900" fill="url(#ytBandGrid)"/>
-  <g fill="none" stroke="#6B7A45" stroke-width="1.2" opacity="0.22">
+  <g fill="none" stroke="#8a9a68" stroke-width="1.4" opacity="0.38">
     <ellipse cx="800" cy="450" rx="140" ry="80"/>
     <ellipse cx="800" cy="450" rx="240" ry="140"/>
     <ellipse cx="800" cy="450" rx="360" ry="210"/>
     <ellipse cx="800" cy="450" rx="500" ry="290"/>
     <ellipse cx="800" cy="450" rx="660" ry="380"/>
   </g>
-  <g stroke="#C4A15A" stroke-width="0.9" opacity="0.2" fill="none">
+  <g stroke="#C4A15A" stroke-width="1" opacity="0.32" fill="none">
     <path d="M120 90H240"/>
     <path d="M120 90V190"/>
     <path d="M1360 710H1480"/>
