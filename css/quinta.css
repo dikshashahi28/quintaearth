@@ -668,31 +668,29 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   color: #FFFFFE !important;
 }
 
-.service .service-item img {
-  aspect-ratio: 5 / 6;
-  object-fit: cover;
-  width: 100%;
-}
-.service .service-item .service-link {
-  background: rgba(20, 28, 18, 0.35);
-}
-.service .service-item .service-link:hover {
-  background: rgba(20, 28, 18, 0.6);
-}
-.service .service-link a {
-  font-family: "Cormorant Garamond", serif;
-  font-weight: 500;
-  font-size: 1.5rem;
+/* Environs .service / .service-item / .service-link — Press (#press) */
+.press-service.service.bg-light,
+#press.service {
+  background-color: #F2F2F2 !important;
+  color: #757575;
+  font-family: Roboto, "Segoe UI", sans-serif;
 }
 
-.press-kicker {
+.press-service .press-kicker,
+#press h5.press-kicker {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  font-size: 1.25rem !important;
+  line-height: 1.2 !important;
+  letter-spacing: normal !important;
+  text-transform: uppercase !important;
   color: #C45C26 !important;
-  letter-spacing: 0.08em;
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-weight: 500;
-  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
 }
+
 .press-service .press-title,
+#press h1.press-title,
 h1.press-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 500 !important;
@@ -700,23 +698,98 @@ h1.press-title {
   line-height: 1.2 !important;
   letter-spacing: normal !important;
   font-size: calc(1.375rem + 1.5vw) !important;
-  color: #222;
+  color: #222 !important;
   text-transform: none;
 }
 @media (min-width: 1200px) {
   .press-service .press-title,
+  #press h1.press-title,
   h1.press-title {
     font-size: 2.5rem !important;
   }
 }
-.press-service .service-link a {
+
+.press-service .service-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.press-service .service-item .service-link {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: end;
+  background: rgba(0, 0, 0, 0.3);
+  transition: 0.5s;
+}
+
+.press-service .service-item .service-link:hover,
+.press-service .service-item:hover .service-link {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.press-service .service-item .service-link a,
+.press-service .service-item .service-link a.h4 {
   font-family: "Jost", sans-serif !important;
   font-weight: 500 !important;
-  color: #fff;
+  font-size: 1.5rem !important;
+  line-height: 1.2;
+  color: #fff !important;
+  text-decoration: none;
+  transition: 0.5s;
 }
+
+.press-service .service-item .service-link:hover a,
+.press-service .service-item .service-link a:hover,
+.press-service .service-item .service-link:hover a:hover {
+  color: #C45C26 !important;
+}
+
 .press-service .service-item img {
   aspect-ratio: 5 / 6;
   object-fit: cover;
+  width: 100%;
+  transition: 0.5s;
+}
+
+.press-service .service-item:hover img {
+  transform: scale(1.2);
+}
+
+.press-service .row > [class*="col-"] > p.my-4 {
+  color: #757575;
+  font-family: Roboto, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.press-service .press-archives,
+#press-archives.press-archives {
+  background: #F3F5EC;
+  border: 1px solid #E6E6E6;
+}
+
+.press-service .press-archives h3 {
+  font-family: "Jost", sans-serif;
+  font-weight: 500;
+  color: #24301A;
+}
+
+.press-service .press-archives p,
+.press-service .press-archives a {
+  color: #757575;
+  font-family: Roboto, "Segoe UI", sans-serif;
+}
+
+.press-service .press-archives a:hover {
+  color: #C45C26;
 }
 .service .subtopics {
   list-style: none;
