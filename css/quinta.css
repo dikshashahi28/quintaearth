@@ -476,6 +476,8 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 .social-btn:hover { color: #F3F5EC; }
 
 /* Locked hero */
+.qe-hero { margin-bottom: 0 !important; }
+.qe-hero.carousel-header { margin-bottom: 0 !important; }
 .qe-hero.carousel-header #carouselId .carousel-inner .carousel-item {
   min-height: 100vh;
 }
@@ -598,12 +600,17 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 }
 .bg-breadcrumb .breadcrumb-item + .breadcrumb-item::before { color: #E0B8A0; }
 
+.about.container-fluid {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
 .about-block {
   max-width: 40rem;
   margin-inline: auto;
   text-align: center;
 }
 .about-figure {
+  position: relative;
   overflow: hidden;
   width: 100%;
   margin: 0;
@@ -613,12 +620,30 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   height: auto;
   aspect-ratio: 21 / 9;
   object-fit: cover;
-  object-position: center 55%;
+  object-position: center 45%;
   display: block;
 }
-.about-copy .eyebrow {
-  font-size: 1.05rem;
-  letter-spacing: 0.2em;
+.about-figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(20, 28, 18, 0.35) 0%, rgba(20, 28, 18, 0.12) 55%, rgba(20, 28, 18, 0.2) 100%);
+  pointer-events: none;
+}
+.about-on-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 500;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1;
+  color: #FFFEFC;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.55), 0 0 22px rgba(0,0,0,0.35);
 }
 
 .about-copy {
