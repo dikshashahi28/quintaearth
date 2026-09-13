@@ -568,22 +568,6 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   opacity: 0;
 }
 .qe-hero .hero-arrow { display: none !important; }
-.qe-hero .carousel-indicators {
-  margin-bottom: 1.25rem;
-}
-.qe-hero .carousel-indicators [data-bs-target] {
-  width: 14px;
-  height: 14px;
-  border: 2px solid #FFFEFC;
-  background: rgba(255,255,255,0.25);
-  opacity: 1;
-  border-radius: 50%;
-  margin: 0 5px;
-}
-.qe-hero .carousel-indicators [data-bs-target].active {
-  background: #C45C26;
-  border-color: #C45C26;
-}
 
 .bg-breadcrumb {
   background: linear-gradient(rgba(20, 28, 18, 0.45), rgba(20, 28, 18, 0.45)), url(../assets/youtube-banner-2560.jpg);
