@@ -984,6 +984,14 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   font-size: 1.25rem;
 }
 
+.donation.insights .insights-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  line-height: 1.25;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  color: #24301A;
+}
+
 .donation.insights .donation-item {
   position: relative;
   display: block;
