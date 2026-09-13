@@ -7,7 +7,7 @@ Credit line is kept in the site footer: Designed By HTML Codex · Distributed By
 
 ## Brand photos (QuintaEarth, used on-site)
 - `assets/hero-bg.jpg` — locked hero slide 1
-- `assets/about-lake.jpg` — About figure (preview): alpine lake and mountains
+- `assets/about-lake.jpg` — About figure (preview): user lake photo, snow peaks and gabion shore
 - `assets/logo-quintaearth-v8b.png` — locked header logo
 - `assets/youtube-bg.jpg` — hero slide 2, YouTube cover
 - `assets/youtube-banner-2560.jpg` — band / breadcrumb backgrounds
