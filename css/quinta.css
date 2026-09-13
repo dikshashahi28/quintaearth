@@ -733,9 +733,19 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 }
 
 .yt-band {
-  background: linear-gradient(rgba(20, 28, 18, 0.45), rgba(20, 28, 18, 0.45)), url(../assets/youtube-banner-2560.jpg);
+  background-color: #12180f;
+  background-image: linear-gradient(rgba(18, 24, 15, 0.42), rgba(18, 24, 15, 0.55)), url("../assets/yt-band-bg.svg");
   background-size: cover;
   background-position: center;
+}
+.yt-band-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(48px, 7vw, 76px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #F3F5EC;
+  margin: 0 0 0.65rem;
 }
 .yt-cover {
   position: relative;
