@@ -22,6 +22,9 @@ The Press Release Archives tile uses `assets/environs-service-4.jpg` (Environs `
 ## Temporary Environs Achievements / Volunteer photos
 Homepage Achievements band uses `assets/environs-volunteers-bg.jpg` (Environs `img/volunteers-bg.jpg`). Volunteer portraits use `assets/environs-volunteer-1.jpg`–`4.jpg` (Environs `img/volunteers-1.jpg`–`4.jpg`) until Quinta replacements arrive. Theme demo photos are not for the live site long-term.
 
+## Temporary Environs Our Work / gallery photos
+Homepage Our Work mosaic uses `assets/environs-gallery-1.jpg`–`5.jpg` (Environs `img/gallery-1.jpg`–`5.jpg`) until Paras sends photographs. Theme demo photos are not for the live site long-term.
+
 ## Industry tiles
 Owned Quinta photos, re-cropped in place (`assets/hero-bg.jpg`, `assets/youtube-bg.jpg`, `assets/youtube-banner-2560.jpg`). SVG leaf tiles remain in `img/placeholders/` as unused backups. Collaborator portraits are olive/mist SVG silhouettes in `img/placeholders/portrait-*.svg`.
 Unsplash/Pexels may replace tiles later where Quinta has no own photo.
