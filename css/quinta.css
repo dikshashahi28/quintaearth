@@ -1439,76 +1439,152 @@ h1.work-title {
   color: #A8491C !important;
 }
 
-/* Collaborators — split + stats + feature beat (#collaborators) */
+/* Collaborators — split + light stats (circled philanthropy layout, Quinta tokens) */
 #collaborators.collaborators,
 .collaborators#collaborators {
-  background: #F3F5EC;
+  background: #FFFFFE;
   color: #5C4A36;
 }
 
+#collaborators .collaborators-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  background: #FFFFFE;
+  min-height: 54rem;
+}
+
+#collaborators .collaborators-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6.5rem clamp(1.5rem, 6vw, 5.5rem) 5.5rem clamp(1.5rem, 7vw, 7.5rem);
+  max-width: 42rem;
+  margin-left: auto;
+}
+
+#collaborators .collaborators-bar {
+  display: block;
+  width: 4.5rem;
+  height: 0.28rem;
+  margin: 0 0 1.75rem;
+  background: #C45C26;
+}
+
 #collaborators .collaborators-kicker,
-#collaborators h5.collaborators-kicker {
+#collaborators p.collaborators-kicker {
   font-family: "Jost", sans-serif !important;
   font-weight: 500 !important;
   font-style: normal !important;
-  font-size: 1.25rem !important;
+  font-size: 0.95rem !important;
   line-height: 1.2 !important;
-  letter-spacing: normal !important;
-  text-transform: uppercase !important;
+  letter-spacing: 0.04em;
+  text-transform: none;
   color: #C45C26 !important;
-  margin-bottom: 0.75rem;
+  margin: 0 0 0.85rem;
 }
 
 #collaborators .collaborators-title,
 #collaborators h1.collaborators-title,
 h1.collaborators-title {
   font-family: "Jost", sans-serif !important;
-  font-weight: 500 !important;
+  font-weight: 700 !important;
   font-style: normal !important;
-  line-height: 1.2 !important;
-  letter-spacing: normal !important;
-  font-size: calc(1.375rem + 1.5vw) !important;
+  line-height: 1.22 !important;
+  letter-spacing: -0.02em !important;
+  font-size: clamp(2.15rem, 3.6vw, 3.75rem) !important;
   color: #24301A !important;
   text-transform: none;
-}
-@media (min-width: 1200px) {
-  #collaborators .collaborators-title,
-  #collaborators h1.collaborators-title,
-  h1.collaborators-title {
-    font-size: 2.5rem !important;
-  }
+  margin: 0 0 1rem;
 }
 
 #collaborators .collaborators-lead {
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.55;
   color: #5C4A36;
-  max-width: 34rem;
+  margin: 0 0 3rem;
+  max-width: 36rem;
+}
+
+#collaborators .collaborators-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1rem;
+  align-items: center;
+}
+
+#collaborators .collaborators-btn,
+#collaborators .collaborators-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  padding: 1.15rem 2.15rem;
+  border-radius: 10px;
+  font-family: "Jost", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+#collaborators .collaborators-btn {
+  background: #C45C26;
+  border-color: #C45C26;
+  color: #FFFFFE;
+}
+#collaborators .collaborators-btn:hover,
+#collaborators .collaborators-btn:focus {
+  background: #A8491C;
+  border-color: #A8491C;
+  color: #FFFFFE;
+}
+
+#collaborators .collaborators-btn-ghost {
+  background: #FFFFFE;
+  border-color: #E6DCC8;
+  color: #24301A;
+  font-weight: 500;
+}
+#collaborators .collaborators-btn-ghost:hover,
+#collaborators .collaborators-btn-ghost:focus {
+  border-color: #C45C26;
+  color: #A8491C;
 }
 
 #collaborators .collaborators-photo {
+  position: relative;
+  margin: 0;
   overflow: hidden;
   background: #24301A;
+  min-height: 100%;
 }
 #collaborators .collaborators-photo img {
   display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  aspect-ratio: 4 / 3;
   object-fit: cover;
-  object-position: 48% 82%;
-  transform: scale(1.75);
-  transform-origin: 50% 78%;
+  object-position: 42% 82%;
+  transform: scale(2.15);
+  transform-origin: 46% 80%;
+}
+
+#collaborators .collaborators-stats-band {
+  background: #F3F5EC;
+  padding: 4.75rem 0 4.25rem;
 }
 
 #collaborators .collaborators-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 3.5rem;
-  background: #24301A;
-  color: #F3F5EC;
+  background: transparent;
+  padding-bottom: 2.75rem;
+  border-bottom: 1px solid #E6DCC8;
 }
 
 #collaborators .collaborators-stat {
@@ -1517,105 +1593,74 @@ h1.collaborators-title {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem 1rem;
-  border-right: 1px solid rgba(243, 245, 236, 0.16);
-}
-#collaborators .collaborators-stat:last-child {
-  border-right: 0;
+  padding: 0.5rem 1rem;
 }
 
 #collaborators .collaborators-stat-num {
   font-family: "Jost", sans-serif;
-  font-weight: 600;
-  font-size: clamp(2.25rem, 4vw, 3.25rem);
+  font-weight: 700;
+  font-size: clamp(2.75rem, 4.2vw, 3.5rem);
   line-height: 1;
   color: #C45C26;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 #collaborators .collaborators-stat-label {
-  margin-top: 0.65rem;
-  font-family: "Jost", sans-serif;
-  font-weight: 500;
-  font-size: 0.8rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #F3F5EC;
-}
-
-#collaborators .collaborators-beat {
-  margin-top: 3.25rem;
-  padding-top: 2.25rem;
-  border-top: 1px solid #D9CBB4;
-}
-
-#collaborators .collaborators-beat-line {
+  margin-top: 0.55rem;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
   font-size: 1rem;
-  line-height: 1.6;
-  color: #5C4A36;
-  max-width: 40rem;
-  margin: 0 0 1.75rem;
-}
-
-#collaborators .collaborators-feature {
-  height: 100%;
-  padding: 1.5rem 1.35rem 1.6rem;
-  background: #FFFFFE;
-  border: 1px solid #D9CBB4;
-}
-
-#collaborators .collaborators-feature-mark {
-  display: block;
-  width: 2.25rem;
-  height: 2.25rem;
-  margin-bottom: 1rem;
-  border-radius: 50%;
-  background: #C45C26;
-}
-#collaborators .collaborators-feature-mark.is-olive {
-  background: #24301A;
-}
-
-#collaborators .collaborators-feature-title {
-  font-family: "Jost", sans-serif !important;
-  font-weight: 500 !important;
-  font-style: normal !important;
-  font-size: 1.15rem !important;
-  line-height: 1.3 !important;
-  color: #24301A !important;
-  margin-bottom: 0.5rem;
-}
-
-#collaborators .collaborators-feature p {
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 0.98rem;
-  line-height: 1.55;
-  color: #5C4A36;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #6B7A45;
 }
 
 @media (max-width: 991.98px) {
+  #collaborators .collaborators-split {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  #collaborators .collaborators-copy {
+    max-width: none;
+    margin: 0;
+    padding: 3.5rem 1.25rem 2.5rem;
+  }
+  #collaborators .collaborators-photo {
+    min-height: 0;
+    height: auto;
+  }
+  #collaborators .collaborators-photo img {
+    position: static;
+    aspect-ratio: 4 / 3;
+    height: auto;
+    transform: none;
+  }
+  #collaborators .collaborators-stats-band {
+    padding: 3rem 0 2.75rem;
+  }
   #collaborators .collaborators-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 2.5rem;
-  }
-  #collaborators .collaborators-stat:nth-child(2) {
-    border-right: 0;
-  }
-  #collaborators .collaborators-stat:nth-child(-n+2) {
-    border-bottom: 1px solid rgba(243, 245, 236, 0.16);
+    row-gap: 2rem;
+    padding-bottom: 2rem;
   }
 }
 
 @media (max-width: 575.98px) {
-  #collaborators .collaborators-stats {
-    grid-template-columns: 1fr 1fr;
+  #collaborators .collaborators-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
-  #collaborators .collaborators-stat {
-    padding: 1.5rem 0.75rem;
+  #collaborators .collaborators-btn,
+  #collaborators .collaborators-btn-ghost {
+    width: 100%;
+  }
+  #collaborators .collaborators-lead {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
   }
   #collaborators .collaborators-photo img {
     aspect-ratio: 16 / 10;
+    transform: none;
   }
 }
 
