@@ -1442,7 +1442,7 @@ h1.work-title {
 /* Collaborators — exact circled split + light stats (Quinta tokens) */
 #collaborators.collaborators,
 .collaborators#collaborators {
-  background: #FFFFFE;
+  background: #FFF8F1;
   color: #5C4A36;
 }
 
@@ -1523,7 +1523,7 @@ h1.collaborators-title {
   justify-content: center;
   min-height: 4.5rem;
   padding: 1.625rem 2.375rem;
-  border-radius: 999px;
+  border-radius: 10px;
   font-family: "Jost", sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
@@ -1535,18 +1535,18 @@ h1.collaborators-title {
 #collaborators .collaborators-btn {
   background: #C45C26;
   border-color: #C45C26;
-  color: #FFFFFE;
+  color: #F3F5EC;
 }
 #collaborators .collaborators-btn:hover,
 #collaborators .collaborators-btn:focus {
   background: #A8491C;
   border-color: #A8491C;
-  color: #FFFFFE;
+  color: #F3F5EC;
 }
 
 #collaborators .collaborators-btn-ghost {
   background: #FFFFFE;
-  border-color: #E6DCC8;
+  border-color: #E8DFD4;
   color: #24301A;
   font-weight: 400;
 }
@@ -1570,20 +1570,22 @@ h1.collaborators-title {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center 12%;
+  transform: scale(1.45);
+  transform-origin: 50% 18%;
 }
 
 #collaborators .collaborators-stats-band {
-  background: #F3F5EC;
-  padding: 5.5rem 0 4.75rem;
+  background: #FFF8F1;
+  padding: 5.25rem 0 4.5rem;
 }
 
 #collaborators .collaborators-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   background: transparent;
-  padding-bottom: 3rem;
-  border-bottom: 1px solid #E6DCC8;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 #collaborators .collaborators-stat {
@@ -1600,18 +1602,18 @@ h1.collaborators-title {
   font-weight: 700;
   font-size: clamp(3rem, 4.6vw, 3.75rem);
   line-height: 1;
-  color: #24301A;
+  color: #C45C26;
   letter-spacing: -0.04em;
 }
 
 #collaborators .collaborators-stat-label {
-  margin-top: 0.65rem;
+  margin-top: 0.55rem;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-weight: 400;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   letter-spacing: normal;
   text-transform: none;
-  color: #6B7A45;
+  color: #8A7B6C;
 }
 
 @media (max-width: 991.98px) {
@@ -1634,7 +1636,8 @@ h1.collaborators-title {
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 5;
-    object-position: center 18%;
+    object-position: center 12%;
+    transform: none;
   }
   #collaborators .collaborators-stats-band {
     padding: 3.25rem 0 2.75rem;
@@ -1642,7 +1645,6 @@ h1.collaborators-title {
   #collaborators .collaborators-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 2.25rem;
-    padding-bottom: 2.25rem;
   }
 }
 
