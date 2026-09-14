@@ -1498,7 +1498,9 @@ h1.collaborators-title {
   height: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  object-position: center 72%;
+  object-position: 48% 82%;
+  transform: scale(1.75);
+  transform-origin: 50% 78%;
 }
 
 #collaborators .collaborators-stats {
