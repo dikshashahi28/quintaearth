@@ -1439,7 +1439,7 @@ h1.work-title {
   color: #A8491C !important;
 }
 
-/* Collaborators — split + light stats (circled philanthropy layout, Quinta tokens) */
+/* Collaborators — exact circled split + light stats (Quinta tokens) */
 #collaborators.collaborators,
 .collaborators#collaborators {
   background: #FFFFFE;
@@ -1451,22 +1451,24 @@ h1.work-title {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
   background: #FFFFFE;
-  min-height: 54rem;
+  min-height: 54.625rem;
 }
 
 #collaborators .collaborators-copy {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 6.5rem clamp(1.5rem, 6vw, 5.5rem) 5.5rem clamp(1.5rem, 7vw, 7.5rem);
-  max-width: 42rem;
-  margin-left: auto;
+  padding: 0 clamp(1.5rem, 4vw, 4rem) 0 clamp(1.5rem, 6.5vw, 6.5rem);
+}
+
+#collaborators .collaborators-copy-inner {
+  max-width: 38.125rem;
 }
 
 #collaborators .collaborators-bar {
   display: block;
-  width: 4.5rem;
-  height: 0.28rem;
+  width: 3.5rem;
+  height: 5px;
   margin: 0 0 1.75rem;
   background: #C45C26;
 }
@@ -1476,12 +1478,12 @@ h1.work-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 500 !important;
   font-style: normal !important;
-  font-size: 0.95rem !important;
+  font-size: 1rem !important;
   line-height: 1.2 !important;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: #C45C26 !important;
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.75rem;
 }
 
 #collaborators .collaborators-title,
@@ -1490,9 +1492,9 @@ h1.collaborators-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
-  line-height: 1.22 !important;
-  letter-spacing: -0.02em !important;
-  font-size: clamp(2.15rem, 3.6vw, 3.75rem) !important;
+  line-height: 1.33 !important;
+  letter-spacing: -0.025em !important;
+  font-size: clamp(2.35rem, 4vw, 3.75rem) !important;
   color: #24301A !important;
   text-transform: none;
   margin: 0 0 1rem;
@@ -1500,18 +1502,17 @@ h1.collaborators-title {
 
 #collaborators .collaborators-lead {
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.58;
   color: #5C4A36;
   margin: 0 0 3rem;
-  max-width: 36rem;
 }
 
 #collaborators .collaborators-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem 1rem;
+  gap: 1rem;
   align-items: center;
 }
 
@@ -1520,13 +1521,13 @@ h1.collaborators-title {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 3.5rem;
-  padding: 1.15rem 2.15rem;
-  border-radius: 10px;
+  min-height: 4.5rem;
+  padding: 1.625rem 2.375rem;
+  border-radius: 999px;
   font-family: "Jost", sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.1;
   text-decoration: none;
   border: 1px solid transparent;
 }
@@ -1547,7 +1548,7 @@ h1.collaborators-title {
   background: #FFFFFE;
   border-color: #E6DCC8;
   color: #24301A;
-  font-weight: 500;
+  font-weight: 400;
 }
 #collaborators .collaborators-btn-ghost:hover,
 #collaborators .collaborators-btn-ghost:focus {
@@ -1569,21 +1570,19 @@ h1.collaborators-title {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 42% 82%;
-  transform: scale(2.15);
-  transform-origin: 46% 80%;
+  object-position: center 18%;
 }
 
 #collaborators .collaborators-stats-band {
   background: #F3F5EC;
-  padding: 4.75rem 0 4.25rem;
+  padding: 5.5rem 0 4.75rem;
 }
 
 #collaborators .collaborators-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   background: transparent;
-  padding-bottom: 2.75rem;
+  padding-bottom: 3rem;
   border-bottom: 1px solid #E6DCC8;
 }
 
@@ -1593,23 +1592,23 @@ h1.collaborators-title {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0.5rem 1rem;
+  padding: 0 0.75rem;
 }
 
 #collaborators .collaborators-stat-num {
   font-family: "Jost", sans-serif;
   font-weight: 700;
-  font-size: clamp(2.75rem, 4.2vw, 3.5rem);
+  font-size: clamp(3rem, 4.6vw, 3.75rem);
   line-height: 1;
-  color: #C45C26;
-  letter-spacing: -0.03em;
+  color: #24301A;
+  letter-spacing: -0.04em;
 }
 
 #collaborators .collaborators-stat-label {
-  margin-top: 0.55rem;
+  margin-top: 0.65rem;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-weight: 400;
-  font-size: 1rem;
+  font-size: 1.05rem;
   letter-spacing: normal;
   text-transform: none;
   color: #6B7A45;
@@ -1621,9 +1620,10 @@ h1.collaborators-title {
     min-height: 0;
   }
   #collaborators .collaborators-copy {
+    padding: 3.5rem 1.25rem 2.75rem;
+  }
+  #collaborators .collaborators-copy-inner {
     max-width: none;
-    margin: 0;
-    padding: 3.5rem 1.25rem 2.5rem;
   }
   #collaborators .collaborators-photo {
     min-height: 0;
@@ -1631,17 +1631,18 @@ h1.collaborators-title {
   }
   #collaborators .collaborators-photo img {
     position: static;
-    aspect-ratio: 4 / 3;
+    width: 100%;
     height: auto;
-    transform: none;
+    aspect-ratio: 4 / 5;
+    object-position: center 18%;
   }
   #collaborators .collaborators-stats-band {
-    padding: 3rem 0 2.75rem;
+    padding: 3.25rem 0 2.75rem;
   }
   #collaborators .collaborators-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 2rem;
-    padding-bottom: 2rem;
+    row-gap: 2.25rem;
+    padding-bottom: 2.25rem;
   }
 }
 
@@ -1655,12 +1656,13 @@ h1.collaborators-title {
     width: 100%;
   }
   #collaborators .collaborators-lead {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin-bottom: 2rem;
   }
-  #collaborators .collaborators-photo img {
-    aspect-ratio: 16 / 10;
-    transform: none;
+  #collaborators .collaborators-title,
+  #collaborators h1.collaborators-title,
+  h1.collaborators-title {
+    font-size: 2.15rem !important;
   }
 }
 
