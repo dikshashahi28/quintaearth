@@ -1,0 +1,14 @@
+name: Check footer credits
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  check-footer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prevent template credits from returning
+        run: python3 scripts/check-footer.py
