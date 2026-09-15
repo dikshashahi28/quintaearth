@@ -1772,7 +1772,7 @@ h1.collaborators-title {
   color: #24301A;
 }
 #brand-collage .c-split-copy .c-serif { font-size: 1.7rem; color: #24301A; }
-#brand-collage .c-split .c-fill { left: 38%; width: auto; height: auto; object-position: center 40%; }
+#brand-collage .c-split .c-fill { left: 38%; width: auto; height: auto; object-position: center 72%; }
 
 #brand-collage .c-oval { grid-column: 9 / 13; }
 #brand-collage .c-oval .c-fill { object-position: center 45%; filter: brightness(0.72); }
