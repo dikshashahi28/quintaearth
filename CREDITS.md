@@ -3,7 +3,7 @@
 ## Theme
 Environs — Environmental & Nature Website Template by HTML Codex, distributed by ThemeWagon.
 Licence: Creative Commons Attribution 4.0 (HTML Codex free-template terms).
-Credit line is kept in the site footer: Designed By HTML Codex · Distributed By ThemeWagon.
+The on-page template credit line has been removed from all site footers. Theme provenance and the recorded licence remain documented here.
 
 ## Brand photos (QuintaEarth, used on-site)
 - `assets/hero-bg.jpg` — locked hero slide 1
