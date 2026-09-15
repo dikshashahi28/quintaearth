@@ -1676,10 +1676,10 @@ h1.collaborators-title {
   }
 }
 
-/* Brand collage — rows 1 and 3 inset, row 2 full-bleed, peach field + bottom margin */
+/* Brand collage — staggered rows; blush field, copper, cream, terracotta */
 #brand-collage.brand-collage,
 .brand-collage#brand-collage {
-  background: #FFF8F1;
+  background: #FCE4D2;
   padding: 1.15rem 0 clamp(3.15rem, 6.2vw, 5rem);
   border-top: 0;
   overflow-x: hidden;
@@ -1699,7 +1699,7 @@ h1.collaborators-title {
   overflow: hidden;
   min-width: 0;
   min-height: 0;
-  background: #C45C26;
+  background: #C47B42;
   color: #FFFEFC;
 }
 #brand-collage .c-fill {
@@ -1723,7 +1723,7 @@ h1.collaborators-title {
   font-weight: 500;
   font-size: 1.15rem;
   letter-spacing: 0.04em;
-  color: #A8491C;
+  color: #C47B42;
 }
 #brand-collage .c-display {
   margin: 0;
@@ -1740,7 +1740,7 @@ h1.collaborators-title {
   bottom: 0.5rem;
   font-size: 1.45rem;
   color: #FFFEFC;
-  text-shadow: 0 1px 10px rgba(168, 73, 28, 0.45);
+  text-shadow: 0 1px 10px rgba(196, 123, 66, 0.45);
 }
 #brand-collage .c-pane {
   position: relative;
@@ -1761,7 +1761,7 @@ h1.collaborators-title {
   width: 40%;
 }
 
-#brand-collage .c-r1a { grid-column: 2 / 6; background: #C45C26; }
+#brand-collage .c-r1a { grid-column: 2 / 6; background: #C47B42; }
 #brand-collage .c-r1a .c-logo {
   position: absolute;
   z-index: 2;
@@ -1825,7 +1825,7 @@ h1.collaborators-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #5A2433;
+  background: #8F4E2C;
 }
 #brand-collage .c-r2a svg { transform: translateX(-18%); }
 #brand-collage .c-r2b { grid-column: 4 / 7; }
@@ -1839,7 +1839,7 @@ h1.collaborators-title {
   padding: 0.65rem 0.7rem;
   background: #FFFEFC;
 }
-#brand-collage .c-r2c .c-script { font-size: 1.3rem; color: #A8491C; }
+#brand-collage .c-r2c .c-script { font-size: 1.3rem; color: #C47B42; }
 #brand-collage .c-arches { display: flex; align-items: flex-end; gap: 0.32rem; height: 3.3rem; }
 #brand-collage .c-arch {
   flex: 1;
@@ -1852,13 +1852,13 @@ h1.collaborators-title {
   flex-direction: column;
   justify-content: center;
   padding: 0.75rem 0.9rem;
-  background: #A8491C;
+  background: #C45C26;
 }
 #brand-collage .c-r2d .c-script { font-size: 0.95rem; color: #FFFEFC; margin-bottom: 0.2rem; opacity: 0.85; }
 #brand-collage .c-r2e { grid-column: 12 / 15; }
 #brand-collage .c-r2e .c-fill { object-position: 72% 42%; }
 
-#brand-collage .c-r3a { grid-column: 2 / 6; background: #C45C26; }
+#brand-collage .c-r3a { grid-column: 2 / 6; background: #A8491C; }
 #brand-collage .c-r3a > .c-script {
   position: absolute;
   z-index: 1;
@@ -1882,7 +1882,7 @@ h1.collaborators-title {
   display: flex;
   align-items: flex-end;
   padding: 0.55rem 0.65rem 0.45rem;
-  background: #A8491C;
+  background: #C47B42;
 }
 #brand-collage .c-arches-photo { width: 100%; height: 78%; }
 #brand-collage .c-arches-photo img {
