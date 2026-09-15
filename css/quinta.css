@@ -1682,17 +1682,19 @@ h1.collaborators-title {
   background: #FFF8F1;
   padding: 1.35rem clamp(2.85rem, 7.2vw, 5.75rem) clamp(3.15rem, 6.2vw, 5rem);
   border-top: 0;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 #brand-collage .brand-collage-board {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(4.35rem, 1fr));
   grid-template-rows: 10.4rem 9.2rem 10.4rem;
   gap: 8px;
   margin: 0 auto;
   padding: 0;
+  width: 100%;
   max-width: 82rem;
-  min-width: 56rem;
+  min-width: 0;
+  overflow-x: auto;
 }
 #brand-collage .c-slide {
   position: relative;
@@ -1910,7 +1912,6 @@ h1.collaborators-title {
   }
   #brand-collage .brand-collage-board {
     grid-template-rows: 8.2rem 7.5rem 8.2rem;
-    min-width: 52rem;
   }
 }
 
