@@ -1676,11 +1676,11 @@ h1.collaborators-title {
   }
 }
 
-/* Brand collage — cinematic wine/terracotta mosaic, no olive */
+/* Brand collage — inset on peach, website terracotta, wine as accent */
 #brand-collage.brand-collage,
 .brand-collage#brand-collage {
-  background: #F4D4C8;
-  padding: 0.85rem 0 1.35rem;
+  background: #FFF8F1;
+  padding: 1.35rem clamp(2.85rem, 7.2vw, 5.75rem) clamp(3.15rem, 6.2vw, 5rem);
   border-top: 0;
   overflow-x: auto;
 }
@@ -1690,16 +1690,16 @@ h1.collaborators-title {
   grid-template-rows: 10.4rem 9.2rem 10.4rem;
   gap: 8px;
   margin: 0 auto;
-  padding: 0 clamp(0.65rem, 1.6vw, 1.15rem);
-  max-width: 92rem;
-  min-width: 64rem;
+  padding: 0;
+  max-width: 82rem;
+  min-width: 56rem;
 }
 #brand-collage .c-slide {
   position: relative;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
-  background: #5A2433;
+  background: #C45C26;
   color: #FFFEFC;
 }
 #brand-collage .c-fill {
@@ -1723,7 +1723,7 @@ h1.collaborators-title {
   font-weight: 500;
   font-size: 1.15rem;
   letter-spacing: 0.04em;
-  color: #5A2433;
+  color: #A8491C;
 }
 #brand-collage .c-display {
   margin: 0;
@@ -1740,7 +1740,7 @@ h1.collaborators-title {
   bottom: 0.5rem;
   font-size: 1.45rem;
   color: #FFFEFC;
-  text-shadow: 0 1px 10px rgba(63, 24, 36, 0.45);
+  text-shadow: 0 1px 10px rgba(168, 73, 28, 0.45);
 }
 #brand-collage .c-pane {
   position: relative;
@@ -1753,7 +1753,7 @@ h1.collaborators-title {
   padding: 0.7rem 0.75rem;
   background: #FFFEFC;
 }
-#brand-collage .c-pane .c-script { font-size: 1.55rem; color: #5A2433; }
+#brand-collage .c-pane .c-script { font-size: 1.55rem; color: #A8491C; }
 #brand-collage .c-pane-end {
   position: absolute;
   right: 0;
@@ -1761,7 +1761,7 @@ h1.collaborators-title {
   width: 40%;
 }
 
-#brand-collage .c-r1a { grid-column: 1 / 5; background: #5A2433; }
+#brand-collage .c-r1a { grid-column: 1 / 5; background: #C45C26; }
 #brand-collage .c-r1a .c-logo {
   position: absolute;
   z-index: 2;
@@ -1796,7 +1796,7 @@ h1.collaborators-title {
   object-fit: cover;
 }
 
-#brand-collage .c-r1b { grid-column: 5 / 9; }
+#brand-collage .c-r1b { grid-column: 5 / 9; background: #FFFEFC; }
 #brand-collage .c-r1b .c-fill { left: 40%; width: auto; object-position: center 40%; }
 
 #brand-collage .c-r1c { grid-column: 9 / 13; }
@@ -1838,7 +1838,7 @@ h1.collaborators-title {
   padding: 0.65rem 0.7rem;
   background: #FFFEFC;
 }
-#brand-collage .c-r2c .c-script { font-size: 1.3rem; color: #5A2433; }
+#brand-collage .c-r2c .c-script { font-size: 1.3rem; color: #A8491C; }
 #brand-collage .c-arches { display: flex; align-items: flex-end; gap: 0.32rem; height: 3.3rem; }
 #brand-collage .c-arch {
   flex: 1;
@@ -1851,13 +1851,13 @@ h1.collaborators-title {
   flex-direction: column;
   justify-content: center;
   padding: 0.75rem 0.9rem;
-  background: #5A2433;
+  background: #A8491C;
 }
-#brand-collage .c-r2d .c-script { font-size: 0.95rem; color: #E0B8A0; margin-bottom: 0.2rem; }
+#brand-collage .c-r2d .c-script { font-size: 0.95rem; color: #FFFEFC; margin-bottom: 0.2rem; opacity: 0.85; }
 #brand-collage .c-r2e { grid-column: 11 / 13; }
 #brand-collage .c-r2e .c-fill { object-position: center 42%; }
 
-#brand-collage .c-r3a { grid-column: 1 / 5; background: #5A2433; }
+#brand-collage .c-r3a { grid-column: 1 / 5; background: #C45C26; }
 #brand-collage .c-r3a > .c-script {
   position: absolute;
   z-index: 1;
@@ -1895,18 +1895,22 @@ h1.collaborators-title {
 #brand-collage .c-r3c .c-fill { object-position: center 40%; filter: brightness(0.78); }
 
 @media (max-width: 991.98px) {
-  #brand-collage.brand-collage { padding: 0.7rem 0 1.1rem; }
+  #brand-collage.brand-collage {
+    padding: 1rem 1.75rem 2.5rem;
+  }
   #brand-collage .brand-collage-board {
     grid-template-rows: 8.8rem 7.9rem 8.8rem;
     gap: 6px;
-    padding: 0 0.65rem;
   }
 }
 
 @media (max-width: 575.98px) {
+  #brand-collage.brand-collage {
+    padding: 0.85rem 1.25rem 2.25rem;
+  }
   #brand-collage .brand-collage-board {
     grid-template-rows: 8.2rem 7.5rem 8.2rem;
-    min-width: 58rem;
+    min-width: 52rem;
   }
 }
 
