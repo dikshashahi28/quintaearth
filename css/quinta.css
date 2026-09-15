@@ -1787,7 +1787,7 @@ h1.collaborators-title {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 0.85rem 0.85rem 1.85rem;
+  padding: 0.85rem 0.85rem 0.7rem;
   background: #FFFEFC;
 }
 #brand-collage .collage-swatch {
@@ -1824,6 +1824,10 @@ h1.collaborators-title {
 }
 #brand-collage .collage-swatch-ink {
   background: #3F1824;
+}
+#brand-collage .collage-colours .collage-slide-caption {
+  position: static;
+  margin-top: 0.15rem;
 }
 
 #brand-collage .collage-mark {
