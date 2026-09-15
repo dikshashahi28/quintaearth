@@ -1676,10 +1676,10 @@ h1.collaborators-title {
   }
 }
 
-/* Brand collage — compact 3-row horizontal mosaic */
+/* Brand collage — cinematic wine/terracotta mosaic, no olive */
 #brand-collage.brand-collage,
 .brand-collage#brand-collage {
-  background: #F7F3EC;
+  background: #F4D4C8;
   padding: 0.85rem 0 1.35rem;
   border-top: 0;
   overflow-x: auto;
@@ -1687,19 +1687,19 @@ h1.collaborators-title {
 #brand-collage .brand-collage-board {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: 10.15rem 9.1rem 10.15rem;
-  gap: 7px;
+  grid-template-rows: 10.4rem 9.2rem 10.4rem;
+  gap: 8px;
   margin: 0 auto;
   padding: 0 clamp(0.65rem, 1.6vw, 1.15rem);
   max-width: 92rem;
   min-width: 64rem;
 }
-#brand-collage .c-tile {
+#brand-collage .c-slide {
   position: relative;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
-  background: #24301A;
+  background: #5A2433;
   color: #FFFEFC;
 }
 #brand-collage .c-fill {
@@ -1710,73 +1710,98 @@ h1.collaborators-title {
   height: 100%;
   object-fit: cover;
 }
-#brand-collage .c-kicker {
-  margin: 0 0 0.15rem;
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #A8491C;
-}
-#brand-collage .c-serif {
+#brand-collage .c-script {
   margin: 0;
   font-family: "Cormorant Garamond", Georgia, serif;
   font-weight: 500;
   font-style: italic;
   line-height: 1;
-  letter-spacing: 0.01em;
 }
-#brand-collage .c-overlay {
+#brand-collage .c-word {
+  margin: 0 0 0.2rem;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: #5A2433;
+}
+#brand-collage .c-display {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.85rem;
+  line-height: 0.95;
+  color: #FFFEFC;
+}
+#brand-collage .c-on {
   position: absolute;
   z-index: 1;
-  font-size: 1.55rem;
+  left: 0.7rem;
+  bottom: 0.5rem;
+  font-size: 1.45rem;
   color: #FFFEFC;
-  text-shadow: 0 1px 8px rgba(36, 48, 26, 0.45);
+  text-shadow: 0 1px 10px rgba(63, 24, 36, 0.45);
 }
-
-#brand-collage .c-hero { grid-column: 1 / 5; }
-#brand-collage .c-hero-copy {
+#brand-collage .c-pane {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.45rem;
-  width: 46%;
+  width: 40%;
   height: 100%;
   padding: 0.7rem 0.75rem;
   background: #FFFEFC;
 }
-#brand-collage .c-hero-copy img { display: block; width: 7.6rem; max-width: 100%; height: auto; }
-#brand-collage .c-hero-copy p {
-  margin: 0;
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #A8491C;
+#brand-collage .c-pane .c-script { font-size: 1.55rem; color: #5A2433; }
+#brand-collage .c-pane-end {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40%;
 }
-#brand-collage .c-hero .c-fill { left: 46%; width: auto; height: auto; object-position: center 22%; }
 
-#brand-collage .c-split { grid-column: 5 / 9; }
-#brand-collage .c-split-copy {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 38%;
-  height: 100%;
-  padding: 0.65rem 0.7rem;
+#brand-collage .c-r1a { grid-column: 1 / 5; background: #5A2433; }
+#brand-collage .c-r1a .c-logo {
+  position: absolute;
+  z-index: 2;
+  left: 0.75rem;
+  top: 0.7rem;
+  width: 7.2rem;
+  height: auto;
+  padding: 0.35rem 0.45rem;
   background: #FFFEFC;
-  color: #24301A;
 }
-#brand-collage .c-split-copy .c-serif { font-size: 1.7rem; color: #24301A; }
-#brand-collage .c-split .c-fill { left: 38%; width: auto; height: auto; object-position: center 72%; }
+#brand-collage .c-r1a .c-script {
+  position: absolute;
+  z-index: 2;
+  left: 0.75rem;
+  bottom: 0.55rem;
+  font-size: 1.35rem;
+  color: #FFFEFC;
+}
+#brand-collage .c-still {
+  position: absolute;
+  right: 0.55rem;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 52%;
+  display: grid;
+  grid-template-rows: 1.15fr 0.85fr;
+  gap: 0.35rem;
+}
+#brand-collage .c-still img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-#brand-collage .c-oval { grid-column: 9 / 13; }
-#brand-collage .c-oval .c-fill { object-position: center 45%; filter: brightness(0.72); }
-#brand-collage .c-oval-mark {
+#brand-collage .c-r1b { grid-column: 5 / 9; }
+#brand-collage .c-r1b .c-fill { left: 40%; width: auto; object-position: center 40%; }
+
+#brand-collage .c-r1c { grid-column: 9 / 13; }
+#brand-collage .c-r1c .c-fill { object-position: center 30%; filter: brightness(0.62) saturate(0.85); }
+#brand-collage .c-oval {
   position: absolute;
   z-index: 1;
   left: 50%;
@@ -1785,114 +1810,80 @@ h1.collaborators-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 62%;
-  height: 58%;
+  width: 64%;
+  height: 62%;
   border: 1.5px solid #FFFEFC;
   border-radius: 50%;
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: clamp(0.95rem, 1.4vw, 1.25rem);
   font-style: italic;
   color: #FFFEFC;
-  letter-spacing: 0.04em;
 }
 
-#brand-collage .c-mark {
+#brand-collage .c-r2a {
   grid-column: 1 / 3;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  background: #24301A;
+  background: #5A2433;
 }
-#brand-collage .c-mark p {
-  margin: 0;
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #E0B8A0;
-}
-
-#brand-collage .c-photo-type { grid-column: 3 / 6; }
-#brand-collage .c-photo-type .c-fill { object-position: center 30%; filter: brightness(0.78); }
-#brand-collage .c-photo-type .c-overlay { left: 0.75rem; bottom: 0.55rem; }
-
-#brand-collage .c-palette {
+#brand-collage .c-r2b { grid-column: 3 / 6; }
+#brand-collage .c-r2b .c-fill { object-position: center 45%; filter: brightness(0.7); }
+#brand-collage .c-r2c {
   grid-column: 6 / 8;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.45rem;
-  padding: 0.7rem 0.75rem 0.55rem;
+  gap: 0.4rem;
+  padding: 0.65rem 0.7rem;
   background: #FFFEFC;
-  color: #24301A;
 }
-#brand-collage .c-palette .c-serif { font-size: 1.35rem; color: #24301A; }
-#brand-collage .c-arches { display: flex; align-items: flex-end; gap: 0.35rem; height: 3.4rem; }
+#brand-collage .c-r2c .c-script { font-size: 1.3rem; color: #5A2433; }
+#brand-collage .c-arches { display: flex; align-items: flex-end; gap: 0.32rem; height: 3.3rem; }
 #brand-collage .c-arch {
   flex: 1;
   height: 100%;
   border-radius: 999px 999px 0 0;
 }
-#brand-collage .c-arch-terra { background: #C45C26; }
-#brand-collage .c-arch-copper { background: #A8491C; }
-#brand-collage .c-arch-olive { background: #24301A; }
-
-#brand-collage .c-type {
+#brand-collage .c-r2d {
   grid-column: 8 / 11;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  gap: 0.55rem;
-  background: #24301A;
+  padding: 0.75rem 0.9rem;
+  background: #5A2433;
 }
-#brand-collage .c-type .c-serif { font-size: 1.85rem; color: #FFFEFC; }
+#brand-collage .c-r2d .c-script { font-size: 0.95rem; color: #E0B8A0; margin-bottom: 0.2rem; }
+#brand-collage .c-r2e { grid-column: 11 / 13; }
+#brand-collage .c-r2e .c-fill { object-position: center 42%; }
 
-#brand-collage .c-style { grid-column: 11 / 13; }
-#brand-collage .c-style .c-fill { object-position: center 40%; filter: brightness(0.8); }
-#brand-collage .c-style .c-overlay { right: 0.55rem; bottom: 0.45rem; font-size: 1.25rem; }
-
-#brand-collage .c-mood { grid-column: 1 / 5; background: #24301A; }
-#brand-collage .c-mood > .c-serif {
+#brand-collage .c-r3a { grid-column: 1 / 5; background: #5A2433; }
+#brand-collage .c-r3a > .c-script {
   position: absolute;
   z-index: 1;
-  left: 0.8rem;
-  bottom: 0.55rem;
-  font-size: 1.45rem;
+  left: 0.75rem;
+  bottom: 0.5rem;
+  font-size: 1.35rem;
 }
-#brand-collage .c-mood-shots {
+#brand-collage .c-polaroids {
   position: absolute;
-  inset: 0.55rem 0.55rem 0.55rem 32%;
+  inset: 0.5rem 0.5rem 0.5rem 34%;
   display: grid;
-  grid-template-columns: 0.7fr 1fr;
+  grid-template-columns: 0.85fr 1.15fr;
   grid-template-rows: 1fr 1fr;
-  gap: 0.35rem;
+  gap: 0.32rem;
 }
-#brand-collage .c-mood-shots img:nth-child(1) {
-  grid-row: 1 / 3;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-}
-#brand-collage .c-mood-shots img:nth-child(2),
-#brand-collage .c-mood-shots img:nth-child(3) {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+#brand-collage .c-polaroids img { width: 100%; height: 100%; object-fit: cover; }
+#brand-collage .c-polaroids img:nth-child(2) { grid-row: 1 / 3; }
 
-#brand-collage .c-guides {
+#brand-collage .c-r3b {
   grid-column: 5 / 9;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.55rem 0.65rem 0.45rem;
   background: #A8491C;
-  padding: 0.7rem 0.75rem 0.55rem;
 }
-#brand-collage .c-guides > .c-serif { font-size: 1.15rem; margin-bottom: 0.4rem; }
-#brand-collage .c-arches-photo {
-  height: 5.4rem;
-  gap: 0.4rem;
-}
+#brand-collage .c-arches-photo { width: 100%; height: 78%; }
 #brand-collage .c-arches-photo img {
   flex: 1;
   height: 100%;
@@ -1900,25 +1891,13 @@ h1.collaborators-title {
   border-radius: 999px 999px 0 0;
 }
 
-#brand-collage .c-join { grid-column: 9 / 13; }
-#brand-collage .c-join .c-fill { object-position: center 28%; filter: brightness(0.7); }
-#brand-collage .c-join-card {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 42%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #FFFEFC;
-}
-#brand-collage .c-join-card .c-serif { font-size: 1.45rem; color: #24301A; }
+#brand-collage .c-r3c { grid-column: 9 / 13; }
+#brand-collage .c-r3c .c-fill { object-position: center 40%; filter: brightness(0.78); }
 
 @media (max-width: 991.98px) {
   #brand-collage.brand-collage { padding: 0.7rem 0 1.1rem; }
   #brand-collage .brand-collage-board {
-    grid-template-rows: 8.6rem 7.8rem 8.6rem;
+    grid-template-rows: 8.8rem 7.9rem 8.8rem;
     gap: 6px;
     padding: 0 0.65rem;
   }
@@ -1926,7 +1905,7 @@ h1.collaborators-title {
 
 @media (max-width: 575.98px) {
   #brand-collage .brand-collage-board {
-    grid-template-rows: 8.1rem 7.4rem 8.1rem;
+    grid-template-rows: 8.2rem 7.5rem 8.2rem;
     min-width: 58rem;
   }
 }
