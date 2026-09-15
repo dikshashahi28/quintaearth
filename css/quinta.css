@@ -1715,3 +1715,17 @@ h1.insights-title {
     font-size: 2.25rem !important;
   }
 }
+
+#achievements h5.achievements-kicker,
+#achievements .achievements-kicker,
+#achievements h5.text-primary.achievements-kicker {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
+  font-size: clamp(1.75rem, 5.5vw, 2.25rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #FFFEFC !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 0, 0, 0.35);
+}
