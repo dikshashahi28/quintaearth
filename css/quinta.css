@@ -1734,7 +1734,7 @@ h1.collaborators-title {
   text-shadow: 0 1px 8px rgba(36, 48, 26, 0.45);
 }
 
-#brand-collage .c-hero { grid-column: 1 / 5; display: grid; grid-template-columns: 0.92fr 1.08fr; }
+#brand-collage .c-hero { grid-column: 1 / 5; }
 #brand-collage .c-hero-copy {
   position: relative;
   z-index: 1;
@@ -1742,31 +1742,37 @@ h1.collaborators-title {
   flex-direction: column;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.85rem 0.8rem;
-  background: #24301A;
+  width: 46%;
+  height: 100%;
+  padding: 0.7rem 0.75rem;
+  background: #FFFEFC;
 }
-#brand-collage .c-hero-copy img { width: min(100%, 8.6rem); height: auto; filter: brightness(0) invert(1); opacity: 0.95; }
+#brand-collage .c-hero-copy img { display: block; width: 7.6rem; max-width: 100%; height: auto; }
 #brand-collage .c-hero-copy p {
   margin: 0;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #E0B8A0;
+  color: #A8491C;
 }
-#brand-collage .c-hero .c-fill { position: relative; inset: auto; height: 100%; object-position: center 22%; }
+#brand-collage .c-hero .c-fill { left: 46%; width: auto; height: auto; object-position: center 22%; }
 
-#brand-collage .c-split { grid-column: 5 / 9; display: grid; grid-template-columns: 0.78fr 1.22fr; }
+#brand-collage .c-split { grid-column: 5 / 9; }
 #brand-collage .c-split-copy {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0.75rem 0.8rem;
+  width: 38%;
+  height: 100%;
+  padding: 0.65rem 0.7rem;
   background: #FFFEFC;
   color: #24301A;
 }
 #brand-collage .c-split-copy .c-serif { font-size: 1.7rem; color: #24301A; }
-#brand-collage .c-split .c-fill { position: relative; inset: auto; height: 100%; object-position: center 40%; }
+#brand-collage .c-split .c-fill { left: 38%; width: auto; height: auto; object-position: center 40%; }
 
 #brand-collage .c-oval { grid-column: 9 / 13; }
 #brand-collage .c-oval .c-fill { object-position: center 45%; filter: brightness(0.72); }
