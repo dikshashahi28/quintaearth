@@ -691,6 +691,7 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
 }
 
 .press-service .press-title,
+#press h1,
 #press h1.press-title,
 h1.press-title {
   font-family: "Jost", sans-serif !important;
@@ -700,10 +701,11 @@ h1.press-title {
   letter-spacing: normal !important;
   font-size: calc(1.375rem + 1.5vw) !important;
   color: #222 !important;
-  text-transform: none;
+  text-transform: none !important;
 }
 @media (min-width: 1200px) {
   .press-service .press-title,
+  #press h1,
   #press h1.press-title,
   h1.press-title {
     font-size: 2.5rem !important;
@@ -801,16 +803,18 @@ h1.press-title {
 }
 
 #achievements .achievements-kicker,
-#achievements h5.achievements-kicker {
+#achievements h5.achievements-kicker,
+#achievements h5.text-primary.achievements-kicker {
   font-family: "Jost", sans-serif !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   font-style: normal !important;
-  font-size: 1.25rem !important;
+  font-size: clamp(1.75rem, 5.5vw, 2.25rem) !important;
   line-height: 1.2 !important;
-  letter-spacing: normal !important;
+  letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
-  color: #C45C26 !important;
-  margin-bottom: 0.5rem;
+  color: #FFFEFC !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 0, 0, 0.35);
+  margin-bottom: 0.75rem;
 }
 
 #achievements .text-white.mb-0 {
@@ -1220,6 +1224,8 @@ h1.volunteer-title {
 
 .donation.insights .insights-title,
 .donation.insights h1.insights-title,
+#insights h1,
+#insights h1.insights-title,
 h1.insights-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 500 !important;
@@ -1227,12 +1233,14 @@ h1.insights-title {
   line-height: 1.2 !important;
   letter-spacing: normal !important;
   font-size: calc(1.375rem + 1.5vw) !important;
-  color: #222;
-  text-transform: none;
+  color: #222 !important;
+  text-transform: none !important;
 }
 @media (min-width: 1200px) {
   .donation.insights .insights-title,
   .donation.insights h1.insights-title,
+  #insights h1,
+  #insights h1.insights-title,
   h1.insights-title {
     font-size: 2.5rem !important;
   }
@@ -1679,4 +1687,31 @@ h1.collaborators-title {
 
 @media (max-width: 575.98px) {
   .qe-hero .hero-actions .btn { width: 100%; }
+}
+
+/* Last-word lock: Environs donation h1 stack on Press + Insights titles */
+#press h1,
+#press h1.press-title,
+#insights h1,
+#insights h1.insights-title,
+h1.press-title,
+h1.insights-title {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  line-height: 1.2 !important;
+  letter-spacing: normal !important;
+  font-size: calc(1.375rem + 1.5vw) !important;
+  color: #222 !important;
+  text-transform: none !important;
+}
+@media (min-width: 1200px) {
+  #press h1,
+  #press h1.press-title,
+  #insights h1,
+  #insights h1.insights-title,
+  h1.press-title,
+  h1.insights-title {
+    font-size: 2.5rem !important;
+  }
 }
