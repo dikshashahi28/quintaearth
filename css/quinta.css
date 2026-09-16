@@ -1512,7 +1512,7 @@ h1.work-title {
   flex-direction: column;
   width: 48rem;
   height: 36.5rem;
-  padding: 2.15rem 14.5rem 2rem 1.45rem;
+  padding: 2.15rem 17.25rem 2rem 1.45rem;
   background: #FFFFFE;
   box-shadow: 0 26px 64px rgba(36, 48, 26, 0.15);
 }
@@ -1599,7 +1599,7 @@ h1.work-title {
 
 @media (max-width: 1199.98px) {
   #csr .csr-pile { min-height: 44rem; }
-  #csr .csr-card { left: 1.05rem; width: 42.5rem; height: 32.5rem; padding: 2rem 12.75rem 1.75rem 1.2rem; }
+  #csr .csr-card { left: 1.05rem; width: 42.5rem; height: 32.5rem; padding: 2rem 15.7rem 1.75rem 1.2rem; }
   #csr .csr-hero { left: 28.35rem; width: 23.5rem; height: 32.5rem; }
   #csr .csr-d4 { left: 66%; }
   #csr .csr-d5 { left: 69%; }
