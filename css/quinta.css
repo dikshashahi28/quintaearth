@@ -1518,9 +1518,20 @@ h1.work-title {
 }
 #csr .csr-logo {
   display: block;
-  width: 7.4rem;
+  width: 6.5rem;
   height: auto;
-  margin: 0 0 1.65rem;
+  margin: 0 0 2.85rem;
+}
+#csr .csr-kicker {
+  margin: 0 0 0.7rem;
+  width: 100%;
+  font-family: "Jost", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: #24301A;
 }
 #csr .csr-title {
   margin: 0;
@@ -1528,35 +1539,22 @@ h1.work-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
-  font-size: clamp(1.85rem, 3.1vw, 2.35rem) !important;
-  line-height: 0.95 !important;
-  letter-spacing: -0.04em !important;
+  font-size: clamp(2.35rem, 4vw, 3.05rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.035em !important;
   text-transform: none;
   color: #24301A !important;
 }
-#csr .csr-sub {
-  margin: 0.7rem 0 0;
-  width: 100%;
-  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 1.02rem;
-  font-weight: 400;
-  line-height: 1.4;
-  color: #5C4A36;
-}
-#csr .csr-highlight {
+#csr .csr-body {
   display: block;
   width: 100%;
   max-width: none;
   margin: 1.15rem 0 0;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 1.48rem;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 1.08rem;
+  font-weight: 400;
+  line-height: 1.55;
   color: #111111;
-}
-#csr .csr-highlight span {
-  padding: 0;
-  background: none;
 }
 #csr .csr-btn {
   display: inline-flex;
@@ -1621,6 +1619,8 @@ h1.work-title {
     height: auto;
     padding: 1.55rem 1.05rem 1.2rem;
   }
+  #csr .csr-logo { margin-bottom: 1.85rem; }
+  #csr .csr-btn { margin-top: 1.75rem; }
   #csr .csr-hero {
     position: relative;
     left: auto;
@@ -1639,7 +1639,9 @@ h1.work-title {
 }
 
 @media (max-width: 575.98px) {
-  #csr .csr-title { font-size: 1.85rem !important; }
+  #csr .csr-logo { margin-bottom: 1.75rem; }
+  #csr .csr-title { font-size: 2.15rem !important; }
+  #csr .csr-body { font-size: 1.05rem; }
   #csr .csr-hero { height: 16.75rem; }
 }
 
