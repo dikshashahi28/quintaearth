@@ -1865,7 +1865,7 @@ h1.work-title {
   #leaders .leaders-shot { width: 21%; }
   #leaders .leaders-s1 { left: 5%; top: 9%; }
   #leaders .leaders-s3 { left: 26%; top: -2.2%; width: 26%; }
-  #leaders .leaders-s10 { display: none; }
+  #leaders .leaders-s10 { left: 72%; top: 38%; width: 20%; z-index: 6; }
   #leaders .leaders-s13 { left: 74%; top: 7%; width: 21%; }
   #leaders .leaders-copy {
     position: relative;
