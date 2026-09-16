@@ -1458,7 +1458,7 @@ h1.work-title {
   position: relative;
   display: flow-root;
   width: min(80rem, 100%);
-  min-height: 42.5rem;
+  min-height: 48.5rem;
   margin: 0 auto;
 }
 #csr .csr-deck {
@@ -1500,19 +1500,19 @@ h1.work-title {
 #csr .csr-d3 { left: 46%; top: 2.8rem; width: 15.5rem; height: 8.7rem; z-index: 2; }
 #csr .csr-d4 { left: 67%; top: 2.6rem; width: 13.25rem; height: 16.5rem; z-index: 3; }
 #csr .csr-d5 { left: 71%; top: 20.1rem; width: 13.75rem; height: 16.5rem; z-index: 4; }
-#csr .csr-d6 { left: 48%; top: 29.75rem; width: 16.75rem; height: 12.25rem; z-index: 3; }
-#csr .csr-d7 { left: 62%; top: 31.25rem; width: 15.25rem; height: 10.5rem; z-index: 2; }
+#csr .csr-d6 { left: 52%; top: 32.5rem; width: 16.75rem; height: 12.25rem; z-index: 3; }
+#csr .csr-d7 { left: 66%; top: 34rem; width: 15.25rem; height: 10.5rem; z-index: 2; }
 
 #csr .csr-card {
   position: absolute;
   z-index: 8;
-  left: 4.75rem;
-  top: 7.25rem;
+  left: 3.25rem;
+  top: 6.75rem;
   display: flex;
   flex-direction: column;
-  width: 32.5rem;
-  height: 32.5rem;
-  padding: 2.35rem 16.85rem 2.15rem 2.45rem;
+  width: 39rem;
+  height: 36.5rem;
+  padding: 2.5rem 17.5rem 2.25rem 2.75rem;
   background: #FFFFFE;
   box-shadow: 0 26px 64px rgba(36, 48, 26, 0.15);
 }
@@ -1527,7 +1527,7 @@ h1.work-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
-  font-size: clamp(2.6rem, 4.4vw, 3.5rem) !important;
+  font-size: clamp(1.85rem, 3.1vw, 2.35rem) !important;
   line-height: 0.95 !important;
   letter-spacing: -0.04em !important;
   text-transform: none;
@@ -1546,16 +1546,14 @@ h1.work-title {
   max-width: 100%;
   margin: 1.15rem 0 0;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
-  font-size: 1.08rem;
+  font-size: 1.48rem;
   font-weight: 600;
-  line-height: 1.45;
-  color: #A8491C;
+  line-height: 1.35;
+  color: #111111;
 }
 #csr .csr-highlight span {
-  padding: 0.06em 0.1em;
-  background: linear-gradient(#F8D4B8, #F8D4B8) 0 72% / 100% 0.55em no-repeat;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  padding: 0;
+  background: none;
 }
 #csr .csr-btn {
   display: inline-flex;
@@ -1582,10 +1580,10 @@ h1.work-title {
 #csr .csr-hero {
   position: absolute;
   z-index: 9;
-  left: 20rem;
-  top: 7.25rem;
-  width: 26.25rem;
-  height: 32.5rem;
+  left: 22.75rem;
+  top: 6.75rem;
+  width: 25.75rem;
+  height: 36.5rem;
   margin: 0;
   overflow: hidden;
   box-shadow: 0 20px 48px rgba(36, 48, 26, 0.18);
@@ -1599,9 +1597,9 @@ h1.work-title {
 }
 
 @media (max-width: 1199.98px) {
-  #csr .csr-pile { min-height: 40rem; }
-  #csr .csr-card { left: 2.25rem; width: 28.5rem; height: 28.5rem; padding-right: 13.5rem; }
-  #csr .csr-hero { left: 15.5rem; width: 23rem; height: 28.5rem; }
+  #csr .csr-pile { min-height: 44rem; }
+  #csr .csr-card { left: 1.75rem; width: 34.5rem; height: 32.5rem; padding-right: 15.25rem; }
+  #csr .csr-hero { left: 18.75rem; width: 23.5rem; height: 32.5rem; }
   #csr .csr-d4 { left: 66%; }
   #csr .csr-d5 { left: 69%; }
 }
@@ -1638,7 +1636,7 @@ h1.work-title {
 }
 
 @media (max-width: 575.98px) {
-  #csr .csr-title { font-size: 2.45rem !important; }
+  #csr .csr-title { font-size: 1.85rem !important; }
   #csr .csr-hero { height: 16.75rem; }
 }
 
