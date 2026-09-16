@@ -1852,6 +1852,7 @@ h1.work-title {
     padding: 12.75rem 1.1rem 2.2rem;
   }
   #leaders .leaders-title { font-size: 1.85rem !important; }
+  #leaders .leaders-title-2 { white-space: normal; }
   #leaders .leaders-body { font-size: 0.98rem; margin-bottom: 1.35rem; }
 }
 
