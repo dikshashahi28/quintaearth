@@ -1733,7 +1733,7 @@ h1.work-title {
 #leaders .leaders-s8 { left: 55.6%; top: 8.2%; width: 8.5%; }
 #leaders .leaders-s9 { left: 65.2%; top: 18.6%; width: 8.5%; }
 #leaders .leaders-s10 {
-  left: 71.2%;
+  left: 73.6%;
   top: 32.4%;
   width: 8.6%;
   z-index: 6;
@@ -1772,7 +1772,7 @@ h1.work-title {
   font-family: "Jost", sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
-  font-size: clamp(2.05rem, 3.6vw, 3.15rem) !important;
+  font-size: clamp(2.05rem, 3.4vw, 2.9rem) !important;
   line-height: 1.12 !important;
   letter-spacing: -0.03em !important;
   text-transform: none;
@@ -1780,7 +1780,7 @@ h1.work-title {
 #leaders .leaders-title-1,
 #leaders .leaders-title-2 { display: block; }
 #leaders .leaders-title-1 { color: #111111 !important; }
-#leaders .leaders-title-2 { color: #9A9590 !important; }
+#leaders .leaders-title-2 { color: #9A9590 !important; white-space: nowrap; }
 #leaders .leaders-body {
   margin: 1.15rem auto 1.65rem;
   max-width: 26.5rem;
@@ -1831,6 +1831,7 @@ h1.work-title {
 
 @media (max-width: 575.98px) {
   #leaders .leaders-board { min-height: 0; border-radius: 1.55rem; }
+  #leaders .leaders-s2,
   #leaders .leaders-s4,
   #leaders .leaders-s6,
   #leaders .leaders-s8,
@@ -1839,7 +1840,7 @@ h1.work-title {
   #leaders .leaders-s1 { left: 5%; top: 14%; }
   #leaders .leaders-s2 { left: 5.5%; top: 38%; width: 19%; }
   #leaders .leaders-s3 { left: 24%; top: 0.6%; width: 24%; }
-  #leaders .leaders-s10 { left: 70%; top: 34%; width: 21%; }
+  #leaders .leaders-s10 { left: 74%; top: 36%; width: 20%; }
   #leaders .leaders-s11 { left: 72%; top: 1%; width: 22%; }
   #leaders .leaders-s13 { left: 74%; top: 40%; width: 20%; }
   #leaders .leaders-copy {
