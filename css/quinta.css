@@ -1506,13 +1506,13 @@ h1.work-title {
 #csr .csr-card {
   position: absolute;
   z-index: 8;
-  left: 3.25rem;
+  left: 2.25rem;
   top: 6.75rem;
   display: flex;
   flex-direction: column;
-  width: 39rem;
+  width: 48rem;
   height: 36.5rem;
-  padding: 2.5rem 17.5rem 2.25rem 2.75rem;
+  padding: 2.15rem 14.5rem 2rem 1.45rem;
   background: #FFFFFE;
   box-shadow: 0 26px 64px rgba(36, 48, 26, 0.15);
 }
@@ -1524,6 +1524,7 @@ h1.work-title {
 }
 #csr .csr-title {
   margin: 0;
+  width: 100%;
   font-family: "Jost", sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
@@ -1535,6 +1536,7 @@ h1.work-title {
 }
 #csr .csr-sub {
   margin: 0.7rem 0 0;
+  width: 100%;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 1.02rem;
   font-weight: 400;
@@ -1543,7 +1545,8 @@ h1.work-title {
 }
 #csr .csr-highlight {
   display: block;
-  max-width: 100%;
+  width: 100%;
+  max-width: none;
   margin: 1.15rem 0 0;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 1.48rem;
@@ -1580,7 +1583,7 @@ h1.work-title {
 #csr .csr-hero {
   position: absolute;
   z-index: 9;
-  left: 22.75rem;
+  left: 33.5rem;
   top: 6.75rem;
   width: 25.75rem;
   height: 36.5rem;
@@ -1598,8 +1601,8 @@ h1.work-title {
 
 @media (max-width: 1199.98px) {
   #csr .csr-pile { min-height: 44rem; }
-  #csr .csr-card { left: 1.75rem; width: 34.5rem; height: 32.5rem; padding-right: 15.25rem; }
-  #csr .csr-hero { left: 18.75rem; width: 23.5rem; height: 32.5rem; }
+  #csr .csr-card { left: 1.05rem; width: 42.5rem; height: 32.5rem; padding: 2rem 12.75rem 1.75rem 1.2rem; }
+  #csr .csr-hero { left: 28.35rem; width: 23.5rem; height: 32.5rem; }
   #csr .csr-d4 { left: 66%; }
   #csr .csr-d5 { left: 69%; }
 }
@@ -1616,7 +1619,7 @@ h1.work-title {
     top: auto;
     width: auto;
     height: auto;
-    padding: 2rem 1.45rem 1.35rem;
+    padding: 1.55rem 1.05rem 1.2rem;
   }
   #csr .csr-hero {
     position: relative;
