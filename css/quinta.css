@@ -2726,12 +2726,13 @@ h1.insights-title {
   position: relative;
   z-index: 1;
   color: #FFFEFC;
-  margin: auto 1.1rem 0.35rem;
+  margin-left: 1.1rem;
+  margin-right: 1.1rem;
 }
-#testimonials .t-person-on { margin-top: auto; }
+#testimonials .t-person-on { margin-top: auto; margin-bottom: 0.15rem; }
 #testimonials .t-person-on .t-name { color: #FFFEFC; }
 #testimonials .t-person-on .t-role { color: #F3F5EC; }
-#testimonials .t-sign-on { color: #FFFEFC; margin-bottom: 1rem; }
+#testimonials .t-sign-on { margin-top: 0; margin-bottom: 1rem; color: #FFFEFC; }
 #testimonials .t-arrow {
   position: absolute;
   z-index: 2;
