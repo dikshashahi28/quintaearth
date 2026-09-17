@@ -2781,3 +2781,98 @@ h1.insights-title {
     padding: 1rem 1.15rem 1.15rem;
   }
 }
+
+/* Industries tiles + inner group rooms */
+#industries.industries,
+#industries.service {
+  background: #F3F5EC;
+  color: #5C4A36;
+}
+#industries .industries-kicker {
+  margin: 0 0 0.7rem;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C45C26;
+}
+#industries .industries-title {
+  margin: 0;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #24301A;
+}
+#industries .service-item {
+  border-radius: 1rem;
+}
+#industries .service-link a,
+#industries .service-link a.h4 {
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  color: #FFFEFC;
+  text-decoration: none;
+}
+#industries .service-link:hover a,
+#industries .service-link a:hover {
+  color: #FFFEFC;
+}
+
+.industry-room {
+  background: #FFFEFC;
+  color: #5C4A36;
+}
+.industry-room .industry-kicker {
+  margin: 0 0 0.7rem;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C45C26;
+}
+.industry-room .industry-title {
+  margin: 0 0 0.9rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #24301A;
+}
+.industry-room .industry-line {
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+.industry-room .industry-topics {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  max-width: 28rem;
+  background: #F3F5EC;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.industry-room .industry-topics li {
+  scroll-margin-top: 6.5rem;
+}
+.industry-room .industry-topics li a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  color: #24301A;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border-bottom: 1px solid #E6DCC8;
+}
+.industry-room .industry-topics li:last-child a { border-bottom: 0; }
+.industry-room .industry-topics li a:hover { color: #C45C26; }
+.industry-room .industry-back { margin: 0; }
