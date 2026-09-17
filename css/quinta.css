@@ -2729,19 +2729,12 @@ h1.insights-title {
 #testimonials .t-cta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   margin: 1.15rem -1.15rem 0;
-  padding: 0.95rem 1.4rem;
-  background: #24301A;
-  color: #FFFEFC;
-}
-#testimonials .t-cta-copy {
-  margin: 0;
-  font-family: "Jost", sans-serif;
-  font-weight: 600;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  padding: 0.95rem 1.4rem 1.1rem;
+  background: #F3F5EC;
+  color: #24301A;
 }
 #testimonials .t-cta-btn {
   display: inline-flex;
@@ -2776,8 +2769,6 @@ h1.insights-title {
   #testimonials .t-title { font-size: 1.7rem; }
   #testimonials .t-card { flex-basis: 88%; }
   #testimonials .t-cta {
-    flex-direction: column;
-    align-items: flex-start;
     padding: 1rem 1.15rem 1.15rem;
   }
 }
