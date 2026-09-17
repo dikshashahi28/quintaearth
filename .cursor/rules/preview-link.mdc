@@ -1,0 +1,16 @@
+---
+description: Always deploy and post the stable preview website after every site update
+alwaysApply: true
+---
+
+After EVERY homepage/site commit on `revamp/environs`:
+
+1. Sync public site files to repo `dikshashahi28/quintaearth-preview` (`main`) and push, so this URL updates itself:
+   https://dikshashahi28.github.io/quintaearth-preview/
+2. In the same chat reply, post that exact URL.
+3. If the preview push fails, say so in chat. Do not ask Chief of Staff to refresh unless the push is blocked.
+4. Do not wait for anyone else to refresh the preview.
+
+Never use raw.githack.com, commit-hash preview URLs, or the live main URL as the “updated website” link.
+
+Live site https://dikshashahi28.github.io/quintaearth/ stays untouched until Diksha says go-live. Do not push `quintaearth` `main`.

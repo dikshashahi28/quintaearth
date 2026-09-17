@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="ytBandWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#182214"/>
+      <stop offset="1" stop-color="#12180f"/>
+    </linearGradient>
+    <pattern id="ytBandGrid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#d9cbb4" stroke-width="0.8" opacity="0.28"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#ytBandWash)"/>
+  <rect width="1600" height="900" fill="url(#ytBandGrid)"/>
+  <g fill="none" stroke="#8a9a68" stroke-width="1.4" opacity="0.38">
+    <ellipse cx="800" cy="450" rx="140" ry="80"/>
+    <ellipse cx="800" cy="450" rx="240" ry="140"/>
+    <ellipse cx="800" cy="450" rx="360" ry="210"/>
+    <ellipse cx="800" cy="450" rx="500" ry="290"/>
+    <ellipse cx="800" cy="450" rx="660" ry="380"/>
+  </g>
+  <g stroke="#C4A15A" stroke-width="1" opacity="0.32" fill="none">
+    <path d="M120 90H240"/>
+    <path d="M120 90V190"/>
+    <path d="M1360 710H1480"/>
+    <path d="M1480 710V810"/>
+  </g>
+  <g fill="#C45C26" opacity="0.28">
+    <circle cx="800" cy="450" r="3.5"/>
+    <circle cx="980" cy="360" r="2.2"/>
+    <circle cx="640" cy="540" r="2.2"/>
+  </g>
+</svg>
