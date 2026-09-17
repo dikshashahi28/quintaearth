@@ -1,0 +1,12 @@
+---
+description: Always post the stable preview website link after every site update
+alwaysApply: true
+---
+
+After EVERY site update, commit, or deploy on this project, reply with this exact preview URL (do not invent another host):
+
+https://dikshashahi28.github.io/quintaearth-preview/
+
+- Never use raw.githack.com, commit-hash preview URLs, or the live main URL as the “updated website” link.
+- Live site https://dikshashahi28.github.io/quintaearth/ stays untouched until Diksha says go-live.
+- If the preview is stale, say so and note that Chief of Staff will refresh it — still post the same preview URL.
