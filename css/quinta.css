@@ -1191,14 +1191,28 @@ h1.volunteer-title {
 }
 .copyright { background: #222222 !important; color: #E0B8A0; }
 .copyright a { color: #FFFFFE; }
-.copyright .copyright-social .social-btn {
-  width: 36px;
-  height: 36px;
-  background: #C45C26;
-  color: #FFFFFE;
+.copyright .copyright-social {
+  gap: 1rem;
 }
-.copyright .copyright-social .social-btn:hover {
-  background: #A8491C;
+.copyright .copyright-social .social-btn {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #E0B8A0;
+  box-shadow: none;
+}
+.copyright .copyright-social .social-btn svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+.copyright .copyright-social .social-btn:hover,
+.copyright .copyright-social .social-btn:focus {
+  background: transparent;
   color: #FFFFFE;
 }
 
