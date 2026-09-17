@@ -114,4 +114,27 @@
       }
     });
   }
+
+  var carousel = document.querySelector("[data-t-carousel]");
+  if (carousel) {
+    var track = carousel.querySelector(".t-track");
+    var prev = carousel.querySelector(".t-arrow-prev");
+    var next = carousel.querySelector(".t-arrow-next");
+    function cardStep() {
+      var card = track && track.querySelector(".t-card");
+      if (!card) return 280;
+      var gap = parseFloat(window.getComputedStyle(track).gap) || 16;
+      return card.getBoundingClientRect().width + gap;
+    }
+    if (prev && track) {
+      prev.addEventListener("click", function () {
+        track.scrollBy({ left: -cardStep(), behavior: "smooth" });
+      });
+    }
+    if (next && track) {
+      next.addEventListener("click", function () {
+        track.scrollBy({ left: cardStep(), behavior: "smooth" });
+      });
+    }
+  }
 })();
