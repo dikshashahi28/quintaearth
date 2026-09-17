@@ -434,6 +434,10 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   text-align: left !important;
   -webkit-tap-highlight-color: transparent;
 }
+#siteOffcanvas a.nav-toggle-nested {
+  text-decoration: none !important;
+  box-sizing: border-box;
+}
 #siteOffcanvas .nav-group-nested.is-open > .nav-toggle-nested {
   color: #C45C26 !important;
 }
@@ -2782,45 +2786,7 @@ h1.insights-title {
   }
 }
 
-/* Industries tiles + inner group rooms */
-#industries.industries,
-#industries.service {
-  background: #F3F5EC;
-  color: #5C4A36;
-}
-#industries .industries-kicker {
-  margin: 0 0 0.7rem;
-  font-family: "Jost", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #C45C26;
-}
-#industries .industries-title {
-  margin: 0;
-  font-family: "Jost", sans-serif;
-  font-weight: 600;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  color: #24301A;
-}
-#industries .service-item {
-  border-radius: 1rem;
-}
-#industries .service-link a,
-#industries .service-link a.h4 {
-  font-family: "Jost", sans-serif;
-  font-weight: 600;
-  color: #FFFEFC;
-  text-decoration: none;
-}
-#industries .service-link:hover a,
-#industries .service-link a:hover {
-  color: #FFFEFC;
-}
-
+/* Industries inner group rooms */
 .industry-room {
   background: #FFFEFC;
   color: #5C4A36;

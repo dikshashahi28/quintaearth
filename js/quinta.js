@@ -58,6 +58,18 @@
         }
       });
       toggle.addEventListener("click", function (e) {
+        var href = toggle.getAttribute("href");
+        if (
+          toggle.classList.contains("nav-toggle-nested") &&
+          href &&
+          href !== "#"
+        ) {
+          var rect = toggle.getBoundingClientRect();
+          var caretZone = 36;
+          if ((e.clientX || 0) < rect.right - caretZone) {
+            return;
+          }
+        }
         e.preventDefault();
         e.stopPropagation();
         var group = toggle.parentElement;
