@@ -1,5 +1,7 @@
 (function () {
   document.querySelectorAll("[data-placeholder]").forEach(function (el) {
+    var href = el.getAttribute("href") || "";
+    if (href && href !== "#") return;
     el.setAttribute("aria-describedby", "link-coming-soon");
     el.addEventListener("click", function (e) {
       e.preventDefault();
