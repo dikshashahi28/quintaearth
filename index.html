@@ -25,7 +25,7 @@
   <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  <link href="css/quinta.css?v=volunteer-dialog-1" rel="stylesheet" />
+  <link href="css/quinta.css?v=volunteer-dialog-2" rel="stylesheet" />
   <style>
     button.menu-btn { font-size: 0; line-height: 0; }
     button.menu-btn > span {
@@ -1159,10 +1159,10 @@
   <div class="volunteer-form-panel">
     <button type="button" class="volunteer-dialog-close" data-volunteer-close aria-label="Close">&times;</button>
     <h5 class="text-uppercase text-primary volunteer-kicker">Become a Volunteer</h5>
-    <h1 id="volunteer-dialog-title" class="volunteer-title mb-4">Volunteer with us</h1>
-    <p class="volunteer-form-lede mb-4">Join hands with us for a better life and beautiful future.</p>
+    <h1 id="volunteer-dialog-title" class="volunteer-title">Volunteer with us</h1>
+    <p class="volunteer-form-lede">Join hands with us for a better life and beautiful future.</p>
     <form id="volunteer-form" class="volunteer-form" action="#" method="post" novalidate>
-      <div class="row g-3">
+      <div class="row g-2 volunteer-form-grid">
         <div class="col-md-6">
           <label for="volunteer-name">Name <span class="req">*</span></label>
           <input id="volunteer-name" name="name" type="text" autocomplete="name" required />
@@ -1178,14 +1178,6 @@
           </select>
         </div>
         <div class="col-md-6">
-          <label for="volunteer-designation">Designation</label>
-          <input id="volunteer-designation" name="designation" type="text" autocomplete="organization-title" />
-        </div>
-        <div class="col-md-6">
-          <label for="volunteer-city">City</label>
-          <input id="volunteer-city" name="city" type="text" autocomplete="address-level2" placeholder="City" />
-        </div>
-        <div class="col-md-6">
           <label for="volunteer-phone">Phone number</label>
           <input id="volunteer-phone" name="phone" type="tel" autocomplete="tel" />
         </div>
@@ -1193,21 +1185,27 @@
           <label for="volunteer-email">Email <span class="req">*</span></label>
           <input id="volunteer-email" name="email" type="email" autocomplete="email" required />
         </div>
-        <div class="col-12">
+        <div class="col-md-6">
+          <label for="volunteer-designation">Designation</label>
+          <input id="volunteer-designation" name="designation" type="text" autocomplete="organization-title" />
+        </div>
+        <div class="col-md-6">
           <label for="volunteer-education">Education</label>
           <input id="volunteer-education" name="education" type="text" />
         </div>
-        <div class="col-12">
-          <label for="volunteer-why">Why you want to volunteer</label>
-          <textarea id="volunteer-why" name="why" rows="4"></textarea>
+        <div class="col-8 col-md-4 volunteer-city-field">
+          <label for="volunteer-city">City</label>
+          <input id="volunteer-city" name="city" type="text" autocomplete="address-level2" placeholder="City" />
         </div>
         <div class="col-12">
+          <label for="volunteer-why">Why you want to volunteer</label>
+          <textarea id="volunteer-why" name="why" rows="2"></textarea>
+        </div>
+        <div class="col-12 volunteer-form-actions">
           <label class="volunteer-consent" for="volunteer-consent">
             <input id="volunteer-consent" name="consent" type="checkbox" required />
             <span>I understand this is a volunteer signup, not a job application.</span>
           </label>
-        </div>
-        <div class="col-12">
           <button class="btn-hover-bg btn btn-primary text-white py-2 px-4" type="submit">Submit</button>
         </div>
       </div>
@@ -1218,5 +1216,5 @@
 <a href="#" class="btn btn-primary back-to-top" aria-label="Back to top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/main.js"></script>
-<script src="js/quinta.js?v=volunteer-dialog-1"></script>
+<script src="js/quinta.js?v=volunteer-dialog-2"></script>
 </body></html>
