@@ -3,6 +3,9 @@
   var partnerThanks = document.getElementById("partner-thanks");
   var partnerIntro = document.querySelector("#partner-dialog .volunteer-dialog-intro");
   var partnerDialog = document.getElementById("partner-dialog");
+  var partnerSubmitError = document.getElementById("partner-submit-error");
+  var partnerSubmitBtn = partnerForm && partnerForm.querySelector('button[type="submit"]');
+  var partnerSheetUrl = "https://script.google.com/macros/s/AKfycbx1fOHhkENMi3VJcNw_gVMLmV-8-9xCbkrbaEOjyuVarkQe3BBAo29e_yPdX6pH-AAZIg/exec";
   var partnerLastFocus = null;
 
   function partnerHash() {
@@ -33,6 +36,8 @@
       partnerForm.reset();
     }
     if (partnerThanks) partnerThanks.hidden = true;
+    if (partnerSubmitError) partnerSubmitError.hidden = true;
+    if (partnerSubmitBtn) partnerSubmitBtn.disabled = false;
   }
 
   function openPartnerDialog() {
@@ -65,10 +70,37 @@
         partnerForm.reportValidity();
         return;
       }
-      partnerForm.hidden = true;
-      if (partnerDialog) partnerDialog.classList.add("is-thanks");
-      partnerThanks.hidden = false;
-      partnerThanks.focus();
+      if (partnerSubmitError) partnerSubmitError.hidden = true;
+      var consent = partnerForm.elements.consent;
+      var payload = {
+        company: partnerForm.elements.company.value,
+        company_type: partnerForm.elements.company_type.value,
+        website: partnerForm.elements.website.value,
+        phone: partnerForm.elements.phone.value,
+        place: partnerForm.elements.place.value,
+        email: partnerForm.elements.email.value,
+        contact_name: partnerForm.elements.contact_name.value,
+        designation: partnerForm.elements.designation.value,
+        purpose: partnerForm.elements.purpose.value,
+        consent: !!(consent && consent.checked)
+      };
+      if (partnerSubmitBtn) partnerSubmitBtn.disabled = true;
+      fetch(partnerSheetUrl, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        if (!res.ok) throw new Error("submit failed");
+        partnerForm.hidden = true;
+        if (partnerDialog) partnerDialog.classList.add("is-thanks");
+        partnerThanks.hidden = false;
+        partnerThanks.focus();
+      }).catch(function () {
+        if (partnerSubmitError) partnerSubmitError.hidden = false;
+      }).then(function () {
+        if (partnerSubmitBtn) partnerSubmitBtn.disabled = false;
+      });
     });
   }
 
