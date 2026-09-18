@@ -985,6 +985,7 @@ h1.volunteer-title {
 .volunteer-form input[type="text"],
 .volunteer-form input[type="email"],
 .volunteer-form input[type="tel"],
+.volunteer-form input[type="url"],
 .volunteer-form select,
 .volunteer-form textarea {
   width: 100%;
@@ -1099,6 +1100,7 @@ h1.volunteer-title {
 .volunteer-dialog .volunteer-form input[type="text"],
 .volunteer-dialog .volunteer-form input[type="email"],
 .volunteer-dialog .volunteer-form input[type="tel"],
+.volunteer-dialog .volunteer-form input[type="url"],
 .volunteer-dialog .volunteer-form select,
 .volunteer-dialog .volunteer-form textarea {
   display: block;
