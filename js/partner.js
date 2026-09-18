@@ -6,7 +6,21 @@
   var partnerSubmitError = document.getElementById("partner-submit-error");
   var partnerSubmitBtn = partnerForm && partnerForm.querySelector('button[type="submit"]');
   var partnerSheetUrl = "https://script.google.com/macros/s/AKfycbx1fOHhkENMi3VJcNw_gVMLmV-8-9xCbkrbaEOjyuVarkQe3BBAo29e_yPdX6pH-AAZIg/exec";
+  var collaboratorsSheetUrl = "https://script.google.com/macros/s/AKfycbzVSYYebvaOsIywQZPGv3zZzss27e-gBWhEGo_C4CcIa64M0PuitidLuzOEx6U42nqlnA/exec";
+  var submitSheetUrl = partnerSheetUrl;
   var partnerLastFocus = null;
+
+  function sheetSourceFromOpener(opener) {
+    if (!opener) return "partner";
+    if (opener.getAttribute("data-partner-source") === "collaborators") return "collaborators";
+    if (opener.classList && opener.classList.contains("collaborators-btn")) return "collaborators";
+    if (typeof opener.closest === "function" && opener.closest("#collaborators")) return "collaborators";
+    return "partner";
+  }
+
+  function setSubmitSheet(source) {
+    submitSheetUrl = source === "collaborators" ? collaboratorsSheetUrl : partnerSheetUrl;
+  }
 
   function partnerHash() {
     return (location.hash || "") === "#partner";
@@ -38,11 +52,13 @@
     if (partnerThanks) partnerThanks.hidden = true;
     if (partnerSubmitError) partnerSubmitError.hidden = true;
     if (partnerSubmitBtn) partnerSubmitBtn.disabled = false;
+    setSubmitSheet("partner");
   }
 
-  function openPartnerDialog() {
+  function openPartnerDialog(source) {
     if (!partnerDialog) return false;
     resetPartnerThanks();
+    setSubmitSheet(source);
     partnerLastFocus = document.activeElement;
     if (typeof partnerDialog.showModal === "function") {
       if (!partnerDialog.open) partnerDialog.showModal();
@@ -85,7 +101,7 @@
         consent: !!(consent && consent.checked)
       };
       if (partnerSubmitBtn) partnerSubmitBtn.disabled = true;
-      fetch(partnerSheetUrl, {
+      fetch(submitSheetUrl, {
         method: "POST",
         redirect: "follow",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +143,7 @@
     if (opener.hasAttribute("data-partner-open") || partnerHref(opener.getAttribute("href"))) {
       if (partnerDialog) {
         e.preventDefault();
-        openPartnerDialog();
+        openPartnerDialog(sheetSourceFromOpener(opener));
       } else if (opener.hasAttribute("data-partner-open") && !isHomepage()) {
         e.preventDefault();
         location.href = "index.html#partner";
