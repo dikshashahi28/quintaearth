@@ -1188,34 +1188,43 @@ h1.volunteer-title {
 }
 .volunteer-dialog .volunteer-thanks-copy {
   font-family: "Jost", sans-serif;
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   line-height: 1.3;
   color: var(--qe-dark);
   margin: 0;
 }
 .volunteer-dialog.is-thanks .volunteer-form-panel {
-  width: min(640px, 100%);
-  max-width: 640px;
-  padding: 1.35rem 1.4rem 1.55rem;
-  text-align: left;
+  width: min(19.5rem, calc(100vw - 1.5rem));
+  max-width: 19.5rem;
+  padding: 2.1rem 1.3rem 1.55rem;
+  text-align: center;
 }
 .volunteer-dialog.is-thanks .volunteer-form {
   display: none;
 }
 .volunteer-dialog.is-thanks .volunteer-kicker {
-  font-size: 0.9rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 0.45rem;
+  padding-right: 0;
 }
 .volunteer-dialog.is-thanks .volunteer-title {
-  font-size: 1.7rem !important;
-  margin-bottom: 0.4rem !important;
+  font-size: 1.5rem !important;
+  margin: 0 0 0.55rem !important;
 }
 .volunteer-dialog.is-thanks .volunteer-form-lede {
-  font-size: 1rem;
-  margin-bottom: 1.15rem;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  margin: 0 auto 0.95rem;
+  max-width: 16.5rem;
 }
 .volunteer-dialog.is-thanks .volunteer-thanks {
-  padding-top: 1.05rem;
-  border-top: 1px solid var(--qe-line);
+  padding-top: 0;
+  border-top: 0;
+}
+.volunteer-dialog.is-thanks .volunteer-thanks-copy {
+  font-size: 1.05rem;
+  max-width: none;
 }
 .volunteer-dialog-close {
   position: absolute;
