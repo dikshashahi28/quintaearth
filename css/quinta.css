@@ -1076,13 +1076,13 @@ h1.volunteer-title {
   margin-bottom: 0.2rem !important;
 }
 .volunteer-dialog .volunteer-form-lede {
-  font-size: 0.84rem;
-  line-height: 1.35;
-  margin-bottom: 0.7rem;
+  font-size: 0.82rem;
+  line-height: 1.3;
+  margin-bottom: 0.55rem;
 }
 .volunteer-dialog .volunteer-form-grid {
   --bs-gutter-x: 0.7rem;
-  --bs-gutter-y: 0.45rem;
+  --bs-gutter-y: 0.38rem;
 }
 .volunteer-dialog .volunteer-form label {
   font-size: 0.78rem;
@@ -1097,10 +1097,7 @@ h1.volunteer-title {
   font-size: 0.9rem;
 }
 .volunteer-dialog .volunteer-form textarea {
-  min-height: 3rem;
-}
-.volunteer-dialog .volunteer-city-field {
-  max-width: 14.5rem;
+  min-height: 2.6rem;
 }
 .volunteer-dialog .volunteer-consent {
   font-size: 0.84rem;
