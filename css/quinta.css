@@ -1240,6 +1240,11 @@ h1.volunteer-title {
   font-size: 1.25rem;
 }
 
+.insights-kicker a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .donation.insights .insights-title,
 .donation.insights h1.insights-title,
 #insights h1,
@@ -1338,6 +1343,11 @@ h1.insights-title {
   text-transform: uppercase !important;
   color: #C45C26 !important;
   margin-bottom: 0.5rem;
+}
+
+#our-work .work-kicker a {
+  color: inherit;
+  text-decoration: none;
 }
 
 #our-work .work-title,
