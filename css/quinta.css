@@ -3197,3 +3197,23 @@ h1.insights-title {
 .industry-room .industry-topics li:last-child a { border-bottom: 0; }
 .industry-room .industry-topics li a:hover { color: #C45C26; }
 .industry-room .industry-back { margin: 0; }
+
+/* Shop / Testimonials / Our Work heading and card links */
+#our-work .work-title a,
+#shop .shop-kicker a,
+#shop .shop-title a,
+#shop .shop-tile a,
+#testimonials .t-kicker a,
+#testimonials .t-title a {
+  color: inherit;
+  text-decoration: none;
+}
+#shop .shop-tile a { display: block; }
+#shop .shop-tile a:hover .shop-name { color: #C45C26; }
+#testimonials .t-card { position: relative; }
+#testimonials .t-card-hit,
+#testimonials .t-photo-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
