@@ -598,6 +598,16 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   margin-inline: auto;
   text-align: center;
 }
+.about-figure-link {
+  display: block;
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+.about-figure-link:focus-visible .about-on-photo {
+  outline: 2px solid #FFFEFC;
+  outline-offset: 4px;
+}
 .about-figure {
   position: relative;
   overflow: hidden;
