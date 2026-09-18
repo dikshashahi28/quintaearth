@@ -3248,22 +3248,16 @@ h1.insights-title {
 }
 .sdg-room .sdg-intro p {
   margin: 0 0 1rem;
+  max-width: none;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 1.02rem;
   line-height: 1.6;
 }
 .sdg-room .sdg-intro p:last-child { margin-bottom: 0; }
 .sdg-intro-copy {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.35rem 3rem;
-}
-@media (min-width: 768px) {
-  .sdg-intro-copy {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem 3.5rem;
-  }
-  .sdg-intro-copy p { margin-bottom: 0; }
+  display: block;
+  width: 100%;
+  max-width: none;
 }
 .sdg-jump {
   display: flex;
