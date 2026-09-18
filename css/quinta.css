@@ -704,6 +704,13 @@ body.menu-open .menu-btn > span:nth-child(3) { transform: translateY(-6.5px) rot
   margin-bottom: 0.5rem;
 }
 
+.press-kicker a,
+.press-service .press-kicker a,
+#press h5.press-kicker a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .press-service .press-title,
 #press h1,
 #press h1.press-title,
