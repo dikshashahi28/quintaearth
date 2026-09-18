@@ -3217,3 +3217,173 @@ h1.insights-title {
   inset: 0;
   z-index: 1;
 }
+
+/* SDGs page */
+.sdg-room {
+  background: #FFFEFC;
+  color: #5C4A36;
+}
+.sdg-room .sdg-intro {
+  max-width: 42rem;
+  margin-bottom: 2rem;
+}
+.sdg-room .sdg-kicker {
+  margin: 0 0 0.7rem;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C45C26;
+}
+.sdg-room .sdg-title {
+  margin: 0 0 0.9rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #24301A;
+}
+.sdg-room .sdg-intro p {
+  margin: 0 0 1rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+.sdg-room .sdg-intro p:last-child { margin-bottom: 0; }
+.sdg-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 2rem;
+}
+.sdg-jump a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  background: #F3F5EC;
+  color: #24301A;
+  text-decoration: none;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.88rem;
+  border-radius: 999px;
+}
+.sdg-jump a span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  margin-right: 0.4rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  color: #C45C26;
+}
+.sdg-jump a:hover,
+.sdg-jump a:focus {
+  color: #A8491C;
+  background: #EFE8D8;
+}
+.sdg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2.25rem;
+}
+@media (min-width: 768px) {
+  .sdg-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.15rem;
+  }
+}
+.sdg-card {
+  background: #F3F5EC;
+  border-radius: 1rem;
+  padding: 1.3rem 1.25rem 1.35rem;
+  scroll-margin-top: 6.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.sdg-card .sdg-num {
+  margin: 0 0 0.35rem;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #C45C26;
+}
+.sdg-card h3 {
+  margin: 0 0 0.65rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: #24301A;
+}
+.sdg-card > p {
+  margin: 0 0 1rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  flex: 1;
+}
+.sdg-links {
+  list-style: none;
+  margin: 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid #E6DCC8;
+}
+.sdg-links li { margin: 0 0 0.35rem; }
+.sdg-links li:last-child { margin-bottom: 0; }
+.sdg-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #A8491C;
+}
+.sdg-links a:hover { color: #C45C26; text-decoration: underline; }
+.sdg-related {
+  background: #F3F5EC;
+  border-radius: 1rem;
+  padding: 1.5rem 1.35rem 1.4rem;
+  margin-bottom: 2rem;
+  max-width: 46rem;
+}
+.sdg-related-title {
+  margin: 0 0 0.7rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #24301A;
+}
+.sdg-related p {
+  margin: 0 0 1rem;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+.sdg-related ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sdg-related li {
+  margin: 0;
+  border-top: 1px solid #E6DCC8;
+}
+.sdg-related li:first-child { border-top: 0; }
+.sdg-related a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.35rem 0;
+  color: #24301A;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.sdg-related a:hover { color: #C45C26; }
