@@ -150,14 +150,55 @@
 
   var volunteerForm = document.getElementById("volunteer-form");
   var volunteerThanks = document.getElementById("volunteer-thanks");
+  var volunteerIntro = document.querySelector("#volunteer-dialog .volunteer-dialog-intro");
+  var resumeInput = document.getElementById("volunteer-resume");
+  var resumeMeta = document.getElementById("volunteer-resume-meta");
+  var resumeError = document.getElementById("volunteer-resume-error");
+  var resumeHint = "PDF or Word (.doc, .docx)";
+
+  function isResumeFile(file) {
+    return !!(file && file.name && /\.(pdf|doc|docx)$/i.test(file.name));
+  }
+
+  function syncResumeField() {
+    if (!resumeInput) return true;
+    var file = resumeInput.files && resumeInput.files[0];
+    if (!file) {
+      if (resumeMeta) resumeMeta.textContent = resumeHint;
+      if (resumeError) resumeError.hidden = true;
+      resumeInput.setCustomValidity("Please attach a resume.");
+      return false;
+    }
+    if (!isResumeFile(file)) {
+      resumeInput.value = "";
+      if (resumeMeta) resumeMeta.textContent = resumeHint;
+      if (resumeError) resumeError.hidden = false;
+      resumeInput.setCustomValidity("Please attach a PDF or Word file.");
+      return false;
+    }
+    if (resumeMeta) resumeMeta.textContent = file.name;
+    if (resumeError) resumeError.hidden = true;
+    resumeInput.setCustomValidity("");
+    return true;
+  }
+
+  if (resumeInput) {
+    resumeInput.addEventListener("change", function () {
+      syncResumeField();
+    });
+  }
+
   if (volunteerForm && volunteerThanks) {
     volunteerForm.addEventListener("submit", function (e) {
       e.preventDefault();
+      syncResumeField();
       if (!volunteerForm.checkValidity()) {
         volunteerForm.reportValidity();
         return;
       }
       volunteerForm.hidden = true;
+      if (volunteerIntro) volunteerIntro.hidden = true;
+      if (volunteerDialog) volunteerDialog.classList.add("is-thanks");
       volunteerThanks.hidden = false;
       volunteerThanks.focus();
     });
@@ -189,11 +230,17 @@
   }
 
   function resetVolunteerThanks() {
-    if (!volunteerForm || !volunteerThanks) return;
-    if (!volunteerThanks.hidden) {
+    if (volunteerDialog) volunteerDialog.classList.remove("is-thanks");
+    if (volunteerIntro) volunteerIntro.hidden = false;
+    if (volunteerForm) {
       volunteerForm.hidden = false;
       volunteerForm.reset();
-      volunteerThanks.hidden = true;
+    }
+    if (volunteerThanks) volunteerThanks.hidden = true;
+    if (resumeInput) {
+      resumeInput.setCustomValidity("");
+      if (resumeMeta) resumeMeta.textContent = resumeHint;
+      if (resumeError) resumeError.hidden = true;
     }
   }
 
