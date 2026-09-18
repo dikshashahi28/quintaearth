@@ -197,7 +197,6 @@
         return;
       }
       volunteerForm.hidden = true;
-      if (volunteerIntro) volunteerIntro.hidden = true;
       if (volunteerDialog) volunteerDialog.classList.add("is-thanks");
       volunteerThanks.hidden = false;
       volunteerThanks.focus();
