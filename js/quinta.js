@@ -147,4 +147,116 @@
       });
     }
   }
+
+  var volunteerForm = document.getElementById("volunteer-form");
+  var volunteerThanks = document.getElementById("volunteer-thanks");
+  if (volunteerForm && volunteerThanks) {
+    volunteerForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!volunteerForm.checkValidity()) {
+        volunteerForm.reportValidity();
+        return;
+      }
+      volunteerForm.hidden = true;
+      volunteerThanks.hidden = false;
+      volunteerThanks.focus();
+    });
+  }
+
+  var volunteerDialog = document.getElementById("volunteer-dialog");
+  var volunteerLastFocus = null;
+
+  function volunteerHash() {
+    return (location.hash || "") === "#volunteer";
+  }
+
+  function isHomepage() {
+    var file = (location.pathname.split("/").pop() || "").toLowerCase();
+    return file === "" || file === "index.html";
+  }
+
+  function volunteerHref(href) {
+    if (!href) return false;
+    var path = href.split("?")[0];
+    return (
+      path === "volunteer.html" ||
+      path === "./volunteer.html" ||
+      path === "#volunteer" ||
+      path === "index.html#volunteer" ||
+      /(?:^|\/)index\.html#volunteer$/.test(path) ||
+      /(?:^|\/)#volunteer$/.test(path)
+    );
+  }
+
+  function resetVolunteerThanks() {
+    if (!volunteerForm || !volunteerThanks) return;
+    if (!volunteerThanks.hidden) {
+      volunteerForm.hidden = false;
+      volunteerForm.reset();
+      volunteerThanks.hidden = true;
+    }
+  }
+
+  function openVolunteerDialog() {
+    if (!volunteerDialog) return false;
+    resetVolunteerThanks();
+    volunteerLastFocus = document.activeElement;
+    if (typeof volunteerDialog.showModal === "function") {
+      if (!volunteerDialog.open) volunteerDialog.showModal();
+    } else {
+      volunteerDialog.setAttribute("open", "");
+    }
+    var name = document.getElementById("volunteer-name");
+    if (name && volunteerForm && !volunteerForm.hidden) name.focus();
+    return true;
+  }
+
+  function closeVolunteerDialog() {
+    if (!volunteerDialog) return;
+    if (typeof volunteerDialog.close === "function" && volunteerDialog.open) {
+      volunteerDialog.close();
+    } else {
+      volunteerDialog.removeAttribute("open");
+    }
+  }
+
+  if (volunteerDialog) {
+    volunteerDialog.addEventListener("click", function (e) {
+      if (e.target === volunteerDialog) closeVolunteerDialog();
+    });
+    volunteerDialog.addEventListener("close", function () {
+      if (volunteerLastFocus && typeof volunteerLastFocus.focus === "function") {
+        volunteerLastFocus.focus();
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("[data-volunteer-close]")) {
+        e.preventDefault();
+        closeVolunteerDialog();
+      }
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var opener = e.target.closest("[data-volunteer-open], a[href]");
+    if (!opener) return;
+    if (opener.hasAttribute("data-volunteer-open") || volunteerHref(opener.getAttribute("href"))) {
+      if (volunteerDialog) {
+        e.preventDefault();
+        openVolunteerDialog();
+      } else if (opener.hasAttribute("data-volunteer-open") && !isHomepage()) {
+        e.preventDefault();
+        location.href = "index.html#volunteer";
+      } else if (volunteerHref(opener.getAttribute("href")) && isHomepage()) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  if (volunteerDialog && volunteerHash()) {
+    openVolunteerDialog();
+  }
+  window.addEventListener("hashchange", function () {
+    if (volunteerDialog && volunteerHash()) openVolunteerDialog();
+  });
 })();
