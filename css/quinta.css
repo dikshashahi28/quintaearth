@@ -943,6 +943,96 @@ h1.volunteer-title {
   color: #fff !important;
 }
 
+.volunteer-form-page {
+  background: var(--qe-mist);
+}
+
+.volunteer-form-panel {
+  max-width: 720px;
+  background: var(--qe-cream);
+  border: 1px solid var(--qe-line);
+  padding: 2.25rem 1.75rem;
+}
+
+.volunteer-form-panel .volunteer-kicker {
+  font-family: "Jost", sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: normal !important;
+  text-transform: uppercase !important;
+  color: #C45C26 !important;
+  margin-bottom: 0.5rem;
+}
+
+.volunteer-form-lede {
+  color: #757575;
+  font-family: Roboto, "Segoe UI", sans-serif;
+}
+
+.volunteer-form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--qe-dark);
+}
+
+.volunteer-form .req {
+  color: #C45C26;
+}
+
+.volunteer-form input[type="text"],
+.volunteer-form input[type="email"],
+.volunteer-form input[type="tel"],
+.volunteer-form select,
+.volunteer-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--qe-line);
+  border-radius: 2px;
+  background: #FFFFFE;
+  color: var(--qe-body);
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 1rem;
+}
+
+.volunteer-form input:focus,
+.volunteer-form select:focus,
+.volunteer-form textarea:focus {
+  outline: none;
+  border-color: var(--qe-olive);
+  box-shadow: 0 0 0 2px rgba(107, 122, 69, 0.22);
+}
+
+.volunteer-form textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.volunteer-form .volunteer-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-weight: 400;
+  color: var(--qe-body);
+}
+
+.volunteer-form .volunteer-consent input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  accent-color: var(--qe-olive);
+}
+
+.volunteer-thanks {
+  font-family: "Jost", sans-serif;
+  font-size: 1.35rem;
+  color: var(--qe-dark);
+  margin: 0;
+}
+
 .service .subtopics {
   list-style: none;
   padding: 0;
