@@ -151,10 +151,13 @@
   var volunteerForm = document.getElementById("volunteer-form");
   var volunteerThanks = document.getElementById("volunteer-thanks");
   var volunteerIntro = document.querySelector("#volunteer-dialog .volunteer-dialog-intro");
+  var volunteerSubmitError = document.getElementById("volunteer-submit-error");
+  var volunteerSubmitBtn = volunteerForm && volunteerForm.querySelector('button[type="submit"]');
   var resumeInput = document.getElementById("volunteer-resume");
   var resumeMeta = document.getElementById("volunteer-resume-meta");
   var resumeError = document.getElementById("volunteer-resume-error");
   var resumeHint = "PDF or Word (.doc, .docx)";
+  var volunteerSheetUrl = "https://script.google.com/macros/s/AKfycbwQiYb8LIs9O9SUxOqTUdd8Dt8-mucSdoH1yQ2cwvNM_xHMzwrCQRagvKLof9KrqIrU/exec";
 
   function isResumeFile(file) {
     return !!(file && file.name && /\.(pdf|doc|docx)$/i.test(file.name));
@@ -196,10 +199,36 @@
         volunteerForm.reportValidity();
         return;
       }
-      volunteerForm.hidden = true;
-      if (volunteerDialog) volunteerDialog.classList.add("is-thanks");
-      volunteerThanks.hidden = false;
-      volunteerThanks.focus();
+      if (volunteerSubmitError) volunteerSubmitError.hidden = true;
+      var consent = volunteerForm.elements.consent;
+      var payload = {
+        name: volunteerForm.elements.name.value,
+        gender: volunteerForm.elements.gender.value,
+        phone: volunteerForm.elements.phone.value,
+        email: volunteerForm.elements.email.value,
+        designation: volunteerForm.elements.designation.value,
+        education: volunteerForm.elements.education.value,
+        city: volunteerForm.elements.city.value,
+        college: volunteerForm.elements.college.value,
+        why: volunteerForm.elements.why.value,
+        consent: !!(consent && consent.checked)
+      };
+      if (volunteerSubmitBtn) volunteerSubmitBtn.disabled = true;
+      fetch(volunteerSheetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        if (!res.ok) throw new Error("submit failed");
+        volunteerForm.hidden = true;
+        if (volunteerDialog) volunteerDialog.classList.add("is-thanks");
+        volunteerThanks.hidden = false;
+        volunteerThanks.focus();
+      }).catch(function () {
+        if (volunteerSubmitError) volunteerSubmitError.hidden = false;
+      }).then(function () {
+        if (volunteerSubmitBtn) volunteerSubmitBtn.disabled = false;
+      });
     });
   }
 
@@ -236,6 +265,8 @@
       volunteerForm.reset();
     }
     if (volunteerThanks) volunteerThanks.hidden = true;
+    if (volunteerSubmitError) volunteerSubmitError.hidden = true;
+    if (volunteerSubmitBtn) volunteerSubmitBtn.disabled = false;
     if (resumeInput) {
       resumeInput.setCustomValidity("");
       if (resumeMeta) resumeMeta.textContent = resumeHint;

@@ -1166,6 +1166,12 @@ h1.volunteer-title {
   color: #C45C26;
   font-size: 0.78rem;
 }
+.volunteer-dialog .volunteer-submit-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #C45C26;
+  font-size: 0.82rem;
+}
 .volunteer-dialog .volunteer-form-actions {
   display: flex;
   align-items: center;
