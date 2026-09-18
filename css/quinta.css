@@ -3224,7 +3224,8 @@ h1.insights-title {
   color: #5C4A36;
 }
 .sdg-room .sdg-intro {
-  max-width: 42rem;
+  width: 100%;
+  max-width: none;
   margin-bottom: 2rem;
 }
 .sdg-room .sdg-kicker {
@@ -3252,6 +3253,18 @@ h1.insights-title {
   line-height: 1.6;
 }
 .sdg-room .sdg-intro p:last-child { margin-bottom: 0; }
+.sdg-intro-copy {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem 3rem;
+}
+@media (min-width: 768px) {
+  .sdg-intro-copy {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem 3.5rem;
+  }
+  .sdg-intro-copy p { margin-bottom: 0; }
+}
 .sdg-jump {
   display: flex;
   flex-wrap: wrap;
@@ -3352,7 +3365,8 @@ h1.insights-title {
   border-radius: 1rem;
   padding: 1.5rem 1.35rem 1.4rem;
   margin-bottom: 2rem;
-  max-width: 46rem;
+  width: 100%;
+  max-width: none;
 }
 .sdg-related-title {
   margin: 0 0 0.7rem;
@@ -3371,6 +3385,13 @@ h1.insights-title {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+@media (min-width: 768px) {
+  .sdg-related ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2.5rem;
+  }
 }
 .sdg-related li {
   margin: 0;
