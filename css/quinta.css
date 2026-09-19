@@ -3223,6 +3223,8 @@ h1.insights-title {
 #testimonials .t-role {
   font-size: 0.75rem;
   color: #6B7A45;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 #testimonials .t-sign {
   margin: 0.65rem 0 0;
@@ -3536,6 +3538,109 @@ h1.insights-title {
   max-width: 19.5rem;
   padding: 2.1rem 1.3rem 1.55rem;
   text-align: center;
+}
+.review-auth {
+  margin: 0 0 0.35rem;
+}
+.review-auth[hidden],
+.review-signed[hidden] {
+  display: none;
+}
+.review-auth-copy {
+  margin: 0 0 0.85rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #24301A;
+}
+.review-google-btn {
+  min-height: 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+.review-google-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 1rem;
+  border: 1px solid #C45C26;
+  border-radius: 8px;
+  background: #FFFEFC;
+  color: #24301A;
+  font-family: "Jost", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.review-google-fallback:hover,
+.review-google-fallback:focus {
+  background: #F3F5EC;
+}
+.review-signed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.7rem;
+  background: #F3F5EC;
+  border: 1px solid #D9CBB4;
+  border-radius: 8px;
+}
+.review-signed-line {
+  margin: 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #24301A;
+  word-break: break-word;
+}
+.review-sign-out {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #C45C26;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.reviews-list .reviews-named {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.2rem 1.15rem 1rem;
+  background: #FFFEFC;
+  border: 1px solid #E8E4DC;
+  border-radius: 1.05rem;
+}
+.reviews-named-stars {
+  display: flex;
+  gap: 0.18rem;
+  margin: 0 0 0.7rem;
+}
+.reviews-named-quote {
+  margin: 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #5C4A36;
+}
+.reviews-named-name {
+  margin: 0.85rem 0 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #24301A;
+}
+.reviews-named-email {
+  margin: 0.15rem 0 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #6B7A45;
+  word-break: break-word;
 }
 @media (max-width: 575.98px) {
   .reviews-showcase { padding: 2.6rem 0 0.6rem; }

@@ -25,7 +25,7 @@
   <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  <link href="css/quinta.css?v=review-home-1" rel="stylesheet" />
+  <link href="css/quinta.css?v=reviews-e2e-1" rel="stylesheet" />
   <style>
     button.menu-btn { font-size: 0; line-height: 0; }
     button.menu-btn > span {
@@ -428,8 +428,19 @@
       <div class="volunteer-form-panel reviews-form-panel mx-auto">
         <h5 class="text-uppercase text-primary volunteer-kicker">Reviews</h5>
         <h2 class="reviews-form-title">Leave a review</h2>
-        <p class="volunteer-form-lede mb-4">Name, role, stars, and a few honest words. Company or place is optional.</p>
-        <form id="review-form" class="volunteer-form" action="#" method="post" novalidate>
+        <p class="volunteer-form-lede mb-4">Sign in with Google first. Name, role, stars, and a few honest words. Company or place is optional.</p>
+        <div id="review-auth" class="review-auth">
+          <p class="review-auth-copy">Google Sign-In is required. Your Google email is saved with the review and shown on the card.</p>
+          <div id="review-google-btn" class="review-google-btn">
+            <button type="button" class="review-google-fallback" id="review-google-fallback">Sign in with Google</button>
+          </div>
+          <p id="review-auth-error" class="volunteer-submit-error" role="alert" hidden></p>
+        </div>
+        <div id="review-signed" class="review-signed" hidden>
+          <p class="review-signed-line">Signed in as <span id="review-signed-email"></span></p>
+          <button type="button" class="review-sign-out" data-review-signout>Sign out</button>
+        </div>
+        <form id="review-form" class="volunteer-form" action="#" method="post" novalidate hidden>
           <div class="volunteer-form-grid">
             <div class="volunteer-field">
               <label for="review-name">Name <span class="req">*</span></label>
@@ -569,5 +580,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/main.js"></script>
 <script src="js/quinta.js"></script>
-<script src="js/reviews.js?v=2"></script>
+<script src="js/google-client.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="js/reviews.js?v=3"></script>
 </body></html>
