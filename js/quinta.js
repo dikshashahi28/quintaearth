@@ -158,53 +158,356 @@
   var resumeError = document.getElementById("volunteer-resume-error");
   var resumeHint = "PDF or Word (.doc, .docx)";
   var volunteerSheetUrl = "https://script.google.com/macros/s/AKfycbwQiYb8LIs9O9SUxOqTUdd8Dt8-mucSdoH1yQ2cwvNM_xHMzwrCQRagvKLof9KrqIrU/exec";
+  var volunteerDialog = document.getElementById("volunteer-dialog");
+  var volunteerLastFocus = null;
+  var volunteerCountry = { iso: "IN", name: "India", dial: "91" };
+  var volunteerFieldIds = [
+    "volunteer-name",
+    "volunteer-gender",
+    "volunteer-phone",
+    "volunteer-email",
+    "volunteer-designation",
+    "volunteer-education",
+    "volunteer-city",
+    "volunteer-college",
+    "volunteer-why",
+    "volunteer-consent"
+  ];
+
+  function volunteerCountries() {
+    return window.VOLUNTEER_COUNTRIES || [{ iso: "IN", name: "India", dial: "91" }];
+  }
+
+  function flagEmoji(iso) {
+    if (!iso || iso.length !== 2) return "";
+    var a = iso.toUpperCase().charCodeAt(0) - 65;
+    var b = iso.toUpperCase().charCodeAt(1) - 65;
+    if (a < 0 || a > 25 || b < 0 || b > 25) return "";
+    return String.fromCodePoint(0x1F1E6 + a, 0x1F1E6 + b);
+  }
+
+  function collapseSpaces(s) {
+    return String(s || "").replace(/\s+/g, " ").trim();
+  }
+
+  function hasLetter(s) {
+    try {
+      return /[\p{L}]/u.test(s);
+    } catch (err) {
+      return /[A-Za-z]/.test(s);
+    }
+  }
+
+  function isPersonName(s) {
+    if (s.length < 2 || s.length > 80) return false;
+    try {
+      return /^[\p{L}]+(?: [\p{L}]+)*$/u.test(s);
+    } catch (err) {
+      return /^[A-Za-z]+(?: [A-Za-z]+)*$/.test(s);
+    }
+  }
+
+  function isMeaningfulText(s, min, max) {
+    if (s.length < min || s.length > max) return false;
+    if (!hasLetter(s)) return false;
+    var compact = s.replace(/\s/g, "");
+    if (compact.length < 2) return false;
+    if (/^(.)\1+$/.test(compact)) return false;
+    return true;
+  }
+
+  function isEmail(s) {
+    return s.length <= 100 && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,24}$/.test(s);
+  }
+
+  function setFieldError(id, message) {
+    var err = document.getElementById(id + "-error");
+    var field = document.getElementById(id);
+    var wrap = field && field.closest(".volunteer-field");
+    if (err) {
+      if (id !== "volunteer-resume") err.textContent = message || "";
+      err.hidden = !message;
+    }
+    if (wrap) wrap.classList.toggle("is-invalid", !!message);
+    if (field) {
+      field.setAttribute("aria-invalid", message ? "true" : "false");
+      if (id === "volunteer-resume") field.setCustomValidity(message || "");
+    }
+  }
+
+  function clearVolunteerFieldErrors() {
+    volunteerFieldIds.forEach(function (id) {
+      setFieldError(id, "");
+    });
+    setFieldError("volunteer-resume", "");
+    if (resumeError) {
+      resumeError.textContent = "Please attach a PDF or Word file.";
+      resumeError.hidden = true;
+    }
+  }
 
   function isResumeFile(file) {
     return !!(file && file.name && /\.(pdf|doc|docx)$/i.test(file.name));
   }
 
-  function syncResumeField() {
+  function syncResumeField(showMissing) {
     if (!resumeInput) return true;
     var file = resumeInput.files && resumeInput.files[0];
     if (!file) {
       if (resumeMeta) resumeMeta.textContent = resumeHint;
-      if (resumeError) resumeError.hidden = true;
-      resumeInput.setCustomValidity("Please attach a resume.");
+      setFieldError("volunteer-resume", showMissing ? "Please attach a PDF or Word file." : "");
+      if (resumeError && showMissing) resumeError.textContent = "Please attach a PDF or Word file.";
       return false;
     }
     if (!isResumeFile(file)) {
       resumeInput.value = "";
       if (resumeMeta) resumeMeta.textContent = resumeHint;
-      if (resumeError) resumeError.hidden = false;
-      resumeInput.setCustomValidity("Please attach a PDF or Word file.");
+      setFieldError("volunteer-resume", "Please attach a PDF or Word file.");
+      if (resumeError) resumeError.textContent = "Please attach a PDF or Word file.";
       return false;
     }
     if (resumeMeta) resumeMeta.textContent = file.name;
-    if (resumeError) resumeError.hidden = true;
-    resumeInput.setCustomValidity("");
+    setFieldError("volunteer-resume", "");
     return true;
   }
 
+  function phoneDigits() {
+    var input = document.getElementById("volunteer-phone");
+    return input ? String(input.value || "").replace(/\D/g, "") : "";
+  }
+
+  function phoneErrorMessage(digits, dial) {
+    if (!digits) return "Enter a phone number.";
+    if (!/^\d+$/.test(digits)) return "Use numbers only.";
+    if (dial === "91") {
+      if (digits.length !== 10) return "Enter a 10-digit Indian mobile number.";
+      if (!/^[6-9]/.test(digits)) return "Enter a valid Indian mobile number.";
+    } else if (digits.length < 6 || digits.length > 12) {
+      return "Enter a valid phone number.";
+    }
+    return "";
+  }
+
+  function validateVolunteerForm() {
+    if (!volunteerForm) return false;
+    var firstInvalid = null;
+    function fail(id, message) {
+      setFieldError(id, message);
+      if (!firstInvalid) firstInvalid = document.getElementById(id);
+    }
+
+    var name = collapseSpaces(volunteerForm.elements.name.value);
+    volunteerForm.elements.name.value = name;
+    if (!name) fail("volunteer-name", "Enter your name.");
+    else if (!isPersonName(name)) fail("volunteer-name", "Use letters and spaces only.");
+    else setFieldError("volunteer-name", "");
+
+    var gender = volunteerForm.elements.gender.value;
+    if (!gender) fail("volunteer-gender", "Choose a gender.");
+    else setFieldError("volunteer-gender", "");
+
+    var digits = phoneDigits();
+    var phoneInput = document.getElementById("volunteer-phone");
+    if (phoneInput) phoneInput.value = digits;
+    var phoneMsg = phoneErrorMessage(digits, volunteerCountry.dial);
+    if (phoneMsg) fail("volunteer-phone", phoneMsg);
+    else setFieldError("volunteer-phone", "");
+
+    var email = collapseSpaces(volunteerForm.elements.email.value).toLowerCase();
+    volunteerForm.elements.email.value = email;
+    if (!email) fail("volunteer-email", "Enter your email.");
+    else if (!isEmail(email)) fail("volunteer-email", "Enter a valid email.");
+    else setFieldError("volunteer-email", "");
+
+    function requiredText(id, key, emptyMsg, junkMsg, min, max) {
+      var value = collapseSpaces(volunteerForm.elements[key].value);
+      volunteerForm.elements[key].value = value;
+      if (!value) fail(id, emptyMsg);
+      else if (!isMeaningfulText(value, min, max)) fail(id, junkMsg);
+      else setFieldError(id, "");
+    }
+
+    requiredText("volunteer-designation", "designation", "Enter your designation.", "Enter a real designation.", 2, 80);
+    requiredText("volunteer-education", "education", "Enter your education.", "Enter a real education value.", 2, 80);
+    requiredText("volunteer-city", "city", "Enter your city.", "Enter a real city name.", 2, 80);
+    requiredText("volunteer-college", "college", "Enter your college.", "Enter a real college name.", 2, 80);
+
+    if (!syncResumeField(true) && !firstInvalid) firstInvalid = resumeInput;
+
+    var why = collapseSpaces(volunteerForm.elements.why.value);
+    volunteerForm.elements.why.value = why;
+    if (!why) fail("volunteer-why", "Tell us why you want to volunteer.");
+    else if (why.length < 20) fail("volunteer-why", "Please write at least 20 characters.");
+    else if (why.length > 400) fail("volunteer-why", "Keep this to 400 characters.");
+    else if (!hasLetter(why)) fail("volunteer-why", "Please write a short reason.");
+    else setFieldError("volunteer-why", "");
+
+    var consent = volunteerForm.elements.consent;
+    if (!(consent && consent.checked)) fail("volunteer-consent", "Please confirm this is a volunteer signup.");
+    else setFieldError("volunteer-consent", "");
+
+    if (firstInvalid && typeof firstInvalid.focus === "function") firstInvalid.focus();
+    return !firstInvalid;
+  }
+
+  function setVolunteerCountry(country) {
+    volunteerCountry = country || { iso: "IN", name: "India", dial: "91" };
+    var flagEl = document.getElementById("volunteer-cc-flag");
+    var dialEl = document.getElementById("volunteer-cc-dial");
+    var btn = document.getElementById("volunteer-cc-btn");
+    if (flagEl) flagEl.textContent = flagEmoji(volunteerCountry.iso);
+    if (dialEl) dialEl.textContent = "+" + volunteerCountry.dial;
+    if (btn) {
+      btn.setAttribute(
+        "aria-label",
+        "Country code, " + volunteerCountry.name + " plus " + volunteerCountry.dial
+      );
+    }
+  }
+
+  function closeCountryPanel() {
+    var panel = document.getElementById("volunteer-cc-panel");
+    var btn = document.getElementById("volunteer-cc-btn");
+    var field = document.querySelector("#volunteer-dialog .volunteer-phone-field");
+    if (panel) panel.hidden = true;
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    if (field) field.classList.remove("is-cc-open");
+    if (volunteerDialog) volunteerDialog.classList.remove("is-cc-open");
+  }
+
+  function renderCountryList(query) {
+    var list = document.getElementById("volunteer-cc-list");
+    if (!list) return;
+    var q = collapseSpaces(query).toLowerCase();
+    list.innerHTML = "";
+    var matches = volunteerCountries().filter(function (c) {
+      if (!q) return true;
+      return (c.name + " +" + c.dial + " " + c.iso + " +" + c.dial).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!matches.length) {
+      var empty = document.createElement("li");
+      empty.innerHTML = '<p class="volunteer-cc-empty">No countries match.</p>';
+      list.appendChild(empty);
+      return;
+    }
+    matches.forEach(function (c) {
+      var li = document.createElement("li");
+      var option = document.createElement("button");
+      option.type = "button";
+      option.className = "volunteer-cc-option";
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", c.iso === volunteerCountry.iso ? "true" : "false");
+      option.setAttribute("data-iso", c.iso);
+      option.innerHTML =
+        '<span class="volunteer-cc-flag" aria-hidden="true">' +
+        flagEmoji(c.iso) +
+        '</span><span class="volunteer-cc-name"></span><span class="volunteer-cc-dial-opt"></span>';
+      option.querySelector(".volunteer-cc-name").textContent = c.name;
+      option.querySelector(".volunteer-cc-dial-opt").textContent = "+" + c.dial;
+      option.addEventListener("click", function () {
+        setVolunteerCountry(c);
+        closeCountryPanel();
+        var phone = document.getElementById("volunteer-phone");
+        if (phone) phone.focus();
+      });
+      li.appendChild(option);
+      list.appendChild(li);
+    });
+    var selected = list.querySelector('.volunteer-cc-option[aria-selected="true"]');
+    if (selected && selected.scrollIntoView) {
+      selected.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function openCountryPanel() {
+    var panel = document.getElementById("volunteer-cc-panel");
+    var btn = document.getElementById("volunteer-cc-btn");
+    var field = document.querySelector("#volunteer-dialog .volunteer-phone-field");
+    var search = document.getElementById("volunteer-cc-search");
+    if (!panel) return;
+    panel.hidden = false;
+    if (btn) btn.setAttribute("aria-expanded", "true");
+    if (field) field.classList.add("is-cc-open");
+    if (volunteerDialog) volunteerDialog.classList.add("is-cc-open");
+    if (search) search.value = "";
+    renderCountryList("");
+    if (search) search.focus();
+  }
+
+  (function bindVolunteerCountryPicker() {
+    var btn = document.getElementById("volunteer-cc-btn");
+    var panel = document.getElementById("volunteer-cc-panel");
+    var search = document.getElementById("volunteer-cc-search");
+    var phone = document.getElementById("volunteer-phone");
+    if (!btn || !panel) return;
+
+    setVolunteerCountry(volunteerCountries()[0] || volunteerCountry);
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (panel.hidden) openCountryPanel();
+      else closeCountryPanel();
+    });
+
+    if (search) {
+      search.addEventListener("input", function () {
+        renderCountryList(search.value);
+      });
+      search.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeCountryPanel();
+          btn.focus();
+        }
+      });
+    }
+
+    if (phone) {
+      phone.addEventListener("input", function () {
+        var digits = String(phone.value || "").replace(/\D/g, "").slice(0, 12);
+        if (phone.value !== digits) phone.value = digits;
+      });
+      phone.addEventListener("keydown", function (e) {
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && /\D/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      if (panel.hidden) return;
+      if (e.target.closest("#volunteer-cc-panel") || e.target.closest("#volunteer-cc-btn")) return;
+      closeCountryPanel();
+    });
+
+    if (volunteerDialog) {
+      volunteerDialog.addEventListener("cancel", function (e) {
+        if (!panel.hidden) {
+          e.preventDefault();
+          closeCountryPanel();
+        }
+      });
+    }
+  })();
+
   if (resumeInput) {
     resumeInput.addEventListener("change", function () {
-      syncResumeField();
+      syncResumeField(true);
     });
   }
 
   if (volunteerForm && volunteerThanks) {
     volunteerForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      syncResumeField();
-      if (!volunteerForm.checkValidity()) {
-        volunteerForm.reportValidity();
-        return;
-      }
+      closeCountryPanel();
       if (volunteerSubmitError) volunteerSubmitError.hidden = true;
+      if (!validateVolunteerForm()) return;
       var consent = volunteerForm.elements.consent;
       var payload = {
         name: volunteerForm.elements.name.value,
         gender: volunteerForm.elements.gender.value,
-        phone: volunteerForm.elements.phone.value,
+        phone: "+" + volunteerCountry.dial + phoneDigits(),
         email: volunteerForm.elements.email.value,
         designation: volunteerForm.elements.designation.value,
         education: volunteerForm.elements.education.value,
@@ -232,8 +535,6 @@
     });
   }
 
-  var volunteerDialog = document.getElementById("volunteer-dialog");
-  var volunteerLastFocus = null;
 
   function volunteerHash() {
     return (location.hash || "") === "#volunteer";
@@ -258,19 +559,21 @@
   }
 
   function resetVolunteerThanks() {
+    closeCountryPanel();
     if (volunteerDialog) volunteerDialog.classList.remove("is-thanks");
     if (volunteerIntro) volunteerIntro.hidden = false;
     if (volunteerForm) {
       volunteerForm.hidden = false;
       volunteerForm.reset();
     }
+    setVolunteerCountry(volunteerCountries()[0] || { iso: "IN", name: "India", dial: "91" });
+    clearVolunteerFieldErrors();
     if (volunteerThanks) volunteerThanks.hidden = true;
     if (volunteerSubmitError) volunteerSubmitError.hidden = true;
     if (volunteerSubmitBtn) volunteerSubmitBtn.disabled = false;
     if (resumeInput) {
       resumeInput.setCustomValidity("");
       if (resumeMeta) resumeMeta.textContent = resumeHint;
-      if (resumeError) resumeError.hidden = true;
     }
   }
 

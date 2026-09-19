@@ -1166,6 +1166,172 @@ h1.volunteer-title {
   color: #C45C26;
   font-size: 0.78rem;
 }
+#volunteer-dialog .volunteer-field-error {
+  margin: 0.22rem 0 0;
+  color: #C45C26;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+#volunteer-dialog .volunteer-field-error[hidden],
+#volunteer-dialog .volunteer-file-error[hidden] {
+  display: none;
+}
+#volunteer-dialog .volunteer-field.is-invalid input[type="text"],
+#volunteer-dialog .volunteer-field.is-invalid input[type="email"],
+#volunteer-dialog .volunteer-field.is-invalid input[type="tel"],
+#volunteer-dialog .volunteer-field.is-invalid select,
+#volunteer-dialog .volunteer-field.is-invalid textarea,
+#volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone,
+#volunteer-dialog .volunteer-resume-field.is-invalid .volunteer-file {
+  border-color: #C45C26;
+}
+#volunteer-dialog .volunteer-form-actions.is-invalid .volunteer-consent {
+  color: #C45C26;
+}
+#volunteer-dialog .volunteer-phone-field {
+  position: relative;
+  z-index: 1;
+}
+#volunteer-dialog .volunteer-phone-field.is-cc-open {
+  z-index: 8;
+}
+#volunteer-dialog.is-cc-open .volunteer-form-panel {
+  overflow: visible;
+}
+#volunteer-dialog .volunteer-phone {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 2.25rem;
+  border: 1px solid var(--qe-line);
+  border-radius: 2px;
+  background: #FFFFFE;
+  box-sizing: border-box;
+}
+#volunteer-dialog .volunteer-phone:focus-within {
+  border-color: var(--qe-olive);
+  box-shadow: 0 0 0 2px rgba(107, 122, 69, 0.22);
+}
+#volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone:focus-within {
+  border-color: #C45C26;
+  box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.18);
+}
+#volunteer-dialog .volunteer-cc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  flex: 0 0 auto;
+  min-width: 4.35rem;
+  padding: 0 0.4rem 0 0.45rem;
+  border: 0;
+  border-right: 1px solid var(--qe-line);
+  background: transparent;
+  color: var(--qe-body);
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+}
+#volunteer-dialog .volunteer-cc-flag {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+#volunteer-dialog .volunteer-cc-dial {
+  font-variant-numeric: tabular-nums;
+}
+#volunteer-dialog .volunteer-phone input[type="tel"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0.2rem 0.55rem;
+}
+#volunteer-dialog .volunteer-phone input[type="tel"]:focus {
+  border: 0;
+  box-shadow: none;
+}
+#volunteer-dialog .volunteer-cc-panel {
+  position: absolute;
+  top: calc(100% + 0.2rem);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: min(22rem, calc(100vw - 2.6rem));
+  max-height: 14rem;
+  background: #FFFFFE;
+  border: 1px solid var(--qe-line);
+  box-shadow: 0 10px 28px rgba(36, 48, 26, 0.2);
+}
+#volunteer-dialog .volunteer-cc-panel[hidden] {
+  display: none;
+}
+#volunteer-dialog .volunteer-cc-search {
+  width: 100%;
+  height: 2rem;
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  border-bottom: 1px solid var(--qe-line);
+  border-radius: 0;
+  background: #FFFFFE;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.82rem;
+}
+#volunteer-dialog .volunteer-cc-search:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(107, 122, 69, 0.22);
+}
+#volunteer-dialog .volunteer-cc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.15rem 0;
+  overflow: auto;
+  max-height: 11.6rem;
+}
+#volunteer-dialog .volunteer-cc-empty {
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  color: #757575;
+  font-size: 0.8rem;
+}
+#volunteer-dialog .volunteer-cc-option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.32rem 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--qe-body);
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+#volunteer-dialog .volunteer-cc-option:hover,
+#volunteer-dialog .volunteer-cc-option[aria-selected="true"] {
+  background: rgba(107, 122, 69, 0.12);
+}
+#volunteer-dialog .volunteer-cc-option .volunteer-cc-flag {
+  flex: 0 0 auto;
+  width: 1.15em;
+  font-size: 0.95rem;
+}
+#volunteer-dialog .volunteer-cc-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#volunteer-dialog .volunteer-cc-dial-opt {
+  flex: 0 0 auto;
+  color: #757575;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
 .volunteer-dialog .volunteer-submit-error {
   grid-column: 1 / -1;
   margin: 0;
