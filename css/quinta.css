@@ -3263,8 +3263,9 @@ h1.insights-title {
   gap: 1rem;
   margin: 1.15rem -1.15rem 0;
   padding: 0.95rem 1.4rem 1.1rem;
-  background: #F3F5EC;
+  background: #FFFEFC;
   color: #24301A;
+  border-top: 1px solid #C45C26;
 }
 #testimonials .t-cta-actions {
   display: flex;
@@ -3408,7 +3409,16 @@ h1.insights-title {
   color: #5C4A36;
 }
 .reviews-form-room {
-  background: #F3F5EC;
+  background: #24301A;
+}
+.reviews-form-panel,
+.review-dialog .reviews-form-panel {
+  background: #FFFEFC;
+  border: 2px solid #C45C26;
+}
+.reviews-form-panel .volunteer-kicker,
+.review-dialog .volunteer-kicker {
+  color: #C45C26 !important;
 }
 .reviews-form-title {
   margin: 0 0 0.75rem;
@@ -3416,7 +3426,16 @@ h1.insights-title {
   font-weight: 500;
   font-size: clamp(1.7rem, 2.6vw, 2.2rem);
   line-height: 1.2;
-  color: #222;
+  color: #24301A;
+}
+.review-dialog .reviews-form-title {
+  font-size: 1.45rem;
+  margin-bottom: 0.25rem;
+}
+.reviews-form-panel .volunteer-form-lede,
+.review-dialog .volunteer-form-lede,
+.reviews-form-hint {
+  color: #24301A;
 }
 .reviews-form-hint {
   margin: 0;
@@ -3424,7 +3443,30 @@ h1.insights-title {
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 0.82rem;
   line-height: 1.4;
-  color: #757575;
+}
+.reviews-form-panel .volunteer-form label,
+.review-dialog .volunteer-form label,
+.reviews-form-panel .review-stars-label,
+.review-dialog .review-stars-label {
+  color: #24301A;
+}
+.reviews-form-panel .volunteer-form input[type="text"],
+.reviews-form-panel .volunteer-form textarea,
+.review-dialog .volunteer-form input[type="text"],
+.review-dialog .volunteer-form textarea {
+  background: #FFFEFC;
+  border-color: #C45C26;
+  color: #24301A;
+}
+.reviews-form-panel .volunteer-form input:focus,
+.reviews-form-panel .volunteer-form textarea:focus,
+.review-dialog .volunteer-form input:focus,
+.review-dialog .volunteer-form textarea:focus {
+  border-color: #24301A;
+  box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.28);
+}
+.review-dialog::backdrop {
+  background: rgba(36, 48, 26, 0.72);
 }
 .review-stars-label {
   display: block;
@@ -3455,10 +3497,10 @@ h1.insights-title {
 }
 .review-star svg {
   display: block;
-  fill: #E8E4DC;
+  fill: #E0B8A0;
 }
 .review-star:has(input:focus-visible) {
-  outline: 2px solid #6B7A45;
+  outline: 2px solid #C45C26;
   outline-offset: 2px;
 }
 .review-stars-pick:has(#review-star-1:checked) .review-star:nth-child(-n+1) svg,
@@ -3471,7 +3513,7 @@ h1.insights-title {
 .review-stars-pick:has(.review-star:nth-child(3):hover) .review-star:nth-child(-n+3) svg,
 .review-stars-pick:has(.review-star:nth-child(4):hover) .review-star:nth-child(-n+4) svg,
 .review-stars-pick:has(.review-star:nth-child(5):hover) .review-star:nth-child(-n+5) svg {
-  fill: #C4A15A;
+  fill: #C45C26;
 }
 #review-rating-field.is-invalid .review-stars-pick {
   box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.18);
@@ -3481,9 +3523,10 @@ h1.insights-title {
   margin: 0.28rem 0 0;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 0.74rem;
-  color: #757575;
+  color: #24301A;
   text-align: right;
 }
+.review-dialog.is-thanks .review-dialog-intro,
 .reviews-form-room.is-thanks .volunteer-form-lede,
 .reviews-form-room.is-thanks .reviews-form-hint {
   display: none;

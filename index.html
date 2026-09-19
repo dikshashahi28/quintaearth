@@ -25,7 +25,7 @@
   <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  <link href="css/quinta.css?v=partner-validate-1" rel="stylesheet" />
+  <link href="css/quinta.css?v=review-home-1" rel="stylesheet" />
   <style>
     button.menu-btn { font-size: 0; line-height: 0; }
     button.menu-btn > span {
@@ -1029,7 +1029,10 @@
 
       <div class="t-cta">
         <p class="t-cta-copy">Work with us</p>
-        <a class="t-cta-btn" href="contact.html">For inquiry</a>
+        <div class="t-cta-actions">
+          <a class="t-cta-btn" href="#leave-review" data-review-open>Leave a review</a>
+          <a class="t-cta-btn t-cta-btn-ghost" href="contact.html">For inquiry</a>
+        </div>
       </div>
     </div>
   </div>
@@ -1338,10 +1341,95 @@
     </div>
   </div>
 </dialog>
+<dialog id="review-dialog" class="volunteer-dialog review-dialog" aria-labelledby="review-dialog-title">
+  <div class="volunteer-form-panel reviews-form-panel">
+    <button type="button" class="volunteer-dialog-close" data-review-close aria-label="Close">&times;</button>
+    <div class="review-dialog-intro">
+      <h5 class="text-uppercase text-primary volunteer-kicker">Reviews</h5>
+      <h1 id="review-dialog-title" class="reviews-form-title">Leave a review</h1>
+      <p class="volunteer-form-lede">Name, role, stars, and a few honest words. Company or place is optional.</p>
+    </div>
+    <form id="review-form" class="volunteer-form" action="#" method="post" novalidate>
+      <div class="volunteer-form-grid">
+        <div class="volunteer-field">
+          <label for="review-name">Name <span class="req">*</span></label>
+          <input id="review-name" name="name" type="text" autocomplete="name" maxlength="80" required />
+          <p class="volunteer-field-error" id="review-name-error" hidden></p>
+        </div>
+        <div class="volunteer-field">
+          <label for="review-designation">Designation / role <span class="req">*</span></label>
+          <input id="review-designation" name="designation" type="text" autocomplete="organization-title" maxlength="80" required />
+          <p class="volunteer-field-error" id="review-designation-error" hidden></p>
+        </div>
+        <div class="volunteer-field volunteer-field-wide">
+          <label for="review-company">Company or place</label>
+          <input id="review-company" name="company" type="text" autocomplete="organization" maxlength="80" />
+          <p class="volunteer-field-error" id="review-company-error" hidden></p>
+        </div>
+        <div class="volunteer-field volunteer-field-wide" id="review-rating-field">
+          <p class="review-stars-label" id="review-rating-label">Star rating <span class="req">*</span></p>
+          <div class="review-stars-pick" role="radiogroup" aria-labelledby="review-rating-label">
+            <label class="review-star">
+              <input type="radio" name="rating" id="review-star-1" value="1" required />
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+              </span>
+              <span class="visually-hidden">1 star</span>
+            </label>
+            <label class="review-star">
+              <input type="radio" name="rating" id="review-star-2" value="2" />
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+              </span>
+              <span class="visually-hidden">2 stars</span>
+            </label>
+            <label class="review-star">
+              <input type="radio" name="rating" id="review-star-3" value="3" />
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+              </span>
+              <span class="visually-hidden">3 stars</span>
+            </label>
+            <label class="review-star">
+              <input type="radio" name="rating" id="review-star-4" value="4" />
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+              </span>
+              <span class="visually-hidden">4 stars</span>
+            </label>
+            <label class="review-star">
+              <input type="radio" name="rating" id="review-star-5" value="5" />
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+              </span>
+              <span class="visually-hidden">5 stars</span>
+            </label>
+          </div>
+          <p class="volunteer-field-error" id="review-rating-error" hidden></p>
+        </div>
+        <div class="volunteer-field volunteer-field-wide">
+          <label for="review-text">Review <span class="req">*</span></label>
+          <textarea id="review-text" name="review" rows="4" maxlength="400" required></textarea>
+          <p class="review-count" id="review-count" aria-live="polite">0 / 400</p>
+          <p class="volunteer-field-error" id="review-text-error" hidden></p>
+        </div>
+        <div class="volunteer-field volunteer-field-wide volunteer-form-actions">
+          <p class="reviews-form-hint">20–400 characters. Letters only in your name.</p>
+          <button class="btn-hover-bg btn btn-primary text-white py-2 px-4" type="submit">Submit review</button>
+        </div>
+        <p id="review-submit-error" class="volunteer-submit-error" role="alert" hidden>Something went wrong. Your review could not be stored. Please try again.</p>
+      </div>
+    </form>
+    <div id="review-thanks" class="volunteer-thanks" role="status" tabindex="-1" hidden>
+      <p class="volunteer-thanks-copy">Thank you. Your review is with us.</p>
+    </div>
+  </div>
+</dialog>
 <a href="#" class="btn btn-primary back-to-top" aria-label="Back to top"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/main.js"></script>
 <script src="js/volunteer-countries.js?v=1"></script>
 <script src="js/quinta.js?v=partner-validate-1"></script>
 <script src="js/partner.js?v=partner-validate-1"></script>
+<script src="js/reviews.js?v=2"></script>
 </body></html>

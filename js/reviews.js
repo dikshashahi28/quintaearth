@@ -2,10 +2,13 @@
   var reviewForm = document.getElementById("review-form");
   var reviewThanks = document.getElementById("review-thanks");
   var reviewRoom = document.getElementById("leave-review");
+  var reviewDialog = document.getElementById("review-dialog");
+  var reviewIntro = document.querySelector(".review-dialog-intro");
   var reviewSubmitError = document.getElementById("review-submit-error");
   var reviewSubmitBtn = reviewForm && reviewForm.querySelector('button[type="submit"]');
   var reviewCount = document.getElementById("review-count");
   var reviewSheetUrl = "";
+  var reviewLastFocus = null;
   var reviewFieldIds = [
     "review-name",
     "review-designation",
@@ -131,10 +134,50 @@
 
   function showReviewThanks() {
     if (reviewForm) reviewForm.hidden = true;
+    if (reviewIntro) reviewIntro.hidden = true;
     if (reviewRoom) reviewRoom.classList.add("is-thanks");
+    if (reviewDialog) reviewDialog.classList.add("is-thanks");
     if (reviewThanks) {
       reviewThanks.hidden = false;
       reviewThanks.focus();
+    }
+  }
+
+  function resetReviewForm() {
+    if (reviewDialog) reviewDialog.classList.remove("is-thanks");
+    if (reviewRoom) reviewRoom.classList.remove("is-thanks");
+    if (reviewIntro) reviewIntro.hidden = false;
+    if (reviewForm) {
+      reviewForm.hidden = false;
+      reviewForm.reset();
+    }
+    clearReviewFieldErrors();
+    if (reviewThanks) reviewThanks.hidden = true;
+    if (reviewSubmitError) reviewSubmitError.hidden = true;
+    if (reviewSubmitBtn) reviewSubmitBtn.disabled = false;
+    syncReviewCount();
+  }
+
+  function openReviewDialog() {
+    if (!reviewDialog) return false;
+    resetReviewForm();
+    reviewLastFocus = document.activeElement;
+    if (typeof reviewDialog.showModal === "function") {
+      if (!reviewDialog.open) reviewDialog.showModal();
+    } else {
+      reviewDialog.setAttribute("open", "");
+    }
+    var name = document.getElementById("review-name");
+    if (name && reviewForm && !reviewForm.hidden) name.focus();
+    return true;
+  }
+
+  function closeReviewDialog() {
+    if (!reviewDialog) return;
+    if (typeof reviewDialog.close === "function" && reviewDialog.open) {
+      reviewDialog.close();
+    } else {
+      reviewDialog.removeAttribute("open");
     }
   }
 
@@ -187,5 +230,35 @@
       submitReview();
     });
     syncReviewCount();
+  }
+
+  if (reviewDialog) {
+    reviewDialog.addEventListener("click", function (e) {
+      if (e.target === reviewDialog) closeReviewDialog();
+    });
+    reviewDialog.addEventListener("close", function () {
+      resetReviewForm();
+      if (reviewLastFocus && typeof reviewLastFocus.focus === "function") {
+        reviewLastFocus.focus();
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("[data-review-close]")) {
+        e.preventDefault();
+        closeReviewDialog();
+      }
+    });
+    document.addEventListener("click", function (e) {
+      var opener = e.target.closest("[data-review-open]");
+      if (!opener) return;
+      e.preventDefault();
+      openReviewDialog();
+    });
+    if ((location.hash || "") === "#leave-review") {
+      openReviewDialog();
+    }
+    window.addEventListener("hashchange", function () {
+      if ((location.hash || "") === "#leave-review") openReviewDialog();
+    });
   }
 })();
