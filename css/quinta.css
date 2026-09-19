@@ -3272,13 +3272,13 @@ h1.insights-title {
   gap: 0.6rem;
   flex: 0 0 auto;
 }
-#testimonials .t-cta-btn-ghost {
+#testimonials .t-cta-btn.t-cta-btn-ghost {
   background: transparent;
   color: #24301A;
   border: 1px solid #D9CBB4;
 }
-#testimonials .t-cta-btn-ghost:hover,
-#testimonials .t-cta-btn-ghost:focus {
+#testimonials .t-cta-btn.t-cta-btn-ghost:hover,
+#testimonials .t-cta-btn.t-cta-btn-ghost:focus {
   background: #24301A;
   color: #FFFEFC;
   border-color: #24301A;
