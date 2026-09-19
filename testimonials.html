@@ -25,7 +25,7 @@
   <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  <link href="css/quinta.css?v=section-pages-1" rel="stylesheet" />
+  <link href="css/quinta.css?v=testimonials-review-1" rel="stylesheet" />
   <style>
     button.menu-btn { font-size: 0; line-height: 0; }
     button.menu-btn > span {
@@ -399,12 +399,113 @@
 
       <div class="t-cta">
         <p class="t-cta-copy">Work with us</p>
-        <a class="t-cta-btn" href="contact.html">For inquiry</a>
+        <div class="t-cta-actions">
+          <a class="t-cta-btn t-cta-btn-ghost" href="#leave-review">Leave a review</a>
+          <a class="t-cta-btn" href="contact.html">For inquiry</a>
+        </div>
       </div>
     </div>
   </div>
 </section>
 <!-- @section:testimonials end -->
+  <section class="reviews-showcase" id="reviews" aria-label="Review showcase">
+    <div class="reviews-inner">
+      <header class="reviews-head">
+        <p class="reviews-kicker">Reviews</p>
+        <h2 class="reviews-title">Named reviews</h2>
+        <p class="reviews-line">Public quotes from people who walked with us will sit here. The cards above are examples, not named reviews.</p>
+      </header>
+      <div class="reviews-list" id="reviews-list">
+        <article class="reviews-empty">
+          <p class="reviews-empty-flag">Waiting</p>
+          <p class="reviews-empty-copy">No named reviews yet. Leave one below — it will appear here once reviews can be saved.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="reviews-form-room volunteer-form-page" id="leave-review" aria-label="Leave a review">
+    <div class="container py-5">
+      <div class="volunteer-form-panel reviews-form-panel mx-auto">
+        <h5 class="text-uppercase text-primary volunteer-kicker">Reviews</h5>
+        <h2 class="reviews-form-title">Leave a review</h2>
+        <p class="volunteer-form-lede mb-4">Name, role, stars, and a few honest words. Company or place is optional.</p>
+        <form id="review-form" class="volunteer-form" action="#" method="post" novalidate>
+          <div class="volunteer-form-grid">
+            <div class="volunteer-field">
+              <label for="review-name">Name <span class="req">*</span></label>
+              <input id="review-name" name="name" type="text" autocomplete="name" maxlength="80" required />
+              <p class="volunteer-field-error" id="review-name-error" hidden></p>
+            </div>
+            <div class="volunteer-field">
+              <label for="review-designation">Designation / role <span class="req">*</span></label>
+              <input id="review-designation" name="designation" type="text" autocomplete="organization-title" maxlength="80" required />
+              <p class="volunteer-field-error" id="review-designation-error" hidden></p>
+            </div>
+            <div class="volunteer-field volunteer-field-wide">
+              <label for="review-company">Company or place</label>
+              <input id="review-company" name="company" type="text" autocomplete="organization" maxlength="80" />
+              <p class="volunteer-field-error" id="review-company-error" hidden></p>
+            </div>
+            <div class="volunteer-field volunteer-field-wide" id="review-rating-field">
+              <p class="review-stars-label" id="review-rating-label">Star rating <span class="req">*</span></p>
+              <div class="review-stars-pick" role="radiogroup" aria-labelledby="review-rating-label">
+                <label class="review-star">
+                  <input type="radio" name="rating" id="review-star-1" value="1" required />
+                  <span aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+                  </span>
+                  <span class="visually-hidden">1 star</span>
+                </label>
+                <label class="review-star">
+                  <input type="radio" name="rating" id="review-star-2" value="2" />
+                  <span aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+                  </span>
+                  <span class="visually-hidden">2 stars</span>
+                </label>
+                <label class="review-star">
+                  <input type="radio" name="rating" id="review-star-3" value="3" />
+                  <span aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+                  </span>
+                  <span class="visually-hidden">3 stars</span>
+                </label>
+                <label class="review-star">
+                  <input type="radio" name="rating" id="review-star-4" value="4" />
+                  <span aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+                  </span>
+                  <span class="visually-hidden">4 stars</span>
+                </label>
+                <label class="review-star">
+                  <input type="radio" name="rating" id="review-star-5" value="5" />
+                  <span aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z"/></svg>
+                  </span>
+                  <span class="visually-hidden">5 stars</span>
+                </label>
+              </div>
+              <p class="volunteer-field-error" id="review-rating-error" hidden></p>
+            </div>
+            <div class="volunteer-field volunteer-field-wide">
+              <label for="review-text">Review <span class="req">*</span></label>
+              <textarea id="review-text" name="review" rows="4" maxlength="400" required></textarea>
+              <p class="review-count" id="review-count" aria-live="polite">0 / 400</p>
+              <p class="volunteer-field-error" id="review-text-error" hidden></p>
+            </div>
+            <div class="volunteer-field volunteer-field-wide volunteer-form-actions">
+              <p class="reviews-form-hint">20–400 characters. Letters only in your name.</p>
+              <button class="btn-hover-bg btn btn-primary text-white py-2 px-4" type="submit">Submit review</button>
+            </div>
+            <p id="review-submit-error" class="volunteer-submit-error" role="alert" hidden>Something went wrong. Your review could not be stored. Please try again.</p>
+          </div>
+        </form>
+        <div id="review-thanks" class="volunteer-thanks" role="status" tabindex="-1" hidden>
+          <p class="volunteer-thanks-copy">Thank you. Your review is with us.</p>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="industry-room" aria-label="Testimonials notes">
     <div class="container py-5">
       <p class="industry-line">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
@@ -468,4 +569,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/main.js"></script>
 <script src="js/quinta.js"></script>
+<script src="js/reviews.js?v=1"></script>
 </body></html>

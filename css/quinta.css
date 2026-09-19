@@ -3266,6 +3266,23 @@ h1.insights-title {
   background: #F3F5EC;
   color: #24301A;
 }
+#testimonials .t-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 0 0 auto;
+}
+#testimonials .t-cta-btn-ghost {
+  background: transparent;
+  color: #24301A;
+  border: 1px solid #D9CBB4;
+}
+#testimonials .t-cta-btn-ghost:hover,
+#testimonials .t-cta-btn-ghost:focus {
+  background: #24301A;
+  color: #FFFEFC;
+  border-color: #24301A;
+}
 #testimonials .t-cta-copy {
   margin: 0;
   font-family: "Jost", sans-serif;
@@ -3309,7 +3326,177 @@ h1.insights-title {
   #testimonials .t-card { flex-basis: 88%; }
   #testimonials .t-cta {
     padding: 1rem 1.15rem 1.15rem;
+    flex-wrap: wrap;
   }
+  #testimonials .t-cta-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* Testimonials review showcase + leave-a-review form */
+.reviews-showcase {
+  background: #FFFEFC;
+  color: #5C4A36;
+  padding: 3.4rem 0 1.2rem;
+}
+.reviews-inner {
+  width: min(74.5rem, calc(100% - 2.5rem));
+  margin: 0 auto;
+}
+.reviews-head {
+  text-align: center;
+  max-width: 38rem;
+  margin: 0 auto 1.8rem;
+}
+.reviews-kicker {
+  margin: 0 0 0.75rem;
+  font-family: "Jost", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C45C26;
+}
+.reviews-title {
+  margin: 0 0 0.75rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #24301A;
+}
+.reviews-line {
+  margin: 0 auto;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: #5C4A36;
+}
+.reviews-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+.reviews-empty {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.35rem 1.3rem 1.25rem;
+  background: #F3F5EC;
+  border: 1px solid #D9CBB4;
+  border-radius: 1.05rem;
+}
+.reviews-empty-flag {
+  display: inline-block;
+  margin: 0 0 0.55rem;
+  padding: 0.08rem 0.5rem;
+  border: 1px solid #6B7A45;
+  border-radius: 999px;
+  font-family: "Jost", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6B7A45;
+}
+.reviews-empty-copy {
+  margin: 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: #5C4A36;
+}
+.reviews-form-room {
+  background: #F3F5EC;
+}
+.reviews-form-title {
+  margin: 0 0 0.75rem;
+  font-family: "Jost", sans-serif;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+  line-height: 1.2;
+  color: #222;
+}
+.reviews-form-hint {
+  margin: 0;
+  flex: 1 1 auto;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #757575;
+}
+.review-stars-label {
+  display: block;
+  margin: 0 0 0.35rem;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #24301A;
+}
+.review-stars-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.review-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin: 0;
+  cursor: pointer;
+}
+.review-star input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.review-star svg {
+  display: block;
+  fill: #E8E4DC;
+}
+.review-star:has(input:focus-visible) {
+  outline: 2px solid #6B7A45;
+  outline-offset: 2px;
+}
+.review-stars-pick:has(#review-star-1:checked) .review-star:nth-child(-n+1) svg,
+.review-stars-pick:has(#review-star-2:checked) .review-star:nth-child(-n+2) svg,
+.review-stars-pick:has(#review-star-3:checked) .review-star:nth-child(-n+3) svg,
+.review-stars-pick:has(#review-star-4:checked) .review-star:nth-child(-n+4) svg,
+.review-stars-pick:has(#review-star-5:checked) .review-star:nth-child(-n+5) svg,
+.review-stars-pick:has(.review-star:nth-child(1):hover) .review-star:nth-child(-n+1) svg,
+.review-stars-pick:has(.review-star:nth-child(2):hover) .review-star:nth-child(-n+2) svg,
+.review-stars-pick:has(.review-star:nth-child(3):hover) .review-star:nth-child(-n+3) svg,
+.review-stars-pick:has(.review-star:nth-child(4):hover) .review-star:nth-child(-n+4) svg,
+.review-stars-pick:has(.review-star:nth-child(5):hover) .review-star:nth-child(-n+5) svg {
+  fill: #C4A15A;
+}
+#review-rating-field.is-invalid .review-stars-pick {
+  box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.18);
+  border-radius: 4px;
+}
+.review-count {
+  margin: 0.28rem 0 0;
+  font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+  font-size: 0.74rem;
+  color: #757575;
+  text-align: right;
+}
+.reviews-form-room.is-thanks .volunteer-form-lede,
+.reviews-form-room.is-thanks .reviews-form-hint {
+  display: none;
+}
+.reviews-form-room.is-thanks .reviews-form-panel {
+  width: min(19.5rem, calc(100vw - 1.5rem));
+  max-width: 19.5rem;
+  padding: 2.1rem 1.3rem 1.55rem;
+  text-align: center;
+}
+@media (max-width: 575.98px) {
+  .reviews-showcase { padding: 2.6rem 0 0.6rem; }
+  .reviews-inner { width: calc(100% - 1.9rem); }
 }
 
 /* Industries inner group rooms */
