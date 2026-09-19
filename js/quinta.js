@@ -365,14 +365,24 @@
     }
   }
 
+  function volunteerPhoneField() {
+    return (
+      document.querySelector("#volunteer-dialog .volunteer-phone-field") ||
+      document.querySelector(".volunteer-form-page .volunteer-phone-field") ||
+      document.querySelector(".volunteer-phone-field")
+    );
+  }
+
   function closeCountryPanel() {
     var panel = document.getElementById("volunteer-cc-panel");
     var btn = document.getElementById("volunteer-cc-btn");
-    var field = document.querySelector("#volunteer-dialog .volunteer-phone-field");
+    var field = volunteerPhoneField();
+    var page = document.querySelector(".volunteer-form-page");
     if (panel) panel.hidden = true;
     if (btn) btn.setAttribute("aria-expanded", "false");
     if (field) field.classList.remove("is-cc-open");
     if (volunteerDialog) volunteerDialog.classList.remove("is-cc-open");
+    if (page) page.classList.remove("is-cc-open");
   }
 
   function renderCountryList(query) {
@@ -422,13 +432,15 @@
   function openCountryPanel() {
     var panel = document.getElementById("volunteer-cc-panel");
     var btn = document.getElementById("volunteer-cc-btn");
-    var field = document.querySelector("#volunteer-dialog .volunteer-phone-field");
+    var field = volunteerPhoneField();
+    var page = document.querySelector(".volunteer-form-page");
     var search = document.getElementById("volunteer-cc-search");
     if (!panel) return;
     panel.hidden = false;
     if (btn) btn.setAttribute("aria-expanded", "true");
     if (field) field.classList.add("is-cc-open");
     if (volunteerDialog) volunteerDialog.classList.add("is-cc-open");
+    if (page) page.classList.add("is-cc-open");
     if (search) search.value = "";
     renderCountryList("");
     if (search) search.focus();

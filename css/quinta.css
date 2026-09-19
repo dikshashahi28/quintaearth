@@ -1081,28 +1081,33 @@ h1.volunteer-title {
   line-height: 1.35;
   margin: 0 0 0.85rem;
 }
-.volunteer-dialog .volunteer-form-grid {
+.volunteer-dialog .volunteer-form-grid, .volunteer-form-page .volunteer-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 0.85rem;
   row-gap: 0.6rem;
 }
-.volunteer-dialog .volunteer-field {
+.volunteer-dialog .volunteer-field, .volunteer-form-page .volunteer-field {
   min-width: 0;
 }
-.volunteer-dialog .volunteer-field-wide {
+.volunteer-dialog .volunteer-field-wide, .volunteer-form-page .volunteer-field-wide {
   grid-column: 1 / -1;
 }
-.volunteer-dialog .volunteer-form label {
+.volunteer-dialog .volunteer-form label, .volunteer-form-page .volunteer-form label {
   font-size: 0.8rem;
   margin-bottom: 0.2rem;
 }
 .volunteer-dialog .volunteer-form input[type="text"],
+.volunteer-form-page .volunteer-form input[type="text"],
 .volunteer-dialog .volunteer-form input[type="email"],
+.volunteer-form-page .volunteer-form input[type="email"],
 .volunteer-dialog .volunteer-form input[type="tel"],
+.volunteer-form-page .volunteer-form input[type="tel"],
 .volunteer-dialog .volunteer-form input[type="url"],
+.volunteer-form-page .volunteer-form input[type="url"],
 .volunteer-dialog .volunteer-form select,
-.volunteer-dialog .volunteer-form textarea {
+.volunteer-form-page .volunteer-form select,
+.volunteer-dialog .volunteer-form textarea, .volunteer-form-page .volunteer-form textarea {
   display: block;
   width: 100%;
   height: 2.25rem;
@@ -1110,15 +1115,15 @@ h1.volunteer-title {
   font-size: 0.9rem;
   box-sizing: border-box;
 }
-.volunteer-dialog .volunteer-form textarea {
+.volunteer-dialog .volunteer-form textarea, .volunteer-form-page .volunteer-form textarea {
   height: auto;
   min-height: 3.1rem;
 }
-.volunteer-dialog .volunteer-resume-field {
+.volunteer-dialog .volunteer-resume-field, .volunteer-form-page .volunteer-resume-field {
   padding-top: 0.45rem;
   border-top: 1px solid var(--qe-line);
 }
-.volunteer-dialog .volunteer-file {
+.volunteer-dialog .volunteer-file, .volunteer-form-page .volunteer-file {
   position: relative;
   display: flex;
   align-items: center;
@@ -1130,7 +1135,7 @@ h1.volunteer-title {
   border-radius: 2px;
   background: #FFFFFE;
 }
-.volunteer-dialog .volunteer-file-input {
+.volunteer-dialog .volunteer-file-input, .volunteer-form-page .volunteer-file-input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1138,7 +1143,7 @@ h1.volunteer-title {
   opacity: 0;
   cursor: pointer;
 }
-.volunteer-dialog .volunteer-file-pick {
+.volunteer-dialog .volunteer-file-pick, .volunteer-form-page .volunteer-file-pick {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -1152,7 +1157,7 @@ h1.volunteer-title {
   font-weight: 600;
   pointer-events: none;
 }
-.volunteer-dialog .volunteer-file-meta {
+.volunteer-dialog .volunteer-file-meta, .volunteer-form-page .volunteer-file-meta {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1161,44 +1166,44 @@ h1.volunteer-title {
   font-size: 0.82rem;
   pointer-events: none;
 }
-.volunteer-dialog .volunteer-file-error {
+.volunteer-dialog .volunteer-file-error, .volunteer-form-page .volunteer-file-error {
   margin: 0.3rem 0 0;
   color: #C45C26;
   font-size: 0.78rem;
 }
-#volunteer-dialog .volunteer-field-error {
+.volunteer-dialog .volunteer-field-error, .volunteer-form-page .volunteer-field-error {
   margin: 0.22rem 0 0;
   color: #C45C26;
   font-size: 0.74rem;
   line-height: 1.25;
 }
-#volunteer-dialog .volunteer-field-error[hidden],
-#volunteer-dialog .volunteer-file-error[hidden] {
+.volunteer-dialog .volunteer-field-error[hidden], .volunteer-form-page .volunteer-field-error[hidden],
+.volunteer-dialog .volunteer-file-error[hidden], .volunteer-form-page .volunteer-file-error[hidden] {
   display: none;
 }
-#volunteer-dialog .volunteer-field.is-invalid input[type="text"],
-#volunteer-dialog .volunteer-field.is-invalid input[type="email"],
-#volunteer-dialog .volunteer-field.is-invalid input[type="tel"],
-#volunteer-dialog .volunteer-field.is-invalid select,
-#volunteer-dialog .volunteer-field.is-invalid textarea,
-#volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone,
-#volunteer-dialog .volunteer-resume-field.is-invalid .volunteer-file {
+.volunteer-dialog .volunteer-field.is-invalid input[type="text"], .volunteer-form-page .volunteer-field.is-invalid input[type="text"],
+.volunteer-dialog .volunteer-field.is-invalid input[type="email"], .volunteer-form-page .volunteer-field.is-invalid input[type="email"],
+.volunteer-dialog .volunteer-field.is-invalid input[type="tel"], .volunteer-form-page .volunteer-field.is-invalid input[type="tel"],
+.volunteer-dialog .volunteer-field.is-invalid select, .volunteer-form-page .volunteer-field.is-invalid select,
+.volunteer-dialog .volunteer-field.is-invalid textarea, .volunteer-form-page .volunteer-field.is-invalid textarea,
+.volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone, .volunteer-form-page .volunteer-phone-field.is-invalid .volunteer-phone,
+.volunteer-dialog .volunteer-resume-field.is-invalid .volunteer-file, .volunteer-form-page .volunteer-resume-field.is-invalid .volunteer-file {
   border-color: #C45C26;
 }
-#volunteer-dialog .volunteer-form-actions.is-invalid .volunteer-consent {
+.volunteer-dialog .volunteer-form-actions.is-invalid .volunteer-consent, .volunteer-form-page .volunteer-form-actions.is-invalid .volunteer-consent {
   color: #C45C26;
 }
-#volunteer-dialog .volunteer-phone-field {
+.volunteer-dialog .volunteer-phone-field, .volunteer-form-page .volunteer-phone-field {
   position: relative;
   z-index: 1;
 }
-#volunteer-dialog .volunteer-phone-field.is-cc-open {
+.volunteer-dialog .volunteer-phone-field.is-cc-open, .volunteer-form-page .volunteer-phone-field.is-cc-open {
   z-index: 8;
 }
-#volunteer-dialog.is-cc-open .volunteer-form-panel {
+.volunteer-dialog.is-cc-open .volunteer-form-panel, .volunteer-form-page.is-cc-open .volunteer-form-panel {
   overflow: visible;
 }
-#volunteer-dialog .volunteer-phone {
+.volunteer-dialog .volunteer-phone, .volunteer-form-page .volunteer-phone {
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -1208,15 +1213,15 @@ h1.volunteer-title {
   background: #FFFFFE;
   box-sizing: border-box;
 }
-#volunteer-dialog .volunteer-phone:focus-within {
+.volunteer-dialog .volunteer-phone:focus-within, .volunteer-form-page .volunteer-phone:focus-within {
   border-color: var(--qe-olive);
   box-shadow: 0 0 0 2px rgba(107, 122, 69, 0.22);
 }
-#volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone:focus-within {
+.volunteer-dialog .volunteer-phone-field.is-invalid .volunteer-phone:focus-within, .volunteer-form-page .volunteer-phone-field.is-invalid .volunteer-phone:focus-within {
   border-color: #C45C26;
   box-shadow: 0 0 0 2px rgba(196, 92, 38, 0.18);
 }
-#volunteer-dialog .volunteer-cc-btn {
+.volunteer-dialog .volunteer-cc-btn, .volunteer-form-page .volunteer-cc-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.28rem;
@@ -1232,14 +1237,14 @@ h1.volunteer-title {
   line-height: 1;
   cursor: pointer;
 }
-#volunteer-dialog .volunteer-cc-flag {
+.volunteer-dialog .volunteer-cc-flag, .volunteer-form-page .volunteer-cc-flag {
   font-size: 0.95rem;
   line-height: 1;
 }
-#volunteer-dialog .volunteer-cc-dial {
+.volunteer-dialog .volunteer-cc-dial, .volunteer-form-page .volunteer-cc-dial {
   font-variant-numeric: tabular-nums;
 }
-#volunteer-dialog .volunteer-phone input[type="tel"] {
+.volunteer-dialog .volunteer-phone input[type="tel"], .volunteer-form-page .volunteer-phone input[type="tel"] {
   flex: 1 1 auto;
   min-width: 0;
   height: 100%;
@@ -1248,11 +1253,11 @@ h1.volunteer-title {
   background: transparent;
   padding: 0.2rem 0.55rem;
 }
-#volunteer-dialog .volunteer-phone input[type="tel"]:focus {
+.volunteer-dialog .volunteer-phone input[type="tel"]:focus, .volunteer-form-page .volunteer-phone input[type="tel"]:focus {
   border: 0;
   box-shadow: none;
 }
-#volunteer-dialog .volunteer-cc-panel {
+.volunteer-dialog .volunteer-cc-panel, .volunteer-form-page .volunteer-cc-panel {
   position: absolute;
   top: calc(100% + 0.2rem);
   left: 0;
@@ -1265,10 +1270,10 @@ h1.volunteer-title {
   border: 1px solid var(--qe-line);
   box-shadow: 0 10px 28px rgba(36, 48, 26, 0.2);
 }
-#volunteer-dialog .volunteer-cc-panel[hidden] {
+.volunteer-dialog .volunteer-cc-panel[hidden], .volunteer-form-page .volunteer-cc-panel[hidden] {
   display: none;
 }
-#volunteer-dialog .volunteer-cc-search {
+.volunteer-dialog .volunteer-cc-search, .volunteer-form-page .volunteer-cc-search {
   width: 100%;
   height: 2rem;
   padding: 0.25rem 0.55rem;
@@ -1279,24 +1284,24 @@ h1.volunteer-title {
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 0.82rem;
 }
-#volunteer-dialog .volunteer-cc-search:focus {
+.volunteer-dialog .volunteer-cc-search:focus, .volunteer-form-page .volunteer-cc-search:focus {
   outline: none;
   box-shadow: inset 0 0 0 2px rgba(107, 122, 69, 0.22);
 }
-#volunteer-dialog .volunteer-cc-list {
+.volunteer-dialog .volunteer-cc-list, .volunteer-form-page .volunteer-cc-list {
   list-style: none;
   margin: 0;
   padding: 0.15rem 0;
   overflow: auto;
   max-height: 11.6rem;
 }
-#volunteer-dialog .volunteer-cc-empty {
+.volunteer-dialog .volunteer-cc-empty, .volunteer-form-page .volunteer-cc-empty {
   margin: 0;
   padding: 0.55rem 0.65rem;
   color: #757575;
   font-size: 0.8rem;
 }
-#volunteer-dialog .volunteer-cc-option {
+.volunteer-dialog .volunteer-cc-option, .volunteer-form-page .volunteer-cc-option {
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -1310,70 +1315,70 @@ h1.volunteer-title {
   text-align: left;
   cursor: pointer;
 }
-#volunteer-dialog .volunteer-cc-option:hover,
-#volunteer-dialog .volunteer-cc-option[aria-selected="true"] {
+.volunteer-dialog .volunteer-cc-option:hover, .volunteer-form-page .volunteer-cc-option:hover,
+.volunteer-dialog .volunteer-cc-option[aria-selected="true"], .volunteer-form-page .volunteer-cc-option[aria-selected="true"] {
   background: rgba(107, 122, 69, 0.12);
 }
-#volunteer-dialog .volunteer-cc-option .volunteer-cc-flag {
+.volunteer-dialog .volunteer-cc-option .volunteer-cc-flag, .volunteer-form-page .volunteer-cc-option .volunteer-cc-flag {
   flex: 0 0 auto;
   width: 1.15em;
   font-size: 0.95rem;
 }
-#volunteer-dialog .volunteer-cc-name {
+.volunteer-dialog .volunteer-cc-name, .volunteer-form-page .volunteer-cc-name {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#volunteer-dialog .volunteer-cc-dial-opt {
+.volunteer-dialog .volunteer-cc-dial-opt, .volunteer-form-page .volunteer-cc-dial-opt {
   flex: 0 0 auto;
   color: #757575;
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
 }
-.volunteer-dialog .volunteer-submit-error {
+.volunteer-dialog .volunteer-submit-error, .volunteer-form-page .volunteer-submit-error {
   grid-column: 1 / -1;
   margin: 0;
   color: #C45C26;
   font-size: 0.82rem;
 }
-.volunteer-dialog .volunteer-form-actions {
+.volunteer-dialog .volunteer-form-actions, .volunteer-form-page .volunteer-form-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.85rem;
   padding-top: 0.15rem;
 }
-.volunteer-dialog .volunteer-consent {
+.volunteer-dialog .volunteer-consent, .volunteer-form-page .volunteer-consent {
   font-size: 0.82rem;
   gap: 0.45rem;
   margin: 0;
   flex: 1 1 auto;
 }
-.volunteer-dialog .volunteer-form-actions .btn {
+.volunteer-dialog .volunteer-form-actions .btn, .volunteer-form-page .volunteer-form-actions .btn {
   flex: 0 0 auto;
   min-height: 38px;
   padding: 0.35rem 1.1rem;
   font-size: 0.92rem;
 }
-.volunteer-dialog .volunteer-thanks {
+.volunteer-dialog .volunteer-thanks, .volunteer-form-page .volunteer-thanks {
   margin: 0;
 }
-.volunteer-dialog .volunteer-thanks-copy {
+.volunteer-dialog .volunteer-thanks-copy, .volunteer-form-page .volunteer-thanks-copy {
   font-family: "Jost", sans-serif;
   font-size: 1.2rem;
   line-height: 1.3;
   color: var(--qe-dark);
   margin: 0;
 }
-.volunteer-dialog.is-thanks .volunteer-form-panel {
+.volunteer-dialog.is-thanks .volunteer-form-panel, .volunteer-form-page.is-thanks .volunteer-form-panel {
   width: min(19.5rem, calc(100vw - 1.5rem));
   max-width: 19.5rem;
   padding: 2.1rem 1.3rem 1.55rem;
   text-align: center;
 }
-.volunteer-dialog.is-thanks .volunteer-form {
+.volunteer-dialog.is-thanks .volunteer-form, .volunteer-form-page.is-thanks .volunteer-form {
   display: none;
 }
 .volunteer-dialog.is-thanks .volunteer-kicker {
@@ -1392,11 +1397,11 @@ h1.volunteer-title {
   margin: 0 auto 0.95rem;
   max-width: 16.5rem;
 }
-.volunteer-dialog.is-thanks .volunteer-thanks {
+.volunteer-dialog.is-thanks .volunteer-thanks, .volunteer-form-page.is-thanks .volunteer-thanks {
   padding-top: 0;
   border-top: 0;
 }
-.volunteer-dialog.is-thanks .volunteer-thanks-copy {
+.volunteer-dialog.is-thanks .volunteer-thanks-copy, .volunteer-form-page.is-thanks .volunteer-thanks-copy {
   font-size: 1.05rem;
   max-width: none;
 }
@@ -1425,14 +1430,14 @@ h1.volunteer-title {
   outline-offset: 2px;
 }
 @media (max-width: 767.98px) {
-  .volunteer-dialog .volunteer-form-grid {
+.volunteer-dialog .volunteer-form-grid, .volunteer-form-page .volunteer-form-grid {
     grid-template-columns: 1fr;
   }
-  .volunteer-dialog .volunteer-form-actions {
+.volunteer-dialog .volunteer-form-actions, .volunteer-form-page .volunteer-form-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  .volunteer-dialog .volunteer-form-actions .btn {
+.volunteer-dialog .volunteer-form-actions .btn, .volunteer-form-page .volunteer-form-actions .btn {
     width: 100%;
   }
 }

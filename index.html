@@ -25,7 +25,7 @@
   <link href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" rel="stylesheet" />
   <link href="css/bootstrap.min.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  <link href="css/quinta.css?v=volunteer-dialog-8" rel="stylesheet" />
+  <link href="css/quinta.css?v=partner-validate-1" rel="stylesheet" />
   <style>
     button.menu-btn { font-size: 0; line-height: 0; }
     button.menu-btn > span {
@@ -1269,7 +1269,8 @@
       <div class="volunteer-form-grid">
         <div class="volunteer-field">
           <label for="partner-company">Company name <span class="req">*</span></label>
-          <input id="partner-company" name="company" type="text" autocomplete="organization" required />
+          <input id="partner-company" name="company" type="text" autocomplete="organization" maxlength="120" required />
+          <p class="volunteer-field-error" id="partner-company-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-type">Company type <span class="req">*</span></label>
@@ -1284,34 +1285,42 @@
             <option value="academic">Academic</option>
             <option value="other">Other</option>
           </select>
+          <p class="volunteer-field-error" id="partner-type-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-website">Website <span class="req">*</span></label>
-          <input id="partner-website" name="website" type="url" autocomplete="url" placeholder="https://" required />
+          <input id="partner-website" name="website" type="url" autocomplete="url" placeholder="https://" maxlength="200" required />
+          <p class="volunteer-field-error" id="partner-website-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-phone">Phone number <span class="req">*</span></label>
-          <input id="partner-phone" name="phone" type="tel" autocomplete="tel" required />
+          <input id="partner-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="12" required />
+          <p class="volunteer-field-error" id="partner-phone-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-place">Place <span class="req">*</span></label>
-          <input id="partner-place" name="place" type="text" autocomplete="address-level2" required />
+          <input id="partner-place" name="place" type="text" autocomplete="address-level2" maxlength="80" required />
+          <p class="volunteer-field-error" id="partner-place-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-email">Email <span class="req">*</span></label>
-          <input id="partner-email" name="email" type="email" autocomplete="email" required />
+          <input id="partner-email" name="email" type="email" autocomplete="email" maxlength="100" required />
+          <p class="volunteer-field-error" id="partner-email-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-contact">Contact person name <span class="req">*</span></label>
-          <input id="partner-contact" name="contact_name" type="text" autocomplete="name" required />
+          <input id="partner-contact" name="contact_name" type="text" autocomplete="name" maxlength="80" required />
+          <p class="volunteer-field-error" id="partner-contact-error" hidden></p>
         </div>
         <div class="volunteer-field">
           <label for="partner-designation">Designation <span class="req">*</span></label>
-          <input id="partner-designation" name="designation" type="text" autocomplete="organization-title" required />
+          <input id="partner-designation" name="designation" type="text" autocomplete="organization-title" maxlength="80" required />
+          <p class="volunteer-field-error" id="partner-designation-error" hidden></p>
         </div>
         <div class="volunteer-field volunteer-field-wide">
           <label for="partner-purpose">Purpose <span class="req">*</span></label>
-          <textarea id="partner-purpose" name="purpose" rows="2" required></textarea>
+          <textarea id="partner-purpose" name="purpose" rows="2" maxlength="400" required></textarea>
+          <p class="volunteer-field-error" id="partner-purpose-error" hidden></p>
         </div>
         <div class="volunteer-field volunteer-field-wide volunteer-form-actions">
           <label class="volunteer-consent" for="partner-consent">
@@ -1320,6 +1329,7 @@
           </label>
           <button class="btn-hover-bg btn btn-primary text-white py-2 px-4" type="submit">Submit</button>
         </div>
+        <p class="volunteer-field-error volunteer-field-wide" id="partner-consent-error" hidden></p>
         <p id="partner-submit-error" class="volunteer-submit-error" role="alert" hidden>Something went wrong. Please try again.</p>
       </div>
     </form>
@@ -1332,6 +1342,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/main.js"></script>
 <script src="js/volunteer-countries.js?v=1"></script>
-<script src="js/quinta.js?v=volunteer-dialog-8"></script>
-<script src="js/partner.js?v=collaborators-sheet-1"></script>
+<script src="js/quinta.js?v=partner-validate-1"></script>
+<script src="js/partner.js?v=partner-validate-1"></script>
 </body></html>
