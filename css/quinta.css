@@ -3916,56 +3916,59 @@ h1.insights-title {
   .sdg-related li:nth-last-child(-n+2) { border-bottom: 0; }
 }
 
-/* Insight UN SDG tags — terracotta / cream / olive */
+/* Insight UN SDG tags — clickable text only, top-right */
 .insight-sdg-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  justify-content: flex-end;
+  gap: 0.15rem 0.85rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  text-align: right;
 }
 .insight-sdg-tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0.22rem 0.72rem;
-  background: #F3F5EC;
-  color: #24301A;
+  display: inline;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: #A8491C;
   text-decoration: none;
   font-family: Outfit, "Segoe UI", system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
-  line-height: 1.25;
-  border: 1px solid #D9CBB4;
-  border-radius: 999px;
+  line-height: 1.4;
 }
 .insight-sdg-tag .insight-sdg-num {
-  margin-right: 0.4rem;
+  margin-right: 0.3rem;
   font-family: "Jost", sans-serif;
   font-weight: 600;
   color: #6B7A45;
 }
 .insight-sdg-tag:hover,
 .insight-sdg-tag:focus {
-  color: #A8491C;
-  background: #FFFEFC;
-  border-color: #C45C26;
+  color: #C45C26;
+  background: none;
+  text-decoration: underline;
 }
 .insight-sdg-tag:hover .insight-sdg-num,
 .insight-sdg-tag:focus .insight-sdg-num {
   color: #C45C26;
 }
 .insight-sdg-tags--on-photo .insight-sdg-tag {
-  background: #FFFEFC;
-  color: #24301A;
-  border-color: #E0B8A0;
+  color: #FFFEFC;
+  background: none;
+  border: 0;
+}
+.insight-sdg-tags--on-photo .insight-sdg-tag .insight-sdg-num {
+  color: #E0B8A0;
 }
 .insight-sdg-tags--on-photo .insight-sdg-tag:hover,
 .insight-sdg-tags--on-photo .insight-sdg-tag:focus {
-  background: #F3F5EC;
-  color: #A8491C;
-  border-color: #C45C26;
+  color: #E0B8A0;
+  background: none;
+  text-decoration: underline;
 }
 
 .donation.insights .donation-cover {
@@ -3983,10 +3986,50 @@ h1.insights-title {
   background: rgba(0, 0, 0, 0.6);
 }
 .donation.insights .insight-sdg-tags {
-  pointer-events: auto;
-  position: relative;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: 1rem;
   z-index: 5;
-  margin-top: 0.15rem;
+  pointer-events: auto;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 0;
+}
+
+.insights-list-head,
+.insight-article-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+  margin: 0 0 0.45rem;
+}
+.insights-list-head .industry-kicker,
+.insight-article-head .industry-kicker {
+  margin: 0;
+  flex: 0 0 auto;
+}
+.insights-list-head .insight-sdg-tags,
+.insight-article-head .insight-sdg-tags {
+  flex: 1 1 auto;
+  margin: 0;
+}
+.insight-article-head {
+  margin: 0 0 0.7rem;
+}
+@media (max-width: 575.98px) {
+  .insights-list-head,
+  .insight-article-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  .insights-list-head .insight-sdg-tags,
+  .insight-article-head .insight-sdg-tags {
+    justify-content: flex-start;
+    text-align: left;
+  }
 }
 
 .insights-list-room {
@@ -4025,9 +4068,6 @@ h1.insights-title {
 .insights-list-body {
   padding: 1.2rem 1.25rem 1.3rem;
 }
-.insights-list-body .industry-kicker {
-  margin-bottom: 0.45rem;
-}
 .insights-list-body h3 {
   font-family: "Jost", sans-serif;
   font-weight: 600;
@@ -4059,7 +4099,4 @@ h1.insights-title {
   display: block;
   width: 100%;
   height: auto;
-}
-.insight-article-room .insight-sdg-tags {
-  margin: 0 0 1.25rem;
 }
