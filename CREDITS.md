@@ -34,3 +34,29 @@ Unsplash/Pexels may replace tiles later where Quinta has no own photo.
 
 ## Unused files (kept on purpose)
 `styles.css`, `site.js`, `samples/`, alternate logo files — not deleted.
+
+
+## Press & Insights heroes (23 Sep 2026)
+
+Unsplash License — free to use; photographer credited on each article. Not brand/NYFW/wire photos.
+
+### Press
+- `assets/press/empco-eu-green-claims-sep-2026.jpg` — Laura Chouette (Unsplash)
+- `assets/press/thai-circular-fashion-nyfw-indorama-kh.jpg` — Nareeta Martin (Unsplash)
+- `assets/press/singapore-aijek-relaunch-biodegradable.jpg` — Lauren Fleischmann (Unsplash)
+- `assets/press/ferragamo-leather-origin-mapping.jpg` — Laura Chouette (Unsplash)
+- `assets/press/torque-wylde-anti-greenwash.jpg` — Amy Hirschi (Unsplash)
+
+### Insights
+- `assets/insights/insight-empco-makers-brands.jpg` — Marcus Loke (Unsplash)
+- `assets/insights/insight-thai-nyfw-circular-makers.jpg` — Nareeta Martin (Unsplash)
+- `assets/insights/insight-aijek-craft-makers.jpg` — rawpixel (Unsplash)
+- `assets/insights/insight-ferragamo-traceability-makers.jpg` — Joseph Gonzalez (Unsplash)
+- `assets/insights/insight-torque-wylde-proof-comms.jpg` — Campaign Creators (Unsplash)
+- `assets/insights/insight-confiance-ocean-cleanup-india.jpg` — Brian Yurasits (Unsplash)
+- `assets/insights/insight-le-meridien-patemar-plastic-bank.jpg` — Ishan @seefromthesky (Unsplash)
+- `assets/insights/insight-empco-vs-green-claims-directive.jpg` — Veeterzy (Unsplash)
+- `assets/insights/insight-csrd-omnibus-supplier-cap.jpg` — Bannerbogdan (Unsplash)
+
+### SDG icons
+- `assets/sdg/goal-08.jpg` … `goal-17.jpg` — official UN SDG icon JPEGs from sdgs.un.org (`E_SDG_Icons-NN.jpg`).
