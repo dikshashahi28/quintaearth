@@ -1,0 +1,29 @@
+---
+import '../../styles/video.css';
+import { asset } from '../../lib/url';
+
+const id = 'T_udYF5L6OQ';
+const title = 'QuintaEarth: Earth is our home';
+const watch = `https://www.youtube.com/watch?v=${id}`;
+const embed = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1&modestbranding=1`;
+---
+<section class="vband" id="video" data-river="wide">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">07</span>Watch</p>
+    <h2 class="rv" data-dot>YouTube</h2>
+    <p class="lede rv">QuintaEarth’s channel for films and field notes that bridge nature with greentech innovation: startups, makers, and the people building cleaner energy.</p>
+    <div class="vframe rv" data-video-frame data-embed={embed} data-title={title}>
+      <a class="vposter" href={watch} target="_blank" rel="noopener" aria-label={`Watch on YouTube: ${title}`}>
+        <img src={asset('assets/youtube-banner-2560.jpg')} alt="" width="2560" height="1440" loading="lazy" decoding="async" />
+        <span class="vplay" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" fill="currentColor" /></svg></span>
+      </a>
+      <button class="vbtn" type="button" hidden aria-label={`Play video: ${title}`}></button>
+    </div>
+    <a class="btn btn-line vchan rv" href="https://www.youtube.com/@QuintaEarth" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-youtube" /></svg>Visit channel</a>
+  </div>
+</section>
+
+<script>
+  import { initVideo } from '../../scripts/video';
+  initVideo();
+</script>

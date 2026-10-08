@@ -1,0 +1,66 @@
+---
+import '../styles/header.css';
+import { industries } from '../data/industries';
+import { site } from '../data/site';
+import { asset, page } from '../lib/url';
+
+import type { NavKey } from '../data/site';
+
+interface Props { current?: NavKey }
+const { current } = Astro.props;
+
+// Industries sits between About and Insights and carries the mega menu, so it is written out below
+const after = [
+  { key: 'insights', label: 'Insights', href: page('insights') },
+  { key: 'press', label: 'Press', href: page('press') },
+  { key: 'volunteer', label: 'Volunteer', href: page('volunteer') },
+  { key: 'contact', label: 'Contact', href: page('contact') },
+] as const;
+const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.pathname.endsWith('/index.html');
+---
+<header class="hdr" id="top">
+  <div class="wide">
+    <a class="logo" href={page('index')} aria-label="QuintaEarth home" aria-current={isHome ? 'page' : undefined}>
+      <img src={asset('assets/logo.png')} alt="QuintaEarth" width="1088" height="231">
+    </a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href={page('about')} class:list={{ active: current === 'about' }} aria-current={current === 'about' ? 'page' : undefined}>About</a>
+      <a href={page('industries')} id="indLink" class:list={{ active: current === 'industries' }} aria-expanded="false" aria-controls="mega">
+        Industries<svg class="ic" aria-hidden="true"><use href="#i-caret-down" /></svg>
+      </a>
+      <div class="mega" id="mega">
+        <div class="mega-grid">
+          {industries.map((ind) => (
+            <div>
+              <p class="mega-h">
+                <a href={page(`industries-${ind.slug}`)}>
+                  <svg class="hi" aria-hidden="true"><use href={`#hi-${ind.icon}`} /></svg>{ind.name}
+                </a>
+              </p>
+              <ul>
+                {ind.subs.map((s) => <li><a href={page(s.slug)}>{s.name}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <p class="all"><a class="tlink" href={page('industries')}>All industries<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></p>
+      </div>
+      {after.map((l) => (
+        <a href={l.href} class:list={{ active: current === l.key }} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </nav>
+    <div class="acts">
+      <a class="btn btn-fill" href={site.whatsapp} target="_blank" rel="noopener">
+        <svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg><span>Join<span class="full"> the community</span></span>
+      </a>
+      <button class="menu" id="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">
+        <svg class="ic b" aria-hidden="true"><use href="#i-menu" /></svg><svg class="ic x" aria-hidden="true"><use href="#i-close" /></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { initHeader } from '../scripts/header';
+  initHeader();
+</script>

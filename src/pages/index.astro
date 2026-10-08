@@ -1,0 +1,91 @@
+---
+import '../styles/home.css';
+import Base from '../layouts/Base.astro';
+import River from '../components/home/River.astro';
+import Hero from '../components/home/Hero.astro';
+import Who from '../components/home/Who.astro';
+import AboutSpread from '../components/home/AboutSpread.astro';
+import Parts from '../components/home/Parts.astro';
+import IndustriesStage from '../components/home/IndustriesStage.astro';
+import LatestInsights from '../components/home/LatestInsights.astro';
+import PressDesk from '../components/home/PressDesk.astro';
+import VideoBand from '../components/home/VideoBand.astro';
+import CsrBand from '../components/home/CsrBand.astro';
+import VolunteerBand from '../components/home/VolunteerBand.astro';
+import CollaboratorsBand from '../components/home/CollaboratorsBand.astro';
+import Community from '../components/home/Community.astro';
+import { getImage } from 'astro:assets';
+import { industries } from '../data/industries';
+import { site } from '../data/site';
+import type { StageIndustry } from '../scripts/stage';
+import { asset, page, absolute } from '../lib/url';
+import { photo } from '../lib/images';
+import { articleToInsight, getArticles, getEssays, getPress, getStream, goalsCovered, streamBySub } from '../lib/content';
+
+const [essays, press, articles, stream, bySub, goals] = await Promise.all([
+  getEssays(), getPress(), getArticles(), getStream(), streamBySub(), goalsCovered(),
+]);
+
+const facts = [
+  { icon: 'mountain', count: industries.length, label: 'industries', href: '#industries' },
+  { icon: 'book', count: stream.length, label: 'Insights', href: page('insights') },
+  { icon: 'leaf', count: press.length, label: 'press releases', href: page('press') },
+  { icon: 'planet', count: goals.size, label: 'UN goals', href: page('sdgs') },
+].filter((f) => f.count > 0);
+
+// four pieces per industry: its dated essays and press first, then one story from each sub-category in turn
+const slides: StageIndustry[] = await Promise.all(industries.map(async (ind) => {
+  const items: StageIndustry['items'] = [];
+  const seen = new Set<string>();
+  const add = (it: { id: string; label: string; title: string; href: string }, sub: string) => {
+    if (items.length < 4 && !seen.has(it.id)) { seen.add(it.id); items.push({ kind: it.label, title: it.title, href: it.href, sub }); }
+  };
+  for (const s of ind.subs) for (const it of bySub.get(s.slug) ?? []) if (it.kind !== 'story') add(it, s.name);
+  for (let round = 0; items.length < 4 && round < 5; round++) {
+    for (const s of ind.subs) {
+      const it = (bySub.get(s.slug) ?? []).filter((x) => x.kind === 'story')[round];
+      if (it) add(it, s.name);
+    }
+  }
+  const subs = ind.subs.map((s) => ({ name: s.name, href: page(s.slug), count: bySub.get(s.slug)?.length ?? 0 }));
+  const img = await getImage({ src: photo(ind.image), width: 1000, format: 'webp' });
+  return {
+    name: ind.name, icon: ind.icon, motion: ind.motion, href: page(`industries-${ind.slug}`),
+    image: img.src, imageAlt: ind.imageAlt,
+    filed: new Set(ind.subs.flatMap((s) => (bySub.get(s.slug) ?? []).map((it) => it.id))).size, subs, items,
+  };
+}));
+
+const euCount = articles.filter((a) => a.data.euRules).length;
+const [feature, ...rest] = essays;
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: absolute(page('index'), Astro.site),
+  logo: absolute(asset('assets/logo.png'), Astro.site),
+  email: site.email,
+  sameAs: site.socials.map((s) => s.href),
+};
+---
+<Base mainClass="flow" jsonLd={[orgLd]}>
+  <River />
+  <Hero facts={facts} />
+  <Who />
+  <AboutSpread />
+  <Parts />
+  <IndustriesStage slides={slides} euCount={euCount} />
+  {feature && <LatestInsights feature={feature} rest={rest.slice(0, 3)} />}
+  {press.length > 0 && <PressDesk items={press.slice(0, 3).map(articleToInsight)} total={press.length} />}
+  <VideoBand />
+  <CsrBand />
+  <VolunteerBand />
+  <CollaboratorsBand />
+  <Community />
+</Base>
+
+<script>
+  // the old home page opened its partner form at /#partner; that form now lives on the contact page
+  if (location.hash === '#partner') location.replace(new URL('contact#partner', location.href));
+</script>

@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "bounce",
+        "createdAt": "2026-10-08T19:22:02.357Z",
+        "reason": "Paras asked on 8 Oct for interactive, animated icons (artifact comment); bounce is one of the per-icon hover motions on the approved Riverline page, ported unchanged"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "wobble",
+        "createdAt": "2026-10-08T19:22:02.379Z",
+        "reason": "Paras asked on 8 Oct for interactive, animated icons (artifact comment); wobble is one of the per-icon hover motions on the approved Riverline page, ported unchanged"
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+---
+import { site } from '../../data/site';
+import { Image } from 'astro:assets';
+import { photo } from '../../lib/images';
+import { asset } from '../../lib/url';
+
+const telegram = site.socials.find((s) => s.icon === 'telegram')!;
+const linkedin = site.socials.find((s) => s.icon === 'linkedin')!;
+---
+<section class="pool" id="community" data-river="pool">
+  <div class="in wide">
+    <div class="pond rv" id="pond" data-pool><Image src={photo('farm-aerial')} alt="Aerial view of green farm fields and forest" widths={[400, 800]} sizes="(max-width: 900px) 80vw, 400px" loading="lazy" /></div>
+    <div class="rv">
+      <p class="kicker"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">10</span>Community</p>
+      <h2>Join the Green Tech Community</h2>
+      <p class="lede">A WhatsApp circle for founders, collaborators and professionals. Joining is totally free.</p>
+      <a class="btn btn-fill join" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the community</a>
+      <p class="qr"><img src={asset('green-tech-community-qr.jpg')} alt="QR code for the Green Tech Community WhatsApp group" width="72" height="72" loading="lazy">Or scan to join on your phone.</p>
+      <p class="follow">New Insights also go out on
+        <a href={telegram.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-telegram" /></svg>Telegram</a>
+        and
+        <a href={linkedin.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-linkedin" /></svg>LinkedIn</a>.
+      </p>
+    </div>
+  </div>
+</section>
