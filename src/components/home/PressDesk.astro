@@ -1,0 +1,17 @@
+---
+import InsightCard from '../page/InsightCard.astro';
+import type { Insight } from '../../lib/content';
+import { page } from '../../lib/url';
+
+interface Props { items: Insight[]; total: number }
+const { items, total } = Astro.props;
+---
+<section class="press" id="press" data-river="wide">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">06</span>Press</p>
+    <h2 class="rv" data-dot>Press releases</h2>
+    <p class="lede rv">Public announcements in green industries, read for what they can prove.</p>
+    <div class="cards rv">{items.map((it) => <InsightCard item={it} />)}</div>
+    <a class="tlink more rv" href={page('press')}>All {total} press releases<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+  </div>
+</section>

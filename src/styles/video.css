@@ -1,0 +1,22 @@
+/* home: YouTube video band (lite embed; iframe is created on click) */
+.vband h2{font-size:clamp(30px,3.2vw,42px);line-height:1.12;margin-top:12px}
+.vband .lede{margin-top:14px;max-width:56ch;color:var(--muted);font-size:17px}
+.vframe{position:relative;margin-top:32px;aspect-ratio:16/9;width:100%;max-width:100%;border-radius:var(--r-lg);overflow:hidden;background:var(--deep);box-shadow:var(--shadow-card)}
+.vposter,.vbtn{position:absolute;inset:0;display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;color:inherit}
+.vposter img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s var(--ease)}
+.vposter::after,.vbtn::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,48,28,0) 40%,rgba(20,48,28,.45));pointer-events:none}
+.vframe:hover .vposter img{transform:scale(1.03)}
+.vplay,.vbtn::before{position:absolute;left:50%;top:50%;z-index:1;width:clamp(64px,9vw,92px);aspect-ratio:1;margin:calc(clamp(64px,9vw,92px) / -2) 0 0 calc(clamp(64px,9vw,92px) / -2);border-radius:50%;background:var(--gold-light);color:var(--deep);box-shadow:var(--shadow-lift);transition:transform .3s var(--ease),background-color .2s}
+.vplay{display:flex;align-items:center;justify-content:center}
+.vplay svg{width:42%;height:42%;margin-left:6%}
+.vframe:hover .vplay,.vframe:hover .vbtn::before{transform:scale(1.08);background:#e6c96e}
+/* the button draws its own play disc over the link underneath */
+.vbtn::before{content:"";background:var(--gold-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z' fill='%2314301c'/%3E%3C/svg%3E") 54% 50%/42% no-repeat}
+.vbtn[hidden]{display:none}
+.vbtn:focus-visible{outline:3px solid var(--gold-light);outline-offset:-6px;border-radius:var(--r-lg)}
+.vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.vchan{margin-top:24px}
+@media (prefers-reduced-motion:reduce){
+  .vposter img,.vplay,.vbtn::before{transition:none}
+  .vframe:hover .vposter img,.vframe:hover .vplay,.vframe:hover .vbtn::before{transform:none}
+}

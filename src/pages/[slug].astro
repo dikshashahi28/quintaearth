@@ -1,0 +1,21 @@
+---
+// Root-level pages that come from data: the 46 sub-category pages (energy-solar.html, ...), the Insights
+// essays (insight-*.html) and the press desk notes. One route so every pre-revamp URL stays where it was.
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import SubCategoryView from '../components/views/SubCategoryView.astro';
+import ArticleView from '../components/views/ArticleView.astro';
+import { allSubs } from '../data/industries';
+import { getArticles } from '../lib/content';
+
+export const getStaticPaths = (async () => {
+  const subs = allSubs.map((sub) => ({ params: { slug: sub.slug }, props: { kind: 'sub' as const, sub: sub.slug } }));
+  const articles = (await getArticles()).map((article) => ({ params: { slug: article.id }, props: { kind: 'article' as const, article } }));
+  const clash = subs.find((s) => articles.some((a) => a.params.slug === s.params.slug));
+  if (clash) throw new Error(`"${clash.params.slug}" is both a sub-category and an article`);
+  return [...subs, ...articles];
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const props = Astro.props;
+---
+{props.kind === 'sub' ? <SubCategoryView slug={props.sub} /> : <ArticleView article={props.article} />}

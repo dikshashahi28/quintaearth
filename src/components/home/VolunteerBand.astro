@@ -1,0 +1,50 @@
+---
+import '../../styles/volunteer.css';
+import { Image } from 'astro:assets';
+import { photo } from '../../lib/images';
+import { page } from '../../lib/url';
+
+// The five promises from the pre-revamp volunteer section, laid as stepping stones across a stream.
+const stones = [
+  { icon: 'connect', motion: 'm-bounce', line: 'We gather collaborators, startup owners, and anyone walking the same path.' },
+  { icon: 'book', motion: 'm-open', line: 'If you join with us, we will give you free training.' },
+  { icon: 'bulb', motion: 'm-glow', line: 'You can share the work, the ideas, and what you are making in greentech and cleantech.' },
+  { icon: 'sprout', motion: 'm-grow', line: 'No goal requirements.' },
+  { icon: 'basket', motion: 'm-shake', line: 'Joining is totally free. We don’t need any money from you.' },
+];
+---
+<section class="vol" id="volunteer" data-river="wide" aria-labelledby="vol-title">
+  <div class="in wide">
+    <div class="vol-head">
+      <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">08</span>Volunteer</p>
+      <h2 class="rv" id="vol-title" data-dot>Join hands with us for a better life and beautiful future.</h2>
+    </div>
+
+    <figure class="vol-pics rv">
+      <div class="vol-arch">
+        <Image src={photo('planting')} alt="Hands planting seedlings in soil" widths={[480, 760, 1000]} sizes="(max-width: 900px) 92vw, 440px" loading="lazy" />
+      </div>
+      <div class="vol-stone">
+        <Image src={photo('weaver-woman')} alt="A weaver working at a carpet loom" width={176} height={176} densities={[1, 2]} loading="lazy" />
+      </div>
+    </figure>
+
+    <ol class="vol-steps" aria-label="What volunteering with us means">
+      {stones.map((s) => (
+        <li class={`rv ${s.motion}`}>
+          <span class="vs" aria-hidden="true"><svg class="hi"><use href={`#hi-${s.icon}`} /></svg></span>
+          <p>{s.line}</p>
+          <svg class="wade" viewBox="0 0 48 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="w" d="M0 0 C0 50 48 50 48 100" />
+            <path class="r" d="M0 0 C0 50 48 50 48 100" />
+          </svg>
+        </li>
+      ))}
+    </ol>
+
+    <div class="vol-go rv">
+      <span class="vs end" aria-hidden="true"><svg class="hi"><use href="#hi-leaf" /></svg></span>
+      <a class="btn btn-fill" href={page('volunteer')}>Volunteer with us<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+    </div>
+  </div>
+</section>

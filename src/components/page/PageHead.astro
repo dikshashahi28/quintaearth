@@ -1,0 +1,57 @@
+---
+import { absolute, page } from '../../lib/url';
+
+export interface Crumb { label: string; href?: string }
+interface Props {
+  title: string;
+  /** trail after Home; the last item is the current page and is not linked */
+  crumbs: Crumb[];
+  kicker?: string;
+  kickerIcon?: string;
+  /** icon set before the title */
+  icon?: string;
+  lede?: string;
+  facts?: { value: number | string; label: string }[];
+  width?: 'wide' | 'col';
+}
+const { title, crumbs, kicker, kickerIcon = 'sprig', icon, lede, facts = [], width = 'wide' } = Astro.props;
+const trail: Crumb[] = [{ label: 'Home', href: page('index') }, ...crumbs];
+
+// the same trail for search engines; the current page is named by its title and points at its own URL
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: trail.map((c, i) => {
+    const last = i === trail.length - 1;
+    return {
+      '@type': 'ListItem',
+      position: i + 1,
+      name: last ? title : c.label,
+      item: absolute(last || !c.href ? Astro.url.pathname : c.href, Astro.site),
+    };
+  }),
+};
+---
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c')} />
+<header class="page-head">
+  <div class={width}>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        {trail.map((c, i) => (
+          <li>{i < trail.length - 1 && c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>
+        ))}
+      </ol>
+    </nav>
+    {kicker && <p class="kicker"><svg class="hi" aria-hidden="true"><use href={`#hi-${kickerIcon}`} /></svg>{kicker}</p>}
+    <h1>{icon && <svg class="hi" aria-hidden="true"><use href={`#hi-${icon}`} /></svg>}{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    {facts.length > 0 && (
+      <div class="facts-line">{facts.map((f) => <div><b>{f.value}</b><span>{f.label}</span></div>)}</div>
+    )}
+    <slot />
+  </div>
+  <svg class="edge" viewBox="0 0 1440 34" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path class="water" fill="currentColor" d="M0 22 C 240 8, 480 30, 720 18 S 1200 6, 1440 20 L1440 34 L0 34 Z" opacity=".6" />
+    <path fill="currentColor" d="M0 28 C 260 16, 500 34, 760 24 S 1220 14, 1440 26 L1440 34 L0 34 Z" />
+  </svg>
+</header>

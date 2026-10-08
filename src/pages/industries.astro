@@ -1,0 +1,43 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { industries } from '../data/industries';
+import { Image } from 'astro:assets';
+import { getStream, streamBySub } from '../lib/content';
+import { photo } from '../lib/images';
+import { page } from '../lib/url';
+
+const [stream, bySub] = await Promise.all([getStream(), streamBySub()]);
+const subCount = industries.reduce((n, i) => n + i.subs.length, 0);
+const filedIn = (slug: string) => bySub.get(slug)?.length ?? 0;
+---
+<Page title="Industries" description={`Eight green industries and ${subCount} sub-categories, each with the stories filed there.`} current="industries">
+  <PageHead
+    title="Eight industries"
+    crumbs={[{ label: 'Industries' }]}
+    kicker="Industries"
+    lede="Pick a field and follow it. Every sub-category has its own page and the work filed there."
+    facts={[{ value: industries.length, label: 'industries' }, { value: subCount, label: 'sub-categories' }, { value: stream.length, label: 'Insights' }]}
+  />
+  <section class="page-body">
+    <div class="wide">
+      <ul class="ind-grid">
+        {industries.map((ind) => {
+          const total = ind.subs.reduce((n, s) => n + filedIn(s.slug), 0);
+          return (
+            <li class="ind-card rv">
+              <a class={`ind-photo ${ind.motion}`} href={page(`industries-${ind.slug}`)} tabindex="-1" aria-hidden="true">
+                <Image src={photo(ind.image)} alt="" widths={[480, 720, 960]} sizes="(max-width: 900px) calc(100vw - 32px), 520px" loading="lazy" />
+                <span class="badge"><svg class="hi"><use href={`#hi-${ind.icon}`} /></svg>{total} filed</span>
+              </a>
+              <h2><a href={page(`industries-${ind.slug}`)}>{ind.name}</a></h2>
+              <ul class="chips">
+                {ind.subs.map((s) => { const n = filedIn(s.slug); return <li><a class:list={['chip', { has: n > 0 }]} href={page(s.slug)}>{s.name}{n > 0 && <> <i>{n}</i></>}</a></li>; })}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</Page>

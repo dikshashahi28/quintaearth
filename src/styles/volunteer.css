@@ -1,0 +1,98 @@
+/* Volunteer (home 08): five promises laid as stepping stones; a stream wades between them
+   and ends at one gold-rimmed stone beside the call to action. Photo arch on the right. */
+.vol > .in {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  grid-template-areas: "head pics" "steps pics" "go pics";
+  grid-template-rows: auto auto 1fr;
+  column-gap: clamp(40px, 6vw, 96px);
+  align-items: start;
+}
+.vol-head { grid-area: head; }
+.vol h2 {
+  margin-top: 12px; font-size: clamp(32px, 3.8vw, 50px); line-height: 1.14;
+  letter-spacing: -.012em; max-width: 18ch; text-wrap: balance;
+}
+
+/* stepping stones */
+.vol-steps, .vol-go { --s: 56px; --o: 48px; --g: 22px; }
+.vol-steps {
+  grid-area: steps; position: relative; margin-top: clamp(32px, 4vw, 48px);
+  display: grid; row-gap: var(--g);
+}
+.vol-steps li {
+  position: relative; display: grid; grid-template-columns: calc(var(--s) + var(--o)) minmax(0, 1fr);
+  column-gap: 16px; align-items: start;
+}
+.vs {
+  position: relative; z-index: 1; width: var(--s); height: var(--s); border-radius: 50%;
+  display: grid; place-items: center; background: #fff; border: 2px solid var(--river); color: var(--river);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), background-color .3s;
+}
+.vs .hi { width: 1.7em; height: 1.7em; }
+.vol-steps li:nth-child(even) .vs { justify-self: end; }
+.vol-steps li:hover .vs { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(20, 48, 28, .16); background: var(--shallow); }
+.vol-steps p {
+  padding-top: calc(var(--s) / 2 - .78em); max-width: 40ch;
+  font-size: 17px; line-height: 1.55; color: var(--text);
+}
+
+/* the stream from one stone to the next (and from the last stone to the gold one) */
+.wade {
+  position: absolute; z-index: 0; left: calc(var(--s) / 2); top: calc(var(--s) / 2);
+  width: var(--o); height: calc(100% + var(--g)); overflow: visible; pointer-events: none;
+}
+.vol-steps li:nth-child(even) .wade { transform: scaleX(-1); }
+.wade path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.wade .w { stroke: var(--water); stroke-width: 10; }
+.wade .r { stroke: var(--river); stroke-width: 1.5; opacity: .45; }
+
+/* the far bank: a gold stone, then the button */
+.vol-go {
+  grid-area: go; margin-top: var(--g);
+  display: grid; grid-template-columns: calc(var(--s) + var(--o)) auto; column-gap: 16px;
+  align-items: center; justify-content: start;
+}
+.vs.end { justify-self: end; border-color: var(--gold); background: var(--gold); color: #fff; }
+.vs.end::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid var(--gold); opacity: .4; }
+.vol-go:has(.btn:hover) .vs.end { transform: scale(1.06); }
+
+/* photos: an arch of hands at work, a round stone of craft on its edge */
+.vol-pics { grid-area: pics; position: relative; justify-self: end; width: 100%; max-width: 440px; margin-bottom: 36px; }
+.vol-arch {
+  aspect-ratio: 4 / 5; overflow: hidden; background: var(--shallow);
+  border-radius: 999px 999px var(--r) var(--r);
+}
+.vol-arch img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.vol-pics:hover .vol-arch img { transform: scale(1.04); }
+.vol-stone {
+  position: absolute; left: -36px; bottom: -36px; width: 132px; height: 132px; padding: 6px;
+  border-radius: 50%; background: #fff; border: 2px solid var(--river);
+}
+.vol-stone img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+@media (max-width: 1179px) {
+  .vol-stone { left: -20px; }
+}
+@media (max-width: 900px) {
+  .vol > .in {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "pics" "steps" "go";
+    grid-template-rows: auto;
+  }
+  .vol-pics { justify-self: start; max-width: 560px; margin: 32px 0 28px; }
+  .vol-arch { aspect-ratio: 4 / 3; border-radius: 280px 280px var(--r) var(--r); }
+  .vol-stone { left: auto; right: 14px; bottom: -28px; width: 104px; height: 104px; padding: 5px; }
+}
+@media (max-width: 640px) {
+  .vol-steps, .vol-go { --s: 48px; --o: 28px; --g: 18px; }
+  .vol-steps li, .vol-go { column-gap: 12px; }
+  .vs .hi { width: 1.5em; height: 1.5em; }
+  .vol-steps p { font-size: 16px; max-width: none; }
+  .vol-stone { width: 88px; height: 88px; padding: 4px; right: 10px; bottom: -24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs, .vol-arch img { transition: none; }
+  .vol-steps li:hover .vs, .vol-go:has(.btn:hover) .vs.end { transform: none; }
+  .vol-pics:hover .vol-arch img { transform: none; }
+}

@@ -1,0 +1,36 @@
+---
+import HeroScene from './HeroScene.astro';
+import { page } from '../../lib/url';
+
+interface Props {
+  facts: { icon: string; count: number; label: string; href: string }[];
+}
+const { facts } = Astro.props;
+// the word in the headline turns through who the hub is for; the slot is sized to the widest word
+const words = ['everyone', 'scholars', 'founders', 'companies', 'CSR teams', 'makers'];
+---
+<section class="hero" data-river="start">
+  <HeroScene />
+  <div class="in">
+    <div class="copy">
+      <p class="kicker"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg>Sustainability, green tech and clean tech</p>
+      <h1>One hub for <span class="rot" id="rot" data-words={JSON.stringify(words)}>{words[0]}</span> in sustainability</h1>
+      <p class="sub">Read what is changing in each green industry, meet the people doing the work, and follow your own field.</p>
+      <div class="cta">
+        <a class="btn btn-fill" href="#industries">Browse industries<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        <a class="btn btn-line" href={page('about')}>What is QuintaEarth</a>
+      </div>
+      <nav class="facts" aria-label="The hub in numbers">
+        {facts.map((f) => (
+          <a class="fact" href={f.href}><svg class="hi" aria-hidden="true"><use href={`#hi-${f.icon}`} /></svg><b>{f.count}</b>{f.label}</a>
+        ))}
+      </nav>
+    </div>
+  </div>
+  <div class="source"><span class="bead" data-start></span></div>
+</section>
+
+<script>
+  import { initRotatingWord } from '../../scripts/hero';
+  initRotatingWord();
+</script>
