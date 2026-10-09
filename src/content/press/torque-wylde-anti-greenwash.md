@@ -8,6 +8,7 @@ image: "../../assets/articles/torque-wylde-anti-greenwash.jpg"
 imageAlt: "Professionals reviewing documents together, suggesting evidence-led communications"
 imageCredit: { label: "Amy Hirschi via Unsplash/Pexels — free license; illustrative only, not agency branding", href: "https://unsplash.com/photos/gMsnXqILymA" }
 subs: []
+companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true
 sources:
   - "https://www.torqueagencygroup.com/news/torque-partners-with-sustainability-consultancy-to-help-businesses-reduce-greenwashing-risk"

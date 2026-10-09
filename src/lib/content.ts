@@ -29,6 +29,29 @@ export async function getStories(): Promise<Story[]> {
 /** "Siemens Gamesa Renewable Energy (part of Siemens Energy AG), Bilbao" -> "Siemens Gamesa Renewable Energy" */
 export const shortCompany = (company: string): string => company.replace(/\s*\([^)]*\)/g, '').split(',')[0]!.trim();
 
+// legal forms dropped from the end of a company name on cards: "Waaree Energies Ltd" -> "Waaree Energies"
+const LEGAL_FORM = /(?:\s+(?:Pvt\.?\s+Ltd\.?|Private Limited|Ltd\.?|Limited|GmbH(?:\s*&\s*Co\.?\s*KG)?|AG|SE|SA|S\.A\.|S\.p\.A\.|SpA|Srl|S\.r\.l\.|Oyj|Oy|ApS|A\/S|AS|AB|NV|N\.V\.|B\.V\.|BV|Inc\.?|Corp\.?|Corporation|plc|PLC|Plc|LLC|Pty|ASA|SL|SAS|PBC|hf\.|sp\. z o\.o\.|Co\.))+$/;
+
+/**
+ * The name a card shows for a story's company: its `brand` when set, else the short name before any
+ * ";" note, without its legal form. "Heidelberg Materials AG (Heidelberg); Brevik plant" -> "Heidelberg Materials".
+ */
+export function brandOf(story: Story): string {
+  if (story.data.brand) return story.data.brand;
+  const short = shortCompany(story.data.company).split(';')[0]!.trim();
+  return short.replace(LEGAL_FORM, '').trim() || short;
+}
+
+// words too common to prove a title names the company
+const GENERIC = new Set(['group', 'technologies', 'technology', 'energy', 'energies', 'solutions', 'systems', 'international', 'industries', 'global', 'medical', 'india', 'indian', 'holdings', 'company', 'space', 'water', 'carbon', 'power', 'climate', 'green', 'clean', 'solar', 'wind', 'living', 'sciences', 'science', 'secure', 'thermal', 'mobility', 'motors', 'computer', 'robotics', 'recycling', 'materials', 'nuclear', 'isotope', 'engineering', 'innovation', 'aerospace', 'medical']);
+
+/** True when a story title already carries a distinctive word of the brand: "Waaree ELITE R" names Waaree Energies. */
+export function titleNames(title: string, brand: string): boolean {
+  const tokens = (s: string) => s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+  const words = new Set(tokens(title));
+  return tokens(brand).some((w) => w.length >= 3 && !GENERIC.has(w) && words.has(w));
+}
+
 /** Story slug used in URLs: the file name, without folders. */
 export const storySlug = (s: Story): string => s.id.split('/').pop()!;
 
@@ -50,6 +73,8 @@ export interface Insight {
   dek: string;
   href: string;
   sdgs: number[];
+  /** companies the piece is about, by short name */
+  companies: string[];
   /** sub-category slugs; empty for pieces filed across all industries */
   subs: string[];
   /** "Energy · Solar energy", or the essay's thread when it has no sub-category */
@@ -68,10 +93,11 @@ const whereOf = (subs: string[], fallback: string) => {
 
 export function storyToInsight(s: Story): Insight {
   const img = storyImage(storySlug(s));
+  const brand = brandOf(s);
   return {
     id: s.id, kind: 'story', label: 'Insight',
     title: s.data.title, dek: s.data.dek[0] ?? '', href: page(`stories/${storySlug(s)}`),
-    sdgs: s.data.sdgs, subs: [s.data.sub], where: whereOf([s.data.sub], ''),
+    sdgs: s.data.sdgs, companies: titleNames(s.data.title, brand) ? [] : [brand], subs: [s.data.sub], where: whereOf([s.data.sub], ''),
     minutes: readMinutes(s.body),
     image: img && s.data.image ? { src: img, alt: s.data.image.alt } : undefined,
   };
@@ -82,7 +108,7 @@ export function articleToInsight(a: Article): Insight {
   return {
     id: a.id, kind: essay ? 'essay' : 'press', label: essay ? 'Insight' : 'Press',
     title: a.data.title, dek: a.data.description, href: page(a.id),
-    sdgs: a.data.sdgs, subs: a.data.subs,
+    sdgs: a.data.sdgs, companies: a.data.companies, subs: a.data.subs,
     where: whereOf(a.data.subs, a.data.euRules ? 'EU green-claims rules' : a.data.topic),
     date: a.data.date, minutes: readMinutes(a.body),
     image: { src: a.data.image, alt: a.data.imageAlt },

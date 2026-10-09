@@ -24,6 +24,8 @@ const article = ({ image }: SchemaContext) => z.object({
   euRules: z.boolean().default(false),
   /** the company project this piece belongs to, shown on Our Work */
   project: z.string().optional(),
+  /** companies the piece is about, as named on their company page (the story library's short names) */
+  companies: z.array(z.string()).default([]),
   sources: z.array(z.url()).default([]),
   note: z.string().optional(),
 });
@@ -49,6 +51,8 @@ const stories = defineCollection({
     dateline: z.string().optional(),
     sub: z.enum(subSlugs),
     company: z.string(),
+    /** the name shown on cards when the company line is not a clean name ("John Deere", "Heaten") */
+    brand: z.string().optional(),
     product: z.string(),
     country: z.string(),
     launchDate: z.string().optional(),

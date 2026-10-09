@@ -9,6 +9,7 @@ imageAlt: "Artisan leather workshop tools and hides suggesting material origin w
 imageCredit: { label: "Laura Chouette via Unsplash/Pexels — free license; not a Ferragamo or AP News image", href: "https://unsplash.com/photos/8e0EHPIy0Zc" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
+companies: ["Ferragamo"]
 sources:
   - "https://apnews.com/article/ferragamo-sustainable-fashion-italy-leather-2c68927c33dfc5bd147af3d0fe1701bc"
   - "https://leatherbiz.com/News/175025"

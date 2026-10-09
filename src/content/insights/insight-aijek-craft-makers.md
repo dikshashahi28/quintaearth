@@ -9,6 +9,7 @@ imageAlt: "Artisan embroidery on natural cloth suggesting kerawang-style cutwork
 imageCredit: { label: "rawpixel via Unsplash — license as stated; illustrative craft only, not Aijek products", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
+companies: ["Aijek"]
 sources:
   - "https://www.straitstimes.com/life/style/multi-million-dollar-spore-fashion-brand-aijek-relaunches-after-7-year-hiatus"
   - "https://e.vnexpress.net/news/business/companies/singapore-fashion-brand-aijek-returns-after-7-year-hiatus-5119226.html"

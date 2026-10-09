@@ -9,6 +9,7 @@ imageAlt: "Recycled polymer flakes or yarn cones suggesting circular textile fee
 imageCredit: { label: "Nareeta Martin via Unsplash/Pexels — free license; not Indorama/KH campaign art", href: "https://unsplash.com/photos/_H6wpor9mjs" }
 subs: ["materials-circular-materials"]
 project: "Indorama Ventures and KH Editions at NYFW"
+companies: ["Indorama Ventures", "KH Editions"]
 sources:
   - "https://beta.indoramaventures.com/news/press-releases/indorama-ventures-supports-kh-editions-in-building-on-its-reco-experience-taking-thai-circular-fashion-to-new-york-fashion-week"
   - "https://textilesouthasia.com/2026/09/12/indorama-ventures-supports-kh/"

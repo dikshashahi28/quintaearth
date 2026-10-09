@@ -9,6 +9,7 @@ imageAlt: "Waterway or shoreline suggesting plastic pollution recovery work"
 imageCredit: { label: "Brian Yurasits via Unsplash — free/open license; not The Ocean Cleanup campaign stills", href: "https://unsplash.com/photos/0a97-KD0xaw" }
 subs: ["tech-ocean"]
 project: "Confiance river plastic clean-up"
+companies: ["The Ocean Cleanup", "Confiance Communications"]
 sources:
   - "https://www.medianews4u.com/confiance-communications-wins-india-pr-mandate-for-the-ocean-cleanup/"
   - "https://www.campaignindia.in/article/confiance-communications-wins-the-ocean-cleanup-india-pr-mandate/417ph937fg3zbzsmkhr6f2mb4s"

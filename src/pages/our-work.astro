@@ -31,7 +31,7 @@ for (const a of await getArticles()) {
           <h2 id={`project-${i}`}>{name}</h2>
           <ul class="chips">{[...new Set(items.flatMap((a) => a.data.subs))].map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}</ul>
         </div>
-        <div class="cards">{items.map((a) => <InsightCard item={articleToInsight(a)} />)}</div>
+        <div class="cards">{items.map((a) => <InsightCard item={articleToInsight(a)} showCompany={false} />)}</div>
       </div>
     </section>
   ))}

@@ -8,6 +8,7 @@ image: "../../assets/articles/insight-le-meridien-patemar-plastic-bank.jpg"
 imageAlt: "Turquoise atoll lagoon suggesting ocean-conscious travel context"
 imageCredit: { label: "Ishan @seefromthesky via Unsplash/Pexels — free license; not Marriott/Patémar campaign", href: "https://unsplash.com/photos/tGGtvZHBpEI" }
 subs: ["materials-recyclable-products"]
+companies: ["Le Méridien Maldives Resort & Spa", "Patémar", "Plastic Bank"]
 sources:
   - "https://travelprnews.com/le-meridien-maldives-brings-patemar-recycled-plastic-swimwear-to-its-island-resort/travel-press-release/2026/09/09/"
   - "https://visitmaldives.com/en/news/from-shore-to-shorts-le-mridien-maldives-resort-spa-and-patmar-bring-ocean-conscious-resortwear-to-the-maldives"

@@ -5,6 +5,7 @@ dek:
 dateline: Technology / Agriculture. Moline, Illinois, United States. Select launched 2021; Gen 2 announced January 2026.
 sub: tech-agriculture
 company: Deere & Company (John Deere), NYSE DE
+brand: John Deere
 product: See & Spray, boom-mounted cameras and machine learning that switch individual nozzles on only where weeds are detected; unified as See & Spray Gen 2 for model year 2027
 country: United States
 launchDate: 2021 (See & Spray Select); 7 Mar 2022 (Ultimate); Nov 2022 (European version shown at SIMA); Jan 2026 (Gen 2 for model year 2027)
