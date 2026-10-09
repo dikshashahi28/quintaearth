@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dikshashahi28.github.io/quintaearth/sitemap.xml
+Sitemap: https://quintaearth.com/sitemap.xml
