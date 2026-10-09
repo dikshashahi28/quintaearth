@@ -11,7 +11,8 @@
 .crumbs li + li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--reed); }
 .crumbs a { display: inline-flex; align-items: center; min-height: 32px; color: var(--muted); text-decoration: none; }
 .crumbs a:hover { color: var(--river); text-decoration: underline; text-underline-offset: 4px; }
-.crumbs [aria-current] { color: var(--deep); }
+.crumbs [aria-current] { display: inline-flex; align-items: center; color: var(--deep); }
+.crumbs .hi { width: 1.3em; height: 1.3em; margin-right: 5px; color: var(--gold); }
 .page-head .kicker { margin-top: 22px; }
 .page-head h1 { margin-top: 12px; font-size: clamp(38px, 4.6vw, 64px); line-height: 1.06; letter-spacing: -.015em; max-width: 22ch; }
 .page-head .col h1 { font-size: clamp(32px, 3.4vw, 50px); line-height: 1.12; max-width: none; }
