@@ -6,7 +6,7 @@ topic: "Sustainable development"
 sdgs: [8, 12, 15]
 image: "../../assets/articles/insight-ferragamo-traceability-makers.jpg"
 imageAlt: "Leather workshop interior suggesting supply-chain origin work"
-imageCredit: { label: "Joseph Gonzalez via Unsplash/Pexels — free license; not Ferragamo imagery", href: "https://unsplash.com/photos/aXXW355tfDQ" }
+imageCredit: { label: "Joseph Gonzalez / Unsplash (not Ferragamo imagery)", href: "https://unsplash.com/photos/aXXW355tfDQ" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
 companies: ["Ferragamo"]

@@ -21,7 +21,6 @@ const next = industries[i + 1];
     title={ind.name}
     icon={ind.icon}
     crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name }]}
-    kicker={`Industry ${i + 1} of ${industries.length}`}
     facts={[{ value: ind.subs.length, label: 'sub-categories' }, { value: ids.size, label: 'Insights' }]}
   >
     <ul class="chips jump" aria-label="Jump to a sub-category">

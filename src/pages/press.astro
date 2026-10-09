@@ -11,8 +11,6 @@ const press = (await getPress()).map(articleToInsight);
   <PageHead
     title="Press releases"
     crumbs={[{ label: 'Press' }]}
-    kicker="Press desk"
-    kickerIcon="leaf"
     lede="Public announcements in green industries, read for what they can prove."
     facts={[{ value: press.length, label: 'desk notes' }]}
   />

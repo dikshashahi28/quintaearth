@@ -6,7 +6,7 @@ topic: "Press"
 sdgs: [12, 13, 16]
 image: "../../assets/articles/empco-eu-green-claims-sep-2026.jpg"
 imageAlt: "Close-up of a product label in soft natural light, suggesting claim substantiation"
-imageCredit: { label: "Laura Chouette via Unsplash/Pexels — free license; not affiliated with QuintaEarth or any cited brand", href: "https://unsplash.com/photos/koy6FlCCy5s" }
+imageCredit: { label: "Laura Chouette / Unsplash (not a cited brand’s image)", href: "https://unsplash.com/photos/koy6FlCCy5s" }
 subs: []
 euRules: true
 sources:

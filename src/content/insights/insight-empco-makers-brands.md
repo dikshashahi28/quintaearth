@@ -6,7 +6,7 @@ topic: "Greentech"
 sdgs: [12, 13, 16]
 image: "../../assets/articles/insight-empco-makers-brands.jpg"
 imageAlt: "Hands checking a textile label, suggesting claim substantiation in making"
-imageCredit: { label: "Marcus Loke via Unsplash/Pexels — free license", href: "https://unsplash.com/photos/mEZ3PoFGs_k" }
+imageCredit: { label: "Marcus Loke / Unsplash", href: "https://unsplash.com/photos/mEZ3PoFGs_k" }
 subs: []
 euRules: true
 sources:

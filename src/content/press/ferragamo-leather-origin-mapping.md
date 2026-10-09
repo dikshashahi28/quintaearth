@@ -6,7 +6,7 @@ topic: "Press"
 sdgs: [8, 12, 15]
 image: "../../assets/articles/ferragamo-leather-origin-mapping.jpg"
 imageAlt: "Artisan leather workshop tools and hides suggesting material origin work"
-imageCredit: { label: "Laura Chouette via Unsplash/Pexels — free license; not a Ferragamo or AP News image", href: "https://unsplash.com/photos/8e0EHPIy0Zc" }
+imageCredit: { label: "Laura Chouette / Unsplash (not a Ferragamo or AP News image)", href: "https://unsplash.com/photos/8e0EHPIy0Zc" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
 companies: ["Ferragamo"]

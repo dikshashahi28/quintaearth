@@ -6,7 +6,7 @@ topic: "Greentech"
 sdgs: [12, 13, 16]
 image: "../../assets/articles/insight-empco-vs-green-claims-directive.jpg"
 imageAlt: "Forked path or institutional building suggesting two different EU rule tracks"
-imageCredit: { label: "Veeterzy via Unsplash — license as stated; illustrative policy clarity", href: "https://unsplash.com/photos/iOPsGlfe3tY" }
+imageCredit: { label: "Veeterzy / Unsplash", href: "https://unsplash.com/photos/iOPsGlfe3tY" }
 subs: []
 euRules: true
 sources:

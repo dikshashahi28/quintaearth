@@ -6,7 +6,7 @@ topic: "Press"
 sdgs: [8, 12, 15]
 image: "../../assets/articles/singapore-aijek-relaunch-biodegradable.jpg"
 imageAlt: "Natural plant-fibre fabric with delicate cutwork embroidery in soft light"
-imageCredit: { label: "Lauren Fleischmann via Unsplash/Pexels — free license; illustrative craft textile only", href: "https://unsplash.com/photos/R2aodqJn3b8" }
+imageCredit: { label: "Lauren Fleischmann / Unsplash", href: "https://unsplash.com/photos/R2aodqJn3b8" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
 companies: ["Aijek"]

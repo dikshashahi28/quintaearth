@@ -23,9 +23,7 @@ const description = items.length
 <Page title={`${sub.name} · ${ind.name}`} description={description} current="industries">
   <PageHead
     title={sub.name}
-    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, href: page(`industries-${ind.slug}`) }, { label: sub.name }]}
-    kicker={ind.name}
-    kickerIcon={ind.icon}
+    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name }]}
     facts={[{ value: items.length, label: items.length === 1 ? 'Insight' : 'Insights' }, { value: goals.size, label: 'UN goals' }]}
   />
 

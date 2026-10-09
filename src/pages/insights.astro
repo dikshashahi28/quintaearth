@@ -16,8 +16,6 @@ const euCount = items.filter((it) => !it.subs.length).length;
   <PageHead
     title="Insights"
     crumbs={[{ label: 'Insights' }]}
-    kicker="Learn"
-    kickerIcon="book"
     lede="What companies in each green industry are making, the evidence behind it, and the rules that shape it."
     facts={[{ value: items.length, label: 'Insights' }, { value: industries.length, label: 'industries' }, { value: goals.filter((g) => goalCount(g.n)).length, label: 'UN goals' }]}
   />

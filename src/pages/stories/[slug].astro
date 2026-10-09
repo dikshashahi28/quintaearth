@@ -58,9 +58,7 @@ const facts = [
 <Page title={data.title} description={description} imageUrl={share?.src} type="article" jsonLd={[ld]} current="industries">
   <PageHead
     title={data.title}
-    crumbs={[{ label: ind.name, href: page(`industries-${ind.slug}`) }, { label: sub.name, href: page(sub.slug) }, { label: 'Insight' }]}
-    kicker={`${ind.name} · ${sub.name}`}
-    kickerIcon={ind.icon}
+    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name, href: page(sub.slug) }, { label: 'Insight' }]}
     width="col"
   >
     {data.dek.map((line) => <p class="dek">{line}</p>)}

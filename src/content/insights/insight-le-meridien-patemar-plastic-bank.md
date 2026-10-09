@@ -6,7 +6,7 @@ topic: "Sustainable development"
 sdgs: [12, 13, 14]
 image: "../../assets/articles/insight-le-meridien-patemar-plastic-bank.jpg"
 imageAlt: "Turquoise atoll lagoon suggesting ocean-conscious travel context"
-imageCredit: { label: "Ishan @seefromthesky via Unsplash/Pexels — free license; not Marriott/Patémar campaign", href: "https://unsplash.com/photos/tGGtvZHBpEI" }
+imageCredit: { label: "Ishan @seefromthesky / Unsplash (not Marriott/Patémar campaign)", href: "https://unsplash.com/photos/tGGtvZHBpEI" }
 subs: ["materials-recyclable-products"]
 companies: ["Le Méridien Maldives Resort & Spa", "Patémar", "Plastic Bank"]
 sources:

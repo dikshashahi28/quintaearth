@@ -262,6 +262,7 @@
 .pool .qr{display:flex;align-items:center;gap:14px;margin-top:18px;font-size:14px;color:var(--muted)}
 .pool .follow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:22px;font-size:15px;color:var(--muted)}
 .pool .follow a{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;text-decoration:none}
+.pool .follow span{display:inline-flex;align-items:center}
 .pool .follow a:hover{text-decoration:underline;text-underline-offset:4px}
 .pool .qr img{width:72px;height:72px;border-radius:8px;border:1px solid var(--hair)}
 

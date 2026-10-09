@@ -6,7 +6,7 @@ topic: "Greentech"
 sdgs: [12, 13, 17]
 image: "../../assets/articles/insight-torque-wylde-proof-comms.jpg"
 imageAlt: "Team reviewing plans together, suggesting strategy and communications alignment"
-imageCredit: { label: "Campaign Creators via Unsplash/Pexels — free license; illustrative", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
+imageCredit: { label: "Campaign Creators / Unsplash", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
 subs: []
 companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true
