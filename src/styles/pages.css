@@ -8,7 +8,7 @@
 .page-head .edge .water { color: var(--water); }
 .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 14px; color: var(--muted); }
 .crumbs li { display: inline-flex; align-items: center; gap: 8px; }
-.crumbs li + li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--reed); }
+.crumbs li:not(:last-child)::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--reed); }
 .crumbs a { display: inline-flex; align-items: center; min-height: 32px; color: var(--muted); text-decoration: none; }
 .crumbs a:hover { color: var(--river); text-decoration: underline; text-underline-offset: 4px; }
 .crumbs [aria-current] { display: inline-flex; align-items: center; color: var(--deep); }
@@ -53,14 +53,14 @@
 .lead-figure figcaption a { color: inherit; }
 
 .glance { margin-top: clamp(28px, 4vw, 40px); padding: 22px 24px; border-radius: var(--r-lg); background: var(--sky); border: 1px solid var(--shallow); }
-.glance h2 { display: flex; align-items: center; gap: 8px; font: 600 13px/1.4 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--river-deep); }
+.glance h2 { display: flex; align-items: center; gap: 8px; font: 600 15px/1.4 var(--font-body); color: var(--river-deep); }
 .glance h2 .hi { color: var(--gold); width: 1.5em; height: 1.5em; }
 .glance dl { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 14px 0 0; }
 .glance dt { font-weight: 600; font-size: 15px; color: var(--deep); }
 .glance dd { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--text); }
 
 .article-foot { margin-top: clamp(40px, 5vw, 56px); padding-top: 28px; border-top: 1px solid var(--hair); display: grid; gap: 28px; }
-.article-foot h2 { font: 600 13px/1.4 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--river-deep); }
+.article-foot h2 { font: 600 15px/1.4 var(--font-body); color: var(--river-deep); }
 .article-foot h2 + * { margin-top: 12px; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .links a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-weight: 500; }
@@ -253,7 +253,7 @@
 .ways a:hover { border-color: var(--river); background: var(--sky); }
 .ways .ic { width: 22px; height: 22px; color: var(--river); }
 .ways span { display: grid; gap: 2px; min-width: 0; font-size: 15.5px; line-height: 1.35; }
-.ways b { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--river-deep); }
+.ways b { font-size: 14px; font-weight: 600; color: var(--river-deep); }
 
 /* volunteer: phone number with a searchable country code */
 .phone { position: relative; display: flex; }

@@ -176,7 +176,9 @@ Density is low and editorial. Sections are separated by generous vertical air ra
 
 The world was pinned by the user (Riverline artifact liked 8 Oct 2026) and shipped as a code-led refinement. It replaced the Environs Bootstrap template across the whole site in the 9 Oct 2026 Astro rebuild.
 
-Where it lives: the shWhere it lives: the Astro site in `src/` (homepage `src/pages/index.astro`, sections in `src/components/home/`, inner pages through `src/components/page/PageHead.astro` and `src/components/views/`). `samples/riverline/index.html` is the original comp. The homepage grew from the comp's six numbered sections to ten (Press, YouTube, Volunteer and Collaborators came over from the old site in the rebuild). Inner pages open with a breadcrumb and title; numbered kickers stay on the homepage only.s:**
+Where it lives: the Astro site in `src/` (homepage `src/pages/index.astro`, sections in `src/components/home/`, inner pages through `src/components/page/PageHead.astro` and `src/components/views/`). `samples/riverline/index.html` is the original comp. The homepage grew from the comp's six numbered sections to ten (Press, YouTube, Volunteer and Collaborators came over from the old site in the rebuild). Inner pages open with a breadcrumb and title; numbered kickers stay on the homepage only.
+
+**Key Characteristics:**
 - White page, sky hero, one deep-green band; no other section fills.
 - A drawn river rail with gold beads is the page's spine and its progress indicator.
 - Green does the work; gold marks arrival and is never body text.
@@ -332,7 +334,6 @@ One easing for everything: `cubic-bezier(.22, 1, .36, 1)`. Blocks reveal by fadi
 - **Do** use Material Symbols Rounded (weight 400, filled) for content icons, with the `hi-*` symbol ids and a `m-*` hover motion per icon; keep the filled UI set only for arrows, carets, menu and social marks.
 - **Do** give every interactive element a 44px minimum hit area and the 2px River Green focus ring.
 - **Do** stop all loops and draw the river complete under reduced motion.
-- **Do** change `ROOT` and every `../../` prefix when the page moves out of `samples/riverline/`.
 
 ### Don't:
 - **Don't** use orange or any warm accent other than gold (user decision, 8 Oct 2026).
