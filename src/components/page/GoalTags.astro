@@ -1,0 +1,25 @@
+---
+import '../../styles/cards.css';
+import { goalByNumber } from '../../data/sdgs';
+import { page } from '../../lib/url';
+
+interface Props {
+  sdgs: number[];
+  /** compact: numbered dots for cards; full: number and goal name for article heads */
+  variant?: 'compact' | 'full';
+}
+const { sdgs, variant = 'full' } = Astro.props;
+const goals = sdgs.map((n) => goalByNumber.get(n)).filter((g) => g !== undefined);
+---
+{goals.length > 0 && (
+  <ul class:list={['goals', variant]} aria-label="UN Sustainable Development Goals">
+    {variant === 'compact' && <li class="goals-label" aria-hidden="true">SDG</li>}
+    {goals.map((g) => (
+      <li>
+        <a class="goal" href={page(`sdgs/goal-${g.n}`)} title={variant === 'compact' ? `Goal ${g.n}: ${g.title}` : undefined}>
+          <b>{g.n}</b>{variant === 'full' ? g.title : <span class="sr">Goal {g.n}: {g.title}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}

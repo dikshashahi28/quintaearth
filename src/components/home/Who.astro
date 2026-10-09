@@ -1,0 +1,35 @@
+---
+import { site } from '../../data/site';
+import { Image } from 'astro:assets';
+import { photo } from '../../lib/images';
+import { page } from '../../lib/url';
+
+const stones = [
+  { img: 'tea-path', alt: 'Workers walking a path between tea bushes', title: 'Scholars and students', line: 'Insights and press notes, filed by industry.', icon: 'book', cta: 'Start with Insights', href: page('insights') },
+  { img: 'people-circle', alt: 'A group of people gathered closely in conversation', title: 'Founders and professionals', line: 'A free community of people doing the same work.', icon: 'connect', cta: 'Join the community', href: site.whatsapp, external: true },
+  { img: 'pipes-street', alt: 'Industrial pipes stacked along a street', title: 'Companies and exporters', line: 'Show your green work, each claim linked to proof.', icon: 'frame', cta: 'Show your work', href: page('our-work') },
+  { img: 'planting', alt: 'Hands planting seedlings in soil', title: 'CSR teams and NGOs', line: 'CSR that goes beyond charity and plantations.', icon: 'sprout', cta: 'How we help with CSR', href: '#csr' },
+  { img: 'weaver-woman', alt: 'A weaver working at a carpet loom', title: 'Makers and volunteers', line: 'Craft and clean-up projects that need hands.', icon: 'reed', cta: 'Volunteer with us', href: page('volunteer') },
+];
+---
+<section class="who" id="who" data-river="stones">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">01</span>Who it is for</p>
+    <h2 class="rv">Five kinds of people, one river</h2>
+    <p class="lede rv">Whatever your part in sustainability, there is a stop here for you.</p>
+    <div class="stones">
+      <ul id="stones">
+        {stones.map((s) => (
+          <li class="rv">
+            <span class="stone" data-stop><Image src={photo(s.img)} alt={s.alt} width={216} height={216} densities={[1, 2]} loading="lazy" /></span>
+            <h3>{s.title}</h3>
+            <p>{s.line}</p>
+            <a class="tag" href={s.href} {...(s.external ? { target: '_blank', rel: 'noopener' } : {})}>
+              <svg class="hi" aria-hidden="true"><use href={`#hi-${s.icon}`} /></svg>{s.cta}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,48 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import InsightCard from '../components/page/InsightCard.astro';
+import { getSub } from '../data/industries';
+import { site } from '../data/site';
+import { type Article, articleToInsight, getArticles } from '../lib/content';
+import { page } from '../lib/url';
+
+// a project is every essay and press note that names the same company project
+const projects = new Map<string, Article[]>();
+for (const a of await getArticles()) {
+  if (!a.data.project) continue;
+  projects.set(a.data.project, [...(projects.get(a.data.project) ?? []), a]);
+}
+---
+<Page title="Our work" description="Company projects QuintaEarth has filed, each with the essays and press notes behind it.">
+  <PageHead
+    title="Our work"
+    crumbs={[{ label: 'Our work' }]}
+    kicker="Showcase"
+    kickerIcon="frame"
+    lede="Green work by companies, startups and NGOs, each claim linked to its proof."
+    facts={[{ value: projects.size, label: 'company projects' }]}
+  />
+  {[...projects].map(([name, items], i) => (
+    <section class="page-body project" aria-labelledby={`project-${i}`}>
+      <div class="wide">
+        {i > 0 && <hr class="rule">}
+        <div class="section-title">
+          <h2 id={`project-${i}`}>{name}</h2>
+          <ul class="chips">{[...new Set(items.flatMap((a) => a.data.subs))].map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}</ul>
+        </div>
+        <div class="cards">{items.map((a) => <InsightCard item={articleToInsight(a)} />)}</div>
+      </div>
+    </section>
+  ))}
+  <section class="page-body">
+    <div class="col">
+      <div class="callout">
+        <h2>Show your green work</h2>
+        <p>Companies, exporters and NGOs: tell us what you have made and the evidence behind it.</p>
+        <a class="btn btn-fill" href={page('contact', 'partner')}>Partner with us<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        <p class="mail">Startups and professionals in the same field: <a href={page('contact', 'partner', { source: 'collaborators' })}>join as a collaborator</a>, or write to <a href={`mailto:${site.email}`}>{site.email}</a></p>
+      </div>
+    </div>
+  </section>
+</Page>

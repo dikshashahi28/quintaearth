@@ -1,0 +1,40 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { goalReading, goals } from '../data/sdgs';
+import { getStream } from '../lib/content';
+import { page } from '../lib/url';
+
+const stream = await getStream({ press: true });
+const tagged = (n: number) => stream.filter((it) => it.sdgs.includes(n)).length;
+---
+<Page title="UN Sustainable Development Goals" description="The 17 UN Sustainable Development Goals, and every QuintaEarth Insight tagged with each.">
+  <PageHead
+    title="The 17 UN goals"
+    crumbs={[{ label: 'UN goals' }]}
+    kicker="Sustainable Development Goals"
+    kickerIcon="planet"
+    lede="Every Insight and press note on QuintaEarth is tagged with the goals it serves. Pick a goal to read them."
+  />
+  <section class="page-body">
+    <div class="wide">
+      <ol class="goal-grid">
+        {goals.map((g) => {
+          const n = tagged(g.n);
+          return (
+            <li id={`goal-${g.n}`} class="goal-card">
+              <span class="num">{g.n}</span>
+              <h2><a href={page(`sdgs/goal-${g.n}`)}>{g.title}</a></h2>
+              <p>{g.line}</p>
+              <p class="tally">{n ? `${n} ${n === 1 ? 'Insight' : 'Insights'}` : 'Nothing tagged yet'}</p>
+            </li>
+          );
+        })}
+      </ol>
+      <div class="reading">
+        <h2>Further reading</h2>
+        <ul>{goalReading.map((r) => <li><a href={r.href} target="_blank" rel="noopener">{r.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg></a></li>)}</ul>
+      </div>
+    </div>
+  </section>
+</Page>

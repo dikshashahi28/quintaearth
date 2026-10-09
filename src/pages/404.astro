@@ -1,0 +1,26 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { industries } from '../data/industries';
+import { page } from '../lib/url';
+---
+<Page title="Page not found" noindex>
+  <PageHead title="This stretch of the river is dry." crumbs={[{ label: 'Not found' }]} kicker="404" lede="The page you followed has moved or never existed. These will take you somewhere real." />
+  <section class="page-body">
+    <div class="wide">
+      <ul class="chips">
+        <li><a class="chip has" href={page('index')}>Home</a></li>
+        <li><a class="chip has" href={page('industries')}>All industries</a></li>
+        <li><a class="chip has" href={page('insights')}>Insights</a></li>
+        <li><a class="chip has" href={page('press')}>Press</a></li>
+        {industries.map((i) => <li><a class="chip" href={page(`industries-${i.slug}`)}>{i.name}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</Page>
+
+<script>
+  // links copied from a chat or email often pick up the punctuation after them: /energy-solar. or /about)
+  const clean = location.pathname.replace(/[.,;:!?)\]'"]+$/, '');
+  if (clean !== location.pathname) location.replace(clean + location.search + location.hash);
+</script>

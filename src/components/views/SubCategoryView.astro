@@ -1,0 +1,59 @@
+---
+import Page from '../../layouts/Page.astro';
+import PageHead from '../page/PageHead.astro';
+import InsightCard from '../page/InsightCard.astro';
+import { allSubs, getSub } from '../../data/industries';
+import { streamBySub } from '../../lib/content';
+import { page } from '../../lib/url';
+
+interface Props { slug: string }
+const sub = getSub(Astro.props.slug);
+const ind = sub.industry;
+const bySub = await streamBySub();
+const items = bySub.get(sub.slug) ?? [];
+
+const i = allSubs.findIndex((s) => s.slug === sub.slug);
+const prev = allSubs[i - 1];
+const next = allSubs[i + 1];
+const goals = new Set(items.flatMap((it) => it.sdgs));
+const description = items.length
+  ? `${sub.name} in ${ind.name}: ${items.length} evidence-linked Insights, from ${items.slice(0, 3).map((it) => it.title.split(':')[0]).join(', ')}.`
+  : `${sub.name}, part of ${ind.name} on QuintaEarth.`;
+---
+<Page title={`${sub.name} · ${ind.name}`} description={description} current="industries">
+  <PageHead
+    title={sub.name}
+    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, href: page(`industries-${ind.slug}`) }, { label: sub.name }]}
+    kicker={ind.name}
+    kickerIcon={ind.icon}
+    facts={[{ value: items.length, label: items.length === 1 ? 'Insight' : 'Insights' }, { value: goals.size, label: 'UN goals' }]}
+  />
+
+  <section class="page-body" aria-labelledby="insights-h">
+    <div class="wide">
+      <div class="section-title"><h2 id="insights-h">Insights</h2></div>
+      {items.length
+        ? <div class="cards">{items.map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
+        : <p class="empty-note">Nothing filed here yet.</p>}
+    </div>
+  </section>
+
+  <section class="page-body" aria-labelledby="more-h">
+    <div class="wide">
+      <hr class="rule">
+      <div class="section-title"><h2 id="more-h">More in {ind.name}</h2></div>
+      <ul class="chips">
+        {ind.subs.map((s) => {
+          const n = bySub.get(s.slug)?.length ?? 0;
+          const here = s.slug === sub.slug;
+          return <li><a class:list={['chip', { has: n > 0 && !here, on: here }]} href={page(s.slug)} aria-current={here ? 'page' : undefined}>{s.name}{n > 0 && <> <i>{n}</i></>}</a></li>;
+        })}
+      </ul>
+      <a class="tlink" href={page(`industries-${ind.slug}`)}>All of {ind.name}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+      <nav class="pager" aria-label="Sub-categories">
+        {prev && <a class="prev" href={page(prev.slug)}><span class="dir"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left" /></svg>Previous</span><span class="t">{prev.name}</span></a>}
+        {next && <a class="next" href={page(next.slug)}><span class="dir">Next<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></span><span class="t">{next.name}</span></a>}
+      </nav>
+    </div>
+  </section>
+</Page>

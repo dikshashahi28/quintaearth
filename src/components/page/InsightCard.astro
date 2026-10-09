@@ -1,0 +1,36 @@
+---
+import '../../styles/cards.css';
+import { Picture } from 'astro:assets';
+import GoalTags from './GoalTags.astro';
+import type { Insight } from '../../lib/content';
+import { formatDate, isoDate } from '../../lib/content';
+
+interface Props {
+  item: Insight;
+  headingLevel?: 'h2' | 'h3';
+  /** hide the "Industry · Sub-category" line when the page already says it */
+  showWhere?: boolean;
+}
+const { item, headingLevel = 'h3', showWhere = true } = Astro.props;
+const H = headingLevel;
+---
+<article class="card">
+  {item.image && (
+    <figure class="card-img">
+      <Picture src={item.image.src} alt="" formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800]} sizes="(max-width: 700px) calc(100vw - 32px), 360px" loading="lazy" decoding="async" />
+    </figure>
+  )}
+  <div class="card-body">
+    <p class="where">
+      {item.label === 'Press' && <span class="kind">Press</span>}
+      {showWhere && item.where && <span>{item.where}</span>}
+      {item.date && <time datetime={isoDate(item.date)}>{formatDate(item.date)}</time>}
+    </p>
+    <H><a href={item.href}>{item.title}</a></H>
+    {item.dek && <p class="dek">{item.dek}</p>}
+    <div class="foot">
+      <GoalTags sdgs={item.sdgs} variant="compact" />
+      <span class="time">{item.minutes} min read</span>
+    </div>
+  </div>
+</article>

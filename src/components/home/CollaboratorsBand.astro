@@ -1,0 +1,20 @@
+---
+import '../../styles/collaborators.css';
+import { page } from '../../lib/url';
+---
+<section class="collab" id="collaborators" data-river="wide">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">09</span>Collaborators</p>
+    <div class="panel rv">
+      <span class="mark" aria-hidden="true"><svg class="hi"><use href="#hi-connect" /></svg></span>
+      <div class="txt">
+        <h2 data-dot>Shown for the work they are building.</h2>
+        <p class="lede">Startups, entrepreneurs, and professionals in the same field.</p>
+      </div>
+      <div class="acts">
+        <a class="btn btn-fill" href={page('contact', 'partner', { source: 'collaborators' })}>Partner with us<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        <a class="tlink" href={page('contact', 'partner')}>Partner as a company<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+      </div>
+    </div>
+  </div>
+</section>

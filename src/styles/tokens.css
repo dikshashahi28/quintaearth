@@ -1,0 +1,46 @@
+/* Riverline tokens. Source of truth: DESIGN.md. One calm story joined by a river;
+   green, with gold where the river touches something. Light theme only. */
+:root {
+  --page: #ffffff;
+  --sky: #f6f9f1;
+  --river: #2f6b3a;
+  --river-deep: #245a2e;
+  --deep: #14301c;
+  --reed: #7fa26b;
+  --reed-ink: #4d6e3d;
+  --gold: #b8912f;
+  /* the approved Riverline page draws numerals and the rotating word in deep green, not brown
+     (Paras, 8 Oct: "change the brown color"); DESIGN.md's #8a6a1c is kept as --gold-dark */
+  --gold-ink: #245a2e;
+  --gold-dark: #8a6a1c;
+  --gold-light: #d9b85a;
+  --mist: #cfe0cc;
+  --water: #d3e7df;
+  --shallow: #e7f0e3;
+  --hair: #d3e0d0;
+  --text: #1b2a1e;
+  --muted: #566457;
+  --on-deep: #e4efe2;
+  --on-deep-muted: #9fc19c;
+
+  --font-display: 'Literata', Georgia, serif;
+  --font-body: 'Public Sans', system-ui, sans-serif;
+
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 16px;
+  --gut: 16px;
+  --col: 760px;
+  --wide: min(1080px, calc(100vw - 200px));
+  --section: clamp(72px, 9vw, 128px);
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --shadow-lift: 0 8px 20px rgba(20, 48, 28, .14);
+  --shadow-card: 0 16px 36px rgba(20, 48, 28, .12);
+
+  color-scheme: light;
+}
+
+@media (max-width: 1179px) {
+  :root { --wide: calc(100vw - 2 * var(--gut)); }
+}

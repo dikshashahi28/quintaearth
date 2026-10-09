@@ -1,62 +1,28 @@
 # Credits
 
-## Theme
-Environs — Environmental & Nature Website Template by HTML Codex, distributed by ThemeWagon.
-Licence: Creative Commons Attribution 4.0 (HTML Codex free-template terms).
-Footer no longer carries the HTML Codex / ThemeWagon credit line.
+## Type and icons
+- Literata and Public Sans, from Google Fonts (SIL Open Font License).
+- Material Symbols Rounded (Apache 2.0) for the botanical and industry icons; Phosphor Icons (MIT) for arrows,
+  menu and social glyphs. Both are inlined in `src/components/IconSprite.astro`.
 
-## Brand photos (QuintaEarth, used on-site)
-- `assets/hero-bg.jpg` — locked hero slide 1
-- `assets/about-lake.jpg` — About figure (preview): user lake photo, snow peaks and gabion shore
-- `assets/logo-quintaearth-v8b.png` — locked header logo
-- `assets/youtube-bg.jpg` — hero slide 2, YouTube cover
-- `assets/youtube-banner-2560.jpg` — band / breadcrumb backgrounds
-- `green-tech-community-qr.jpg` — WhatsApp QR
+## Illustration
+The hero valley, the river rail and the footer meadow are drawn in SVG for this site.
 
-## Temporary Environs Insights photos
-Homepage Insights cards currently use Environs demo JPEGs (`assets/environs-donation-1.jpg`, `environs-donation-2.jpg` from `img/service-2.jpg`, `environs-donation-3.jpg`) until Quinta replacements arrive. Theme demo photos are not for the live site long-term.
+## Photographs
+- **Story images** come from Wikimedia Commons and are stored, resized, in `src/assets/stories/`. Each
+  story credits the photographer and licence in its caption and in its "Sources & image credits" section.
+- **Insights and press heroes** (`src/assets/articles/`): Unsplash License,
+  photographer credited on each article.
+  - Press: Laura Chouette (EmpCo, Ferragamo), Nareeta Martin (Thai circular), Lauren Fleischmann (Aijek),
+    Amy Hirschi (Torque/Wylde).
+  - Insights: Marcus Loke, Nareeta Martin, rawpixel, Joseph Gonzalez, Campaign Creators, Brian Yurasits,
+    Ishan @seefromthesky, Veeterzy, Bannerbogdan.
+- **Riverline photos** (`src/assets/photos/`: the valley, the five "who it is for" stones, the eight
+  industry photos, the community pond): stock photographs sourced for the Riverline design on 8 Oct 2026
+  under the Unsplash License. The photographer URLs were not recorded at the time; add them here when found.
+- **Brand files** (`public/assets/`): `logo.png` (Riverline header logo), earlier logo versions, YouTube
+  banner (the share image), WhatsApp community QR.
 
-## Temporary Environs Press photo
-The Press Release Archives tile uses `assets/environs-service-4.jpg` (Environs `img/service-4.jpg`) until a Quinta photo exists. The other three Press tiles reuse Quinta photos.
-
-## Temporary Environs Achievements / Volunteer photos
-Homepage Achievements band uses `assets/environs-volunteers-bg.jpg` (Environs `img/volunteers-bg.jpg`). Volunteer portraits use `assets/environs-volunteer-1.jpg`–`4.jpg` (Environs `img/volunteers-1.jpg`–`4.jpg`) until Quinta replacements arrive. Theme demo photos are not for the live site long-term.
-
-## Temporary Environs Our Work / gallery photos
-Homepage Our Work mosaic uses `assets/environs-gallery-1.jpg`–`5.jpg` (Environs `img/gallery-1.jpg`–`5.jpg`) until Paras sends photographs. Theme demo photos are not for the live site long-term.
-
-## Industry tiles
-Owned Quinta photos, re-cropped in place (`assets/hero-bg.jpg`, `assets/youtube-bg.jpg`, `assets/youtube-banner-2560.jpg`). SVG leaf tiles remain in `img/placeholders/` as unused backups. Homepage Collaborators uses `assets/environs-volunteer-1.jpg` as a face-fill split figure until a named Quinta portrait arrives.
-Unsplash/Pexels may replace tiles later where Quinta has no own photo.
-
-## Placeholder links
-`href="#"` with `data-placeholder` and `title="Link coming soon"` (no `target="_blank"`). Keys: insights, sdgs, contact, social-x, social-ig, social-tg, social-li, chat-platform.
-
-## Unused files (kept on purpose)
-`styles.css`, `site.js`, `samples/`, alternate logo files — not deleted.
-
-
-## Press & Insights heroes (23 Sep 2026)
-
-Unsplash License — free to use; photographer credited on each article. Not brand/NYFW/wire photos.
-
-### Press
-- `assets/press/empco-eu-green-claims-sep-2026.jpg` — Laura Chouette (Unsplash)
-- `assets/press/thai-circular-fashion-nyfw-indorama-kh.jpg` — Nareeta Martin (Unsplash)
-- `assets/press/singapore-aijek-relaunch-biodegradable.jpg` — Lauren Fleischmann (Unsplash)
-- `assets/press/ferragamo-leather-origin-mapping.jpg` — Laura Chouette (Unsplash)
-- `assets/press/torque-wylde-anti-greenwash.jpg` — Amy Hirschi (Unsplash)
-
-### Insights
-- `assets/insights/insight-empco-makers-brands.jpg` — Marcus Loke (Unsplash)
-- `assets/insights/insight-thai-nyfw-circular-makers.jpg` — Nareeta Martin (Unsplash)
-- `assets/insights/insight-aijek-craft-makers.jpg` — rawpixel (Unsplash)
-- `assets/insights/insight-ferragamo-traceability-makers.jpg` — Joseph Gonzalez (Unsplash)
-- `assets/insights/insight-torque-wylde-proof-comms.jpg` — Campaign Creators (Unsplash)
-- `assets/insights/insight-confiance-ocean-cleanup-india.jpg` — Brian Yurasits (Unsplash)
-- `assets/insights/insight-le-meridien-patemar-plastic-bank.jpg` — Ishan @seefromthesky (Unsplash)
-- `assets/insights/insight-empco-vs-green-claims-directive.jpg` — Veeterzy (Unsplash)
-- `assets/insights/insight-csrd-omnibus-supplier-cap.jpg` — Bannerbogdan (Unsplash)
-
-### SDG icons
-- `assets/sdg/goal-08.jpg` … `goal-17.jpg` — official UN SDG icon JPEGs from sdgs.un.org (`E_SDG_Icons-NN.jpg`).
+## UN Sustainable Development Goals
+Goal names and links follow the UN (sdgs.un.org). `public/assets/sdg/` keeps the UN goal icons the
+pre-revamp pages used; see `CREDITS-sdg.txt` there.

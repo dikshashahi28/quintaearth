@@ -1,0 +1,69 @@
+---
+import type { StageIndustry } from '../../scripts/stage';
+
+interface Props {
+  slides: StageIndustry[];
+  /** essays and press notes on EU rules, filed across every industry */
+  euCount: number;
+}
+const { slides, euCount } = Astro.props;
+const first = slides[0]!;
+const total = slides.length;
+---
+<section class="ind" id="industries" data-river="wide">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">04</span>Industries</p>
+    <h2 class="rv" data-dot>Eight industries, one at a time</h2>
+    <p class="lede rv">Eight stones in the stream. Pick one to see its sub-categories and the work filed there.</p>
+    <div class="stage rv" id="stage" role="region" aria-roledescription="carousel" aria-label="Industries" tabindex="-1">
+      <div class="pebbles">
+        <button class="arrow" id="prev" type="button" aria-label="Previous industry"><svg class="ic" aria-hidden="true"><use href="#i-caret-left" /></svg></button>
+        <ul id="pebbles" aria-label="Choose an industry">
+          {slides.map((s, i) => (
+            <li>
+              <button class={`pebble ${s.motion}`} type="button" data-i={i} aria-current={i === 0 ? 'true' : 'false'} aria-label={s.name}>
+                <span class="pb" data-stop><svg class="hi" aria-hidden="true"><use href={`#hi-${s.icon}`} /></svg></span>
+                <span class="pl">{s.name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button class="arrow" id="next" type="button" aria-label="Next industry"><svg class="ic" aria-hidden="true"><use href="#i-caret-right" /></svg></button>
+      </div>
+      <div class="slide" id="slide">
+        <p class="sr" id="sStatus" aria-live="polite"></p>
+        <div class="top">
+          <figure class="ph">
+            <img id="sImg" src={first.image} alt={first.imageAlt} width="1000" height="800" decoding="async">
+            <span class="badge"><svg class="hi" aria-hidden="true"><use id="sBadgeIco" href={`#hi-${first.icon}`} /></svg><span id="sBadgeTxt">{first.subs.length} sub-categories</span></span>
+          </figure>
+          <div class="info">
+            <p class="count"><span id="sCount"><b>1</b> / {total}</span><span class="prog" aria-hidden="true"><i id="progI" style={`transform:scaleX(${1 / total})`}></i></span></p>
+            <h3 class="iname"><svg class="hi" aria-hidden="true"><use id="sIco" href={`#hi-${first.icon}`} /></svg><span id="sName">{first.name}</span></h3>
+            <div class="figs">
+              <div><b id="sSubs">{first.subs.length}</b><span>sub-categories</span></div>
+              <div><b id="sStories">{first.filed}</b><span>Insights filed</span></div>
+            </div>
+            <ul class="chips" id="sChips">
+              {first.subs.map((c) => <li><a class:list={['chip', { has: c.count > 0 }]} href={c.href}>{c.name}{c.count > 0 && <> <i>{c.count}</i></>}</a></li>)}
+            </ul>
+          </div>
+        </div>
+        <div class="work" id="sWork">
+          <h3>Filed here</h3>
+          <ul class="filed">
+            {first.items.map((it) => <li><span>{it.kind}</span><a href={it.href}>{it.title}</a><em>{it.sub}</em></li>)}
+          </ul>
+          <a class="allof" href={first.href}>All of {first.name}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+        </div>
+      </div>
+    </div>
+    <p class="eu">Plus {euCount} pieces on EU green-claims rules, filed across all industries.</p>
+  </div>
+  <script type="application/json" id="stageData" set:html={JSON.stringify(slides).replace(/</g, '\\u003c')} />
+</section>
+
+<script>
+  import { initStage } from '../../scripts/stage';
+  initStage();
+</script>

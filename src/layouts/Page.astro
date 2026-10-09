@@ -1,0 +1,11 @@
+---
+// Every page except home: the Base shell plus the inner-page styles.
+import '../styles/pages.css';
+import type { ComponentProps } from 'astro/types';
+import Base from './Base.astro';
+type Props = ComponentProps<typeof Base>;
+---
+<Base {...Astro.props}>
+  <slot name="head" slot="head" />
+  <slot />
+</Base>

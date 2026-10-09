@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { page } from '../../lib/url';
+import { formatDate, isoDate } from '../../lib/content';
+
+interface Props { feature: CollectionEntry<'insights'>; rest: CollectionEntry<'insights'>[] }
+const { feature, rest } = Astro.props;
+---
+<section class="ins" id="insights" data-river="col">
+  <div class="in col">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">05</span>Insights</p>
+    <h2 class="rv" data-dot>Latest Insights</h2>
+    <div class="feat rv">
+      <a href={page(feature.id)}>
+        <figure><Image src={feature.data.image} alt="" widths={[400, 600, 800]} sizes="(max-width: 900px) calc(100vw - 32px), 330px" loading="lazy" /></figure>
+        <div>
+          <p class="meta"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Insight · <time datetime={isoDate(feature.data.date)}>{formatDate(feature.data.date)}</time></p>
+          <h3>{feature.data.title}</h3>
+          <span class="tlink">Read the essay<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></span>
+        </div>
+      </a>
+    </div>
+    <ul class="ilist">
+      {rest.map((a) => (
+        <li class="rv">
+          <a href={page(a.id)}>
+            <div><time datetime={isoDate(a.data.date)}>{formatDate(a.data.date)}</time><h3>{a.data.title}</h3></div>
+            <figure><Image src={a.data.image} alt="" width={264} height={192} densities={[1, 2]} loading="lazy" /></figure>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <a class="tlink more" href={page('insights')}>All Insights and press<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+  </div>
+</section>

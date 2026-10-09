@@ -1,0 +1,15 @@
+---
+// The line under an article's title: read time, date when it has one, and its UN goals.
+import GoalTags from './GoalTags.astro';
+import { formatDate, isoDate } from '../../lib/content';
+
+interface Props { minutes: number; date?: Date; sdgs: number[] }
+const { minutes, date, sdgs } = Astro.props;
+---
+<div class="article-meta">
+  <p class="byline">
+    <span>{minutes} min read</span>
+    {date && <span><time datetime={isoDate(date)}>{formatDate(date)}</time></span>}
+  </p>
+  <GoalTags sdgs={sdgs} />
+</div>

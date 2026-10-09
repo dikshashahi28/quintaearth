@@ -1,0 +1,135 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { site } from '../data/site';
+import { page } from '../lib/url';
+
+const companyTypes = [
+  ['company', 'Company'],
+  ['startup', 'Startup'],
+  ['ngo', 'NGO'],
+  ['pressure-group', 'Pressure group'],
+  ['foundation', 'Foundation'],
+  ['government', 'Government'],
+  ['academic', 'Academic'],
+  ['other', 'Other'],
+] as const;
+---
+<Page current="contact" title="Contact" description="Write to QuintaEarth, join the Green Tech Community on WhatsApp, or partner with us on CSR.">
+  <PageHead title="Contact" crumbs={[{ label: 'Contact' }]} lede="Write to us when you want to be seen, reviewed, or heard." width="col" />
+
+  <div class="page-body">
+    <ul class="col ways">
+      <li>
+        <a href={`mailto:${site.email}`}>
+          <svg class="ic" aria-hidden="true"><use href="#i-envelope" /></svg>
+          <span><b>Email</b>{site.email.split('@')[0]}@<wbr>{site.email.split('@')[1]}</span>
+        </a>
+      </li>
+      <li>
+        <a href={site.whatsapp} target="_blank" rel="noopener">
+          <svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>
+          <span><b>WhatsApp</b>Join the Green Tech Community</span>
+        </a>
+      </li>
+      <li>
+        <a href={page('volunteer')}>
+          <svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg>
+          <span><b>Volunteer</b>Volunteer with us</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <section class="page-body" id="partner" aria-labelledby="partner-title">
+    <div class="col">
+      <hr class="rule">
+      <div class="form-head">
+        <h2 id="partner-title">Partner with us</h2>
+        <p>Work with us on CSR that treats the earth as something made.</p>
+      </div>
+
+      <form class="form" id="partner-form" action="#" method="post" novalidate>
+        <p class="form-note">All fields are required.</p>
+        <div class="row2">
+          <div class="field">
+            <label for="partner-company">Company name</label>
+            <input id="partner-company" name="company" type="text" autocomplete="organization" maxlength="120" required aria-describedby="partner-company-error">
+            <p class="err" id="partner-company-error"></p>
+          </div>
+          <div class="field">
+            <label for="partner-type">Company type</label>
+            <select id="partner-type" name="company_type" required aria-describedby="partner-type-error">
+              <option value="">Choose one</option>
+              {companyTypes.map(([value, label]) => <option value={value}>{label}</option>)}
+            </select>
+            <p class="err" id="partner-type-error"></p>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="partner-website">Website</label>
+            <input id="partner-website" name="website" type="url" autocomplete="url" placeholder="https://" maxlength="200" spellcheck="false" required aria-describedby="partner-website-error">
+            <p class="err" id="partner-website-error"></p>
+          </div>
+          <div class="field">
+            <label for="partner-phone">Phone number</label>
+            <input id="partner-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="12" required aria-describedby="partner-phone-error">
+            <p class="err" id="partner-phone-error"></p>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="partner-place">Place</label>
+            <input id="partner-place" name="place" type="text" autocomplete="address-level2" maxlength="80" required aria-describedby="partner-place-error">
+            <p class="err" id="partner-place-error"></p>
+          </div>
+          <div class="field">
+            <label for="partner-email">Email</label>
+            <input id="partner-email" name="email" type="email" autocomplete="email" maxlength="100" spellcheck="false" required aria-describedby="partner-email-error">
+            <p class="err" id="partner-email-error"></p>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="partner-contact">Contact person name</label>
+            <input id="partner-contact" name="contact_name" type="text" autocomplete="name" maxlength="80" required aria-describedby="partner-contact-error">
+            <p class="err" id="partner-contact-error"></p>
+          </div>
+          <div class="field">
+            <label for="partner-designation">Designation</label>
+            <input id="partner-designation" name="designation" type="text" autocomplete="organization-title" maxlength="80" required aria-describedby="partner-designation-error">
+            <p class="err" id="partner-designation-error"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="partner-purpose">Purpose</label>
+          <textarea id="partner-purpose" name="purpose" rows="4" maxlength="400" required aria-describedby="partner-purpose-hint partner-purpose-error"></textarea>
+          <p class="hint" id="partner-purpose-hint">20 to 400 characters.</p>
+          <p class="err" id="partner-purpose-error"></p>
+        </div>
+        <div class="field">
+          <label class="check" for="partner-consent">
+            <input id="partner-consent" name="consent" type="checkbox" required aria-describedby="partner-consent-error">
+            <span>I agree to be contacted about this partnership.</span>
+          </label>
+          <p class="err" id="partner-consent-error"></p>
+        </div>
+        <div class="form-send">
+          <button class="btn btn-fill" type="submit">Submit</button>
+          <p class="form-status" id="partner-status" role="status"></p>
+        </div>
+      </form>
+
+      <div class="thanks" id="partner-thanks" tabindex="-1" hidden>
+        <h2>Thank you.</h2>
+        <p>Our team will contact you soon.</p>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { initPartnerForm } from '../scripts/partner-form';
+  initPartnerForm();
+</script>

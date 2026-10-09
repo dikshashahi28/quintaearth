@@ -1,0 +1,118 @@
+.hdr {
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(255, 255, 255, .94);
+  backdrop-filter: saturate(140%) blur(10px); -webkit-backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s, background-color .3s;
+}
+.hdr.scrolled { border-bottom-color: var(--hair); }
+.hdr .wide { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 72px; }
+.hdr.scrolled .wide { height: 64px; }
+
+/* logo: settles in on load; on hover it lifts and a light sweeps through the mark */
+.logo { flex: none; position: relative; display: inline-block; border-radius: 6px; }
+.logo img { height: 30px; width: auto; transform-origin: left center; transition: transform .35s var(--ease); animation: logoin .9s var(--ease) backwards; }
+.logo::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .9) 50%, transparent 65%);
+  -webkit-mask: var(--logo-mask) center / contain no-repeat; mask: var(--logo-mask) center / contain no-repeat;
+  transform: translateX(-110%); opacity: 0;
+}
+.logo:is(:hover, :focus-visible) img { transform: translateY(-1px) scale(1.03); }
+/* the header tightens once scrolled; the logo scales rather than animating its height */
+.hdr.scrolled .logo img { transform: scale(.87); }
+.hdr.scrolled .logo:is(:hover, :focus-visible) img { transform: translateY(-1px) scale(.9); }
+.logo:is(:hover, :focus-visible)::after { animation: shine .9s var(--ease) 1; }
+@keyframes logoin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes shine { 0% { opacity: 1; transform: translateX(-110%); } 100% { opacity: 1; transform: translateX(110%); } }
+
+.nav { display: flex; align-items: center; gap: 30px; }
+.nav > a {
+  position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
+  color: var(--text); text-decoration: none; font-weight: 500; font-size: 16px; transition: color .2s;
+}
+.nav > a:hover { color: var(--river); }
+.nav > a::after {
+  content: ""; position: absolute; left: 50%; bottom: 2px; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); transform: translateX(-50%) scale(0); transition: transform .25s var(--ease);
+}
+.nav > a.active { color: var(--river-deep); }
+.nav > a.active::after { transform: translateX(-50%) scale(1); }
+#indLink .ic { width: .9em; height: .9em; transform-box: fill-box; transform-origin: center; transition: transform .25s var(--ease); }
+.hdr.mega-open #indLink .ic { transform: rotate(180deg); }
+
+.acts { display: flex; align-items: center; gap: 10px; }
+.acts .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+.menu {
+  display: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--river);
+  background: #fff; color: var(--river); place-items: center; cursor: pointer; padding: 0;
+}
+.menu .ic { width: 1.3em; height: 1.3em; }
+.menu .x { display: none; }
+.hdr.open .menu .x { display: block; }
+.hdr.open .menu .b { display: none; }
+
+/* industries menu under the header: eight categories with their sub-categories */
+.mega {
+  display: none; position: absolute; left: 0; right: 0; top: 100%;
+  background: #fff; border-bottom: 1px solid var(--hair); box-shadow: 0 24px 48px rgba(20, 48, 28, .12);
+  padding: 28px 0 32px;
+}
+.hdr.mega-open .mega { display: block; }
+.mega-grid {
+  width: min(var(--wide), calc(100% - 2 * var(--gut))); margin-inline: auto;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 32px;
+}
+.mega-h { font: 600 15px/1.3 var(--font-body); color: var(--deep); }
+.mega-h a { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; color: var(--deep); text-decoration: none; }
+.mega-h a:hover { color: var(--river); }
+.mega-h .hi { color: var(--river); width: 1.3em; height: 1.3em; }
+.mega ul { margin-top: 4px; }
+.mega li a {
+  position: relative; display: inline-flex; align-items: center; min-height: 30px;
+  font-size: 14px; color: var(--muted); text-decoration: none;
+  transition: color .2s, transform .25s var(--ease);
+}
+.mega :is(li a, .mega-h a)::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 3px; height: 1.5px; background: var(--river);
+  transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease);
+}
+.mega li a:is(:hover, :focus-visible) { color: var(--river); transform: translateX(3px); }
+.mega :is(li a, .mega-h a):is(:hover, :focus-visible)::after { transform: scaleX(1); }
+.mega .all { margin-top: 22px; width: min(var(--wide), calc(100% - 2 * var(--gut))); margin-inline: auto; }
+
+/* six links and the Join button must fit on small laptops */
+@media (max-width: 1180px) and (min-width: 901px) {
+  .nav { gap: 20px; }
+  .nav > a { font-size: 15px; }
+  .acts .btn .full { display: none; }
+}
+@media (max-width: 900px) {
+  .menu { display: grid; }
+  .nav { display: none; }
+  .hdr.open .nav {
+    display: flex; position: absolute; left: 0; right: 0; top: 100%;
+    flex-direction: column; align-items: stretch; gap: 0;
+    max-height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain;
+    padding: 4px var(--gut) 16px; background: #fff; border-bottom: 1px solid var(--hair);
+    box-shadow: 0 16px 32px rgba(20, 48, 28, .1);
+  }
+  .hdr.open .nav > a { min-height: 52px; font-size: 18px; border-bottom: 1px solid var(--hair); }
+  .hdr.open .nav > a::after { display: none; }
+  .hdr.open .nav > a.active { color: var(--river); }
+  .mega { position: static; box-shadow: none; border: 0; padding: 0 0 8px 12px; }
+  .mega-grid { width: auto; margin: 0; grid-template-columns: 1fr; gap: 14px; padding-top: 8px; }
+  .mega-h a { min-height: 40px; }
+  .mega ul { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .mega li a { min-height: 36px; }
+  .mega .all { width: auto; margin: 14px 0 0; }
+}
+@media (max-width: 640px) {
+  .hdr .wide, .hdr.scrolled .wide { height: 64px; }
+  .logo img { height: 24px; }
+  .acts .btn { padding: 0 16px; }
+  .acts .btn .full { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo img, .logo::after { animation: none; }
+}

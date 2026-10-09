@@ -1,0 +1,100 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { site } from '../data/site';
+
+// The review form needs Google Sign-In. Without a client id there is no form, only an email invitation.
+const clientId = String(import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '').trim();
+---
+<Page title="Testimonials" description="Reviews of QuintaEarth from the audience, clients, collaborators, startup owners and entrepreneurs.">
+  {clientId && <script is:inline slot="head" src="https://accounts.google.com/gsi/client" async></script>}
+  <PageHead title="Testimonials" crumbs={[{ label: 'Testimonials' }]} lede="Reviews from audience, clients, collaborators, startup owners, and entrepreneurs." />
+
+  <div class="page-body">
+    <div class="wide" id="reviews" aria-busy="true">
+      <p class="empty-note" id="reviews-note">Loading reviews…</p>
+      <ul class="reviews" id="reviews-list" aria-label="Reviews" hidden></ul>
+      {!clientId && (
+        <p class="review-mail">To leave a review, write to <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+      )}
+    </div>
+  </div>
+
+  {clientId && (
+    <section class="page-body" id="leave-review" data-client-id={clientId} aria-labelledby="leave-review-title">
+      <div class="col">
+        <hr class="rule">
+        <div class="form-head">
+          <h2 id="leave-review-title">Leave a review</h2>
+          <p>Sign in with Google first. Name, role, stars, and a few honest words. Company or place is optional.</p>
+        </div>
+
+        <div class="review-auth" id="review-auth">
+          <p>Your Google email is saved with the review. It is not shown on the page.</p>
+          <div id="review-google-btn" class="google-btn">
+            <button type="button" class="btn btn-line" id="review-google-fallback">Sign in with Google</button>
+          </div>
+          <p class="form-status bad" id="review-auth-error" role="alert" hidden></p>
+        </div>
+
+        <div class="review-signed" id="review-signed" hidden>
+          <p>Signed in as <b id="review-signed-email"></b></p>
+          <button type="button" class="btn btn-line" id="review-signout">Sign out</button>
+        </div>
+
+        <form class="form" id="review-form" action="#" method="post" novalidate hidden>
+          <div class="row2">
+            <div class="field">
+              <label for="review-name">Name</label>
+              <input id="review-name" name="name" type="text" autocomplete="name" maxlength="80" required aria-describedby="review-name-error">
+              <p class="err" id="review-name-error"></p>
+            </div>
+            <div class="field">
+              <label for="review-designation">Designation / role</label>
+              <input id="review-designation" name="designation" type="text" autocomplete="organization-title" maxlength="80" required aria-describedby="review-designation-error">
+              <p class="err" id="review-designation-error"></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="review-company">Company or place <span class="opt">(optional)</span></label>
+            <input id="review-company" name="company" type="text" autocomplete="organization" maxlength="80" aria-describedby="review-company-error">
+            <p class="err" id="review-company-error"></p>
+          </div>
+          <fieldset class="field rate" id="review-rating" role="radiogroup" aria-required="true" aria-describedby="review-rating-error">
+            <legend>Star rating</legend>
+            <div class="rate-stars">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <label>
+                  <input type="radio" name="rating" id={`review-star-${n}`} value={n} required={n === 1}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.7l2.35 7.23h7.6l-6.15 4.47 2.35 7.23L12 17.16l-6.15 4.47 2.35-7.23-6.15-4.47h7.6z" /></svg>
+                  <span class="sr">{n === 1 ? '1 star' : `${n} stars`}</span>
+                </label>
+              ))}
+            </div>
+            <p class="err" id="review-rating-error"></p>
+          </fieldset>
+          <div class="field">
+            <label for="review-text">Review</label>
+            <textarea id="review-text" name="review" rows="5" maxlength="400" required aria-describedby="review-text-hint review-text-error"></textarea>
+            <p class="hint" id="review-text-hint">20 to 400 characters. <span id="review-count">0 / 400</span></p>
+            <p class="err" id="review-text-error"></p>
+          </div>
+          <div class="form-send">
+            <button class="btn btn-fill" type="submit">Submit review</button>
+            <p class="form-status" id="review-status" role="status"></p>
+          </div>
+        </form>
+
+        <div class="thanks" id="review-thanks" tabindex="-1" hidden>
+          <h2>Thank you.</h2>
+          <p>Your review is with us.</p>
+        </div>
+      </div>
+    </section>
+  )}
+</Page>
+
+<script>
+  import { initReviews } from '../scripts/reviews';
+  initReviews();
+</script>
