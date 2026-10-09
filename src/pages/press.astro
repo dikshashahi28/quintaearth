@@ -20,7 +20,7 @@ const press = (await getPress()).map(articleToInsight);
     <div class="wide">
       <h2 class="sr" id="notes-h">Desk notes</h2>
       <div class="cards">{press.map((it) => <InsightCard item={it} />)}</div>
-      <p class="press-mail">Press enquiries: <a href={`mailto:${site.email}`}>{site.email}</a></p>
+      <p class="press-mail">Press enquiries: <a href={`mailto:${site.pressEmail}`}>{site.pressEmail}</a></p>
     </div>
   </section>
 </Page>
