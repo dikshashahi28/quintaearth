@@ -1,7 +1,8 @@
 // One place for every outward link and contact detail the pages share.
 export const site = {
   name: 'QuintaEarth',
-  email: 'quintaearth@gmail.com',
+  email: 'hello@quintaearth.com',
+  pressEmail: 'press@quintaearth.com',
   whatsapp: 'https://chat.whatsapp.com/DLLpwsKL4Qf8C6aM5AvDWi?s=cl&p=a&mlu=4&ilr=4',
   socials: [
     { label: 'LinkedIn', icon: 'linkedin', href: 'https://www.linkedin.com/company/quintaearth/' },
