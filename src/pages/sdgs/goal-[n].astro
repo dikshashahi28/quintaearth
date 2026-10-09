@@ -20,8 +20,6 @@ const next = goals[i + 1];
   <PageHead
     title={goal.title}
     crumbs={[{ label: 'UN goals', href: page('sdgs') }, { label: `Goal ${goal.n}` }]}
-    kicker={`UN Sustainable Development Goal ${goal.n}`}
-    kickerIcon="planet"
     lede={goal.line}
     facts={[{ value: items.length, label: items.length === 1 ? 'Insight tagged' : 'Insights tagged' }]}
   >

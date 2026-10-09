@@ -83,8 +83,8 @@
 .prose h2 { margin-top: 1.9em; font-size: clamp(25px, 2.4vw, 30px); line-height: 1.2; }
 .prose h3 { margin-top: 1.6em; font-size: 22px; line-height: 1.25; }
 .prose h2 + *, .prose h3 + * { margin-top: .6em; }
-.prose a { color: var(--river); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
-.prose a:hover { color: var(--river-deep); text-decoration-thickness: 2px; }
+.prose a:not(.btn) { color: var(--river); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.prose a:not(.btn):hover { color: var(--river-deep); text-decoration-thickness: 2px; }
 .prose strong { font-weight: 600; color: var(--deep); }
 .prose ul, .prose ol { padding-left: 1.4em; }
 .prose ul { list-style: disc; }
@@ -109,6 +109,11 @@
 .field input, .field select, .field textarea {
   width: 100%; min-height: 48px; padding: 10px 16px; border-radius: var(--r); border: 1.5px solid #9fb89f;
   background: #fff; font: 400 16px/1.4 var(--font-body); color: var(--text); transition: border-color .2s;
+}
+.field input:not([type='checkbox'], [type='radio']), .field select { border-radius: 999px; padding-inline: 20px; }
+.field select {
+  appearance: none; padding-right: 48px; cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f6b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 18px center / 18px;
 }
 .field textarea { min-height: 128px; resize: vertical; }
 .field input::placeholder, .field textarea::placeholder { color: #5f6f60; }

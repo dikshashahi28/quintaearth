@@ -174,11 +174,9 @@ One calm story read top to bottom, joined by a river that draws itself as the vi
 
 Density is low and editorial. Sections are separated by generous vertical air rather than rules or cards, headlines are a roman book serif set at regular weight, and the furniture (stones, part circles, pebbles) is round, outlined and botanical. Icons are Material Symbols Rounded (filled glyphs, weight 400), coloured by context, scaling in as their block reveals, each with its own hover motion. One deep forest-green band holds the CSR statement and the footer; the river turns pale while it crosses it.
 
-The world was pinned by the user (Riverline artifact liked 8 Oct 2026) and shipped as a code-led refinement. It replaces the Environs Bootstrap template for the landing page only; the rest of the site still runs the old template.
+The world was pinned by the user (Riverline artifact liked 8 Oct 2026) and shipped as a code-led refinement. It replaced the Environs Bootstrap template across the whole site in the 9 Oct 2026 Astro rebuild.
 
-Where it lives: the shipped landing page is `samples/riverline/index.html`, with its own `samples/riverline/assets/`. Links into the repo's pages are built with a `ROOT = '../../'` constant in the page script (and `../../` prefixes in markup). When the page is promoted to the site root, `ROOT` and every `../../` prefix must become `''` and the asset paths must be re-pointed.
-
-**Key Characteristics:**
+Where it lives: the shWhere it lives: the Astro site in `src/` (homepage `src/pages/index.astro`, sections in `src/components/home/`, inner pages through `src/components/page/PageHead.astro` and `src/components/views/`). `samples/riverline/index.html` is the original comp. The homepage grew from the comp's six numbered sections to ten (Press, YouTube, Volunteer and Collaborators came over from the old site in the rebuild). Inner pages open with a breadcrumb and title; numbered kickers stay on the homepage only.s:**
 - White page, sky hero, one deep-green band; no other section fills.
 - A drawn river rail with gold beads is the page's spine and its progress indicator.
 - Green does the work; gold marks arrival and is never body text.
@@ -302,12 +300,12 @@ Calm, round, and they lift a little when pointed at.
 - No other cards: sections, stones and parts are not boxed.
 
 ### Inputs / Fields
-- **Style:** pill field, 48px tall, 1.5px soft green border, white ground, 16px body text, River Green caret.
+- **Style:** pill field (selects too, with a River Green chevron; textareas keep the 12px radius), 48px tall, 1.5px soft green border, white ground, 16px body text, River Green caret.
 - **Focus:** border turns River Green with the standard 2px outline at 2px offset.
 - **Message:** a 14px Deep Current note line under the row; no backend is wired yet.
 
 ### Navigation
-- **Header:** sticky, white at 94% with saturate-and-blur backdrop; 72px tall, 64px once scrolled (a hairline appears and the logo shrinks from 30px to 26px). Four links (Public Sans 500 16px) and one fill pill CTA.
+- **Header:** sticky, white at 94% with saturate-and-blur backdrop; 72px tall, 64px once scrolled (a hairline appears and the logo shrinks from 30px to 26px). Six links (About, Industries with a mega menu, Insights, Press, Volunteer, Contact; Public Sans 500 16px) and one fill pill CTA.
 - **Active state:** link turns Deep Current and a 5px gold dot grows under it; scroll-spied.
 - **Phone (900px and below):** a 44px round outline menu button; the nav drops as a full-width white panel with 52px rows and hairline separators, Panel shadow; Escape closes and returns focus. Under 640px the CTA shortens to "Join".
 

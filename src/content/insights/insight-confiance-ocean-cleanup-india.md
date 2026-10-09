@@ -6,7 +6,7 @@ topic: "Cleantech"
 sdgs: [12, 14, 17]
 image: "../../assets/articles/insight-confiance-ocean-cleanup-india.jpg"
 imageAlt: "Waterway or shoreline suggesting plastic pollution recovery work"
-imageCredit: { label: "Brian Yurasits via Unsplash — free/open license; not The Ocean Cleanup campaign stills", href: "https://unsplash.com/photos/0a97-KD0xaw" }
+imageCredit: { label: "Brian Yurasits / Unsplash (not The Ocean Cleanup campaign stills)", href: "https://unsplash.com/photos/0a97-KD0xaw" }
 subs: ["tech-ocean"]
 project: "Confiance river plastic clean-up"
 companies: ["The Ocean Cleanup", "Confiance Communications"]

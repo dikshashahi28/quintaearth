@@ -6,15 +6,13 @@ interface Props {
   title: string;
   /** trail after Home; the last item is the current page and is not linked */
   crumbs: Crumb[];
-  kicker?: string;
-  kickerIcon?: string;
   /** icon set before the title */
   icon?: string;
   lede?: string;
   facts?: { value: number | string; label: string }[];
   width?: 'wide' | 'col';
 }
-const { title, crumbs, kicker, kickerIcon = 'sprig', icon, lede, facts = [], width = 'wide' } = Astro.props;
+const { title, crumbs, icon, lede, facts = [], width = 'wide' } = Astro.props;
 const trail: Crumb[] = [{ label: 'Home', href: page('index') }, ...crumbs];
 
 // the same trail for search engines; the current page is named by its title and points at its own URL
@@ -42,7 +40,6 @@ const breadcrumbLd = {
         ))}
       </ol>
     </nav>
-    {kicker && <p class="kicker"><svg class="hi" aria-hidden="true"><use href={`#hi-${kickerIcon}`} /></svg>{kicker}</p>}
     <h1>{icon && <svg class="hi" aria-hidden="true"><use href={`#hi-${icon}`} /></svg>}{title}</h1>
     {lede && <p class="lede">{lede}</p>}
     {facts.length > 0 && (

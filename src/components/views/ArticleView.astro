@@ -38,7 +38,7 @@ const ld = {
 };
 ---
 <Page title={data.title} description={data.description} imageUrl={share.src} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}>
-  <PageHead title={data.title} crumbs={[list, { label: essay ? 'Insight' : 'Desk note' }]} kicker={self.where || (essay ? 'Insight' : 'Press desk note')} kickerIcon="leaf" width="col">
+  <PageHead title={data.title} crumbs={[list, { label: essay ? 'Insight' : 'Desk note' }]} width="col">
     <ArticleMeta minutes={self.minutes} date={data.date} sdgs={data.sdgs} />
   </PageHead>
 

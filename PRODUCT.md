@@ -33,7 +33,7 @@ Hub + proof (confirmed 8 Oct 2026). The hub is the place; proof is the mechanism
 
 ## Capabilities and Constraints
 
-- Static multi-page HTML site (`*.html`, `styles.css`, `site.js`, `css/`, `js/`), built on the Environs template (HTML Codex, CC BY 4.0). Target hosting: GitHub Pages on quintaearth.com.
+- Astro static site (`src/`), rebuilt 9 Oct 2026 in the Riverline design; hosted on a Cloudflare Worker at quintaearth.com. The old Environs HTML site is kept on branch `legacy-main`.
 - Packages named in the vault (4 Oct): Green-Claims Proof Audit (EmpCo), CBAM Readiness & Emissions-Data Pack, Proof-Backed Impact Stories & Press Releases, Evidence-Linked Solutions Listing.
 - Joining the community is free.
 

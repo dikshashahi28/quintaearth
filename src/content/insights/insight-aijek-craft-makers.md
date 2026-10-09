@@ -6,7 +6,7 @@ topic: "Sustainable development"
 sdgs: [8, 12, 15]
 image: "../../assets/articles/insight-aijek-craft-makers.jpg"
 imageAlt: "Artisan embroidery on natural cloth suggesting kerawang-style cutwork"
-imageCredit: { label: "rawpixel via Unsplash — license as stated; illustrative craft only, not Aijek products", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
+imageCredit: { label: "rawpixel / Unsplash (not Aijek products)", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
 companies: ["Aijek"]

@@ -6,7 +6,7 @@ topic: "Press"
 sdgs: [12, 13, 17]
 image: "../../assets/articles/torque-wylde-anti-greenwash.jpg"
 imageAlt: "Professionals reviewing documents together, suggesting evidence-led communications"
-imageCredit: { label: "Amy Hirschi via Unsplash/Pexels — free license; illustrative only, not agency branding", href: "https://unsplash.com/photos/gMsnXqILymA" }
+imageCredit: { label: "Amy Hirschi / Unsplash (not agency branding)", href: "https://unsplash.com/photos/gMsnXqILymA" }
 subs: []
 companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true
