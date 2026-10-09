@@ -9,6 +9,7 @@ imageAlt: "Natural plant-fibre fabric with delicate cutwork embroidery in soft l
 imageCredit: { label: "Lauren Fleischmann via Unsplash/Pexels — free license; illustrative craft textile only", href: "https://unsplash.com/photos/R2aodqJn3b8" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
+companies: ["Aijek"]
 sources:
   - "https://www.straitstimes.com/life/style/multi-million-dollar-spore-fashion-brand-aijek-relaunches-after-7-year-hiatus"
   - "https://e.vnexpress.net/news/business/companies/singapore-fashion-brand-aijek-returns-after-7-year-hiatus-5119226.html"

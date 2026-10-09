@@ -5,6 +5,7 @@ dek:
 - Two surfers built a bin that sits right there and sucks it in, and a French marina manufacturer turned the idea into a product sold across Europe.
 sub: tech-ocean
 company: Seabin Pty Ltd (Seabin Project), manufactured in Europe by Poralu Marine
+brand: Seabin
 product: Seabin V5, a pump-driven floating debris and microplastic collector for ports and marinas
 country: Australia (developed in Mallorca, Spain; manufactured in France)
 launchDate: November 2017 (V5 presented at METS, Amsterdam); first deliveries April 2018

@@ -8,6 +8,7 @@ image: "../../assets/articles/insight-torque-wylde-proof-comms.jpg"
 imageAlt: "Team reviewing plans together, suggesting strategy and communications alignment"
 imageCredit: { label: "Campaign Creators via Unsplash/Pexels — free license; illustrative", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
 subs: []
+companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true
 sources:
   - "https://www.torqueagencygroup.com/news/torque-partners-with-sustainability-consultancy-to-help-businesses-reduce-greenwashing-risk"

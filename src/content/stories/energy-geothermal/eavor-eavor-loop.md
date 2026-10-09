@@ -5,6 +5,7 @@ dek:
 - Eavor's answer is to drill a sealed underground radiator several kilometres deep, circulate water through it in a closed loop, and draw heat from almost any hot rock. At Geretsried in Bavaria, the first loop sent power to the grid in December 2025, and it has also taught some hard lessons.
 sub: energy-geothermal
 company: Eavor Technologies Inc. (Calgary, Canada) and Eavor Erdwärme Geretsried GmbH (Germany)
+brand: Eavor
 product: Eavor-Loop closed-loop geothermal system (Geretsried, Bavaria, first loop)
 country: Germany / Canada
 launchDate: July 2023 (drilling began at Geretsried); 4 December 2025 (first electricity to the German grid); May 2026 (technical update)

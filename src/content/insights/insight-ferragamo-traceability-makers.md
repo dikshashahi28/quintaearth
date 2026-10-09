@@ -9,6 +9,7 @@ imageAlt: "Leather workshop interior suggesting supply-chain origin work"
 imageCredit: { label: "Joseph Gonzalez via Unsplash/Pexels — free license; not Ferragamo imagery", href: "https://unsplash.com/photos/aXXW355tfDQ" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
+companies: ["Ferragamo"]
 sources:
   - "https://apnews.com/article/ferragamo-sustainable-fashion-italy-leather-2c68927c33dfc5bd147af3d0fe1701bc"
   - "https://leatherbiz.com/News/175025"

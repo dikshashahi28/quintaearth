@@ -5,6 +5,7 @@ dek:
 - In southern Denmark, European Energy and Mitsui run the world's first large-scale e-methanol plant, which makes the same molecule from solar power, water and CO2 from a biogas plant, and in 2026 it finally began shipping thousands of tonnes.
 sub: materials-low-carbon-industry
 company: European Energy A/S (Søborg, Denmark) with Mitsui & Co., through the joint venture Solar Park Kassø ApS (European Energy 51%, Mitsui 49%)
+brand: European Energy
 product: RFNBO-certified e-methanol from the Kassø Power-to-X facility in Aabenraa, Denmark (52 MW Siemens Energy electrolysers, biogenic CO2, capacity about 42,000 t a year), sold as a chemical feedstock for plastics and as a fuel
 country: Denmark
 launchDate: January 2025 (first green hydrogen); 12 March 2025 (first raw e-methanol); 13 May 2025 (official inauguration); Q1 2026 (full operating capability); July 2026 (first thousands of tonnes to German refineries); August 2026 (fourth multi-year offtake contract, with OMV)

@@ -10,9 +10,17 @@ interface Props {
   headingLevel?: 'h2' | 'h3';
   /** hide the "Industry · Sub-category" line when the page already says it */
   showWhere?: boolean;
+  /** hide the company when the page already names it (Our Work groups cards under the company) */
+  showCompany?: boolean;
 }
-const { item, headingLevel = 'h3', showWhere = true } = Astro.props;
+const { item, headingLevel = 'h3', showWhere = true, showCompany = true } = Astro.props;
 const H = headingLevel;
+
+const companies = showCompany ? item.companies : [];
+const named = companies.slice(0, 2);
+const more = companies.length - named.length;
+const where = showWhere && item.where;
+const hasWhere = item.label === 'Press' || where || item.date || named.length > 0;
 ---
 <article class="card">
   {item.image && (
@@ -21,11 +29,16 @@ const H = headingLevel;
     </figure>
   )}
   <div class="card-body">
-    <p class="where">
-      {item.label === 'Press' && <span class="kind">Press</span>}
-      {showWhere && item.where && <span>{item.where}</span>}
-      {item.date && <time datetime={isoDate(item.date)}>{formatDate(item.date)}</time>}
-    </p>
+    {hasWhere && (
+      <p class="where">
+        {item.label === 'Press' && <span class="kind">Press</span>}
+        {where && <span>{where}</span>}
+        {item.date && <time datetime={isoDate(item.date)}>{formatDate(item.date)}</time>}
+        {named.length > 0 && (
+          <span class="co"><span class="sr">About </span>{named.map((c, i) => <b>{c}{more > 0 && i === named.length - 1 && <i title={companies.slice(2).join(', ')}> +{more}</i>}</b>)}</span>
+        )}
+      </p>
+    )}
     <H><a href={item.href}>{item.title}</a></H>
     {item.dek && <p class="dek">{item.dek}</p>}
     <div class="foot">

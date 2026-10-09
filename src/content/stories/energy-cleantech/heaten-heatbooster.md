@@ -5,6 +5,7 @@ dek:
 - Heaten's HeatBooster recovers that low-grade heat and lifts it to steam of up to 180°C or hot water of up to 200°C, using electricity instead of fossil fuel.
 sub: energy-cleantech
 company: Heaten AS (Kristiansand, Norway) and Heaten Germany GmbH (Remscheid, Germany)
+brand: Heaten
 product: HeatBooster HBL4 and HBL16 high-temperature industrial heat pumps
 country: Norway / Germany
 launchDate: March 2020 (Heaten founded); September 2024 (HBL4 endurance testing completed); 2025 (first industrial operation reported)

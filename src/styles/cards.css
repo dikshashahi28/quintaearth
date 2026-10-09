@@ -28,6 +28,11 @@ a.goal:hover { border-color: var(--river); color: var(--river-deep); }
 .card-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 16px; }
 .card .where { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; font-weight: 600; color: var(--river-deep); }
 .card .where time { font-weight: 400; color: var(--muted); }
+/* the company a piece is about, in the where line; each name stays on one line */
+.card .where .co { display: inline-flex; flex-wrap: wrap; gap: 4px 6px; color: var(--deep); }
+.card .where .co b { font-weight: 600; white-space: nowrap; }
+.card .where .co b + b::before { content: "·"; margin-right: 6px; color: var(--reed); }
+.card .where .co i { font-style: normal; font-weight: 400; color: var(--muted); }
 .card .kind { padding: 1px 8px; border-radius: 100px; background: var(--shallow); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
 .card h2, .card h3 { font-size: 20px; line-height: 1.28; }
 /* the whole card is the link; the title's anchor stretches over it, goal tags sit above it */
