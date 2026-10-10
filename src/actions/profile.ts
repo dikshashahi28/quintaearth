@@ -7,7 +7,7 @@ import { requireUser } from '../lib/guards';
 import { reindex } from '../lib/search';
 import { deleteFile, putFile } from '../lib/storage';
 import { setTags } from '../lib/tags';
-import { checkbox, industriesField, optCountry, optText, optUrl, reqText, sdgsField, skillsField, subsField, uniq } from '../lib/validate';
+import { checkbox, industriesField, optCountry, optText, optUrl, reqText, skillsField, subsField, uniq } from '../lib/validate';
 
 async function myProfile(userId: string) {
   const p = await db.query.profiles.findFirst({ where: eq(schema.profiles.userId, userId) });
@@ -28,7 +28,6 @@ export const profile = {
       website: optUrl,
       industries: industriesField,
       subs: subsField,
-      sdgs: sdgsField,
       skills: skillsField,
       published: checkbox,
     }),
@@ -44,7 +43,8 @@ export const profile = {
         }).where(eq(schema.profiles.id, p.id)),
         ...setTags('profile', p.id, 'industry', uniq(input.industries)),
         ...setTags('profile', p.id, 'sub', uniq(input.subs)),
-        ...setTags('profile', p.id, 'sdg', uniq(input.sdgs)),
+        // person profiles no longer carry UN goals; clear any saved before they were removed
+        ...setTags('profile', p.id, 'sdg', []),
         ...setTags('profile', p.id, 'skill', input.skills),
       ]);
       await reindex('profile', p.id);

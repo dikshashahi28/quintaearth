@@ -1,6 +1,7 @@
 ---
 // Industries (with their sub-categories grouped under each) and the UN goals, for the profile and company editors.
-// Sub-category groups open when their industry or one of their subs is chosen.
+// Sub-category groups open when their industry or one of their subs is chosen. Leave out `sdgs` to hide the goals
+// (person profiles do not carry UN goals; companies do).
 import { industries } from '../../../data/industries';
 import { goals } from '../../../data/sdgs';
 import ChipPicker from './ChipPicker.astro';
@@ -9,7 +10,7 @@ interface Props {
   prefix: string;
   industries: string[];
   subs: string[];
-  sdgs: string[];
+  sdgs?: string[];
   errors?: Record<string, string[] | undefined>;
 }
 const { prefix, industries: chosenInd, subs: chosenSubs, sdgs: chosenGoals, errors = {} } = Astro.props;
@@ -22,8 +23,10 @@ const { prefix, industries: chosenInd, subs: chosenSubs, sdgs: chosenGoals, erro
     groups={industries.map((ind) => ({ label: ind.name, open: chosenInd.includes(ind.slug), options: ind.subs.map((s) => ({ value: s.slug, label: s.name })) }))} />
 </section>
 
-<section class="sec">
-  <h2>UN goals</h2>
-  <ChipPicker name="sdgs" legend="UN goals" quietLegend options={goals.map((g) => ({ value: String(g.n), label: g.title, goal: g.n }))}
-    selected={chosenGoals} errorId={`${prefix}-sdgs-error`} error={errors.sdgs} />
-</section>
+{chosenGoals && (
+  <section class="sec">
+    <h2>UN goals</h2>
+    <ChipPicker name="sdgs" legend="UN goals" quietLegend options={goals.map((g) => ({ value: String(g.n), label: g.title, goal: g.n }))}
+      selected={chosenGoals} errorId={`${prefix}-sdgs-error`} error={errors.sdgs} />
+  </section>
+)}
