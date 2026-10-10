@@ -34,6 +34,9 @@
   "env": {
     // dev.quintaearth.com: the same code with its own database, files and secrets (AUTH_SECRET, EMAIL_API_KEY).
     // Build with CLOUDFLARE_ENV=dev PUBLIC_DEPLOY=dev, then `wrangler deploy`; PUBLIC_DEPLOY=dev keeps it out of search.
+    // Workers Builds on quintaearth-dev does this on every push to the dev branch, applying new D1 migrations first:
+    //   build:  CLOUDFLARE_ENV=dev PUBLIC_DEPLOY=dev pnpm build
+    //   deploy: npx wrangler d1 migrations apply quintaearth-dev --remote --env dev && npx wrangler deploy
     "dev": {
       "name": "quintaearth-dev",
       "vars": { "SITE_URL": "https://dev.quintaearth.com", "EMAIL_FROM": "QuintaEarth Dev <hello@quintaearth.com>" },
