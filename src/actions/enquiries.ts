@@ -74,6 +74,9 @@ export const enquiries = {
       const isBuyer = !!e && e.fromUserId === user.id;
       if (!e || (!onTeam && !isBuyer)) throw new ActionError({ code: 'NOT_FOUND', message: 'Enquiry not found.' });
       if (e.status === 'closed') throw new ActionError({ code: 'BAD_REQUEST', message: 'This enquiry is closed.' });
+      // every reply emails the other side: a generous daily allowance per member
+      const { spend, DAY } = await import('../lib/throttle');
+      await spend([{ key: `reply:${user.id}`, limit: 40, windowMs: DAY }], 'Too many replies today. Try again tomorrow.');
 
       const side = onTeam ? 'company' : 'buyer';
       await db.batch([

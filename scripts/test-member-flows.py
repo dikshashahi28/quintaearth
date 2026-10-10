@@ -394,6 +394,13 @@ check('checked filter now includes company', OSLUG.encode() in b, '')
 st, _, b = anon.req('GET', f'/companies/{OSLUG}')
 check('company page shows Identity checked', b'Identity checked' in b, '')
 
+# a rename drops "Identity checked": the mark vouches for the name that was checked
+st, j = A.action('company.update', {'organizationId': OID, 'name': f'Sun Grid Labs Renamed {RUN}', 'published': 'on'})
+check('renaming a checked company clears the mark', st == 200 and sql(f"select identity_checked_at from organizations where id='{OID}'")[0]['identity_checked_at'] is None, f'{st} {j}')
+# outbound email is rate limited
+FL = User('flood')
+codes = [FL.action('account.sendSignInLink', {'email': FL.email})[0] for _ in range(6)]
+check('sign-in links: 5 an hour per address, then 429', codes[:5] == [200] * 5 and codes[5] == 429, str(codes))
 # unpublish hides everything
 st, j = A.action('company.update', {'organizationId': OID, 'name': f'Sun Grid Labs {RUN}'})
 check('unpublished company 404 + gone from search', anon.req('GET', f'/companies/{OSLUG}')[0] == 404 and OSLUG.encode() not in anon.req('GET', '/directory?q=microgrid')[2], '')

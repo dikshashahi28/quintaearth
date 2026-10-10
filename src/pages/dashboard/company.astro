@@ -138,7 +138,8 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <section class="sec">
           <h2>Details</h2>
           <div class="form">
-            <Field id="c-name" name="name" label="Company name" value={v.name} error={errors.name} maxlength={120} required autocomplete="organization" />
+            <Field id="c-name" name="name" label="Company name" value={v.name} error={errors.name} maxlength={120} required autocomplete="organization"
+              hint={org?.identityCheckedAt ? 'Changing the name removes the "Identity checked" mark until it is checked again.' : undefined} />
             <div class="row2">
               <Field id="c-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} />
               <CountrySelect id="c-country" name="country" label="Country" value={v.country} error={errors.country} />

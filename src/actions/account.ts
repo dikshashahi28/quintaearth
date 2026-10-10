@@ -42,6 +42,13 @@ export const account = {
     }),
     handler: async ({ email, next }, ctx) => {
       const { auth } = await import('../lib/auth');
+      // each link is an email: a few per address and per network address an hour keeps inboxes and the quota safe
+      const { spend, HOUR } = await import('../lib/throttle');
+      const ip = ctx.request.headers.get('cf-connecting-ip');
+      await spend([
+        { key: `link:${email.toLowerCase()}`, limit: 5, windowMs: HOUR },
+        ...(ip ? [{ key: `link-ip:${ip}`, limit: 20, windowMs: HOUR }] : []),
+      ], 'Too many links asked for. Try again in an hour.');
       const target = safeNext(next);
       const callbackURL = `/dashboard/password?next=${encodeURIComponent(target)}`;
       await auth.api.signInMagicLink({
@@ -121,7 +128,12 @@ export const account = {
       if (existing?.password && !fresh) {
         const { verifyPassword } = await import('../lib/password');
         if (!current) throw new ActionError({ code: 'BAD_REQUEST', message: 'Enter your current password.' });
+        // guesses at the current password count like sign-in guesses
+        const { blocked, record } = await import('../lib/throttle');
+        const guess = [{ key: `current:${me.id}`, limit: 8, windowMs: 15 * 60_000 }];
+        if (await blocked(guess)) throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'Too many tries. Wait 15 minutes, or sign in again with an email link.' });
         if (!(await verifyPassword({ hash: existing.password, password: current }))) {
+          await record(guess);
           throw new ActionError({ code: 'BAD_REQUEST', message: 'Your current password is wrong.' });
         }
       }

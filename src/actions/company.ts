@@ -1,7 +1,7 @@
 // Company pages (/companies/[slug]) and their team.
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { env } from 'cloudflare:workers';
 import { db, schema } from '../db/client';
 import { sendMail, noticeMail } from '../lib/email';
@@ -11,6 +11,7 @@ import { reindexCompany } from '../lib/search';
 import { deleteFile, putFile } from '../lib/storage';
 import { setTags } from '../lib/tags';
 import { hashToken, newToken } from '../lib/tokens';
+import { DAY, spend } from '../lib/throttle';
 import { checkbox, industriesField, optCountry, optText, optUrl, reqText, sdgsField, subsField, uniq } from '../lib/validate';
 
 const orgId = z.uuid();
@@ -78,8 +79,12 @@ export const company = {
     handler: async (input, ctx) => {
       await requireMember(ctx, input.organizationId);
       const id = input.organizationId;
+      // "Identity checked" vouches for the name that was checked: a new name needs a new check
+      const before = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, id), columns: { name: true, identityCheckedAt: true } });
+      const renamed = !!before?.identityCheckedAt && before.name !== input.name;
       await db.batch([
         db.update(schema.organizations).set({
+          ...(renamed ? { identityCheckedAt: null } : {}),
           name: input.name, description: input.description, city: input.city, country: input.country, size: input.size,
           foundedYear: input.foundedYear, website: input.website, linkedin: input.linkedin, published: input.published, updatedAt: new Date(),
         }).where(eq(schema.organizations.id, id)),
@@ -132,6 +137,11 @@ export const company = {
         .innerJoin(schema.user, eq(schema.user.id, schema.members.userId))
         .where(and(eq(schema.members.organizationId, organizationId), eq(schema.user.email, email)));
       if (already.length) throw new ActionError({ code: 'CONFLICT', message: 'That person is already on the team.' });
+      // invitations are emails sent in the company's name: a daily allowance per inviter, and per address invited
+      await spend([
+        { key: `invite:${user.id}`, limit: 20, windowMs: DAY },
+        { key: `invited:${email}`, limit: 3, windowMs: DAY },
+      ], 'Too many invitations today. Try again tomorrow.');
 
       const token = newToken();
       const values = {
@@ -189,7 +199,11 @@ export const company = {
       if (userId !== user.id && membership.role !== 'owner') throw new ActionError({ code: 'FORBIDDEN', message: 'Only owners can remove team members.' });
       const ownerIds = (await owners(organizationId)).map((o) => o.userId);
       if (ownerIds.length === 1 && ownerIds[0] === userId) throw new ActionError({ code: 'CONFLICT', message: 'Make someone else an owner first.' });
-      await db.delete(schema.members).where(and(eq(schema.members.organizationId, organizationId), eq(schema.members.userId, userId)));
+      // one statement: the row goes only while another owner remains, so two owners removing each other at once
+      // cannot leave the company with none
+      const res = await db.run(sql`DELETE FROM members WHERE organization_id = ${organizationId} AND user_id = ${userId}
+        AND (role != 'owner' OR (SELECT count(*) FROM members WHERE organization_id = ${organizationId} AND role = 'owner' AND user_id != ${userId}) > 0)`);
+      if (!res.meta.changes) throw new ActionError({ code: 'CONFLICT', message: 'Make someone else an owner first.' });
       return { removed: userId };
     },
   }),
