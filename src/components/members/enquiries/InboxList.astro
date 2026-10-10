@@ -1,0 +1,16 @@
+---
+// The left pane of the inbox: one link per enquiry, a gold dot for new ones.
+export interface InboxItem { id: string; href: string; source: string; date: string; name: string; subject: string; isNew: boolean }
+interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string }
+const { items, currentId, label, class: cls } = Astro.props;
+---
+<nav class:list={['ilist', cls]} aria-label={label}>
+  {items.map((it) => (
+    <a href={it.href} class:list={{ new: it.isNew, on: it.id === currentId }} aria-current={it.id === currentId ? 'true' : undefined}>
+      <span class="top"><span>{it.source}</span><span>{it.date}</span></span>
+      <b>{it.name}</b>
+      <span class="s">{it.subject}</span>
+      {it.isNew && <span class="sr">, new</span>}
+    </a>
+  ))}
+</nav>

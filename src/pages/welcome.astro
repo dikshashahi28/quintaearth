@@ -1,0 +1,73 @@
+---
+// First visit after sign-up: name and account type. The middleware sends members here until they choose.
+import { actions, isInputError } from 'astro:actions';
+import { myCompanies, pendingInvites } from '../db/queries/dashboard';
+import Member from '../layouts/Member.astro';
+import PageHead from '../components/page/PageHead.astro';
+import PasswordField from '../components/members/forms/PasswordField.astro';
+import { actionErrorMessage } from '../components/members/forms/errors';
+import '../styles/members/account.css';
+
+export const prerender = false;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fwelcome');
+if (user.accountType) return Astro.redirect('/dashboard');
+
+const result = Astro.getActionResult(actions.account.chooseAccountType);
+if (result?.data) return Astro.redirect('/dashboard');
+const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failed = result?.error && !isInputError(result.error);
+// joined a team by invitation: the account type is settled, only the name is asked
+// an invitation not yet opened counts too: setup accepts it (see account.chooseAccountType)
+const team = (await myCompanies(user.id))[0] ?? (await pendingInvites(user.email))[0];
+// the library names new members after their email; offer an empty field instead. After a failed post, show
+// what was typed (never the password).
+let sent: FormData | null = null;
+if (result?.error && Astro.request.method === 'POST') {
+  try { sent = await Astro.request.formData(); } catch { sent = null; }
+}
+const nameValue = sent ? String(sent.get('name') ?? '') : user.name && user.name !== user.email.split('@')[0] ? user.name : '';
+const typeValue = sent ? String(sent.get('type') ?? '') : '';
+const companyValue = sent ? String(sent.get('company') ?? '') : '';
+---
+<Member title="Welcome" description="Set up your QuintaEarth account." noindex>
+  <PageHead title="Welcome to QuintaEarth" crumbs={[{ label: 'Welcome' }]} width="col" />
+  <section class="body">
+    <div class="col">
+      <form class="form" method="POST" action={actions.account.chooseAccountType}>
+        {failed && <p class="form-status bad" role="alert">{actionErrorMessage(result?.error)}</p>}
+        {team && <p class="notice" role="status">You are joining {team.name}.</p>}
+        <div class="field">
+          <label for="welcome-name">Your name</label>
+          <input class="inp" id="welcome-name" name="name" type="text" autocomplete="name" maxlength="80" required value={nameValue}
+            aria-invalid={errors.name ? 'true' : undefined} aria-describedby="welcome-name-error">
+          <p class="err" id="welcome-name-error">{errors.name?.join(' ')}</p>
+        </div>
+        {!team && (<>
+          <fieldset class="field" aria-describedby="welcome-type-error">
+            <legend>I am joining as</legend>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="type" value="individual" required checked={typeValue === 'individual'}><span><b>An individual</b><small>A professional, maker, scholar or volunteer</small></span></label>
+              <label class="choice"><input type="radio" name="type" value="company" checked={typeValue === 'company'}><span><b>A company</b><small>A startup, vendor, brand or organisation</small></span></label>
+            </div>
+            <p class="err" id="welcome-type-error">{errors.type?.join(' ')}</p>
+          </fieldset>
+          <div class="field">
+            <label for="welcome-company">Company name <span class="opt">(companies only)</span></label>
+            <input class="inp" id="welcome-company" name="company" type="text" autocomplete="organization" maxlength="120" value={companyValue}
+              aria-invalid={errors.company ? 'true' : undefined} aria-describedby="welcome-company-error">
+            <p class="err" id="welcome-company-error">{errors.company?.join(' ')}</p>
+          </div>
+        </>)}
+        <input class="sr" type="email" name="username" value={user.email} autocomplete="username" readonly tabindex="-1" aria-hidden="true">
+        <PasswordField id="welcome-password" name="password" label="Choose a password" autocomplete="new-password"
+          hint="At least 10 characters. You sign in with it next time." error={errors.password} />
+        <div class="form-send">
+          <button class="btn btn-fill" type="submit">Continue</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</Member>

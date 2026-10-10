@@ -17,7 +17,7 @@ export const site = {
 } as const;
 
 /** Header links that can be marked as the current section. */
-export type NavKey = 'about' | 'industries' | 'insights' | 'press' | 'volunteer' | 'contact';
+export type NavKey = 'about' | 'industries' | 'directory' | 'insights' | 'press' | 'volunteer' | 'contact';
 
 // Google Apps Script web apps that store form submissions in Diksha's sheets.
 // They are the same endpoints the pre-revamp site posted to.

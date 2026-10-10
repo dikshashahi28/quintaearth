@@ -1,0 +1,9 @@
+# Local secrets for `pnpm dev`. Copy to .dev.vars. Production values are set with `wrangler secret put`.
+SITE_URL=http://localhost:4321
+# any long random string: openssl rand -base64 32
+AUTH_SECRET=
+# optional locally: without it, sign-in links are printed in the dev server log
+EMAIL_API_KEY=
+EMAIL_FROM=QuintaEarth <hello@quintaearth.com>
+# tests only: send mail to a local catcher instead of the provider (see scripts/mail-sink.py)
+EMAIL_API_URL=

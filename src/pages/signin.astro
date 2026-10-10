@@ -1,0 +1,110 @@
+---
+// Sign in with email and password. "?by=link" asks for a one-time email link instead: new members confirm their
+// address this way and then choose a password; members who forgot theirs choose a new one.
+import { actions, isInputError } from 'astro:actions';
+import Member from '../layouts/Member.astro';
+import PageHead from '../components/page/PageHead.astro';
+import PasswordField from '../components/members/forms/PasswordField.astro';
+import { actionErrorMessage } from '../components/members/forms/errors';
+import '../styles/members/account.css';
+import { page } from '../lib/url';
+
+export const prerender = false;
+
+if (Astro.locals.user) return Astro.redirect('/dashboard');
+
+const params = Astro.url.searchParams;
+const next = params.get('next') ?? '';
+const linkError = params.get('error');
+const signIn = Astro.getActionResult(actions.account.signIn);
+if (signIn?.data) return Astro.redirect(signIn.data.next, 303);
+const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
+// after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
+// short-lived cookie, never the URL
+const SENT = 'qe.sent';
+if (sendLink?.data) {
+  Astro.cookies.set(SENT, sendLink.data.email, { path: '/signin', maxAge: 600, httpOnly: true, sameSite: 'lax', secure: Astro.url.protocol === 'https:' });
+  let back = '';
+  try { back = String((await Astro.request.formData()).get('next') ?? ''); } catch { back = ''; }
+  const q = new URLSearchParams({ by: 'link', sent: '1' });
+  if (back) q.set('next', back);
+  return Astro.redirect(`/signin?${q}`, 303);
+}
+const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
+const byLink = params.get('by') === 'link' || !!sendLink || !!linkError;
+const result = byLink ? sendLink : signIn;
+const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+
+// the post goes to ?_action=…, so `next` comes from the form rather than the address
+let formNext = next;
+let formEmail = '';
+if (result && Astro.request.method === 'POST') {
+  try {
+    const sent = await Astro.request.formData();
+    formNext = String(sent.get('next') ?? '');
+    formEmail = String(sent.get('email') ?? '').slice(0, 100);
+  } catch { formNext = next; }
+}
+const withNext = (path: string, extra = '') => {
+  const q = new URLSearchParams(extra);
+  if (formNext) q.set('next', formNext);
+  const s = q.toString();
+  return s ? `${path}?${s}` : path;
+};
+---
+<Member title={byLink ? 'Email me a link' : 'Sign in'} description="Sign in to QuintaEarth." noindex>
+  <PageHead title={byLink ? 'Email me a link' : 'Sign in'} crumbs={[{ label: 'Sign in' }]}
+    lede={byLink ? 'New here, or forgot your password? The link signs you in once, then you choose a password.' : undefined} width="col" />
+  <section class="body">
+    <div class="col">
+      {byLink && sentTo ? (
+        <div class="sent" role="status">
+          <h2>Check your email</h2>
+          <p>We sent a link to {sentTo}. It works once and expires in 10 minutes.</p>
+          <a class="tlink sent-again" href={withNext('/signin', 'by=link')}>Use another address</a>
+        </div>
+      ) : byLink ? (
+        <form class="form" method="POST" action={actions.account.sendSignInLink}>
+          {linkError && <p class="form-status bad" role="alert">That link has expired or was already used. Ask for a new one.</p>}
+          {failed && <p class="form-status bad" role="alert">We could not send the link. Try again in a minute.</p>}
+          <input type="hidden" name="next" value={formNext}>
+          <div class="field">
+            <label for="link-email">Email</label>
+            <input class="inp" id="link-email" name="email" type="email" autocomplete="email" maxlength="100" required spellcheck="false" value={formEmail}
+              aria-invalid={fieldErrors.email ? 'true' : undefined} aria-describedby="link-email-error">
+            <p class="err" id="link-email-error">{fieldErrors.email?.join(' ')}</p>
+          </div>
+          <div class="form-send">
+            <button class="btn btn-fill" type="submit">Email me a link</button>
+          </div>
+          <p class="form-note"><a href={withNext('/signin')}>Sign in with your password</a></p>
+          <p class="form-note">By joining you agree to our <a href={page('privacy')}>privacy notice</a>.</p>
+        </form>
+      ) : (
+        <form class="form" method="POST" action={actions.account.signIn}>
+          {failed && <p class="form-status bad" role="alert">{failed}</p>}
+          <input type="hidden" name="next" value={formNext}>
+          <div class="field">
+            <label for="signin-email">Email</label>
+            <input class="inp" id="signin-email" name="email" type="email" autocomplete="username" maxlength="100" required spellcheck="false" value={formEmail}
+              aria-invalid={fieldErrors.email ? 'true' : undefined} aria-describedby="signin-email-error">
+            <p class="err" id="signin-email-error">{fieldErrors.email?.join(' ')}</p>
+          </div>
+          <PasswordField id="signin-password" name="password" label="Password" autocomplete="current-password" error={fieldErrors.password} />
+          <div class="form-send">
+            <button class="btn btn-fill" type="submit">Sign in</button>
+            <a class="tlink" href={withNext('/signin', 'by=link')}>Forgot your password?</a>
+          </div>
+          <p class="form-note signin-new">New to QuintaEarth? <a href={withNext('/signin', 'by=link')}>Create an account</a></p>
+        </form>
+      )}
+    </div>
+  </section>
+</Member>
+
+<style>
+  .sent-again { margin-top: 16px; }
+  .form-send { flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  .signin-new { padding-top: 20px; border-top: 1px solid var(--hair); font-size: 15px; color: var(--text); }
+</style>

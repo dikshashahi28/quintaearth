@@ -1,0 +1,43 @@
+---
+// Accepting a team invitation. The token stays in the URL; accepting is a POST.
+import { actions } from 'astro:actions';
+import Member from '../layouts/Member.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { actionErrorMessage } from '../components/members/forms/errors';
+import { and, eq, gt, isNull } from 'drizzle-orm';
+import { db, schema } from '../db/client';
+import { hashToken } from '../lib/tokens';
+import '../styles/members/account.css';
+
+export const prerender = false;
+
+const token = Astro.url.searchParams.get('token') ?? '';
+if (!Astro.locals.user) return Astro.redirect(`/signin?next=${encodeURIComponent(`/invite?token=${token}`)}`);
+const result = Astro.getActionResult(actions.company.acceptInvite);
+if (result?.data) return Astro.redirect(`/dashboard?org=${result.data.organizationId}&flash=joined`);
+// look the invitation up now, so the page names the company, or says up front that the link no longer works
+const invite = token.length >= 20 && token.length <= 100 ? (await db.select({ email: schema.invites.email, company: schema.organizations.name })
+  .from(schema.invites).innerJoin(schema.organizations, eq(schema.organizations.id, schema.invites.organizationId))
+  .where(and(eq(schema.invites.tokenHash, await hashToken(token)), isNull(schema.invites.acceptedAt), gt(schema.invites.expiresAt, new Date()))).limit(1))[0] : undefined;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+---
+<Member title="Join a company" description="Accept a team invitation." noindex>
+  <PageHead title={invite ? `Join ${invite.company}` : 'Join the team'} crumbs={[{ label: 'Invitation' }]} lede={`Signed in as ${Astro.locals.user.email}`} width="col" />
+  <section class="body">
+    <div class="col">
+      {!invite ? (
+        <p class="form-status bad" role="alert">This invitation has expired or was already used. Ask the company to send a new one.</p>
+      ) : invite.email !== Astro.locals.user.email.toLowerCase() ? (
+        <p class="form-status bad" role="alert">This invitation is for {invite.email}. Sign out, then sign in with that address.</p>
+      ) : (
+        <form class="form" method="POST" action={actions.company.acceptInvite}>
+          {result?.error && <p class="form-status bad" role="alert">{actionErrorMessage(result.error)}</p>}
+          <p>{invite.company} invited you to their team on QuintaEarth. You can edit its company page and listings.</p>
+          <input type="hidden" name="token" value={token}>
+          <div class="form-send"><button class="btn btn-fill" type="submit">Accept invitation</button></div>
+        </form>
+      )}
+    </div>
+  </section>
+</Member>

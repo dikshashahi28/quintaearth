@@ -1,0 +1,78 @@
+---
+// One enquiry: subject, what it is about, the messages, then the reply form (and close/reopen for the company).
+// Forms post to the thread's own URL so the result lands on the thread page, whichever page shows it.
+import { actions } from 'astro:actions';
+import Icon from '../Icon.astro';
+import { msgDate, paragraphs } from './data';
+
+interface Message { id: string; side: 'buyer' | 'company'; authorUserId: string | null; body: string; createdAt: Date }
+interface Props {
+  enquiry: { id: string; subject: string; status: 'new' | 'open' | 'closed'; fromName: string; fromCompany: string | null };
+  messages: Message[];
+  side: 'buyer' | 'company';
+  viewerId: string;
+  companyName: string;
+  listing: string | null;
+  names: Map<string, string>;
+  /** the thread's own page, e.g. /dashboard/enquiries/<id> */
+  base: string;
+  error?: { body?: string; form?: string };
+  class?: string;
+}
+const { enquiry, messages, side, viewerId, companyName, listing, names, base, error = {}, class: cls } = Astro.props;
+const closed = enquiry.status === 'closed';
+const reply = `${base}${String(actions.enquiries.reply)}`;
+const setStatus = `${base}${String(actions.enquiries.setStatus)}`;
+
+function from(m: Message) {
+  if (m.side === side) return { name: m.authorUserId === viewerId ? 'You' : names.get(m.authorUserId ?? '') ?? (side === 'company' ? companyName : enquiry.fromName), org: m.authorUserId === viewerId ? null : side === 'company' ? companyName : enquiry.fromCompany };
+  if (m.side === 'buyer') return { name: enquiry.fromName, org: enquiry.fromCompany || 'Individual' };
+  return { name: names.get(m.authorUserId ?? '') ?? companyName, org: companyName };
+}
+---
+<article class:list={['thread', cls]} aria-labelledby={`t-${enquiry.id}`}>
+  <h2 id={`t-${enquiry.id}`}>{enquiry.subject}</h2>
+  <div class="small-meta eq-meta">
+    {side === 'buyer' && <span><Icon name="storefront" />To: {companyName}</span>}
+    {listing && <span><Icon name="inventory_2" />About: {listing}</span>}
+    {closed && <span><Icon name="check_circle" />Closed</span>}
+  </div>
+  {messages.map((m) => {
+    const f = from(m);
+    return (
+      <div class:list={['msg', { mine: m.side === side }]}>
+        <div class="from"><b>{f.name}</b>{f.org && <span>{f.org}</span>}<span><time datetime={m.createdAt.toISOString()}>{msgDate(m.createdAt)}</time></span></div>
+        {paragraphs(m.body).map((p) => <p class="eq-p">{p}</p>)}
+      </div>
+    );
+  })}
+  {error.form && <p class="form-status bad eq-status" role="alert">{error.form}</p>}
+  {closed ? (
+    <div class="eq-closed">
+      <p class="notice">This enquiry is closed.</p>
+      {side === 'company' && (
+        <form method="POST" action={setStatus}>
+          <input type="hidden" name="enquiryId" value={enquiry.id}>
+          <input type="hidden" name="status" value="open">
+          <button class="tlink" type="submit">Reopen</button>
+        </form>
+      )}
+    </div>
+  ) : (
+    <form class="form eq-reply" method="POST" action={reply}>
+      <input type="hidden" name="enquiryId" value={enquiry.id}>
+      <div class="field">
+        <label for={`reply-${enquiry.id}`}>Reply</label>
+        <textarea class="area" id={`reply-${enquiry.id}`} name="body" placeholder="Write a reply" required maxlength="4000"
+          aria-invalid={error.body ? 'true' : undefined} aria-describedby={`reply-${enquiry.id}-error`}></textarea>
+        <p class="err" id={`reply-${enquiry.id}-error`}>{error.body}</p>
+      </div>
+      <div class="form-send">
+        <button class="btn btn-fill" type="submit">Send reply</button>
+        {side === 'company' && (
+          <button class="tlink eq-close" type="submit" formaction={setStatus} formnovalidate name="status" value="closed">Mark as closed</button>
+        )}
+      </div>
+    </form>
+  )}
+</article>

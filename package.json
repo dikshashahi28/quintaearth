@@ -11,15 +11,32 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "check:links": "node scripts/check-links.mjs dist",
-    "test": "astro check && astro build && node scripts/check-links.mjs dist"
+    "check:links": "node scripts/check-links.mjs dist/client",
+    "test": "astro check && astro build && node scripts/check-links.mjs dist/client",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply quintaearth --local",
+    "types": "wrangler types --include-runtime=false",
+    "test:members": "python3 -I scripts/test-member-flows.py"
   },
   "dependencies": {
-    "astro": "7.3.8"
+    "@astrojs/cloudflare": "14.3.4",
+    "astro": "7.3.8",
+    "better-auth": "1.7.7",
+    "drizzle-orm": "0.45.4"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "@cloudflare/workers-types": "5.20260930.2",
+    "drizzle-kit": "0.31.11",
     "sharp": "0.35.5",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "wrangler": "4.149.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
   }
 }

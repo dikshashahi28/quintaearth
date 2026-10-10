@@ -1,0 +1,41 @@
+/* Public member pages: person, company, directory. Builds on members.css (same class names as the design). */
+
+.page-head .meta .idc { gap: 6px; }
+.svgi { width: 20px; height: 20px; flex: none; fill: currentColor; }
+
+/* person */
+.bio { white-space: pre-line; }
+.workats { display: grid; gap: 12px; }
+.workat:hover { border-color: var(--river); }
+.workat .idc { margin-top: 8px; }
+
+/* company: listings. Proof leads each card (count, then the files); the photo follows only when there is one. */
+.lgrid > li { min-width: 0; }
+.lgrid > li > :first-child { margin-top: 0; }
+.lgrid > li > img { margin-top: 16px; }
+.lgrid .acts { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 6px; }
+.lgrid .acts .tlink { font-size: 15px; }
+.proof .proof-n { margin: 0 0 6px; display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--muted); }
+.proof .proof-n .n { font: 400 28px/1 var(--font-display); color: var(--deep); font-variant-numeric: lining-nums tabular-nums; }
+.proof ul { border-top: 1px solid var(--hair); }
+.proof li { border-bottom: 1px solid var(--hair); }
+.proof a { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 48px; padding: 6px 0; text-decoration: none; color: var(--text); }
+.proof .ft { display: grid; place-items: center; color: var(--river); }
+.proof .ft .ms { font-size: 20px; }
+.proof .fn { min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.proof b { min-width: 0; font-weight: 500; font-size: 15px; color: var(--river-deep); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+.proof small { flex: none; font-size: 13px; color: var(--muted); }
+.proof a:hover b { color: var(--river); text-decoration-color: currentColor; }
+.proof a:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
+.people a:hover b { color: var(--river); }
+.enq-end { margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--hair); }
+
+/* directory */
+.filters .acts, .ffilters .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.res .mark .ms { font-size: 30px; }
+.res .t .sep { margin-inline: 6px; }
+.results .empty { padding: 32px 0; border-top: 1px solid var(--hair); }
+.pager { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+/* phone: the filters fold behind a "Filters" button (members.css .fbtn); <details> so it works without script */
+.ffilters { display: grid; gap: 22px; width: 100%; margin-top: 16px; padding: 20px; border: 1px solid var(--hair); border-radius: 16px; }

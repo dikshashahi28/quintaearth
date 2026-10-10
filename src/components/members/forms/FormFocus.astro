@@ -1,0 +1,40 @@
+---
+// After a form posts and the page re-renders, the browser starts at the top with focus nowhere, so a member
+// would not know anything failed. This finds the outcome and moves focus to it: an error summary (built here,
+// linking each field that needs fixing), the form's own error line, or a "saved" notice.
+---
+<script>
+  const main = document.querySelector('main');
+  const bad = [...(main?.querySelectorAll<HTMLElement>('[aria-invalid="true"]') ?? [])];
+  const status = main?.querySelector<HTMLElement>('.form-status.bad:not(:empty)');
+  const focus = (el: HTMLElement) => { el.tabIndex = -1; el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'center' }); };
+  if (bad.length) {
+    const nameOf = (el: HTMLElement) =>
+      (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent?.trim())
+      || el.closest('fieldset')?.querySelector('legend')?.textContent?.trim() || 'A field';
+    const sum = document.createElement('div');
+    sum.className = 'err-sum';
+    sum.setAttribute('role', 'alert');
+    const head = document.createElement('p');
+    head.textContent = bad.length === 1 ? 'Check this field:' : `Check these ${bad.length} fields:`;
+    const list = document.createElement('ul');
+    for (const el of bad) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = `#${el.id}`;
+      a.textContent = nameOf(el).replace(/\s*\(optional\)$/, '');
+      a.addEventListener('click', (e) => { e.preventDefault(); el.focus(); el.scrollIntoView({ block: 'center' }); });
+      li.append(a);
+      list.append(li);
+    }
+    sum.append(head, list);
+    const form = bad[0]!.closest('form') ?? bad[0]!.closest('.field');
+    if (form?.parentElement) form.parentElement.insertBefore(sum, form); else main?.prepend(sum);
+    focus(sum);
+  } else if (status) {
+    focus(status);
+  } else if (['saved', 'flash'].some((k) => new URLSearchParams(location.search).has(k))) {
+    const note = main?.querySelector<HTMLElement>('.notice[role="status"]');
+    if (note) focus(note);
+  }
+</script>

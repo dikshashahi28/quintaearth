@@ -1,0 +1,162 @@
+---
+// Edit one listing: details, photo, evidence files, delete. Uploads and file removal post their own forms (below the editor). Only the listing's company team gets past the 404.
+import { actions, isInputError } from 'astro:actions';
+import { and, asc, eq } from 'drizzle-orm';
+import { db, schema } from '../../../db/client';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Icon from '../../../components/members/Icon.astro';
+import StatusPill from '../../../components/members/StatusPill.astro';
+import ListingForm, { type ListingValues } from '../../../components/members/listings/ListingForm.astro';
+import FileDrop from '../../../components/members/forms/FileDrop.astro';
+import { actionErrorMessage } from '../../../components/members/forms/errors';
+import { dashContext } from '../../../lib/dash-context';
+import { fileUrl } from '../../../lib/storage-url';
+import { tagsOf } from '../../../lib/tags';
+import '../../../styles/members/listings.css';
+
+export const prerender = false;
+
+const MAX_EVIDENCE = 10;
+const id = Astro.params.id ?? '';
+const self = `/dashboard/listings/${id}`;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(self)}`);
+
+// post-redirect-get after each successful action
+const saved = Astro.getActionResult(actions.listings.save);
+const removed = Astro.getActionResult(actions.listings.remove);
+const photo = Astro.getActionResult(actions.listings.setPhoto);
+const unphoto = Astro.getActionResult(actions.listings.removePhoto);
+const added = Astro.getActionResult(actions.listings.addEvidence);
+const dropped = Astro.getActionResult(actions.listings.removeEvidence);
+if (saved?.data) return Astro.redirect(`${self}?saved=1`);
+if (photo?.data) return Astro.redirect(`${self}?photo=1`);
+if (unphoto?.data) return Astro.redirect(`${self}?nophoto=1`);
+if (added?.data) return Astro.redirect(`${self}?added=1`);
+if (dropped?.data) return Astro.redirect(`${self}?dropped=1`);
+
+// the delete form posts to ?org=<company>, so the list it lands on is the same company's (the listing is gone by now)
+if (removed?.data) {
+  const q = new URLSearchParams({ removed: '1' });
+  const org = Astro.url.searchParams.get('org');
+  if (org && /^[0-9a-f-]{36}$/i.test(org)) q.set('org', org);
+  return Astro.redirect(`/dashboard/listings?${q}`);
+}
+const listing = /^[0-9a-f-]{36}$/i.test(id) ? await db.query.listings.findFirst({ where: eq(schema.listings.id, id) }) : undefined;
+if (!listing) return new Response(null, { status: 404 });
+
+// open the listing's own company in the nav; anyone off its team gets a 404
+const url = new URL(Astro.url);
+url.searchParams.set('org', listing.organizationId);
+const ctx = await dashContext(user, url);
+if (!ctx.company || ctx.company.id !== listing.organizationId) return new Response(null, { status: 404 });
+
+const errors = saved?.error && isInputError(saved.error) ? saved.error.fields : {};
+const failMsg = (r: typeof saved | typeof photo) => (r?.error ? (isInputError(r.error) ? 'Choose a file.' : actionErrorMessage(r.error) ?? undefined) : undefined);
+const saveFailure = saved?.error && !isInputError(saved.error) ? failMsg(saved) : undefined;
+const photoFailure = failMsg(photo) ?? failMsg(unphoto);
+const evidenceFailure = failMsg(added) ?? failMsg(dropped);
+const removeFailure = failMsg(removed);
+
+const tags = await tagsOf('listing', listing.id);
+let values: ListingValues = { id: listing.id, name: listing.name, kind: listing.kind, description: listing.description, link: listing.link, status: listing.status };
+let subs = tags.sub;
+let serves = tags.serves;
+// after a failed save, show what was sent
+if (saved?.error && Astro.request.method === 'POST') {
+  try {
+    const f = await Astro.request.formData();
+    const s = (k: string) => (typeof f.get(k) === 'string' ? (f.get(k) as string) : '');
+    values = { ...values, name: s('name'), kind: s('kind') === 'service' ? 'service' : 'product', description: s('description'), link: s('link') };
+    subs = f.getAll('subs').filter((v): v is string => typeof v === 'string');
+    serves = f.getAll('serves').filter((v): v is string => typeof v === 'string');
+  } catch { /* body already read: show the stored listing */ }
+}
+
+const evidence = await db.select().from(schema.files)
+  .where(and(eq(schema.files.listingId, listing.id), eq(schema.files.purpose, 'evidence'))).orderBy(asc(schema.files.createdAt));
+
+const q = Astro.url.searchParams;
+const flash = q.has('saved') ? (listing.status === 'published' ? 'Saved. The listing is live on your company page.' : 'Saved as a draft. Only your team can see it.') : q.has('photo') ? 'Photo updated.' : q.has('nophoto') ? 'Photo removed.' : q.has('added') ? 'File added.' : q.has('dropped') ? 'File removed.' : '';
+const size = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const companyPage = ctx.company.published && listing.status === 'published' ? `/companies/${ctx.company.slug}` : null;
+const listUrl = `/dashboard/listings${ctx.orgQuery}`;
+---
+<Dashboard ctx={ctx} current="listings" title={listing.name} crumbs={[{ label: 'Listings', href: listUrl }, { label: listing.name }]}>
+  <div class="head-acts" slot="head">
+    <StatusPill status={listing.status === 'published' ? 'live' : 'draft'} label={listing.status === 'published' ? 'Live' : 'Draft'} />
+    {companyPage && <a class="tlink" href={companyPage}>View on company page<Icon name="arrow_forward" /></a>}
+  </div>
+
+  {flash && <p class="notice flash" role="status">{flash}</p>}
+
+  <ListingForm action={actions.listings.save.queryString} organizationId={listing.organizationId} values={values} subs={subs} serves={serves} errors={errors} failure={saveFailure}>
+    <div class="field" slot="photo">
+      <span class="lab">Photo</span>
+      <div class="lst-photo">
+        {listing.photoKey
+          ? <img src={fileUrl(listing.photoKey)} alt="" loading="lazy">
+          : <span class="ph0"><Icon name="image" /></span>}
+        <FileDrop id="l-photo" name="photo" maxMB={5} form="photo-form" required icon="photo_camera" accept="image/jpeg,image/png,image/webp"
+          label={listing.photoKey ? 'Replace photo' : 'Add a photo'} hint="JPG, PNG or WebP, up to 5 MB"
+          button={listing.photoKey ? 'Replace photo' : 'Upload photo'} error={photoFailure} />
+        {listing.photoKey && <button class="tlink red lst-unphoto" type="submit" form="photo-remove-form">Remove photo</button>}
+      </div>
+    </div>
+
+    <div class="field ev-field" slot="evidence" role="group" aria-labelledby="ev-lab">
+      <span class="lab" id="ev-lab">Evidence</span>
+      {evidenceFailure && <p class="form-status bad" role="alert">{evidenceFailure}</p>}
+      {evidence.length < MAX_EVIDENCE ? (
+        <FileDrop id="l-file" name="file" form="evidence-form" required
+          accept="application/pdf,image/jpeg,image/png,image/webp" label="Add a file" hint={`PDF, JPG, PNG or WebP, up to 10 MB. Up to ${MAX_EVIDENCE} files.`} button="Upload" />
+      ) : (
+        <p class="hint">{MAX_EVIDENCE} of {MAX_EVIDENCE} files</p>
+      )}
+      <p class="hint">Anyone can open these files.</p>
+      {evidence.length > 0 && (
+        <ul class="files ev">
+          {evidence.map((f) => (
+            <li>
+              <span class="ft"><Icon name={f.contentType === 'application/pdf' ? 'description' : 'image'} /></span>
+              <div class="fname"><b><a href={fileUrl(f.key)}>{f.name}</a></b><small>{size(f.size)} · Added {day(f.createdAt)}</small></div>
+              <details class="rm">
+                <summary class="iconbtn"><Icon name="delete" /><span class="sr">Remove {f.name}</span><span class="cx">Cancel</span></summary>
+                <div class="confirm">
+                  <p>Remove {f.name}?</p>
+                  <button class="btn btn-quiet" type="submit" form="ev-remove-form" name="key" value={f.key}>Remove</button>
+                </div>
+              </details>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <details class="del" slot="send" open={!!removeFailure}>
+      <summary class="tlink red">Delete listing</summary>
+      <div class="confirm">
+        <p>Delete {listing.name} and its files? This cannot be undone.</p>
+        <button class="btn btn-quiet" type="submit" form="remove-form">Delete listing</button>
+        {removeFailure && <p class="form-status bad" role="alert">{removeFailure}</p>}
+      </div>
+    </details>
+  </ListingForm>
+
+  <form id="photo-form" method="POST" action={actions.listings.setPhoto.queryString} enctype="multipart/form-data" data-autosave>
+    <input type="hidden" name="listingId" value={listing.id}>
+  </form>
+  <form id="photo-remove-form" method="POST" action={actions.listings.removePhoto.queryString} data-autosave>
+    <input type="hidden" name="listingId" value={listing.id}>
+  </form>
+  <form id="evidence-form" method="POST" action={actions.listings.addEvidence.queryString} enctype="multipart/form-data" data-autosave>
+    <input type="hidden" name="listingId" value={listing.id}>
+  </form>
+  <form id="ev-remove-form" method="POST" action={actions.listings.removeEvidence.queryString} data-autosave></form>
+  <form id="remove-form" method="POST" action={`?org=${listing.organizationId}&${actions.listings.remove.queryString.slice(1)}`}>
+    <input type="hidden" name="listingId" value={listing.id}>
+  </form>
+</Dashboard>

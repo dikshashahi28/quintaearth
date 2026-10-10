@@ -1,0 +1,121 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { site } from '../data/site';
+
+export const prerender = true;
+
+const mail = `mailto:${site.email}`;
+---
+<Page title="Privacy notice" description="What QuintaEarth collects, why, who sees it, how long we keep it, and how to use your rights.">
+  <PageHead title="Privacy notice" crumbs={[{ label: 'Privacy notice' }]} lede="What we collect, why, and what you can do about it." width="col" />
+
+  <div class="page-body">
+    <div class="col prose legal">
+      <p>Last updated 10 October 2026.</p>
+
+      <h2>Who we are</h2>
+      <p>QuintaEarth runs quintaearth.com. We decide how the personal data on this site is used, so we are its controller (a “data fiduciary” under India’s law).</p>
+      <p>Questions, requests or complaints, including grievances under India’s law: <a href={mail}>{site.email}</a>.</p>
+
+      <h2>What we collect and why</h2>
+
+      <h3>Your account</h3>
+      <p>Your email address, name and password. We use them to sign you in, run your account and send you the emails the service needs. We store only a scrambled form of your password (a salted hash), never the password itself. We also note whether you joined as a person or a company.</p>
+
+      <h3>Your profile</h3>
+      <p>What you choose to add: photo, headline, bio, city, country, links, skills and topics. A profile stays private until you publish it. Once published, anyone can see it.</p>
+
+      <h3>Company pages</h3>
+      <p>Company details, logo, links and topics, and the people on the team with their roles. When you invite someone, we store their email address to send the invitation. A company page is public once it is published.</p>
+
+      <h3>Listings and evidence</h3>
+      <p>Products and services, with photos and evidence files. These are public by design: the point is that anyone can check a claim. Do not upload anything you would not want the world to read.</p>
+
+      <h3>Enquiries</h3>
+      <p>When you send an enquiry, we store your name, email, company if given, the subject and every message in the thread. We pass them to the company’s team so they can reply.</p>
+
+      <h3>Identity checks</h3>
+      <p>When a company asks for an identity check, we collect its registration number and country, a work email, an optional note and an optional registration document. The document is private. Only that company’s team and our reviewers can open it. We use it only to decide the check.</p>
+
+      <h3>Forms on the site</h3>
+      <p>The partner, volunteer and review forms collect what they ask for: for example name, email, phone, company, role, gender, place, a CV, a review and a rating. We store submissions with our spreadsheet provider and use them to reply and to run the community. Reviews you send may be shown on the site with your name. Your email is never shown.</p>
+      <p>If the review form asks you to sign in with an external account, that provider handles the sign-in under its own policy and tells us your name and email.</p>
+
+      <h3>Emails we send</h3>
+      <p>Links to confirm your email or reset your password, invitations, enquiry alerts and replies, and identity-check decisions. Your account gets no marketing email.</p>
+
+      <h3>Technical data</h3>
+      <p>Each sign-in session stores your IP address and browser details, and each failed password attempt stores the email and IP address tried, to keep accounts secure. Our host also keeps short-lived server logs of requests, which include IP addresses. Pages load fonts from a font provider, which sees your IP address. The video on the home page loads from the video platform only when you press play.</p>
+      <p>We use no analytics and no ads.</p>
+
+      <h2>Our legal grounds</h2>
+      <p>Under the GDPR and UK GDPR we rely on:</p>
+      <ul>
+        <li><strong>Contract</strong>: to run your account, pages, listings, enquiries and identity checks.</li>
+        <li><strong>Legitimate interests</strong>: to keep the site secure, prevent abuse, answer forms and messages, and improve the site. You can object.</li>
+        <li><strong>Consent</strong>: where a form asks for it. You can withdraw it at any time.</li>
+        <li><strong>Legal obligation</strong>: when the law requires us to keep or share data.</li>
+      </ul>
+      <p>Under India’s Digital Personal Data Protection Act 2023, we process your data on the basis of this notice and your consent, or for legitimate uses the Act allows, such as data you give us voluntarily for a stated purpose.</p>
+
+      <h2>Who sees your data</h2>
+      <ul>
+        <li><strong>Everyone</strong>: what you publish (profiles, company pages, listings, evidence files, shown reviews).</li>
+        <li><strong>A company’s team</strong>: enquiries sent to that company, and its identity-check details.</li>
+        <li><strong>Our reviewers</strong>: identity checks, to decide them.</li>
+        <li><strong>Service providers</strong> who work for us under contract: our hosting, database and file storage provider; our email delivery provider; our spreadsheet provider for site forms; and our font provider.</li>
+        <li><strong>Authorities</strong>: only when the law requires it.</li>
+      </ul>
+      <p>We do not sell your data.</p>
+      <p>Our providers may process data outside the EU, the UK and India. Where data leaves the EU or UK, we rely on the safeguards in their terms, such as standard contractual clauses.</p>
+
+      <h2>How long we keep it</h2>
+      <ul>
+        <li>Your account and what you added: until the account is deleted.</li>
+        <li>Sign-in sessions: they expire after 30 days.</li>
+        <li>Sign-in links: 10 minutes.</li>
+        <li>Records of failed sign-ins, which hold your email and IP address: one day.</li>
+        <li>Invitations: 7 days.</li>
+        <li>Enquiries: while the account they belong to exists.</li>
+        <li>Identity documents: 12 months after we decide on the request.</li>
+        <li>Form submissions: up to 24 months.</li>
+        <li>Server logs: a few days.</li>
+      </ul>
+
+      <h2>Your rights</h2>
+      <p>You can ask us to:</p>
+      <ul>
+        <li>give you a copy of your data;</li>
+        <li>correct it;</li>
+        <li>delete it;</li>
+        <li>stop or limit using it, or object to how we use it;</li>
+        <li>send it to you, or to someone else, in a common format;</li>
+        <li>withdraw your consent, where we asked for it.</li>
+      </ul>
+      <p>You can edit most of your data yourself from your dashboard. To delete your account, email <a href={mail}>{site.email}</a> from the address you sign in with. We answer within one month.</p>
+      <p>You can also complain to your data protection authority, or in India to the Data Protection Board of India. We would like the chance to help first.</p>
+
+      <h2>Cookies</h2>
+      <p>We set cookies only to keep you signed in. Their names start with “qe”:</p>
+      <ul>
+        <li><strong>qe.session_token</strong>: says who you are signed in as. It lasts up to 30 days, or until you sign out.</li>
+        <li><strong>qe.session_data</strong>: a signed copy of your session that saves a database lookup. It lasts 5 minutes.</li>
+        <li><strong>qe.sent</strong>: the address we just emailed a link to, so the page can show it. It lasts 10 minutes.</li>
+        <li><strong>qe.me</strong>: your initials, so every page can show your profile icon instead of “Sign in”. It lasts up to 30 days, or until you sign out.</li>
+      </ul>
+      <p>On the live site the first two names carry a “__Secure-” prefix. These cookies are strictly necessary, so we do not ask for consent. We set no tracking or advertising cookies.</p>
+
+      <h2>Children</h2>
+      <p>QuintaEarth is not for children. Do not sign up or send us forms if you are under 18.</p>
+
+      <h2>Changes</h2>
+      <p>When we change this notice, we update the date at the top. If a change matters, we tell members by email.</p>
+    </div>
+  </div>
+</Page>
+
+<style>
+  /* a long read: keep lines near 70 characters */
+  .legal > * { max-width: 68ch; }
+</style>

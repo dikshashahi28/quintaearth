@@ -23,6 +23,17 @@
   --on-deep: #e4efe2;
   --on-deep-muted: #9fc19c;
 
+  /* member pages (DESIGN.md "Member pages"): every value here clears the WCAG ratio it is used for on --page */
+  --ink-2: #3d4a3f;          /* secondary body text: 9.3:1 */
+  --placeholder: #5f6f60;    /* input placeholders: 5.3:1 */
+  --field-line: #7a957a;     /* input, select, textarea and upload-zone borders: 3.3:1 (WCAG 1.4.11) */
+  --id-line: #c9d3c8;        /* the identity label outline (its text carries the meaning) */
+  --live-wash: #e3ecd9;      /* live pill */
+  --live-ink: #3f5c31;
+  --quiet-wash: #eef1ee;     /* draft and later pills */
+  --danger: #b3261e;         /* remove, delete, errors: 6.5:1 */
+  --danger-line: #e3c4c1;    /* outline of a quiet destructive button */
+
   --font-display: 'Literata', Georgia, serif;
   --font-body: 'Public Sans', system-ui, sans-serif;
 

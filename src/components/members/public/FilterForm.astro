@@ -1,0 +1,60 @@
+---
+// The directory filters as a plain GET form, so every result page has a shareable URL. Rendered twice by the
+// directory (sidebar on desktop, folded under "Filters" on phone), so ids take a prefix.
+import Icon from '../Icon.astro';
+import { industries } from '../../../data/industries';
+import { countries } from '../../../data/countries';
+import { goals } from '../../../data/sdgs';
+
+export interface DirectoryState { q: string; type: '' | 'person' | 'company'; industry: string; sub: string; country: string; sdg: string; checked: boolean }
+interface Props { id: string; state: DirectoryState; class?: string; clearHref: string; hasFilters: boolean }
+const { id, state: s, class: cls, clearHref, hasFilters } = Astro.props;
+const byName = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+const types = [['', 'All'], ['person', 'People'], ['company', 'Companies']] as const;
+// with an industry chosen, only its sub-categories (plus the chosen one, if it sits elsewhere)
+const subGroups = s.industry ? industries.filter((i) => i.slug === s.industry || i.subs.some((x) => x.slug === s.sub)) : industries;
+---
+<form class={cls} method="get" action="/directory" aria-label="Filters">
+  {s.q && <input type="hidden" name="q" value={s.q}>}
+  <fieldset class="field">
+    <legend>Show</legend>
+    <div class="seg">
+      {types.map(([v, label]) => <label class:list={{ on: s.type === v }}><input type="radio" name="type" value={v} checked={s.type === v}>{label}</label>)}
+    </div>
+  </fieldset>
+  <div class="field">
+    <label for={`${id}-ind`}>Industry</label>
+    <span class="selwrap"><select class="sel" id={`${id}-ind`} name="industry">
+      <option value="">Any industry</option>
+      {industries.map((i) => <option value={i.slug} selected={s.industry === i.slug}>{i.name}</option>)}
+    </select><Icon name="expand_more" /></span>
+  </div>
+  <div class="field">
+    <label for={`${id}-sub`}>Sub-category</label>
+    <span class="selwrap"><select class="sel" id={`${id}-sub`} name="sub">
+      <option value="">Any</option>
+      {subGroups.map((i) => (
+        <optgroup label={i.name}>{i.subs.map((sub) => <option value={sub.slug} selected={s.sub === sub.slug}>{sub.name}</option>)}</optgroup>
+      ))}
+    </select><Icon name="expand_more" /></span>
+  </div>
+  <div class="field">
+    <label for={`${id}-cty`}>Country</label>
+    <span class="selwrap"><select class="sel" id={`${id}-cty`} name="country">
+      <option value="">Any country</option>
+      {byName.map((c) => <option value={c.iso} selected={s.country === c.iso}>{c.name}</option>)}
+    </select><Icon name="expand_more" /></span>
+  </div>
+  <div class="field">
+    <label for={`${id}-sdg`}>UN goal</label>
+    <span class="selwrap"><select class="sel" id={`${id}-sdg`} name="sdg">
+      <option value="">Any goal</option>
+      {goals.map((g) => <option value={String(g.n)} selected={s.sdg === String(g.n)}>{g.n} {g.title}</option>)}
+    </select><Icon name="expand_more" /></span>
+  </div>
+  <label class="check"><input type="checkbox" name="checked" value="1" checked={s.checked}><span>Identity checked only</span></label>
+  <div class="acts">
+    <button class="btn btn-fill" type="submit">Show results</button>
+    {hasFilters && <a class="tlink" href={clearHref}>Clear filters</a>}
+  </div>
+</form>

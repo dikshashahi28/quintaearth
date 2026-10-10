@@ -1,0 +1,88 @@
+---
+// Public person page (design: Person). Only published profiles exist here; anything else is a 404.
+import { and, inArray, eq } from 'drizzle-orm';
+import Member from '../../layouts/Member.astro';
+import ProfileHead from '../../components/members/public/ProfileHead.astro';
+import ExternalLinks from '../../components/members/public/ExternalLinks.astro';
+import TagSections from '../../components/members/public/TagSections.astro';
+import Avatar from '../../components/members/Avatar.astro';
+import Icon from '../../components/members/Icon.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
+import { db, schema } from '../../db/client';
+import { inChunks } from '../../db/chunks';
+import { getPublicPerson } from '../../db/queries/public';
+import { fileUrl } from '../../lib/storage-url';
+import { absolute, page } from '../../lib/url';
+import { ldJson, place } from '../../lib/labels';
+import '../../styles/members/public.css';
+
+export const prerender = false;
+
+const person = await getPublicPerson(Astro.params.handle ?? '');
+if (!person) return new Response(null, { status: 404 });
+
+// logo, place and trust mark for the "Works at" cards (getPublicPerson only returns name and slug)
+const slugs = person.companies.map((c) => c.slug);
+const orgs = await inChunks(slugs, (slice) => db.select({ slug: schema.organizations.slug, logoKey: schema.organizations.logoKey, city: schema.organizations.city, country: schema.organizations.country, checkedAt: schema.organizations.identityCheckedAt })
+  .from(schema.organizations).where(and(inArray(schema.organizations.slug, slice), eq(schema.organizations.published, true))));
+const orgBySlug = new Map(orgs.map((o) => [o.slug, o]));
+const companies = person.companies.map((c) => {
+  const o = orgBySlug.get(c.slug);
+  return { ...c, logoKey: o?.logoKey ?? null, place: place(o?.city, o?.country), checked: !!o?.checkedAt };
+});
+
+const where = place(person.city, person.country);
+const skills = person.tags.skill;
+const url = absolute(Astro.url.pathname, Astro.site);
+const description = (person.headline ?? person.bio ?? `${person.name} on QuintaEarth`).replace(/\s+/g, ' ').slice(0, 160);
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  url,
+  ...(person.headline && { jobTitle: person.headline }),
+  ...(person.bio && { description: person.bio }),
+  ...(person.photoKey && { image: absolute(fileUrl(person.photoKey), Astro.site) }),
+  ...(where && { homeLocation: { '@type': 'Place', name: where } }),
+  ...(companies.length && { worksFor: companies.map((c) => ({ '@type': 'Organization', name: c.name, url: absolute(page(`companies/${c.slug}`), Astro.site) })) }),
+  ...(skills.length && { knowsAbout: skills }),
+  ...((person.website || person.linkedin) && { sameAs: [person.website, person.linkedin].filter(Boolean) }),
+};
+---
+<Member title={person.name} description={description} current="directory">
+  <script slot="head" type="application/ld+json" set:html={ldJson(personLd)} />
+  <ProfileHead name={person.name} line={person.headline} imageKey={person.photoKey}>
+    {where && <Fragment slot="meta"><span><Icon name="location_on" />{where}</span></Fragment>}
+    {(person.website || person.linkedin) && <Fragment slot="acts"><ExternalLinks website={person.website} linkedin={person.linkedin} /></Fragment>}
+  </ProfileHead>
+  <section class="body">
+    <div class="wide two">
+      <div>
+        {person.bio && <p class="lead bio">{person.bio}</p>}
+        {skills.length > 0 && (
+          <div class="sec" style={person.bio ? 'margin-top: 48px' : undefined}>
+            <h2>Skills</h2>
+            <div class="chips">{skills.map((s) => <span class="chip">{s.charAt(0).toUpperCase() + s.slice(1)}</span>)}</div>
+          </div>
+        )}
+      </div>
+      <div>
+        {companies.length > 0 && (
+          <section class="sec">
+            <h2>Works at</h2>
+            <div class="workats">
+              {companies.map((c) => (
+                <a class="workat" href={page(`companies/${c.slug}`)}>
+                  <Avatar name={c.name} imageKey={c.logoKey} kind="company" size="sm" />
+                  <span style="min-width: 0"><b>{c.name}</b>{c.place && <small>{c.place}</small>}{c.checked && <IdentityMark small />}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+        <TagSections industries={person.tags.industry} subs={person.tags.sub} sdgs={person.tags.sdg} />
+      </div>
+    </div>
+  </section>
+</Member>

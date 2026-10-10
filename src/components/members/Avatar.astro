@@ -1,0 +1,17 @@
+---
+// A round portrait in the outlined "stone" style: the photo when there is one, else initials.
+// Companies use kind="company": the logo, or a storefront mark.
+import Icon from './Icon.astro';
+import { fileUrl } from '../../lib/storage-url';
+
+interface Props { name: string; imageKey?: string | null; size?: 'lg' | 'sm' | 'xs'; kind?: 'person' | 'company'; lit?: boolean }
+const { name, imageKey, size = 'lg', kind = 'person', lit = false } = Astro.props;
+const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join('');
+const cls = size === 'lg' ? undefined : size;
+const px = size === 'lg' ? 118 : size === 'sm' ? 64 : 48;
+---
+{imageKey
+  ? <span class:list={[kind === 'company' ? 'mark' : 'stone', cls, { lit }]}><img src={fileUrl(imageKey)} alt="" width={px} height={px} loading="lazy" /></span>
+  : kind === 'company'
+    ? <span class:list={['mark', cls]}><Icon name="storefront" /></span>
+    : <span class:list={['stone', cls, { lit }]}><span aria-hidden="true">{initials}</span></span>}
