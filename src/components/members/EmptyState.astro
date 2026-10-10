@@ -1,0 +1,23 @@
+---
+// The one empty state (design: Empty): a heading, an italic note, and at most one way forward.
+// `action.quiet` makes it a text link with an arrow instead of a filled button. The default slot replaces the action (e.g. a form).
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  note: string;
+  action?: { href: string; label: string; icon?: string; quiet?: boolean };
+  id?: string;
+}
+const { title, note, action, id = 'empty-h' } = Astro.props;
+const hasSlot = Astro.slots.has('default');
+---
+<section class="empty" aria-labelledby={title ? id : undefined}>
+  {title && <h2 id={id}>{title}</h2>}
+  <p class="empty-note">{note}</p>
+  {hasSlot ? <div class="empty-act"><slot /></div> : action && (
+    action.quiet
+      ? <a class="tlink" href={action.href}>{action.label}<Icon name={action.icon ?? 'arrow_forward'} /></a>
+      : <a class="btn btn-fill" href={action.href}>{action.icon && <Icon name={action.icon} />}{action.label}</a>
+  )}
+</section>

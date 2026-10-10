@@ -1,0 +1,141 @@
+---
+// Public company page (design: Company). Only published companies and their published listings show here.
+import Member from '../../layouts/Member.astro';
+import ProfileHead from '../../components/members/public/ProfileHead.astro';
+import ExternalLinks from '../../components/members/public/ExternalLinks.astro';
+import TagSections from '../../components/members/public/TagSections.astro';
+import Avatar from '../../components/members/Avatar.astro';
+import Icon from '../../components/members/Icon.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
+import { getPublicCompany } from '../../db/queries/public';
+import { fileUrl } from '../../lib/storage-url';
+import { absolute, page } from '../../lib/url';
+import { countryName, hostOf, ldJson, place, sizeLabel, subName } from '../../lib/labels';
+import '../../styles/members/public.css';
+
+export const prerender = false;
+
+const org = await getPublicCompany(Astro.params.slug ?? '');
+if (!org) return new Response(null, { status: 404 });
+
+const where = place(org.city, org.country);
+const size = sizeLabel(org.size);
+const enquire = page(`companies/${org.slug}/enquire`);
+const url = absolute(Astro.url.pathname, Astro.site);
+const fileSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`);
+const description = (org.description ?? `${org.name} on QuintaEarth`).replace(/\s+/g, ' ').slice(0, 160);
+
+const fileType = (ct: string, name: string) => {
+  if (ct === 'application/pdf') return 'PDF';
+  if (ct.startsWith('image/')) return `${ct.slice(6).toUpperCase()} image`;
+  const ext = name.split('.').pop();
+  return ext && ext !== name ? ext.toUpperCase() : 'File';
+};
+
+const listings = org.listings.map((l) => ({
+  ...l,
+  subs: l.tags.sub.map(subName).filter((s): s is string => !!s),
+  serves: l.tags.serves.map(countryName).filter((s): s is string => !!s),
+}));
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: org.name,
+  url,
+  ...(org.description && { description: org.description }),
+  ...(org.logoKey && { logo: absolute(fileUrl(org.logoKey), Astro.site) }),
+  ...(org.foundedYear && { foundingDate: String(org.foundedYear) }),
+  ...(where && { address: { '@type': 'PostalAddress', ...(org.city && { addressLocality: org.city }), ...(org.country && { addressCountry: org.country }) } }),
+  ...((org.website || org.linkedin) && { sameAs: [org.website, org.linkedin].filter(Boolean) }),
+  ...(org.team.length && { member: org.team.map((t) => ({ '@type': 'Person', name: t.name, url: absolute(page(`people/${t.handle}`), Astro.site) })) }),
+  ...(listings.length && {
+    makesOffer: listings.map((l) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': l.kind === 'service' ? 'Service' : 'Product', name: l.name, ...(l.description && { description: l.description }) },
+    })),
+  }),
+};
+---
+<Member title={org.name} description={description} current="directory">
+  <script slot="head" type="application/ld+json" set:html={ldJson(orgLd)} />
+  <ProfileHead name={org.name} imageKey={org.logoKey} kind="company">
+    {(where || size || org.foundedYear || org.identityChecked) && (
+      <Fragment slot="meta">
+        {where && <span><Icon name="location_on" />{where}</span>}
+        {size && <span><Icon name="group" />{size}</span>}
+        {org.foundedYear && <span><Icon name="calendar_today" />Founded {org.foundedYear}</span>}
+        {org.identityChecked && <IdentityMark small />}
+      </Fragment>
+    )}
+    <Fragment slot="acts">
+      <a class="btn btn-fill" href={enquire}><Icon name="mail" />Send an enquiry</a>
+      <ExternalLinks website={org.website} linkedin={org.linkedin} />
+    </Fragment>
+  </ProfileHead>
+
+  <section class="body" style="padding-bottom: 0">
+    <div class="wide two">
+      <div>{org.description && <p class="lead bio">{org.description}</p>}</div>
+      <div>
+        <TagSections industries={org.tags.industry} subs={org.tags.sub} sdgs={org.tags.sdg} small />
+      </div>
+    </div>
+  </section>
+
+  <section class="body" style="padding-bottom: 0" aria-labelledby="offer-h">
+    <div class="wide">
+      <div class="sec-t"><h2 id="offer-h">Products and services</h2></div>
+      {listings.length === 0
+        ? <p class="empty-note">No listings yet.</p>
+        : (
+          <ul class="lgrid">
+            {listings.map((l) => (
+              <li id={`listing-${l.slug}`}>
+                {l.evidence.length > 0 && (
+                  <div class="proof">
+                    <p class="proof-n"><span class="n">{l.evidence.length}</span> {l.evidence.length === 1 ? 'document' : 'documents'}</p>
+                    <ul aria-label={`Proof for ${l.name}`}>
+                      {l.evidence.map((e) => (
+                        <li><a href={fileUrl(e.key)} target="_blank" rel="noopener"><span class="ft"><Icon name={e.contentType.startsWith('image/') ? 'image' : 'description'} /></span><span class="fn"><b>{e.name}</b><small>{fileType(e.contentType, e.name)} · {fileSize(e.size)}</small></span></a></li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {l.photoKey && <img src={fileUrl(l.photoKey)} alt="" width="400" height="300" loading="lazy">}
+                <h3>{l.name}</h3>
+                {l.description && <p>{l.description}</p>}
+                <div class="small-meta">
+                  <span>{l.kind === 'service' ? 'Service' : 'Product'}</span>
+                  {l.subs.length > 0 && <span>{l.subs.join(', ')}</span>}
+                  {l.serves.length > 0 && <span><Icon name="public" /><span class="sr">Serves </span>{l.serves.join(', ')}</span>}
+                </div>
+                <div class="acts">
+                  <a class="tlink" href={`${enquire}?listing=${encodeURIComponent(l.id)}`}><Icon name="mail" />Ask about this<span class="sr">: {l.name}</span></a>
+                  {l.link && <a class="tlink" href={l.link} target="_blank" rel="noopener nofollow ugc"><Icon name="open_in_new" />{hostOf(l.link)}</a>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+    </div>
+  </section>
+
+  <section class="body" aria-labelledby={org.team.length ? 'team-h' : undefined}>
+    <div class="wide">
+      {org.team.length > 0 && (
+        <>
+          <div class="sec-t"><h2 id="team-h">Team</h2></div>
+          <ul class="people">
+            {org.team.map((t) => (
+              <li><a href={page(`people/${t.handle}`)}><Avatar name={t.name} imageKey={t.photoKey} size="sm" /><span><b>{t.name}</b>{t.headline && <small>{t.headline}</small>}</span></a></li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div class:list={['form-send', { 'enq-end': org.team.length > 0 }]}>
+        <a class="btn btn-fill" href={enquire}><Icon name="mail" />Send an enquiry</a>
+      </div>
+    </div>
+  </section>
+</Member>

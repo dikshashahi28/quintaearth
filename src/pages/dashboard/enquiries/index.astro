@@ -1,0 +1,48 @@
+---
+// The company's inbox: Open/Closed tabs, the list, and the newest enquiry beside it on wide screens.
+// Showing it here does not mark it read; opening it (its own page) does.
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Inbox from '../../../components/members/enquiries/Inbox.astro';
+import Thread from '../../../components/members/enquiries/Thread.astro';
+import EmptyState from '../../../components/members/EmptyState.astro';
+import { dashContext } from '../../../lib/dash-context';
+import { inbox } from '../../../db/queries/dashboard';
+import { authorNames, inTab, listDate, listingName, messagesOf, showOf, withQuery } from '../../../components/members/enquiries/data';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`);
+const ctx = await dashContext(user, Astro.url);
+if (!ctx.company) return Astro.redirect('/dashboard');
+const company = ctx.company;
+
+const show = showOf(Astro.url);
+const org = ctx.companies.length > 1 ? company.id : null;
+const all = await inbox(company.id);
+const rows = all.filter((e) => inTab(e.status, show));
+const items = rows.map((e) => ({
+  id: e.id, href: `/dashboard/enquiries/${e.id}`, source: e.fromCompany || 'Individual', date: listDate(e.updatedAt),
+  name: e.fromName, subject: e.subject, isNew: e.companyUnread,
+}));
+
+const first = rows[0];
+const messages = first ? await messagesOf(first.id) : [];
+const [names, listing] = first ? await Promise.all([authorNames(messages.map((m) => m.authorUserId)), listingName(first.listingId)]) : [new Map<string, string>(), null];
+const companyLink = company.published ? `/companies/${company.slug}` : `/dashboard/company${ctx.orgQuery}`;
+---
+<Dashboard ctx={ctx} current="enquiries" title="Enquiries" crumbs={[{ label: 'Enquiries' }]}>
+  <Inbox show={show} openCount={all.filter((e) => e.status !== 'closed').length}
+    tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
+    items={items} currentId={first?.id} label="Enquiries" mode="list" backHref="" backLabel="">
+    {first && (
+      <Thread enquiry={first} messages={messages} side="company" viewerId={user.id} companyName={company.name}
+        listing={listing} names={names} base={`/dashboard/enquiries/${first.id}`} />
+    )}
+    <Fragment slot="empty">
+      {all.length === 0
+        ? <EmptyState note="No enquiries yet." action={{ href: companyLink, label: company.published ? 'View your company page' : 'Finish your company page', quiet: true }} />
+        : <EmptyState note={show === 'closed' ? 'No closed enquiries.' : 'No open enquiries.'} />}
+    </Fragment>
+  </Inbox>
+</Dashboard>

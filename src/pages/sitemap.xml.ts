@@ -6,7 +6,7 @@ import { goals } from '../data/sdgs';
 import { getArticles, getStories, storySlug } from '../lib/content';
 import { absolute, page } from '../lib/url';
 
-const STATIC = ['index', 'about', 'industries', 'insights', 'press', 'sdgs', 'our-work', 'contact', 'volunteer', 'testimonials'];
+const STATIC = ['index', 'about', 'industries', 'insights', 'press', 'sdgs', 'our-work', 'contact', 'volunteer', 'testimonials', 'privacy'];
 
 export const GET: APIRoute = async ({ site }) => {
   const [articles, stories] = await Promise.all([getArticles(), getStories()]);

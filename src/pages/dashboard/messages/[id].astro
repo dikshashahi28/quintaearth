@@ -1,0 +1,51 @@
+---
+// One enquiry the member sent (the URL in "company replied" emails). They can reply while it is open.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Inbox from '../../../components/members/enquiries/Inbox.astro';
+import Thread from '../../../components/members/enquiries/Thread.astro';
+import { dashContext } from '../../../lib/dash-context';
+import { actionErrorMessage } from '../../../components/members/forms/errors';
+import { sent, thread } from '../../../db/queries/dashboard';
+import { authorNames, fieldError, inTab, lastSides, listDate, listingName, withQuery } from '../../../components/members/enquiries/data';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(Astro.url.pathname)}`);
+const id = Astro.params.id ?? '';
+
+const replied = Astro.getActionResult(actions.enquiries.reply);
+if (replied?.data) return Astro.redirect(`${Astro.url.pathname}?flash=reply`, 303);
+const err = replied?.error;
+const error = err
+  ? isInputError(err) ? { body: fieldError(err.fields.body, 'Write a reply.'), form: err.fields.body ? undefined : 'Check the form and try again.' } : { form: actionErrorMessage(err) ?? undefined }
+  : {};
+
+const t = await thread(user.id, id);
+if (!t) return new Response(null, { status: 404 });
+if (t.side === 'company') return Astro.redirect(`/dashboard/enquiries/${id}`);
+
+const ctx = await dashContext(user, Astro.url);
+const all = await sent(user.id);
+const row = all.find((r) => r.enquiry.id === id);
+if (!row) return new Response(null, { status: 404 });
+const show = row.enquiry.status === 'closed' ? 'closed' : 'open';
+const rows = all.filter((r) => inTab(r.enquiry.status, show));
+const last = await lastSides(rows.map((r) => r.enquiry.id));
+const items = rows.map(({ enquiry: e, company }) => ({
+  id: e.id, href: `/dashboard/messages/${e.id}`, source: last.get(e.id) === 'company' ? 'Replied' : 'Sent', date: listDate(e.updatedAt),
+  name: company, subject: e.subject, isNew: e.buyerUnread,
+}));
+const [names, listing] = await Promise.all([authorNames(t.messages.map((m) => m.authorUserId)), listingName(row.enquiry.listingId)]);
+---
+<Dashboard ctx={ctx} current="messages" title={row.enquiry.subject} heading="Sent enquiries"
+  crumbs={[{ label: 'Sent enquiries', href: '/dashboard/messages' }, { label: row.enquiry.subject }]}>
+  <Inbox show={show} openCount={all.filter((r) => r.enquiry.status !== 'closed').length}
+    tabs={{ open: '/dashboard/messages', closed: withQuery('/dashboard/messages', { show: 'closed' }) }}
+    items={items} currentId={id} label="Sent enquiries" mode="thread"
+    backHref={withQuery('/dashboard/messages', { show: show === 'closed' ? 'closed' : null })} backLabel="All sent enquiries">
+    <Thread enquiry={row.enquiry} messages={t.messages} side="buyer" viewerId={user.id} companyName={row.company}
+      listing={listing} names={names} base={`/dashboard/messages/${id}`} error={error} />
+  </Inbox>
+</Dashboard>

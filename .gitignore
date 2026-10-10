@@ -15,3 +15,6 @@ redirects.csv
 
 # wrangler local dev state
 .wrangler/
+
+# local secrets
+.dev.vars

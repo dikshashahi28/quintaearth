@@ -1,0 +1,101 @@
+---
+// Dashboard home: one row per part of the member's presence, each with its real status.
+import { and, desc, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client';
+import { myProfile } from '../../db/queries/dashboard';
+import { dashContext } from '../../lib/dash-context';
+import Dashboard from '../../layouts/Dashboard.astro';
+import Icon from '../../components/members/Icon.astro';
+import StatusPill from '../../components/members/StatusPill.astro';
+import EmptyState from '../../components/members/EmptyState.astro';
+import '../../styles/members/account.css';
+
+export const prerender = false;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard');
+
+const ctx = await dashContext(user, Astro.url);
+const { company, orgQuery } = ctx;
+const profile = await myProfile(user.id);
+// members from before passwords, or whose password row is missing, still sign in by email link until they set one
+const hasPassword = !!(await db.query.account.findFirst({
+  where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'credential')), columns: { password: true },
+}))?.password;
+const host = new URL(Astro.site ?? Astro.url).host;
+const firstName = user.name.trim().split(/\s+/)[0] || user.name;
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+let listings = { live: 0, draft: 0 };
+let senders: string[] = [];
+let identity: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string; text: string } | null = null;
+if (company) {
+  const rows = await db.select({ status: schema.listings.status }).from(schema.listings).where(eq(schema.listings.organizationId, company.id));
+  listings = { live: rows.filter((r) => r.status === 'published').length, draft: rows.filter((r) => r.status === 'draft').length };
+
+  const fresh = await db.select({ name: schema.enquiries.fromName, company: schema.enquiries.fromCompany }).from(schema.enquiries)
+    .where(and(eq(schema.enquiries.organizationId, company.id), eq(schema.enquiries.companyUnread, true)))
+    .orderBy(desc(schema.enquiries.updatedAt)).limit(10);
+  senders = [...new Set(fresh.map((e) => e.company || e.name))].slice(0, 2);
+
+  const latest = await db.query.identityChecks.findFirst({
+    where: eq(schema.identityChecks.organizationId, company.id), orderBy: desc(schema.identityChecks.createdAt),
+    columns: { status: true, createdAt: true, reviewedAt: true },
+  });
+  if (company.identityCheckedAt) identity = { status: 'plain', label: 'Identity checked', text: `Since ${day(company.identityCheckedAt)}` };
+  else if (latest?.status === 'pending') identity = { status: 'wait', label: 'In review', text: `Sent on ${day(latest.createdAt)}` };
+  else if (latest?.status === 'rejected') identity = { status: 'wait', label: 'Needs more info', text: latest.reviewedAt ? `Asked on ${day(latest.reviewedAt)}` : 'Asked for more information' };
+  else identity = { status: 'draft', label: 'Not requested', text: 'Ask for the "Identity checked" mark' };
+}
+// the pill names the state a visitor sees (any live listing makes the company's list live); the line gives both counts
+const listingText = listings.live + listings.draft === 0 ? 'No listings yet.' : `${listings.live} live · ${listings.draft} draft`;
+const enquiryText = ctx.newEnquiries === 0 ? 'No new enquiries.' : `From ${senders.join(' and ')}`;
+---
+<Dashboard ctx={ctx} current="overview" title="Dashboard" heading={`Hello, ${firstName}`}
+  lede={`Signed in as ${user.email} · ${user.accountType === 'company' ? 'Company account' : 'Individual account'}`}>
+  {!hasPassword && (
+    <p class="notice dhome-pw">Set a password to sign in without an email link. <a class="tlink" href="/dashboard/password">Set a password</a></p>
+  )}
+  {!profile && <EmptyState id="dhome-profile" title="Your profile" note="Nothing here yet." action={{ href: '/dashboard/profile', label: 'Start your profile' }} />}
+  <ul class="rows">
+    {profile && (
+      <li>
+        <div><h2><a href="/dashboard/profile">Your profile</a></h2><p>{host}/people/{profile.handle}</p></div>
+        <div class="end"><StatusPill status={profile.published ? 'live' : 'draft'} label={profile.published ? 'Live' : 'Draft'} /><Icon name="arrow_forward" class="go" /></div>
+      </li>
+    )}
+    {!company && (
+      <li>
+        <div><h2><a href="/dashboard/company">Start a company page</a></h2></div>
+        <div class="end"><Icon name="arrow_forward" class="go" /></div>
+      </li>
+    )}
+    {company && (<>
+      <li>
+        <div><h2><a href={`/dashboard/company${orgQuery}`}>Company page</a></h2><p>{host}/companies/{company.slug}</p></div>
+        <div class="end"><StatusPill status={company.published ? 'live' : 'draft'} label={company.published ? 'Live' : 'Draft'} /><Icon name="arrow_forward" class="go" /></div>
+      </li>
+      <li>
+        <div><h2><a href={`/dashboard/listings${orgQuery}`}>Listings</a></h2><p>{listingText}</p></div>
+        <div class="end">
+          {listings.live > 0 ? <StatusPill status="live" label="Live" /> : listings.draft > 0 && <StatusPill status="draft" label="Draft" />}
+          <Icon name="arrow_forward" class="go" />
+        </div>
+      </li>
+      <li>
+        <div><h2><a href={`/dashboard/enquiries${orgQuery}`}>Enquiries</a></h2><p>{enquiryText}</p></div>
+        <div class="end">{ctx.newEnquiries > 0 && <StatusPill status="plain" label={`${ctx.newEnquiries} new`} />}<Icon name="arrow_forward" class="go" /></div>
+      </li>
+      {identity && (
+        <li>
+          <div><h2><a href={`/dashboard/identity${orgQuery}`}>Identity check</a></h2><p>{identity.text}</p></div>
+          <div class="end"><StatusPill status={identity.status} label={identity.label} /><Icon name="arrow_forward" class="go" /></div>
+        </li>
+      )}
+    </>)}
+  </ul>
+  {company?.published && (
+    <p class="dhome-more"><a class="tlink" href={`/companies/${company.slug}`}>View your company page<Icon name="arrow_forward" /></a></p>
+  )}
+</Dashboard>

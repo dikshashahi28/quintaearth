@@ -1,0 +1,20 @@
+---
+// A country picker from src/data/countries.ts, styled as the design's select with a chevron.
+import { countries } from '../../../data/countries';
+import Icon from '../Icon.astro';
+
+interface Props { id: string; name: string; label: string; value?: string | null; error?: string[]; required?: boolean }
+const { id, name, label, value, error, required = false } = Astro.props;
+const errId = `${id}-error`;
+---
+<div class="field">
+  <label for={id}>{label}</label>
+  <span class="selwrap">
+    <select class="sel" id={id} name={name} required={required} aria-invalid={error?.length ? 'true' : undefined} aria-describedby={error?.length ? errId : undefined}>
+      <option value="" selected={!value}>Choose a country</option>
+      {countries.map((c) => <option value={c.iso} selected={c.iso === value}>{c.name}</option>)}
+    </select>
+    <Icon name="expand_more" />
+  </span>
+  <p class="err" id={errId}>{error?.join(' ')}</p>
+</div>

@@ -108,7 +108,7 @@
 .field label, .field legend { font-weight: 500; font-size: 15px; color: var(--deep); }
 .field .req { color: var(--gold-dark); }
 .field input, .field select, .field textarea {
-  width: 100%; min-height: 48px; padding: 10px 16px; border-radius: var(--r); border: 1.5px solid #9fb89f;
+  width: 100%; min-height: 48px; padding: 10px 16px; border-radius: var(--r); border: 1.5px solid var(--field-line);
   background: #fff; font: 400 16px/1.4 var(--font-body); color: var(--text); transition: border-color .2s;
 }
 .field input:not([type='checkbox'], [type='radio']), .field select { border-radius: 999px; padding-inline: 20px; }
@@ -259,7 +259,7 @@
 .phone { position: relative; display: flex; }
 .phone .cc-btn {
   display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 48px; padding: 0 12px;
-  border: 1.5px solid #9fb89f; border-right: 0; border-radius: var(--r) 0 0 var(--r); background: var(--sky);
+  border: 1.5px solid var(--field-line); border-right: 0; border-radius: var(--r) 0 0 var(--r); background: var(--sky);
   font: 500 16px/1 var(--font-body); color: var(--deep); font-variant-numeric: tabular-nums; cursor: pointer;
 }
 .phone .cc-btn .ic { width: 14px; height: 14px; color: var(--muted); transition: transform .2s var(--ease); }
@@ -334,7 +334,7 @@
 .filters button.chip { cursor: pointer; }
 .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .goal-select { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--deep); }
-.goal-select select { min-height: 44px; max-width: min(420px, 70vw); padding: 0 36px 0 14px; border-radius: 100px; border: 1.5px solid #9fb89f; background: #fff; font: 400 15px var(--font-body); color: var(--text); }
+.goal-select select { min-height: 44px; max-width: min(420px, 70vw); padding: 0 36px 0 14px; border-radius: 100px; border: 1.5px solid var(--field-line); background: #fff; font: 400 16px var(--font-body); color: var(--text); }
 .goal-select select:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 .result-count { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-slot { display: flex; }

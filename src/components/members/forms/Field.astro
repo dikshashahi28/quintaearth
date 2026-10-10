@@ -1,0 +1,43 @@
+---
+// One labelled text input or textarea with its error line (aria-describedby) and, for limited text, a server-rendered count.
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  value?: string | number | null;
+  error?: string[];
+  type?: 'text' | 'email' | 'url';
+  textarea?: boolean;
+  maxlength?: number;
+  /** show "used / max" beside the label */
+  count?: boolean;
+  optional?: boolean;
+  required?: boolean;
+  autocomplete?: string;
+  inputmode?: 'numeric' | 'email' | 'url' | 'text';
+  placeholder?: string;
+  hint?: string;
+  rows?: number;
+}
+const { id, name, label, value, error, type = 'text', textarea = false, maxlength, count = false, optional = false, required = false,
+  autocomplete, inputmode, placeholder, hint, rows } = Astro.props;
+const v = value == null ? '' : String(value);
+const errId = `${id}-error`;
+const hintId = hint ? `${id}-hint` : undefined;
+const described = [hintId, error?.length ? errId : undefined].filter(Boolean).join(' ') || undefined;
+const attrs = {
+  id, name, maxlength, required, autocomplete, placeholder,
+  'aria-invalid': error?.length ? ('true' as const) : undefined,
+  'aria-describedby': described,
+};
+---
+<div class="field">
+  {count && maxlength
+    ? <div class="labrow"><label for={id}>{label}{optional && <span class="opt"> (optional)</span>}</label><span class="count">{v.length} / {maxlength}</span></div>
+    : <label for={id}>{label}{optional && <span class="opt"> (optional)</span>}</label>}
+  {textarea
+    ? <textarea class="area" rows={rows} {...attrs}>{v}</textarea>
+    : <input class="inp" type={type} value={v} inputmode={inputmode} {...attrs} />}
+  {hint && <p class="hint" id={hintId}>{hint}</p>}
+  <p class="err" id={errId}>{error?.join(' ')}</p>
+</div>

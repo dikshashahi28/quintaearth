@@ -1,0 +1,44 @@
+---
+// Enquiries the member sent to companies, with the newest one beside the list on wide screens.
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Inbox from '../../../components/members/enquiries/Inbox.astro';
+import Thread from '../../../components/members/enquiries/Thread.astro';
+import EmptyState from '../../../components/members/EmptyState.astro';
+import { dashContext } from '../../../lib/dash-context';
+import { sent } from '../../../db/queries/dashboard';
+import { authorNames, inTab, lastSides, listDate, listingName, messagesOf, showOf, withQuery } from '../../../components/members/enquiries/data';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`);
+const ctx = await dashContext(user, Astro.url);
+
+const show = showOf(Astro.url);
+const all = await sent(user.id);
+const rows = all.filter((r) => inTab(r.enquiry.status, show));
+const last = await lastSides(rows.map((r) => r.enquiry.id));
+const items = rows.map(({ enquiry: e, company }) => ({
+  id: e.id, href: `/dashboard/messages/${e.id}`, source: last.get(e.id) === 'company' ? 'Replied' : 'Sent', date: listDate(e.updatedAt),
+  name: company, subject: e.subject, isNew: e.buyerUnread,
+}));
+
+const first = rows[0];
+const messages = first ? await messagesOf(first.enquiry.id) : [];
+const [names, listing] = first ? await Promise.all([authorNames(messages.map((m) => m.authorUserId)), listingName(first.enquiry.listingId)]) : [new Map<string, string>(), null];
+---
+<Dashboard ctx={ctx} current="messages" title="Sent enquiries" crumbs={[{ label: 'Sent enquiries' }]}>
+  <Inbox show={show} openCount={all.filter((r) => r.enquiry.status !== 'closed').length}
+    tabs={{ open: '/dashboard/messages', closed: withQuery('/dashboard/messages', { show: 'closed' }) }}
+    items={items} currentId={first?.enquiry.id} label="Sent enquiries" mode="list" backHref="" backLabel="">
+    {first && (
+      <Thread enquiry={first.enquiry} messages={messages} side="buyer" viewerId={user.id} companyName={first.company}
+        listing={listing} names={names} base={`/dashboard/messages/${first.enquiry.id}`} />
+    )}
+    <Fragment slot="empty">
+      {all.length === 0
+        ? <EmptyState note="No enquiries sent yet." action={{ href: '/directory', label: 'Find companies in the directory', quiet: true }} />
+        : <EmptyState note={show === 'closed' ? 'No closed enquiries.' : 'No open enquiries.'} />}
+    </Fragment>
+  </Inbox>
+</Dashboard>

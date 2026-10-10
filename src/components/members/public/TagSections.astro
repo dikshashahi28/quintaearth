@@ -1,0 +1,22 @@
+---
+// "Industries" and "UN goals" sections for a person or company: industry and sub-category chips link to the
+// existing industry and sub-category pages, goal chips to the goal pages. Renders nothing for empty tags.
+import { goalLinks, industryLinks, subLinks } from '../../../lib/labels';
+interface Props { industries: string[]; subs: string[]; sdgs: string[]; small?: boolean }
+const { industries, subs, sdgs, small = false } = Astro.props;
+const fields = [...industryLinks(industries), ...subLinks(subs)];
+const goals = goalLinks(sdgs);
+const h2 = small ? 'font-size: 22px' : undefined;
+---
+{fields.length > 0 && (
+  <section class="sec">
+    <h2 style={h2}>Industries</h2>
+    <div class="chips">{fields.map((f) => <a class="chip has" href={f.href}>{f.label}</a>)}</div>
+  </section>
+)}
+{goals.length > 0 && (
+  <section class="sec">
+    <h2 style={h2}>UN goals</h2>
+    <div class="chips">{goals.map((g) => <a class="chip" href={g.href}><span class="goal">{g.n}</span>{g.title}</a>)}</div>
+  </section>
+)}

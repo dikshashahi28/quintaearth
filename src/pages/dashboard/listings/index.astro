@@ -1,0 +1,77 @@
+---
+// The open company's products and services, newest change first.
+import { and, eq, inArray } from 'drizzle-orm';
+import { db, schema } from '../../../db/client';
+import { inChunks } from '../../../db/chunks';
+import { companyForEditor } from '../../../db/queries/dashboard';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import Icon from '../../../components/members/Icon.astro';
+import StatusPill from '../../../components/members/StatusPill.astro';
+import EmptyState from '../../../components/members/EmptyState.astro';
+import { allSubs } from '../../../data/industries';
+import { countries } from '../../../data/countries';
+import { dashContext } from '../../../lib/dash-context';
+import { fileUrl } from '../../../lib/storage-url';
+import '../../../styles/members/listings.css';
+
+export const prerender = false;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Flistings');
+const ctx = await dashContext(user, Astro.url);
+
+const editor = ctx.company ? await companyForEditor(user.id, ctx.company.id) : null;
+const listings = editor?.listings ?? [];
+const ids = listings.map((l) => l.id);
+const tagRows = await inChunks(ids, (slice) => db.select({ entityId: schema.tags.entityId, kind: schema.tags.kind, value: schema.tags.value }).from(schema.tags)
+  .where(and(eq(schema.tags.entityType, 'listing'), inArray(schema.tags.entityId, slice))));
+const subName = new Map(allSubs.map((s) => [s.slug, s.name]));
+const countryName = new Map(countries.map((c) => [c.iso, c.name]));
+const rows = listings.map((l) => {
+  const mine = tagRows.filter((t) => t.entityId === l.id);
+  const docs = (editor?.files ?? []).filter((f) => f.listingId === l.id && f.purpose === 'evidence').length;
+  return {
+    ...l,
+    subs: mine.filter((t) => t.kind === 'sub').map((t) => subName.get(t.value) ?? t.value),
+    serves: mine.filter((t) => t.kind === 'serves').map((t) => countryName.get(t.value) ?? t.value),
+    docs,
+  };
+});
+const removed = Astro.url.searchParams.has('removed');
+const newUrl = `/dashboard/listings/new${ctx.orgQuery}`;
+---
+<Dashboard ctx={ctx} current="listings" title="Listings" crumbs={[{ label: 'Listings' }]}>
+  {ctx.company && rows.length > 0 && (
+    <div class="head-acts" slot="head"><a class="btn btn-fill" href={newUrl}><Icon name="add" />Add a listing</a></div>
+  )}
+  {removed && <p class="notice flash" role="status">Listing deleted.</p>}
+  {!ctx.company ? (
+    <EmptyState note="No company page yet." action={{ href: '/dashboard/company', label: 'Set up your company' }} />
+  ) : rows.length === 0 ? (
+    <EmptyState note="No listings yet." action={{ href: newUrl, label: 'Add a listing', icon: 'add' }} />
+  ) : (
+    <ul class="rows">
+      {rows.map((l) => (
+        <li class="lrow">
+          {l.photoKey
+            ? <img class="thumb" src={fileUrl(l.photoKey)} alt="" loading="lazy">
+            : <span class="thumb ph0"><Icon name="inventory_2" /></span>}
+          <div>
+            <h2><a href={`/dashboard/listings/${l.id}`}>{l.name}</a></h2>
+            <div class="small-meta">
+              <span>{l.kind === 'service' ? 'Service' : 'Product'}</span>
+              {l.subs.length > 0 && <span>{l.subs.join(', ')}</span>}
+              {l.serves.length > 0 && <span><Icon name="public" />{l.serves.length > 3 ? `${l.serves.slice(0, 3).join(', ')} +${l.serves.length - 3}` : l.serves.join(', ')}</span>}
+              <span><Icon name="description" />{l.docs === 0 ? 'No documents yet' : l.docs === 1 ? '1 document' : `${l.docs} documents`}</span>
+            </div>
+          </div>
+          <div class="end">
+            <StatusPill status={l.status === 'published' ? 'live' : 'draft'} label={l.status === 'published' ? 'Live' : 'Draft'} />
+            <a class="iconbtn" href={`/dashboard/listings/${l.id}`} aria-label={`Edit ${l.name}`}><Icon name="edit" /></a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</Dashboard>

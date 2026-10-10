@@ -1,0 +1,135 @@
+---
+// Send a published company an enquiry. Senders must be signed in; signed-out visitors get a sign-in button.
+// ?listing=<id> picks which listing it is about. ?sent=<id> shows the sent state after the post.
+import { actions, isInputError } from 'astro:actions';
+import Member from '../../../layouts/Member.astro';
+import PageHead from '../../../components/page/PageHead.astro';
+import Avatar from '../../../components/members/Avatar.astro';
+import IdentityMark from '../../../components/members/IdentityMark.astro';
+import Icon from '../../../components/members/Icon.astro';
+import { eq } from 'drizzle-orm';
+import { db, schema } from '../../../db/client';
+import { getPublicCompany } from '../../../db/queries/public';
+import { myCompanies } from '../../../db/queries/dashboard';
+import { countries } from '../../../data/countries';
+import { fieldError } from '../../../components/members/enquiries/data';
+import { actionErrorMessage } from '../../../components/members/forms/errors';
+import '../../../styles/members/enquiries.css';
+
+export const prerender = false;
+
+const org = await getPublicCompany(Astro.params.slug ?? '');
+if (!org) return new Response(null, { status: 404 });
+
+const user = Astro.locals.user ?? null;
+// the session's copy of the user can be minutes old on public pages; the form names the sender as stored now
+const sender = user ? await db.query.user.findFirst({ where: eq(schema.user.id, user.id), columns: { name: true, email: true } }) : null;
+const here = `/companies/${org.slug}/enquire`;
+const result = Astro.getActionResult(actions.enquiries.send);
+if (result?.data) return Astro.redirect(`${here}?sent=${result.data.id}`, 303);
+const errors: Record<string, string | undefined> = {};
+const emptyText: Record<string, string> = { subject: 'Add a subject.', message: 'Write at least a couple of sentences.' };
+if (result?.error && isInputError(result.error)) for (const [k, v] of Object.entries(result.error.fields)) errors[k] = fieldError(v as string[] | undefined, emptyText[k] ?? 'Check this field.');
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+
+// what was typed, so a failed send does not lose the message
+let typed: Record<string, string> = {};
+if (Astro.request.method === 'POST' && result?.error) {
+  try { typed = Object.fromEntries([...(await Astro.request.formData()).entries()].filter((e): e is [string, string] => typeof e[1] === 'string')); } catch { typed = {}; }
+}
+
+const sentId = Astro.url.searchParams.get('sent');
+const sentOk = !!user && !!sentId && /^[0-9a-f-]{36}$/i.test(sentId);
+const mine = user ? await myCompanies(user.id) : [];
+const onTeam = mine.some((c) => c.id === org.id);
+const wanted = typed.listingId ?? Astro.url.searchParams.get('listing') ?? '';
+const listing = org.listings.find((l) => l.id === wanted) ?? null;
+const place = [org.city, countries.find((c) => c.iso === org.country)?.name ?? org.country].filter(Boolean).join(', ');
+const nextUrl = Astro.url.pathname + Astro.url.search;
+const message = typed.message ?? '';
+---
+<Member title={`Write to ${org.name}`} description={`Send ${org.name} an enquiry on QuintaEarth.`} noindex current="directory">
+  <PageHead title={`Write to ${org.name}`} width="col"
+    crumbs={[{ label: 'Directory', href: '/directory' }, { label: org.name, href: `/companies/${org.slug}` }, { label: 'Enquiry' }]} />
+  <section class="body">
+    <div class="col">
+      {sentOk ? (
+        <div class="sent" role="status">
+          <h2>Enquiry sent</h2>
+          <p>{org.name} will reply by email and in your dashboard.</p>
+          <a class="tlink eq-open" href={`/dashboard/messages/${sentId}`}>Open the enquiry<Icon name="arrow_forward" /></a>
+        </div>
+      ) : user && onTeam ? (<>
+        <p class="notice">You are on the {org.name} team, so you can’t send it an enquiry.</p>
+        <a class="tlink eq-open" href="/dashboard/enquiries">Open your enquiries<Icon name="arrow_forward" /></a>
+      </>) : (<>
+        <div class="eq-co">
+          <Avatar name={org.name} imageKey={org.logoKey} size="sm" kind="company" />
+          <div>
+            <h2>{org.name}</h2>
+            <div class="small-meta">
+              {place && <span><Icon name="location_on" />{place}</span>}
+              {!user && listing && <span><Icon name="inventory_2" />About: {listing.name}</span>}
+            </div>
+          </div>
+          {org.identityChecked && <IdentityMark small />}
+        </div>
+        {!user ? (
+          <div class="form">
+            <p class="eq-as">Sign in to message {org.name}. Replies come to your email.</p>
+            <div class="form-send"><a class="btn btn-fill" href={`/signin?next=${encodeURIComponent(nextUrl)}`}>Sign in to send</a></div>
+          </div>
+        ) : (
+        <form class="form" method="POST" action={String(actions.enquiries.send)}>
+          {failed && <p class="form-status bad" role="alert">{failed}</p>}
+          <input type="hidden" name="organizationId" value={org.id}>
+          {org.listings.length > 0 ? (
+            <div class="field">
+              <label for="q-about">About</label>
+              <span class="selwrap">
+                <select class="sel" id="q-about" name="listingId" aria-invalid={errors.listingId ? 'true' : undefined} aria-describedby="q-about-error">
+                  {org.listings.map((l) => <option value={l.id} selected={l.id === listing?.id}>{l.name}</option>)}
+                  <option value="" selected={!listing}>Something else</option>
+                </select>
+                <Icon name="expand_more" />
+              </span>
+              <p class="err" id="q-about-error">{errors.listingId}</p>
+            </div>
+          ) : <input type="hidden" name="listingId" value="">}
+          <div class="field">
+            <label for="q-subject">Subject</label>
+            <input class="inp" id="q-subject" name="subject" type="text" required minlength="3" maxlength="140" value={typed.subject ?? ''}
+              aria-invalid={errors.subject ? 'true' : undefined} aria-describedby="q-subject-error">
+            <p class="err" id="q-subject-error">{errors.subject}</p>
+          </div>
+          <div class="field">
+            <label for="q-co">Company <span class="opt">(optional)</span></label>
+            <input class="inp" id="q-co" name="fromCompany" type="text" autocomplete="organization" maxlength="120" value={typed.fromCompany ?? mine[0]?.name ?? ''}
+              aria-invalid={errors.fromCompany ? 'true' : undefined} aria-describedby="q-co-error">
+            <p class="err" id="q-co-error">{errors.fromCompany}</p>
+          </div>
+          <div class="field">
+            <div class="labrow"><label for="q-msg">Message</label><span class="count" id="q-count">{message.length} / 4000</span></div>
+            <textarea class="area tall" id="q-msg" name="message" required minlength="20" maxlength="4000"
+              aria-invalid={errors.message ? 'true' : undefined} aria-describedby="q-msg-error q-count">{message}</textarea>
+            <p class="err" id="q-msg-error">{errors.message}</p>
+          </div>
+          <div class="eq-hp" aria-hidden="true">
+            <label for="q-website">Leave this empty</label>
+            <input id="q-website" name="website" type="text" tabindex="-1" autocomplete="off" value="">
+          </div>
+          <div class="form-send"><button class="btn btn-fill" type="submit">Send enquiry</button></div>
+          <p class="form-note">{org.name} sees your name ({sender?.name || user.name}), email ({sender?.email ?? user.email}), company and message.</p>
+        </form>
+        )}
+      </>)}
+    </div>
+  </section>
+</Member>
+
+<script>
+  // live character count; without JS the count shows what was there at load
+  const area = document.querySelector<HTMLTextAreaElement>('#q-msg');
+  const count = document.querySelector('#q-count');
+  if (area && count) area.addEventListener('input', () => { count.textContent = `${area.value.length} / 4000`; });
+</script>

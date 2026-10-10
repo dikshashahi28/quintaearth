@@ -49,6 +49,12 @@ export function initHeader(): void {
     setMega(justHovered || !hdr.classList.contains('mega-open'));
     hoverOpenedAt = 0;
   });
+  // it behaves as a disclosure button, so Space opens it too
+  indLink.addEventListener('keydown', (e) => {
+    if (e.key !== ' ') return;
+    e.preventDefault();
+    setMega(!hdr.classList.contains('mega-open'));
+  });
   let closeTimer: number | undefined;
   indLink.addEventListener('mouseenter', () => {
     if (!hover.matches || phone.matches) return;

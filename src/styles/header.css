@@ -26,10 +26,10 @@
 @keyframes logoin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 @keyframes shine { 0% { opacity: 1; transform: translateX(-110%); } 100% { opacity: 1; transform: translateX(110%); } }
 
-.nav { display: flex; align-items: center; gap: 30px; }
+.nav { display: flex; align-items: center; gap: 24px; }
 .nav > a {
   position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
-  color: var(--text); text-decoration: none; font-weight: 500; font-size: 16px; transition: color .2s;
+  color: var(--text); text-decoration: none; font-weight: 500; font-size: 16px; white-space: nowrap; transition: color .2s;
 }
 .nav > a:hover { color: var(--river); }
 .nav > a::after {
@@ -41,8 +41,22 @@
 #indLink .ic { width: .9em; height: .9em; transform-box: fill-box; transform-origin: center; transition: transform .25s var(--ease); }
 .hdr.mega-open #indLink .ic { transform: rotate(180deg); }
 
-.acts { display: flex; align-items: center; gap: 10px; }
+.acts { flex: none; display: flex; align-items: center; gap: 10px; }
 .acts .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+/* member entry: a text link when signed out, an initials circle when signed in */
+.acts .signin { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; color: var(--river); font-weight: 500; font-size: 15px; text-decoration: none; white-space: nowrap; }
+.acts .signin:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 4px; }
+.acts .me {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--river);
+  background: var(--shallow); color: var(--river-deep); font: 400 16px/1 var(--font-display); text-decoration: none;
+  transition: transform .25s var(--ease), box-shadow .25s;
+}
+.acts .me:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.nav .nav-signin { display: none; }
+/* signed in (html[data-member], see Base.astro): the profile icon replaces Sign in and the Join button */
+.acts .me { display: none; }
+:root[data-member] .acts .me { display: grid; }
+:root[data-member] .hdr :is(.signin, .join, .nav-signin) { display: none !important; }
 .menu {
   display: none; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--river);
   background: #fff; color: var(--river); place-items: center; cursor: pointer; padding: 0;
@@ -81,14 +95,21 @@
 .mega :is(li a, .mega-h a):is(:hover, :focus-visible)::after { transform: scaleX(1); }
 .mega .all { margin-top: 22px; width: min(var(--wide), calc(100% - 2 * var(--gut))); margin-inline: auto; }
 
-/* six links and the Join button must fit on small laptops */
+/* seven links, Sign in and the Join button must fit on one line on small laptops (measured at 1181–1440px) */
+@media (max-width: 1279px) and (min-width: 901px) {
+  .acts .btn .full { display: none; }
+}
 @media (max-width: 1180px) and (min-width: 901px) {
   .nav { gap: 20px; }
   .nav > a { font-size: 15px; }
-  .acts .btn .full { display: none; }
+}
+@media (max-width: 960px) and (min-width: 901px) {
+  .hdr .wide, .nav { gap: 16px; }
 }
 @media (max-width: 900px) {
   .menu { display: grid; }
+  .acts .signin { display: none; }
+  .hdr.open .nav .nav-signin { display: inline-flex; color: var(--river); }
   .nav { display: none; }
   .hdr.open .nav {
     display: flex; position: absolute; left: 0; right: 0; top: 100%;
@@ -115,4 +136,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .logo img, .logo::after { animation: none; }
+  .acts .me { transition: none; }
 }

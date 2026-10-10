@@ -1,11 +1,53 @@
-// Cloudflare Workers static site: `pnpm build` writes dist/, `npx wrangler deploy` uploads it.
-// dist/_redirects and dist/_headers are read by Cloudflare as they are on Pages.
+// Cloudflare Worker: `pnpm build` writes dist/, `npx wrangler deploy` uploads it.
+// Prerendered pages are served as static assets; account pages run in the Worker.
+// dist/client/_redirects and _headers are read by Cloudflare as they are on Pages.
 {
   "name": "quintaearth",
   "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@astrojs/cloudflare/entrypoints/server",
   "assets": {
-    "directory": "./dist",
+    "binding": "ASSETS",
+    "directory": "./dist/client",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // With a 404 page set, browser navigations that match no file get that page without the Worker ever running.
+    // Every route rendered on request must be listed here; scripts/check-links.mjs fails the build if one is missing.
+    "run_worker_first": [
+      "/signin", "/signout", "/welcome", "/invite", "/directory",
+      "/dashboard", "/dashboard/*", "/admin", "/admin/*",
+      "/people/*", "/companies/*", "/files/*", "/api/*", "/_actions/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "quintaearth",
+      // created with `wrangler d1 create quintaearth --location weur`
+      "database_id": "33cf0f29-5d6a-4312-a45d-ea3305d0e88e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // uploaded photos, logos and documents; served through /files/<key>
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "quintaearth-files" }],
+  "observability": { "enabled": true },
+  "env": {
+    // dev.quintaearth.com: the same code with its own database, files and secrets (AUTH_SECRET, EMAIL_API_KEY).
+    // Build with CLOUDFLARE_ENV=dev PUBLIC_DEPLOY=dev, then `wrangler deploy`; PUBLIC_DEPLOY=dev keeps it out of search.
+    "dev": {
+      "name": "quintaearth-dev",
+      "vars": { "SITE_URL": "https://dev.quintaearth.com", "EMAIL_FROM": "QuintaEarth Dev <hello@quintaearth.com>" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "quintaearth-dev",
+          // created with `wrangler d1 create quintaearth-dev --location weur`
+          "database_id": "bca5db5d-2beb-42c0-b6ed-50fc4dfafb0a",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [{ "binding": "FILES", "bucket_name": "quintaearth-files-dev" }],
+      "routes": [{ "pattern": "dev.quintaearth.com", "custom_domain": true }]
+    }
   }
 }

@@ -11,8 +11,10 @@ interface Props {
   lede?: string;
   facts?: { value: number | string; label: string }[];
   width?: 'wide' | 'col';
+  /** a smaller heading for pages titled by a member's own names (dashboard, profiles) */
+  compact?: boolean;
 }
-const { title, crumbs, icon, lede, facts = [], width = 'wide' } = Astro.props;
+const { title, crumbs, icon, lede, facts = [], width = 'wide', compact = false } = Astro.props;
 const trail: Crumb[] = [{ label: 'Home', href: page('index') }, ...crumbs];
 
 // the same trail for search engines; the current page is named by its title and points at its own URL
@@ -31,7 +33,7 @@ const breadcrumbLd = {
 };
 ---
 <script type="application/ld+json" set:html={JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c')} />
-<header class="page-head">
+<header class:list={['page-head', { entity: compact }]}>
   <div class={width}>
     <nav class="crumbs" aria-label="Breadcrumb">
       <ol>

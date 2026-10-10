@@ -1,0 +1,23 @@
+/* The member's own editors: /dashboard/profile, /dashboard/company, /dashboard/identity. Loaded after members.css. */
+
+/* a form that holds several sections continues the .sec rhythm after the section before it */
+.sec + .secs > .sec:first-child, .secs + .sec { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--hair); }
+
+
+/* team rows: pills and remove/leave forms */
+.team form { display: contents; }
+.team .rolecell .pill { justify-self: start; }
+.invite-form { margin-top: 24px; }
+.invite-form .invite { margin-top: 0; grid-template-columns: minmax(0, 1fr) 150px auto; }
+.invite-form .invite .sel { min-height: 48px; }
+@media (max-width: 720px) {
+  .invite-form .invite { grid-template-columns: 1fr; }
+}
+
+/* a pending invitation's placeholder */
+.mark.invited { border-style: dashed; border-color: var(--reed); color: var(--muted); }
+
+/* identity check */
+.idhead { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.idform { margin-top: 24px; }
+.idsteps { margin-top: 36px; }

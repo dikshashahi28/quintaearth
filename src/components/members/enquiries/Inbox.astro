@@ -1,0 +1,35 @@
+---
+// Two-pane inbox: Open/Closed tabs, the list, and a thread beside it (the default slot).
+// On phone the panes stack: mode "list" shows only the list, mode "thread" only the thread with a link back.
+import InboxList, { type InboxItem } from './InboxList.astro';
+import type { Show } from './data';
+import '../../../styles/members/enquiries.css';
+
+interface Props {
+  show: Show;
+  tabs: Record<Show, string>;
+  openCount: number;
+  items: InboxItem[];
+  currentId?: string;
+  label: string;
+  mode: 'list' | 'thread';
+  backHref: string;
+  backLabel: string;
+}
+const { show, tabs, openCount, items, currentId, label, mode, backHref, backLabel } = Astro.props;
+---
+<div class="tabs eq-tabs" role="group" aria-label="Show">
+  <a class:list={['chip', { on: show === 'open' }]} href={tabs.open} aria-current={show === 'open' ? 'true' : undefined}>Open{openCount > 0 && <i>{openCount}</i>}</a>
+  <a class:list={['chip', { on: show === 'closed' }]} href={tabs.closed} aria-current={show === 'closed' ? 'true' : undefined}>Closed</a>
+</div>
+{items.length === 0
+  ? <slot name="empty" />
+  : (
+    <div class:list={['inbox', `eq-${mode}`]}>
+      <InboxList items={items} currentId={currentId} label={label} />
+      <div class="eq-pane">
+        {mode === 'thread' && <a class="tlink eq-back" href={backHref}>{backLabel}</a>}
+        <slot />
+      </div>
+    </div>
+  )}

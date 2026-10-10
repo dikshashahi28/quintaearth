@@ -1,0 +1,174 @@
+---
+// The directory (design: Directory). Filters are plain GET parameters so every result page has a shareable URL.
+// Only known slugs and codes reach searchDirectory; empty or unknown parameters are dropped by a redirect.
+import Member from '../layouts/Member.astro';
+import Avatar from '../components/members/Avatar.astro';
+import Icon from '../components/members/Icon.astro';
+import IdentityMark from '../components/members/IdentityMark.astro';
+import EmptyState from '../components/members/EmptyState.astro';
+import FilterForm, { type DirectoryState } from '../components/members/public/FilterForm.astro';
+import { and, inArray, eq } from 'drizzle-orm';
+import { db, schema } from '../db/client';
+import { inChunks } from '../db/chunks';
+import { searchDirectory, PAGE_SIZE } from '../db/queries/directory';
+import { countryCodes, industrySlugs, sdgNumbers, subSlugs } from '../lib/taxonomy';
+import { countryName, goalTitle, industryName, place, subName } from '../lib/labels';
+import { page as pageUrl } from '../lib/url';
+import '../styles/members/public.css';
+
+export const prerender = false;
+
+const params = Astro.url.searchParams;
+const pick = (key: string, allowed: Set<string>) => { const v = params.get(key) ?? ''; return allowed.has(v) ? v : ''; };
+const rawType = params.get('type');
+const state: DirectoryState = {
+  q: (params.get('q') ?? '').trim().slice(0, 100),
+  type: rawType === 'person' || rawType === 'company' ? rawType : '',
+  industry: pick('industry', industrySlugs),
+  sub: pick('sub', subSlugs),
+  country: pick('country', countryCodes),
+  sdg: pick('sdg', sdgNumbers),
+  checked: params.get('checked') === '1',
+};
+const rawPage = Number(params.get('page'));
+const pageNo = Number.isInteger(rawPage) && rawPage >= 1 ? Math.min(rawPage, 100) : 1;
+
+// the canonical query for a state: known values only, in a fixed order
+const ORDER = ['q', 'type', 'industry', 'sub', 'country', 'sdg', 'checked'] as const;
+function hrefFor(s: DirectoryState, p = 1) {
+  const out = new URLSearchParams();
+  for (const k of ORDER) {
+    const v = k === 'checked' ? (s.checked ? '1' : '') : s[k];
+    if (v) out.set(k, v);
+  }
+  if (p > 1) out.set('page', String(p));
+  const qs = out.toString();
+  return `${pageUrl('directory')}${qs ? `?${qs}` : ''}`;
+}
+
+// the filter form submits every field, empty or not: when any parameter is empty, unknown or repeated,
+// send the browser to the clean, shareable URL (parameter order alone is no reason to redirect)
+const clean = hrefFor(state, pageNo);
+const cleanParams = new URLSearchParams(clean.split('?')[1] ?? '');
+const given = [...params.entries()];
+if (given.length !== [...cleanParams.keys()].length || given.some(([k, v]) => cleanParams.get(k) !== v)) return Astro.redirect(clean, 302);
+
+const { rows, more, total } = await searchDirectory({
+  q: state.q || undefined,
+  type: state.type || undefined,
+  industry: state.industry || undefined,
+  sub: state.sub || undefined,
+  sdg: state.sdg || undefined,
+  country: state.country || undefined,
+  checked: state.checked,
+  page: pageNo,
+});
+
+const without = (patch: Partial<DirectoryState>) => hrefFor({ ...state, ...patch });
+const active: { label: string; href: string }[] = [];
+if (state.q) active.push({ label: `“${state.q}”`, href: without({ q: '' }) });
+if (state.type) active.push({ label: state.type === 'person' ? 'People' : 'Companies', href: without({ type: '' }) });
+if (state.industry) active.push({ label: industryName(state.industry)!, href: without({ industry: '' }) });
+if (state.sub) active.push({ label: subName(state.sub)!, href: without({ sub: '' }) });
+if (state.country) active.push({ label: countryName(state.country)!, href: without({ country: '' }) });
+if (state.sdg) active.push({ label: `Goal ${state.sdg}: ${goalTitle(state.sdg)}`, href: without({ sdg: '' }) });
+if (state.checked) active.push({ label: 'Identity checked only', href: without({ checked: false }) });
+const filterCount = active.length - (state.q ? 1 : 0);
+const clearHref = hrefFor({ q: state.q, type: '', industry: '', sub: '', country: '', sdg: '', checked: false });
+
+const first = (pageNo - 1) * PAGE_SIZE + 1;
+const count = pageNo === 1 && !more
+  ? `${rows.length} ${rows.length === 1 ? 'result' : 'results'}`
+  : rows.length ? `${first}–${first + rows.length - 1} of ${total} results` : 'No more results';
+
+const short = (text: string | null) => {
+  if (!text) return null;
+  const t = text.replace(/\s+/g, ' ').trim();
+  return t.length > 180 ? `${t.slice(0, 177).replace(/\s+\S*$/, '')}…` : t;
+};
+// up to three sub-category names per result, in the taxonomy's order
+const subRows = await inChunks(rows.map((r) => r.id), (slice) => db.select({ entityId: schema.tags.entityId, value: schema.tags.value }).from(schema.tags)
+  .where(and(inArray(schema.tags.entityType, ['profile', 'organization']), eq(schema.tags.kind, 'sub'), inArray(schema.tags.entityId, slice))));
+const subsOf = new Map<string, string[]>();
+for (const t of subRows) subsOf.set(t.entityId, [...(subsOf.get(t.entityId) ?? []), t.value]);
+const subOrder = new Map([...subSlugs].map((s, i) => [s, i]));
+const results = rows.map((r) => ({
+  ...r,
+  subs: (subsOf.get(r.id) ?? []).filter((s) => subOrder.has(s)).sort((a, b) => subOrder.get(a)! - subOrder.get(b)!).slice(0, 3).map((s) => subName(s)!),
+  href: pageUrl(r.type === 'person' ? `people/${r.slug}` : `companies/${r.slug}`),
+  where: place(r.city, r.country),
+  line: short(r.line),
+}));
+---
+<Member
+  title={state.q ? `“${state.q}” in the directory` : 'Directory'}
+  description="Greentech and cleantech people and companies on QuintaEarth."
+  noindex={active.length > 0 || pageNo > 1}
+  current="directory"
+>
+  <header class="page-head">
+    <div class="wide">
+      <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href={pageUrl('index')}>Home</a></li><li><span aria-current="page">Directory</span></li></ol></nav>
+      <h1>Directory</h1>
+      <form class="search" method="get" action={pageUrl('directory')} role="search">
+        <label class="sr" for="q">Search people and companies</label>
+        <span class="inwrap"><Icon name="search" /><input class="inp" id="q" name="q" type="search" value={state.q} maxlength="100" placeholder="Search people and companies"></span>
+        {ORDER.filter((k) => k !== 'q').map((k) => {
+          const v = k === 'checked' ? (state.checked ? '1' : '') : state[k];
+          return v ? <input type="hidden" name={k} value={v}> : null;
+        })}
+        <button class="btn btn-fill" type="submit">Search</button>
+      </form>
+    </div>
+    <svg class="edge" viewBox="0 0 1440 34" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path class="water" fill="currentColor" d="M0 22 C 240 8, 480 30, 720 18 S 1200 6, 1440 20 L1440 34 L0 34 Z" opacity=".6" />
+      <path fill="currentColor" d="M0 28 C 260 16, 500 34, 760 24 S 1220 14, 1440 26 L1440 34 L0 34 Z" />
+    </svg>
+  </header>
+
+  <section class="body">
+    <div class="wide dir">
+      <FilterForm id="f" class="filters" state={state} clearHref={clearHref} hasFilters={filterCount > 0} />
+
+      <div class="results">
+        <details class="fbtn">
+          <summary class="btn btn-line"><Icon name="tune" />Filters{filterCount > 0 && ` · ${filterCount}`}</summary>
+          <FilterForm id="pf" class="ffilters" state={state} clearHref={clearHref} hasFilters={filterCount > 0} />
+        </details>
+        <div class="sec-t res-top">
+          {active.length > 0 && (
+            <div class="chips">
+              {active.map((f) => <span class="chip has">{f.label}<a class="x" href={f.href} aria-label={`Remove filter ${f.label}`}><Icon name="close" /></a></span>)}
+            </div>
+          )}
+          <span class="count">{count}</span>
+        </div>
+
+        {results.length === 0
+          ? <EmptyState note={pageNo > 1 ? 'No more results.' : 'No one matches yet.'} />
+          : (
+            <ul class="res">
+              {results.map((r) => (
+                <li>
+                  <Avatar name={r.name} imageKey={r.imageKey} kind={r.type} size="sm" />
+                  <div class="res-b">
+                    <h2><a href={r.href}>{r.name}</a>{r.type === 'company' && !!r.identityChecked && <IdentityMark small />}</h2>
+                    <p class="t">{r.type === 'person' ? 'Person' : 'Company'}{r.where && <><span class="sep" aria-hidden="true">·</span><span class="sr">, </span>{r.where}</>}</p>
+                    {r.line && <p class="d">{r.line}</p>}
+                    {r.subs.length > 0 && <div class="chips">{r.subs.map((s) => <span class="chip">{s}</span>)}</div>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+        {(pageNo > 1 || more) && (
+          <nav class="pager" aria-label="More results">
+            {pageNo > 1 && <a class="btn btn-line" href={hrefFor(state, pageNo - 1)} rel="prev">Previous</a>}
+            {more && <a class="btn btn-line" href={hrefFor(state, pageNo + 1)} rel="next">More<Icon name="arrow_forward" /></a>}
+          </nav>
+        )}
+      </div>
+    </div>
+  </section>
+</Member>

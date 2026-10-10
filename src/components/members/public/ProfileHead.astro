@@ -1,0 +1,45 @@
+---
+// Head band of a public person or company page: breadcrumb, portrait or logo beside the name, a meta line
+// (slot "meta") and actions (slot "acts"). Same sky band and wavy edge as PageHead, with the design's .who row.
+import Avatar from '../Avatar.astro';
+import { absolute, page } from '../../../lib/url';
+import { ldJson } from '../../../lib/labels';
+
+interface Props { name: string; line?: string | null; imageKey?: string | null; kind?: 'person' | 'company' }
+const { name, line, imageKey, kind = 'person' } = Astro.props;
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: absolute(page('index'), Astro.site) },
+    { '@type': 'ListItem', position: 2, name: 'Directory', item: absolute(page('directory'), Astro.site) },
+    { '@type': 'ListItem', position: 3, name, item: absolute(Astro.url.pathname, Astro.site) },
+  ],
+};
+---
+<script type="application/ld+json" set:html={ldJson(breadcrumbLd)} />
+<header class="page-head entity">
+  <div class="wide">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={page('index')}>Home</a></li>
+        <li><a href={page('directory')}>Directory</a></li>
+        <li><span aria-current="page">{name}</span></li>
+      </ol>
+    </nav>
+    <div class="who">
+      <Avatar name={name} imageKey={imageKey} kind={kind} />
+      <div>
+        <h1>{name}</h1>
+        {line && <p class="line">{line}</p>}
+        {Astro.slots.has('meta') && <div class="meta"><slot name="meta" /></div>}
+      </div>
+    </div>
+    {Astro.slots.has('acts') && <div class="head-acts"><slot name="acts" /></div>}
+  </div>
+  <svg class="edge" viewBox="0 0 1440 34" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path class="water" fill="currentColor" d="M0 22 C 240 8, 480 30, 720 18 S 1200 6, 1440 20 L1440 34 L0 34 Z" opacity=".6" />
+    <path fill="currentColor" d="M0 28 C 260 16, 500 34, 760 24 S 1220 14, 1440 26 L1440 34 L0 34 Z" />
+  </svg>
+</header>

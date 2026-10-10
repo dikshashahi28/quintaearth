@@ -1,0 +1,17 @@
+/* Sign-in, welcome, invitation, dashboard home and the admin queue: the few rules members.css does not cover. */
+
+/* the chosen account type is highlighted without script */
+.choice:has(input:checked) { border-color: var(--river); background: var(--shallow); }
+
+/* dashboard home */
+.dhome-more { margin-top: 24px; }
+.dhome-pw { margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+
+/* admin queue (members.css .adm-review holds the two columns) */
+.adm-status { margin-bottom: 20px; }
+.adm-review h2.dec { font-size: 28px; line-height: 1.15; }
+.adm-facts { margin-top: 18px; }
+.adm-files { margin-top: 24px; }
+.adm-review .files li { grid-template-columns: 40px minmax(0, 1fr) auto; }
+.adm-review .files li > div { min-width: 0; }
+.adm-note { white-space: pre-line; }

@@ -1,0 +1,148 @@
+---
+// The member's own person page editor: photo, details, tags, links and whether /people/<handle> is public.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../layouts/Dashboard.astro';
+import Avatar from '../../components/members/Avatar.astro';
+import Icon from '../../components/members/Icon.astro';
+import Field from '../../components/members/forms/Field.astro';
+import CountrySelect from '../../components/members/forms/CountrySelect.astro';
+import TagFields from '../../components/members/forms/TagFields.astro';
+import FormStatus from '../../components/members/forms/FormStatus.astro';
+import FileDrop from '../../components/members/forms/FileDrop.astro';
+import EmptyState from '../../components/members/EmptyState.astro';
+import { actionErrorMessage } from '../../components/members/forms/errors';
+import { dashContext } from '../../lib/dash-context';
+import { myProfile } from '../../db/queries/dashboard';
+import '../../styles/members/editors.css';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Fprofile');
+
+const updated = Astro.getActionResult(actions.profile.update);
+const photoSet = Astro.getActionResult(actions.profile.setPhoto);
+const photoRemoved = Astro.getActionResult(actions.profile.removePhoto);
+// post, redirect, get: a reload never posts twice
+if (updated?.data) return Astro.redirect('/dashboard/profile?saved=details');
+if (photoSet?.data) return Astro.redirect('/dashboard/profile?saved=photo');
+if (photoRemoved?.data) return Astro.redirect('/dashboard/profile?saved=nophoto');
+
+const ctx = await dashContext(user, Astro.url);
+const profile = await myProfile(user.id);
+
+const errors: Record<string, string[] | undefined> = updated?.error && isInputError(updated.error) ? updated.error.fields : {};
+const detailsError = updated?.error && !isInputError(updated.error) ? actionErrorMessage(updated.error) : null;
+const photoError = [photoSet?.error, photoRemoved?.error].find(Boolean);
+const photoMessage = photoSet?.error && isInputError(photoSet.error) ? 'Choose a photo first.' : actionErrorMessage(photoError);
+
+// after a rejected save, show what was typed rather than what is stored
+let sent: FormData | null = null;
+if (updated?.error && Astro.request.method === 'POST') {
+  try { sent = await Astro.request.formData(); } catch { sent = null; }
+}
+const text = (k: string, stored: string | null | undefined) => (sent ? String(sent.get(k) ?? '') : stored ?? '');
+const list = (k: string, stored: string[]) => (sent ? sent.getAll(k).map(String) : stored);
+
+const v = {
+  name: text('name', user.name),
+  headline: text('headline', profile?.headline),
+  bio: text('bio', profile?.bio),
+  city: text('city', profile?.city),
+  country: text('country', profile?.country),
+  linkedin: text('linkedin', profile?.linkedin),
+  website: text('website', profile?.website),
+  // stored lowercase; shown with a capital first letter (saving lowercases again)
+  skills: text('skills', profile?.tags.skill.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')),
+  industries: list('industries', profile?.tags.industry ?? []),
+  subs: list('subs', profile?.tags.sub ?? []),
+  sdgs: list('sdgs', profile?.tags.sdg ?? []),
+  published: sent ? sent.get('published') === 'on' : !!profile?.published,
+};
+
+const savedFlag = Astro.url.searchParams.get('saved');
+const saved = savedFlag === 'details' ? (profile?.published ? 'Saved. Your profile is live.' : 'Saved. Your profile is hidden from the public.') : savedFlag === 'photo' ? 'Photo saved.' : savedFlag === 'nophoto' ? 'Photo removed.' : null;
+const pageUrl = profile ? `/people/${profile.handle}` : null;
+const live = !!profile?.published;
+---
+<Dashboard ctx={ctx} current="profile" title="Your profile" crumbs={[{ label: 'Your profile' }]}>
+  {live && pageUrl && <div class="head-acts" slot="head"><a class="tlink" href={pageUrl}>View your page<Icon name="arrow_forward" /></a></div>}
+
+  {!profile ? (
+    <div class="formw">
+      <EmptyState title="Your profile" note="Finish setting up your account first." action={{ href: '/welcome', label: 'Set up your account' }} />
+    </div>
+  ) : (
+    <div class="formw">
+      <FormStatus saved={saved} error={detailsError} />
+
+      <section class="sec" aria-labelledby="photo-h" data-save-first>
+        <h2 id="photo-h">Photo</h2>
+        <div class="upload">
+          <Avatar name={v.name || user.name} imageKey={profile.photoKey} />
+          <div class="upload-acts">
+            <FileDrop id="p-photo" name="photo" maxMB={5} required action={actions.profile.setPhoto} icon="photo_camera" accept="image/jpeg,image/png,image/webp"
+              label={profile.photoKey ? 'Replace photo' : 'Add a photo'} hint="JPG, PNG or WebP, up to 5 MB" button="Upload photo" error={photoMessage} />
+            {profile.photoKey && (
+              <form method="POST" action={actions.profile.removePhoto}>
+                <button class="tlink" type="submit">Remove photo</button>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <form class="secs" method="POST" action={actions.profile.update} data-main>
+        <section class="sec">
+          <h2>Details</h2>
+          <div class="form">
+            <Field id="p-name" name="name" label="Name" value={v.name} error={errors.name} maxlength={80} required autocomplete="name" />
+            <Field id="p-head" name="headline" label="Headline" value={v.headline} error={errors.headline} maxlength={120} count />
+            <div class="row2">
+              <Field id="p-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} autocomplete="address-level2" />
+              <CountrySelect id="p-country" name="country" label="Country" value={v.country} error={errors.country} />
+            </div>
+            <Field id="p-bio" name="bio" label="Short bio" value={v.bio} error={errors.bio} maxlength={1200} count textarea />
+          </div>
+        </section>
+
+        <TagFields prefix="p" industries={v.industries} subs={v.subs} sdgs={v.sdgs} errors={errors} />
+
+        <section class="sec">
+          <h2>Skills</h2>
+          <Field id="p-skills" name="skills" label="Skills" value={v.skills} error={errors.skills} maxlength={400}
+            hint="Separate with commas, up to 15." placeholder="Solar PV design, grid integration" />
+        </section>
+
+        <section class="sec">
+          <h2>Links</h2>
+          <div class="form">
+            <Field id="p-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
+            <Field id="p-web" name="website" label="Website" value={v.website} error={errors.website} maxlength={300} optional inputmode="url" />
+          </div>
+        </section>
+
+        <section class="sec">
+          <h2>Your page</h2>
+          <div class="form">
+            <label class="check"><input type="checkbox" name="published" checked={v.published} aria-describedby="p-url" /><span>Show my page publicly</span></label>
+            <p class="hint" id="p-url">{pageUrl}</p>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="form-send">
+            <button class="btn btn-fill" type="submit">Save changes</button>
+            {live && pageUrl && <a class="tlink" href={pageUrl}>View your page</a>}
+          </div>
+        </section>
+      </form>
+    </div>
+  )}
+</Dashboard>
+
+<script>
+  import { saveFirst } from '../../components/members/forms/save-first';
+  const main = document.querySelector<HTMLFormElement>('form[data-main]');
+  if (main) saveFirst(main, document.querySelectorAll<HTMLFormElement>('[data-save-first] form'));
+</script>

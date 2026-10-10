@@ -11,6 +11,9 @@ a.goal:hover { border-color: var(--river); color: var(--river-deep); }
 .goals.compact { gap: 4px; align-items: center; }
 .goals-label { margin-right: 2px; font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
 .goals.compact .goal { min-height: 0; padding: 0; border: 0; background: none; }
+/* the small number tags keep a 44px touch area around them */
+.goals.compact a.goal { position: relative; }
+.goals.compact a.goal::after { content: ""; position: absolute; inset: -9px; }
 .goals.compact .goal b { min-width: 26px; height: 26px; transition: background-color .2s, color .2s; }
 .goals.compact a.goal:is(:hover, :focus-visible) b { background: var(--river); color: #fff; }
 

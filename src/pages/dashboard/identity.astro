@@ -1,0 +1,131 @@
+---
+// "Identity checked" for the open company: ask for it, follow the review, or send again after a rejection.
+// Owners submit; other team members see the status only.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../layouts/Dashboard.astro';
+import Icon from '../../components/members/Icon.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
+import Field from '../../components/members/forms/Field.astro';
+import CountrySelect from '../../components/members/forms/CountrySelect.astro';
+import FormStatus from '../../components/members/forms/FormStatus.astro';
+import FileDrop from '../../components/members/forms/FileDrop.astro';
+import { actionErrorMessage } from '../../components/members/forms/errors';
+import { dashContext } from '../../lib/dash-context';
+import { companyForEditor } from '../../db/queries/dashboard';
+import { countryName } from '../../lib/labels';
+import '../../styles/members/editors.css';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Fidentity');
+
+const ctx = await dashContext(user, Astro.url);
+// identity checks belong to a company; the company page shows how to start one
+if (!ctx.company) return Astro.redirect('/dashboard/company');
+
+const requested = Astro.getActionResult(actions.identity.request);
+if (requested?.data) return Astro.redirect(`/dashboard/identity${ctx.orgQuery ? `${ctx.orgQuery}&` : '?'}flash=identity`);
+
+const data = await companyForEditor(user.id, ctx.company.id);
+if (!data) return Astro.redirect('/dashboard');
+const { org, checks } = data;
+const isOwner = data.role === 'owner';
+const latest = checks[0] ?? null;
+const state = org.identityCheckedAt ? 'approved' : latest?.status === 'pending' ? 'pending' : latest?.status === 'rejected' ? 'rejected' : 'none';
+
+const errors: Record<string, string[] | undefined> = requested?.error && isInputError(requested.error) ? requested.error.fields : {};
+const formError = requested?.error && !isInputError(requested.error) ? actionErrorMessage(requested.error) : null;
+let sent: FormData | null = null;
+if (requested?.error && Astro.request.method === 'POST') {
+  try { sent = await Astro.request.formData(); } catch { sent = null; }
+}
+// a resend starts from what was sent last time
+const text = (k: string, stored: string | null | undefined) => (sent ? String(sent.get(k) ?? '') : stored ?? '');
+const v = {
+  registrationNumber: text('registrationNumber', latest?.registrationNumber),
+  registrationCountry: text('registrationCountry', latest?.registrationCountry ?? org.country),
+  workEmail: text('workEmail', latest?.workEmail ?? user.email),
+  note: text('note', null),
+};
+const action = ctx.orgQuery ? `${ctx.orgQuery}&${actions.identity.request.queryString.slice(1)}` : actions.identity.request.queryString;
+const date = (d: Date | null | undefined) => (d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+const showForm = isOwner && (state === 'none' || state === 'rejected');
+---
+<Dashboard ctx={ctx} current="identity" title="Identity check" crumbs={[{ label: 'Identity check' }]}>
+  <div class="formw">
+    <FormStatus error={formError} />
+
+    <section class="sec">
+      {state === 'approved' ? (
+        <div class="idhead">
+          <IdentityMark />
+          <p class="sub">Checked on {date(org.identityCheckedAt)}.</p>
+        </div>
+      ) : (
+        <p class="sub">We confirm who you are. It is not a rating of your products.</p>
+      )}
+
+      {(state === 'pending' || state === 'approved') && (
+        <ol class="steps idsteps" aria-label="Progress">
+          <li class="done"><span class="peb"><Icon name="send" /></span><span><b>Sent</b><small>{date(latest?.createdAt)}</small></span></li>
+          {state === 'pending'
+            ? <li class="now" aria-current="step"><span class="peb"><Icon name="hourglass_top" /></span><span><b>In review</b><small>Now</small></span></li>
+            : <li class="done"><span class="peb"><Icon name="hourglass_top" /></span><span><b>In review</b><small>{date(latest?.reviewedAt)}</small></span></li>}
+          {state === 'approved'
+            ? <li class="done" aria-current="step"><span class="peb"><Icon name="badge" /></span><span><b>Checked</b><small>Shows on your pages</small></span></li>
+            : <li><span class="peb"><Icon name="badge" /></span><span><b>Checked</b><small>Shows on your pages</small></span></li>}
+        </ol>
+      )}
+
+      {state === 'rejected' && latest && (
+        <div class="notice idform" role="status">
+          <p><b>We could not complete the check.</b></p>
+          {latest.reason && <p>{latest.reason}</p>}
+        </div>
+      )}
+
+      {!isOwner && (state === 'none' || state === 'rejected') && (
+        <p class="empty-note idform">Only an owner of {org.name} can ask for a check.</p>
+      )}
+    </section>
+
+    {state === 'pending' && latest && (
+      <section class="sec">
+        <h2>What you sent</h2>
+        <ul class="need">
+          <li><Icon name="check_circle" class="ok" /><div><b>Company registration number</b><small>{latest.registrationNumber} · {countryName(latest.registrationCountry) ?? latest.registrationCountry}</small></div><span></span></li>
+          <li><Icon name="check_circle" class="ok" /><div><b>A work email</b><small>{latest.workEmail}</small></div><span></span></li>
+          {latest.documentKey && <li><Icon name="check_circle" class="ok" /><div><b>Registration document</b><small>Seen only by our reviewers</small></div><span></span></li>}
+          {latest.note && <li><Icon name="check_circle" class="ok" /><div><b>Note</b><small>{latest.note}</small></div><span></span></li>}
+        </ul>
+      </section>
+    )}
+
+    {showForm && (
+      <section class="sec">
+        <h2>{state === 'rejected' ? 'Send again' : 'What we need'}</h2>
+        <form class="form" method="POST" action={action} enctype="multipart/form-data">
+          <input type="hidden" name="organizationId" value={org.id} />
+          <div class="row2">
+            <Field id="i-reg" name="registrationNumber" label="Registration number" value={v.registrationNumber} error={errors.registrationNumber} maxlength={60} required
+              hint="For example a CIN, GST or company register number." />
+            <CountrySelect id="i-country" name="registrationCountry" label="Registered in" value={v.registrationCountry} error={errors.registrationCountry} required />
+          </div>
+          <Field id="i-email" name="workEmail" label="Work email" type="email" value={v.workEmail} error={errors.workEmail} maxlength={100} required autocomplete="email"
+            hint="An address at your website’s domain." />
+          <FileDrop id="i-doc" name="document" accept="image/jpeg,image/png,image/webp,application/pdf"
+            label="Registration document (optional)" hint="PDF, JPG, PNG or WebP, up to 10 MB. Seen only by our reviewers." error={errors.document?.join(' ')} />
+          <Field id="i-note" name="note" label="Note" value={v.note} error={errors.note} maxlength={1000} optional textarea rows={4} />
+          <div class="form-send"><button class="btn btn-fill" type="submit">Send for review</button></div>
+        </form>
+      </section>
+    )}
+
+    {state === 'pending' && (
+      <section class="sec">
+        <div class="form-send"><button class="btn btn-fill" type="button" disabled>Sent for review</button></div>
+      </section>
+    )}
+  </div>
+</Dashboard>

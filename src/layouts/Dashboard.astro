@@ -1,0 +1,40 @@
+---
+// Every /dashboard page: the page head, then the dashboard nav beside the page's own content.
+import Page from './Page.astro';
+import PageHead, { type Crumb } from '../components/page/PageHead.astro';
+import DashNav, { type DashKey } from '../components/members/DashNav.astro';
+import type { DashContext } from '../lib/dash-context';
+import '../styles/members.css';
+import FormFocus from '../components/members/forms/FormFocus.astro';
+
+interface Props {
+  ctx: DashContext;
+  current: DashKey;
+  /** page title; also the h1 unless `heading` is given */
+  title: string;
+  heading?: string;
+  lede?: string;
+  /** trail after Home > Dashboard; omit on the dashboard home */
+  crumbs?: Crumb[];
+}
+const { ctx, current, title, heading, lede, crumbs } = Astro.props;
+// one-line confirmations after a redirect (?flash=<key>), for actions whose page has no notice of its own
+const FLASH: Record<string, string> = {
+  reply: 'Reply sent.',
+  closed: 'Marked as closed.',
+  reopened: 'Reopened.',
+  identity: 'Request sent. We email you when it is decided.',
+  joined: ctx.company ? `You joined ${ctx.company.name}.` : 'You joined the team.',
+  password: 'Password saved. Use it next time you sign in.',
+};
+const flash = FLASH[Astro.url.searchParams.get('flash') ?? ''];
+const trail: Crumb[] = crumbs ? [{ label: 'Dashboard', href: '/dashboard' }, ...crumbs] : [{ label: 'Dashboard' }];
+---
+<Page title={title} description="Your QuintaEarth dashboard." noindex>
+  <PageHead title={heading ?? title} crumbs={trail} lede={lede} compact><slot name="head" /></PageHead>
+  <div class="wide dash">
+    <div class="dslot"><DashNav current={current} company={!!ctx.company} newEnquiries={ctx.newEnquiries} newReplies={ctx.newReplies} orgQuery={ctx.orgQuery} /></div>
+    <div class="dmain">{flash && <p class="notice flash" role="status">{flash}</p>}<slot /></div>
+  </div>
+  <FormFocus />
+</Page>

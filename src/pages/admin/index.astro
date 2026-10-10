@@ -1,0 +1,129 @@
+---
+// Admin queue for "Identity checked": oldest request first, one open at a time beside the decision form.
+import { actions, isInputError } from 'astro:actions';
+import { eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client';
+import { pendingChecks } from '../../db/queries/dashboard';
+import { countries } from '../../data/countries';
+import { fileUrl } from '../../lib/storage-url';
+import Member from '../../layouts/Member.astro';
+import PageHead from '../../components/page/PageHead.astro';
+import Icon from '../../components/members/Icon.astro';
+import StatusPill from '../../components/members/StatusPill.astro';
+import EmptyState from '../../components/members/EmptyState.astro';
+import { actionErrorMessage } from '../../components/members/forms/errors';
+import '../../styles/members/account.css';
+
+export const prerender = false;
+
+// the middleware answers 404 to non-admins; this is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fadmin');
+if (user.role !== 'admin') return new Response(null, { status: 404 });
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+
+const result = Astro.getActionResult(actions.identity.review);
+if (result?.data) return Astro.redirect(`/admin?done=${result.data.decision}`);
+const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+const done = Astro.url.searchParams.get('done');
+
+const queue = await pendingChecks();
+const wanted = Astro.url.searchParams.get('check');
+const open = queue.find((q) => q.check.id === wanted) ?? queue[0] ?? null;
+const owner = open?.check.requestedBy
+  ? await db.query.user.findFirst({ where: eq(schema.user.id, open.check.requestedBy), columns: { name: true, email: true } })
+  : null;
+
+const country = (iso: string) => countries.find((c) => c.iso === iso)?.name ?? iso;
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const hostOf = (url: string | null) => { try { return url ? new URL(url).hostname.replace(/^www\./, '') : ''; } catch { return ''; } };
+const site = hostOf(open?.website ?? null);
+const mailDomain = open?.check.workEmail.split('@')[1] ?? '';
+const matches = !!site && (mailDomain === site || mailDomain.endsWith(`.${site}`));
+---
+<Member title="Identity checks" description="Identity check requests waiting for review." noindex>
+  <PageHead title="Identity checks" crumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Identity checks' }]} />
+  <section class="body">
+    <div class="wide">
+      {failed && <p class="form-status bad adm-status" role="alert">{failed}</p>}
+      {done && <p class="notice adm-status" role="status">{done === 'approved' ? 'Marked Identity checked.' : 'Asked the company for more.'}</p>}
+      {queue.length === 0 ? (
+        <EmptyState note="Nothing waiting." />
+      ) : (<>
+        <div class="tablebox">
+          <table class="tbl">
+            <caption class="sr">Waiting for review, oldest first</caption>
+            <thead><tr><th scope="col">Company</th><th scope="col">Registration</th><th scope="col">Country</th><th scope="col">Sent</th><th scope="col">Document</th></tr></thead>
+            <tbody>
+              {queue.map((q) => (
+                <tr class:list={{ on: q.check.id === open?.check.id }}>
+                  <td data-label="Company"><a href={`/admin?check=${q.check.id}`} aria-current={q.check.id === open?.check.id ? 'true' : undefined}>{q.company}</a></td>
+                  <td data-label="Registration">{q.check.registrationNumber}</td>
+                  <td data-label="Country">{country(q.check.registrationCountry)}</td>
+                  <td data-label="Sent" class="num">{day(q.check.createdAt)}</td>
+                  <td data-label="Document">{q.check.documentKey ? 'Attached' : 'None'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {open && (
+          <div class="adm-review">
+            <div>
+              <div class="sec-t"><h2>{open.company}</h2><a class="tlink" href={`/companies/${open.slug}`}>Open company page<Icon name="open_in_new" /></a></div>
+              <dl class="facts adm-facts">
+                {owner && (<><dt>Owner</dt><dd>{owner.name}, {owner.email}</dd></>)}
+                <dt>Website</dt><dd>{site || 'None given'}</dd>
+                <dt>Country</dt><dd>{country(open.check.registrationCountry)}</dd>
+                <dt>Sent</dt><dd>{day(open.check.createdAt)}</dd>
+                {open.check.note && (<><dt>Note</dt><dd class="adm-note">{open.check.note}</dd></>)}
+              </dl>
+              <ul class="files adm-files">
+                {open.check.documentKey && (
+                  <li><span class="ft"><Icon name="description" /></span><div><b>Registration document</b><small>Private to the team and admins</small></div><a class="tlink" href={fileUrl(open.check.documentKey)} target="_blank" rel="noopener">Open</a></li>
+                )}
+                <li><span class="ft"><Icon name="tag" /></span><div><b>{open.check.registrationNumber}</b><small>Registration number, {country(open.check.registrationCountry)}</small></div><span></span></li>
+                <li><span class="ft"><Icon name="alternate_email" /></span><div><b>{open.check.workEmail}</b><small>Work email</small></div><StatusPill status={matches ? 'plain' : 'wait'} label={matches ? 'Matches website' : 'Does not match website'} /></li>
+              </ul>
+            </div>
+            <form class="form" method="POST" action={actions.identity.review}>
+              <h2 class="dec">Decision</h2>
+              <input type="hidden" name="checkId" value={open.check.id}>
+              <div class="field">
+                <label for="adm-reason">Note to the company <span class="opt">(needed to ask for more)</span></label>
+                <textarea class="area short" id="adm-reason" name="reason" maxlength="500"
+                  aria-invalid={errors.reason ? 'true' : undefined} aria-describedby="adm-reason-error"></textarea>
+                <p class="err" id="adm-reason-error">{errors.reason?.join(' ')}</p>
+              </div>
+              <div class="form-send">
+                <details class="adm-grant">
+                  <summary class="btn btn-fill"><span class="shut">Grant Identity checked</span><span class="opened">Cancel</span></summary>
+                  <div class="adm-confirm">
+                    <p>Grant Identity checked to <b>{open.company}</b>?</p>
+                    <button class="btn btn-fill" type="submit" name="decision" value="approved">Confirm</button>
+                  </div>
+                </details>
+                <button class="btn btn-line adm-ask" type="submit" name="decision" value="rejected">Ask for more</button>
+              </div>
+            </form>
+          </div>
+        )}
+      </>)}
+    </div>
+  </section>
+</Member>
+
+<style>
+  /* granting is a two-step: the first button opens the question, Confirm sends it (works without JS) */
+  .adm-grant > summary { list-style: none; }
+  .adm-grant > summary::-webkit-details-marker { display: none; }
+  .adm-grant .opened, .adm-grant[open] .shut { display: none; }
+  .adm-grant[open] .opened { display: inline; }
+  .adm-grant[open] { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .adm-grant[open] > summary { order: 2; background: #fff; color: var(--river); border-color: var(--river); }
+  .adm-confirm { display: contents; }
+  .adm-confirm p { flex-basis: 100%; font-size: 17px; color: var(--deep); }
+  .form-send:has(.adm-grant[open]) > .adm-ask { display: none; }
+</style>

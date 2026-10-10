@@ -1,0 +1,29 @@
+/* Enquiries: company inbox, buyer's sent enquiries, the send form. Builds on members.css (.inbox, .ilist, .thread, .msg). */
+.eq-tabs { margin-bottom: 20px; }
+.eq-pane { min-width: 0; }
+.eq-back { display: none; }
+.msg p.eq-p { white-space: pre-line; overflow-wrap: anywhere; }
+.eq-status { margin-top: 20px; }
+.eq-meta { margin-top: 10px; }
+.eq-open { margin-top: 20px; }
+.eq-reply { margin-top: 24px; }
+.eq-close { margin-left: auto; }
+.eq-closed { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 24px; }
+.eq-closed form { display: contents; }
+
+@media (max-width: 900px) {
+  /* the panes stack: the index shows the list, a thread page shows the thread */
+  .inbox.eq-list .eq-pane { display: none; }
+  .inbox.eq-thread .ilist { display: none; }
+  .eq-back { display: inline-flex; margin: 16px 18px 0; }
+}
+
+/* send form */
+.eq-co { display: flex; align-items: center; gap: 18px; }
+.eq-co h2 { font-size: 24px; line-height: 1.2; }
+.eq-co .small-meta { margin-top: 4px; }
+.eq-co + * { margin-top: 28px; }
+.eq-as { font-size: 15px; color: var(--muted); }
+.eq-as b { font-weight: 500; color: var(--deep); }
+/* honeypot: off-screen, out of the tab order and hidden from assistive tech; people never fill it */
+.eq-hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }

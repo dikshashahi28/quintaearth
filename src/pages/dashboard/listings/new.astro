@@ -1,0 +1,40 @@
+---
+// A new listing. After the first save the member lands on its edit page, where the photo and evidence uploads are.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../../layouts/Dashboard.astro';
+import ListingForm, { type ListingValues } from '../../../components/members/listings/ListingForm.astro';
+import { dashContext } from '../../../lib/dash-context';
+import { actionErrorMessage } from '../../../components/members/forms/errors';
+import '../../../styles/members/listings.css';
+
+export const prerender = false;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Flistings%2Fnew');
+const ctx = await dashContext(user, Astro.url);
+if (!ctx.company) return Astro.redirect('/dashboard/listings');
+
+const result = Astro.getActionResult(actions.listings.save);
+if (result?.data) return Astro.redirect(`/dashboard/listings/${result.data.id}?saved=1`);
+const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failure = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) ?? undefined : undefined;
+
+// after a failed save, show what was sent
+let values: ListingValues = { name: '', kind: 'product', description: null, link: null, status: 'draft' };
+let subs: string[] = [];
+let serves: string[] = [];
+if (result?.error && Astro.request.method === 'POST') {
+  try {
+    const f = await Astro.request.formData();
+    const s = (k: string) => (typeof f.get(k) === 'string' ? (f.get(k) as string) : '');
+    values = { name: s('name'), kind: s('kind') === 'service' ? 'service' : 'product', description: s('description'), link: s('link'), status: 'draft' };
+    subs = f.getAll('subs').filter((v): v is string => typeof v === 'string');
+    serves = f.getAll('serves').filter((v): v is string => typeof v === 'string');
+  } catch { /* body already read: start empty */ }
+}
+const action = ctx.orgQuery ? `${ctx.orgQuery}&${actions.listings.save.queryString.slice(1)}` : actions.listings.save.queryString;
+---
+<Dashboard ctx={ctx} current="listings" title="Add a listing" crumbs={[{ label: 'Listings', href: `/dashboard/listings${ctx.orgQuery}` }, { label: 'Add a listing' }]}>
+  <ListingForm action={action} organizationId={ctx.company.id} values={values} subs={subs} serves={serves} errors={errors} failure={failure} />
+</Dashboard>

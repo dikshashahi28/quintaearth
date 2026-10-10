@@ -18,6 +18,15 @@ colors:
   hair: "#d3e0d0"
   text: "#1b2a1e"
   muted: "#566457"
+  ink-2: "#3d4a3f"
+  placeholder: "#5f6f60"
+  field-line: "#7a957a"
+  id-line: "#c9d3c8"
+  live-wash: "#e3ecd9"
+  live-ink: "#3f5c31"
+  quiet-wash: "#eef1ee"
+  danger: "#b3261e"
+  danger-line: "#e3c4c1"
 typography:
   display:
     fontFamily: "Literata, Georgia, serif"
@@ -302,14 +311,14 @@ Calm, round, and they lift a little when pointed at.
 - No other cards: sections, stones and parts are not boxed.
 
 ### Inputs / Fields
-- **Style:** pill field (selects too, with a River Green chevron; textareas keep the 12px radius), 48px tall, 1.5px soft green border, white ground, 16px body text, River Green caret.
+- **Style:** pill field (selects too, with a River Green chevron; textareas keep the 12px radius), 48px tall, 1.5px border (Field Line `#7a957a` on member pages, 3.3:1), white ground, 16px body text, River Green caret.
 - **Focus:** border turns River Green with the standard 2px outline at 2px offset.
 - **Message:** a 14px Deep Current note line under the row; no backend is wired yet.
 
 ### Navigation
 - **Header:** sticky, white at 94% with saturate-and-blur backdrop; 72px tall, 64px once scrolled (a hairline appears and the logo shrinks from 30px to 26px). Six links (About, Industries with a mega menu, Insights, Press, Volunteer, Contact; Public Sans 500 16px) and one fill pill CTA.
 - **Active state:** link turns Deep Current and a 5px gold dot grows under it; scroll-spied.
-- **Phone (900px and below):** a 44px round outline menu button; the nav drops as a full-width white panel with 52px rows and hairline separators, Panel shadow; Escape closes and returns focus. Under 640px the CTA shortens to "Join".
+- **Phone (900px and below):** a 44px round outline menu button; the nav drops as a full-width white panel with 52px rows and hairline separators, Panel shadow; Escape closes and returns focus. Links and "Sign in" never wrap: from 901 to 1279px the CTA reads "Join" and below 1180px the links tighten to 15px with 20px gaps (16px at 960px and below), so the header holds one line at every desktop width. Under 640px the CTA shortens to "Join".
 
 ### The River Rail (signature)
 An absolutely positioned SVG over the main column, rebuilt from section geometry on resize. Three strokes share one path: an 11px Water band, a 1.6px River Green line, and a 2px white dashed current (3 on, 17 off) that flows continuously and is masked to the drawn length. The path draws as the visitor scrolls. At each section a bead (white fill, River Green stroke) waits; when the drawn river reaches it, it fills gold, scales 1.25 and sends one gold ring outward. In stone and part rows the river branches horizontally through each item in serpentine order and lights them gold one by one. It starts from a pulsing gold spring in the hero, turns Mist through the deep band, and ends at the pond. Three small leaves (reed, gold, reed ink) drift along it.
@@ -322,6 +331,21 @@ The landing page carries an uppercase 13px label above each section heading (gol
 
 ### Motion
 One easing for everything: `cubic-bezier(.22, 1, .36, 1)`. Blocks reveal by fading up 18px over 0.8s, staggered 0.09s per item (capped at seven); hero lines rise 14px over 0.9s, staggered 0.08s; industry slides exit in 0.18s and enter in 0.38s, 28px sideways; counts tick up once on first view. Reveal is only armed when JavaScript adds the `anim` class, so content is visible without it. Under `prefers-reduced-motion: reduce`, every loop (sun, clouds, turbines, reeds, birds, glints, current, ripples, rings) stops, the river and its beads render fully drawn and lit, reveals and icon draws are instant, and smooth scrolling is off.
+
+### Member pages (added 10 Oct 2026)
+Built from the approved "QuintaEarth member pages" canvas; styles in `src/styles/members.css`, parts in `src/components/members/`. Their `ms-*` icons live in one static sprite, `public/icons/members.svg`, which `Icon.astro` references (`<use href="/icons/members.svg#ms-name">`) so the browser fetches and caches it once instead of every page inlining it.
+- **Member tokens** (in `tokens.css`, each passing the WCAG ratio it is used for on white): Ink 2 `#3d4a3f` secondary text (9.3:1); Placeholder `#5f6f60` (5.3:1); Field Line `#7a957a` borders of inputs, selects, textareas and the upload box (3.3:1, WCAG 1.4.11); ID Line `#c9d3c8` the Identity checked outline; Live Wash `#e3ecd9` and Live Ink `#3f5c31` the live pill; Quiet Wash `#eef1ee` draft pills; Danger `#b3261e` remove, delete and errors (6.5:1) with Danger Line `#e3c4c1` around a quiet destructive button. No other literal colours in member styles.
+- **State marks keep 3:1:** a step not reached is a dashed Field Line pebble with a Reed Ink icon; a done step is filled Gold Ink `#8a6a1c` with a white tick (5:1); an unmet requirement icon is Muted.
+- **Dashboard shell:** page head, then a 216px left nav of pill links beside the content. The current item has a Shallow fill and a gold icon (gold means selected), drawn in Gold Ink so it holds 4.3:1 on Shallow. Admins also get an "Identity checks" item linking to `/admin`. Sign out is the nav's last item, under a hairline on desktop. At 900px and below the nav becomes a sideways-scrolling strip of outlined pills that opens scrolled to the current pill and fades at any edge that hides more; sign out stays as the strip's last pill.
+- **Account button:** signed in, the header shows a 44px initials circle (Shallow fill, River Green outline, Literata initials) linking to the dashboard; signed out, a "Sign in" text link. "Directory" sits after Industries in the main nav.
+- **Avatar:** people use the stone (initials in Literata on Shallow, or the photo); companies use the round mark (logo, or a storefront icon). Sizes 118, 64 and 48px.
+- **Identity checked:** see the Don'ts; 32px pill, 28px in lists.
+- **Status pills:** Live (pale reed with a gold dot), Draft (cool grey), In review (white with a hairline).
+- **Chip pickers:** multi-selects are checkbox chips; a checked chip takes the Shallow fill. They work without JavaScript.
+- **Uploads:** a dashed 1.5px Field Line box with an upload icon and the accepted types, above hairline file rows (type tile, name, size, remove).
+- **Lists:** hairline rows whose title link covers the whole row; inbox is two panes with a gold dot on new threads, stacking on phone.
+- **Admin table:** bordered, scrolls sideways on small screens.
+- **Hit areas:** breadcrumb links and chips are 44px tall on member pages.
 
 ## Do's and Don'ts
 
@@ -338,7 +362,7 @@ One easing for everything: `cubic-bezier(.22, 1, .36, 1)`. Blocks reveal by fadi
 ### Don't:
 - **Don't** use orange or any warm accent other than gold (user decision, 8 Oct 2026).
 - **Don't** set text in Bead Gold (#b8912f); it fails contrast on white.
-- **Don't** add a "verified" badge, seal or home-made certification mark (open EmpCo risk; user decision, 8 Oct 2026).
+- **Don't** add a "verified" badge, seal or home-made certification mark (open EmpCo risk; user decision, 8 Oct 2026). The one trust label is **Identity checked** (decided 10 Oct 2026): a neutral grey outlined pill with the badge icon, never green or gold, never worded as a green claim. It says who a company is, nothing about its products.
 - **Don't** show prices or an "Ask for a proposal" button (user decision, 8 Oct 2026).
 - **Don't** split the landing page's five parts into separate sections; they live together in one section (user decision, 8 Oct 2026).
 - **Don't** add new section fills; white, sky (hero only) and one Forest Deep band are the full set.

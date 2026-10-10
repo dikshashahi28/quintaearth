@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site, type NavKey } from '../data/site';
 import { absolute, asset } from '../lib/url';
+import { initialsOf } from '../lib/member-hint';
 
 interface Props {
   /** page title without the site name; omit on the home page */
@@ -39,17 +40,20 @@ const {
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · One hub for sustainability, green tech and clean tech`;
 // canonical URLs are clean: "/" not "/index.html", "/about" not "/about.html"
 const canonical = absolute(Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, ''), Astro.site);
+// on-demand pages know who is signed in; prerendered pages read the hint cookie in the head script below
+const member = Astro.locals.user ? initialsOf(Astro.locals.user.name) : undefined;
 const ogImage = absolute(imageUrl ?? asset(image), Astro.site);
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-member={member}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script is:inline>(function(){var d=document.documentElement;if(d.dataset.member)return;try{var m=document.cookie.match(/(?:^|;\s*)qe\.me=([^;]+)/);if(!m)return;var v=decodeURIComponent(m[1]);d.dataset.member=/^[\p{L}\p{N}]{1,2}$/u.test(v)?v:'Me'}catch(e){}})()</script>
   <title>{fullTitle}</title>
   <meta name="description" content={description}>
   <link rel="canonical" href={canonical}>
-  {noindex && <meta name="robots" content="noindex">}
+  {(noindex || import.meta.env.PUBLIC_DEPLOY === 'dev') && <meta name="robots" content="noindex">}
   <meta property="og:site_name" content={site.name}>
   <meta property="og:title" content={fullTitle}>
   <meta property="og:description" content={description}>
@@ -63,7 +67,7 @@ const ogImage = absolute(imageUrl ?? asset(image), Astro.site);
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=Public+Sans:wght@400;500;600&display=swap">
-  {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  {jsonLd.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />)}
   <slot name="head" />
 </head>
 <body>

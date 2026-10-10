@@ -1,0 +1,265 @@
+---
+// The open company's page editor: logo, details, tags, visibility, team and invitations.
+// Members without a company see the empty state with a form to start one.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../layouts/Dashboard.astro';
+import Avatar from '../../components/members/Avatar.astro';
+import Icon from '../../components/members/Icon.astro';
+import StatusPill from '../../components/members/StatusPill.astro';
+import Field from '../../components/members/forms/Field.astro';
+import CountrySelect from '../../components/members/forms/CountrySelect.astro';
+import TagFields from '../../components/members/forms/TagFields.astro';
+import FormStatus from '../../components/members/forms/FormStatus.astro';
+import FileDrop from '../../components/members/forms/FileDrop.astro';
+import EmptyState from '../../components/members/EmptyState.astro';
+import { actionErrorMessage } from '../../components/members/forms/errors';
+import { dashContext } from '../../lib/dash-context';
+import { companyForEditor } from '../../db/queries/dashboard';
+import '../../styles/members/editors.css';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Fcompany');
+
+const created = Astro.getActionResult(actions.company.create);
+if (created?.data) return Astro.redirect(`/dashboard/company?org=${created.data.id}`);
+
+const ctx = await dashContext(user, Astro.url);
+const here = (flag?: string) => `/dashboard/company${ctx.orgQuery}${flag ? `${ctx.orgQuery ? '&' : '?'}saved=${flag}` : ''}`;
+// a form's own address keeps ?org= so the page that answers the post is the same company
+const post = (a: { queryString: string }) => (ctx.orgQuery ? `${ctx.orgQuery}&${a.queryString.slice(1)}` : a.queryString);
+
+const updated = Astro.getActionResult(actions.company.update);
+const logoSet = Astro.getActionResult(actions.company.setLogo);
+const logoRemoved = Astro.getActionResult(actions.company.removeLogo);
+const invited = Astro.getActionResult(actions.company.invite);
+const removed = Astro.getActionResult(actions.company.removeMember);
+const revoked = Astro.getActionResult(actions.company.revokeInvite);
+if (updated?.data) return Astro.redirect(here('details'));
+if (logoSet?.data) return Astro.redirect(here('logo'));
+if (logoRemoved?.data) return Astro.redirect(here('nologo'));
+if (invited?.data) return Astro.redirect(here('invite'));
+if (revoked?.data) return Astro.redirect(here('uninvite'));
+// leaving the team: the company is no longer yours to edit
+if (removed?.data) return Astro.redirect(removed.data.removed === user.id ? '/dashboard' : here('removed'));
+
+const data = ctx.company ? await companyForEditor(user.id, ctx.company.id) : null;
+const msg = (e: { code?: string; message?: string } | undefined) => actionErrorMessage(e);
+
+const errors: Record<string, string[] | undefined> = updated?.error && isInputError(updated.error) ? updated.error.fields : {};
+const detailsError = updated?.error && !isInputError(updated.error) ? msg(updated.error) : null;
+const logoMessage = logoSet?.error && isInputError(logoSet.error) ? 'Choose a logo first.' : msg(logoSet?.error ?? logoRemoved?.error);
+const inviteErrors: Record<string, string[] | undefined> = invited?.error && isInputError(invited.error) ? invited.error.fields : {};
+const inviteMessage = invited?.error && !isInputError(invited.error) ? msg(invited.error) : null;
+const teamMessage = msg(removed?.error ?? revoked?.error);
+const createErrors: Record<string, string[] | undefined> = created?.error && isInputError(created.error) ? created.error.fields : {};
+const createMessage = created?.error && !isInputError(created.error) ? msg(created.error) : null;
+
+// after a rejected save, show what was typed rather than what is stored
+let sent: FormData | null = null;
+if ((updated?.error || invited?.error) && Astro.request.method === 'POST') {
+  try { sent = await Astro.request.formData(); } catch { sent = null; }
+}
+const fromForm = !!updated?.error && !!sent;
+const org = data?.org;
+const text = (k: string, stored: string | number | null | undefined) => (fromForm ? String(sent!.get(k) ?? '') : stored == null ? '' : String(stored));
+const list = (k: string, stored: string[]) => (fromForm ? sent!.getAll(k).map(String) : stored);
+const v = org && data ? {
+  name: text('name', org.name),
+  description: text('description', org.description),
+  city: text('city', org.city),
+  country: text('country', org.country),
+  size: text('size', org.size),
+  foundedYear: text('foundedYear', org.foundedYear),
+  website: text('website', org.website),
+  linkedin: text('linkedin', org.linkedin),
+  industries: list('industries', data.tags.industry),
+  subs: list('subs', data.tags.sub),
+  sdgs: list('sdgs', data.tags.sdg),
+  published: fromForm ? sent!.get('published') === 'on' : org.published,
+} : null;
+
+const sizes = [
+  { value: '1-10', label: '1–10' }, { value: '11-50', label: '11–50' }, { value: '51-200', label: '51–200' },
+  { value: '201-1000', label: '201–1,000' }, { value: '1000+', label: '1,000+' },
+];
+const savedFlag = Astro.url.searchParams.get('saved');
+const saved = ({ details: ctx.company?.published ? 'Saved. Your company page is live.' : 'Saved. Your company page is hidden from the public.', logo: 'Logo saved.', nologo: 'Logo removed.', invite: 'Invitation sent.', uninvite: 'Invitation cancelled.', removed: 'Removed from the team.' } as Record<string, string>)[savedFlag ?? ''] ?? null;
+
+const isOwner = data?.role === 'owner';
+const ownerCount = data?.team.filter((t) => t.role === 'owner').length ?? 0;
+const live = data?.listings.filter((l) => l.status === 'published').length ?? 0;
+const drafts = (data?.listings.length ?? 0) - live;
+const pageUrl = org ? `/companies/${org.slug}` : null;
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+// an expired invitation is no longer pending; the owner can send a fresh one
+const now = Date.now();
+const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now);
+---
+<Dashboard ctx={ctx} current="company" title="Company page" heading={org?.name ?? 'Company page'} crumbs={[{ label: 'Company page' }]}>
+  {org?.published && pageUrl && <div class="head-acts" slot="head"><a class="tlink" href={pageUrl}>View company page<Icon name="arrow_forward" /></a></div>}
+
+  {!data || !org || !v ? (
+    <div class="formw">
+      <EmptyState title="Company page" note="No company page yet.">
+        <form class="form" method="POST" action={actions.company.create}>
+          <FormStatus error={createMessage} />
+          <Field id="c-new-name" name="name" label="Company name" error={createErrors.name} maxlength={120} required autocomplete="organization" />
+          <div class="form-send"><button class="btn btn-fill" type="submit">Create company page</button></div>
+        </form>
+      </EmptyState>
+    </div>
+  ) : (
+    <div class="formw">
+      <FormStatus saved={saved} error={detailsError} />
+
+      <section class="sec" aria-labelledby="logo-h" data-save-first>
+        <h2 id="logo-h">Logo</h2>
+        <div class="upload">
+          <Avatar name={org.name} imageKey={org.logoKey} kind="company" />
+          <div class="upload-acts">
+            <FileDrop id="c-logo" name="logo" maxMB={2} required action={post(actions.company.setLogo)} icon="upload" accept="image/jpeg,image/png,image/webp"
+              label={org.logoKey ? 'Replace logo' : 'Add a logo'} hint="JPG, PNG or WebP, up to 2 MB" button="Upload logo" error={logoMessage}>
+              <input type="hidden" name="organizationId" value={org.id} />
+            </FileDrop>
+            {org.logoKey && (
+              <form method="POST" action={post(actions.company.removeLogo)}>
+                <input type="hidden" name="organizationId" value={org.id} />
+                <button class="tlink" type="submit">Remove logo</button>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <form class="secs" method="POST" action={post(actions.company.update)} data-main>
+        <input type="hidden" name="organizationId" value={org.id} />
+        <section class="sec">
+          <h2>Details</h2>
+          <div class="form">
+            <Field id="c-name" name="name" label="Company name" value={v.name} error={errors.name} maxlength={120} required autocomplete="organization" />
+            <div class="row2">
+              <Field id="c-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} />
+              <CountrySelect id="c-country" name="country" label="Country" value={v.country} error={errors.country} />
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="c-size">Size</label>
+                <span class="selwrap">
+                  <select class="sel" id="c-size" name="size" aria-invalid={errors.size ? 'true' : undefined} aria-describedby={errors.size ? 'c-size-error' : undefined}>
+                    <option value="" selected={!v.size}>Choose a size</option>
+                    {sizes.map((s) => <option value={s.value} selected={s.value === v.size}>{s.label}</option>)}
+                  </select>
+                  <Icon name="expand_more" />
+                </span>
+                <p class="err" id="c-size-error">{errors.size?.join(' ')}</p>
+              </div>
+              <Field id="c-year" name="foundedYear" label="Founded" value={v.foundedYear} error={errors.foundedYear} maxlength={4} inputmode="numeric" />
+            </div>
+            <Field id="c-desc" name="description" label="Short description" value={v.description} error={errors.description} maxlength={1500} count textarea />
+          </div>
+        </section>
+
+        <TagFields prefix="c" industries={v.industries} subs={v.subs} sdgs={v.sdgs} errors={errors} />
+
+        <section class="sec">
+          <h2>Links</h2>
+          <div class="form">
+            <Field id="c-web" name="website" label="Website" value={v.website} error={errors.website} maxlength={300} optional inputmode="url" />
+            <Field id="c-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
+          </div>
+        </section>
+
+        <section class="sec">
+          <h2>Company page</h2>
+          <div class="form">
+            <label class="check"><input type="checkbox" name="published" checked={v.published} aria-describedby="c-url" /><span>Show the company page publicly</span></label>
+            <p class="hint" id="c-url">{pageUrl}</p>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="form-send">
+            <button class="btn btn-fill" type="submit">Save changes</button>
+            {org.published && pageUrl && <a class="tlink" href={pageUrl}>View company page</a>}
+          </div>
+        </section>
+      </form>
+
+      <section class="sec">
+        <div class="sec-t"><h2>Products and services</h2><a class="tlink" href={`/dashboard/listings${ctx.orgQuery}`}>Manage listings<Icon name="arrow_forward" /></a></div>
+        {data.listings.length
+          ? <p class="sub">{live} live, {drafts} {drafts === 1 ? 'draft' : 'drafts'}</p>
+          : <p class="empty-note">No listings yet.</p>}
+      </section>
+
+      <section class="sec" aria-labelledby="team-h" data-save-first>
+        <div class="sec-t"><h2 id="team-h">Team</h2><span class="count">{data.team.length} {data.team.length === 1 ? 'member' : 'members'}</span></div>
+        <FormStatus error={teamMessage} />
+        <ul class="team">
+          {data.team.map((t) => {
+            const me = t.userId === user.id;
+            const canRemove = me ? !(t.role === 'owner' && ownerCount === 1) : isOwner;
+            return (
+              <li>
+                <Avatar name={t.name} size="xs" />
+                <div><b>{t.name}{me && <span class="sr"> (you)</span>}</b><small>{t.email}</small></div>
+                <div class="rolecell"><StatusPill status="plain" label={t.role === 'owner' ? 'Owner' : 'Member'} /></div>
+                {canRemove ? (
+                  <form method="POST" action={post(actions.company.removeMember)}>
+                    <input type="hidden" name="organizationId" value={org.id} />
+                    <input type="hidden" name="userId" value={t.userId} />
+                    <button class="iconbtn" type="submit" aria-label={me ? 'Leave this team' : `Remove ${t.name}`}><Icon name={me ? 'logout' : 'close'} /></button>
+                  </form>
+                ) : <span></span>}
+              </li>
+            );
+          })}
+          {pending.map((i) => (
+            <li>
+              <span class="mark xs invited"><Icon name="mail" /></span>
+              <div><b>{i.email}</b><small>Link works until {day(i.expiresAt)}</small></div>
+              <div class="rolecell"><StatusPill status="wait" label={i.role === 'owner' ? 'Invited as owner' : 'Invited'} /></div>
+              {isOwner ? (
+                <form method="POST" action={post(actions.company.revokeInvite)}>
+                  <input type="hidden" name="organizationId" value={org.id} />
+                  <input type="hidden" name="email" value={i.email} />
+                  <button class="iconbtn" type="submit" aria-label={`Cancel the invitation to ${i.email}`}><Icon name="close" /></button>
+                </form>
+              ) : <span></span>}
+            </li>
+          ))}
+        </ul>
+
+        {isOwner && (
+          <form class="invite-form field" method="POST" action={post(actions.company.invite)}>
+            <input type="hidden" name="organizationId" value={org.id} />
+            <label for="c-invite">Invite by email</label>
+            <div class="invite">
+              <input class="inp" id="c-invite" name="email" type="email" placeholder="name@company.com" autocomplete="off" maxlength="100" required
+                value={invited?.error && sent ? String(sent.get('email') ?? '') : ''}
+                aria-invalid={inviteErrors.email || inviteMessage ? 'true' : undefined} aria-describedby="c-invite-error" />
+              <span class="selwrap">
+                <label class="sr" for="c-invite-role">Role</label>
+                <select class="sel" id="c-invite-role" name="role">
+                  <option value="member" selected>Member</option>
+                  <option value="owner">Owner</option>
+                </select>
+                <Icon name="expand_more" />
+              </span>
+              <button class="btn btn-line" type="submit">Send invite</button>
+            </div>
+            <p class="err" id="c-invite-error" role={inviteErrors.email || inviteMessage ? 'alert' : undefined}>{inviteErrors.email?.join(' ') ?? inviteMessage}</p>
+          </form>
+        )}
+      </section>
+    </div>
+  )}
+</Dashboard>
+
+<script>
+  import { saveFirst } from '../../components/members/forms/save-first';
+  const main = document.querySelector<HTMLFormElement>('form[data-main]');
+  if (main) saveFirst(main, document.querySelectorAll<HTMLFormElement>('[data-save-first] form'));
+</script>

@@ -1,0 +1,6 @@
+---
+// The line above a form after a post: a saved notice, or the error the server gave.
+interface Props { saved?: string | null; error?: string | null }
+const { saved, error } = Astro.props;
+---
+{error ? <p class="form-status bad" role="alert">{error}</p> : saved ? <p class="notice" role="status">{saved}</p> : null}
