@@ -56,7 +56,6 @@ const v = {
   skills: text('skills', profile?.tags.skill.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')),
   industries: list('industries', profile?.tags.industry ?? []),
   subs: list('subs', profile?.tags.sub ?? []),
-  sdgs: list('sdgs', profile?.tags.sdg ?? []),
   published: sent ? sent.get('published') === 'on' : !!profile?.published,
 };
 
@@ -106,7 +105,7 @@ const live = !!profile?.published;
           </div>
         </section>
 
-        <TagFields prefix="p" industries={v.industries} subs={v.subs} sdgs={v.sdgs} errors={errors} />
+        <TagFields prefix="p" industries={v.industries} subs={v.subs} errors={errors} />
 
         <section class="sec">
           <h2>Skills</h2>
