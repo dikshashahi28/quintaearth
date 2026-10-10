@@ -1,0 +1,28 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { site } from '../data/site';
+import { Image } from 'astro:assets';
+import { photo } from '../lib/images';
+import { page } from '../lib/url';
+---
+<Page title="About" description="QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made, not donated, not performed." current="about">
+  <PageHead title="Where sustainability is made, not performed." crumbs={[{ label: 'About' }]} />
+  <section class="page-body about-page">
+    <div class="wide spread">
+      <figure class="rv">
+        <Image src={photo('valley')} alt="A forested valley with a river winding between green hills, seen from above" widths={[480, 800, 1000]} sizes="(max-width: 900px) calc(100vw - 32px), 400px" loading="eager" />
+      </figure>
+      <div class="prose">
+        <p class="lead">QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
+        <p>It is a living commons — a place where greentech and cleantech work is gathered, shared, and made visible, with the same care you would bring to something sacred.</p>
+        <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
+        <p class="by"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Diksha, founder of QuintaEarth</p>
+        <div class="acts-row">
+          <a class="btn btn-fill" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the Green Tech Community</a>
+          <a class="btn btn-line" href={page('index', 'parts')}>The five parts of the hub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>

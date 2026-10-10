@@ -1,0 +1,48 @@
+.site-foot { background: var(--deep); color: #d9e6d6; padding: 0 0 40px; }
+
+/* footer meadow: grass bends away from the pointer, butterflies follow it, a tap lets dandelion seeds go */
+.reeds { display: block; width: 100%; height: clamp(120px, 8.333vw, 160px); background: var(--page); touch-action: pan-y; }
+.reeds .sway { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 5s ease-in-out infinite alternate; }
+.reeds .bend { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .5s cubic-bezier(.2, .8, .3, 1); }
+.reeds .wing { transform-box: fill-box; animation: flapw .55s ease-in-out infinite alternate; }
+.reeds .wl { transform-origin: 100% 50%; }
+.reeds .wr { transform-origin: 0 50%; }
+.reeds .bf.still .wing { animation-duration: 1.6s; }
+.reeds .dw { transform-box: fill-box; transform-origin: center; animation: dwing .12s linear infinite alternate; }
+.reeds .w2 { animation-delay: -.06s; }
+.reeds .seed { animation: seedup 3s ease-out forwards; }
+.reeds .petal { transform-box: fill-box; transform-origin: center; transition: transform .4s var(--ease); }
+.reeds .fl:hover .petal { transform: scale(1.25); }
+.reeds.idle * { animation-play-state: paused; }
+@keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes flapw { from { transform: scaleX(1); } to { transform: scaleX(.3); } }
+@keyframes dwing { from { transform: scaleY(1); } to { transform: scaleY(.35); } }
+@keyframes seedup {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  10% { opacity: .95; }
+  70% { opacity: .85; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)); }
+}
+
+.site-foot .grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; padding-top: 64px; }
+.site-foot .wm { font: 400 34px/1 var(--font-display); color: #fff; }
+.site-foot .tag { margin-top: 14px; font-family: var(--font-display); font-size: 19px; color: #fff; }
+.site-foot a { color: #d9e6d6; text-decoration: none; transition: color .2s; }
+.site-foot a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+.site-foot :focus-visible { outline-color: var(--gold-light); }
+.site-foot .em { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; }
+.site-foot h2 { font: 600 14px var(--font-body); color: var(--on-deep-muted); letter-spacing: .02em; }
+.site-foot ul { margin-top: 6px; display: grid; }
+.site-foot li a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.site-foot .legal { margin-top: 56px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, .14); font-size: 14px; color: var(--on-deep-muted); }
+
+@media (max-width: 900px) {
+  .site-foot .grid { grid-template-columns: 1fr 1fr; }
+  .site-foot .brand { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .reeds { height: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reeds .sway, .reeds .wing, .reeds .dw, .reeds .seed { animation: none; }
+}

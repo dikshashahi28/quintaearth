@@ -1,0 +1,41 @@
+---
+// One page per UN goal: everything on QuintaEarth tagged with it, so a goal tag always leads somewhere.
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import Page from '../../layouts/Page.astro';
+import PageHead from '../../components/page/PageHead.astro';
+import InsightCard from '../../components/page/InsightCard.astro';
+import { goals } from '../../data/sdgs';
+import { getStream } from '../../lib/content';
+import { page } from '../../lib/url';
+
+export const getStaticPaths = (() => goals.map((goal, i) => ({ params: { n: String(goal.n) }, props: { goal, i } }))) satisfies GetStaticPaths;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { goal, i } = Astro.props;
+
+const items = (await getStream({ press: true })).filter((it) => it.sdgs.includes(goal.n));
+const prev = goals[i - 1];
+const next = goals[i + 1];
+---
+<Page title={`Goal ${goal.n}: ${goal.title}`} description={`${items.length} QuintaEarth Insights tagged with UN Sustainable Development Goal ${goal.n}, ${goal.title}. ${goal.line}`}>
+  <PageHead
+    title={goal.title}
+    crumbs={[{ label: 'UN goals', href: page('sdgs') }, { label: `Goal ${goal.n}` }]}
+    lede={goal.line}
+    facts={[{ value: items.length, label: items.length === 1 ? 'Insight tagged' : 'Insights tagged' }]}
+  >
+    <p class="un-link"><a class="tlink" href={goal.un} target="_blank" rel="noopener">The UN page for Goal {goal.n}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg></a></p>
+  </PageHead>
+
+  <section class="page-body" aria-labelledby="tagged-h">
+    <div class="wide">
+      <h2 class="sr" id="tagged-h">Tagged with Goal {goal.n}</h2>
+      {items.length
+        ? <div class="cards">{items.map((it) => <InsightCard item={it} />)}</div>
+        : <p class="empty-note">Nothing tagged with this goal yet.</p>}
+      <nav class="pager" aria-label="UN goals">
+        {prev && <a class="prev" href={page(`sdgs/goal-${prev.n}`)}><span class="dir"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left" /></svg>Goal {prev.n}</span><span class="t">{prev.title}</span></a>}
+        {next && <a class="next" href={page(`sdgs/goal-${next.n}`)}><span class="dir">Goal {next.n}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></span><span class="t">{next.title}</span></a>}
+      </nav>
+    </div>
+  </section>
+</Page>

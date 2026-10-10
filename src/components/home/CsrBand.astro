@@ -1,0 +1,20 @@
+---
+import { site } from '../../data/site';
+import { page } from '../../lib/url';
+---
+<section class="csr" id="csr" data-river="wide" data-deep>
+  <div class="in wide">
+    <svg class="orn hi rv" aria-hidden="true"><use href="#hi-sprout" /></svg>
+    <h2 class="big rv" data-dot>CSR is not merely charity &amp; plantations.</h2>
+    <p class="second rv">Need any help with CSR? We will help.</p>
+    <div class="fact-row rv">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 188 188"><circle cx="94" cy="94" r="88" /></svg>
+        <b>2%</b>
+      </div>
+      <p>Qualifying Indian companies must spend 2% of their average net profit on CSR.</p>
+    </div>
+    <a class="btn btn-gold ask rv" href={page('contact', 'partner')}>Ask us about CSR<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+    <p class="mail rv">or write to <a href={`mailto:${site.email}`}>{site.email}</a></p>
+  </div>
+</section>

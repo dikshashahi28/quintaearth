@@ -1,0 +1,37 @@
+---
+import { site } from '../../data/site';
+import { page } from '../../lib/url';
+
+type State = 'open' | 'next' | 'later';
+const parts: { name: string; icon: string; motion: string; state: State; line: string; cta?: { label: string; href: string; external?: boolean } }[] = [
+  { name: 'Learn', icon: 'book', motion: 'm-open', state: 'open', line: 'Insights and press releases, tagged with UN goals.', cta: { label: 'Read the latest', href: page('insights') } },
+  { name: 'Connect', icon: 'connect', motion: 'm-bounce', state: 'open', line: 'The Green Tech Community, and volunteering.', cta: { label: 'Join the community', href: site.whatsapp, external: true } },
+  { name: 'Showcase', icon: 'frame', motion: 'm-wobble', state: 'next', line: 'Profiles and a directory where each claim links to its proof.' },
+  { name: 'Solve', icon: 'bulb', motion: 'm-glow', state: 'later', line: 'Real problems, answered with solutions.' },
+  { name: 'Trade', icon: 'basket', motion: 'm-shake', state: 'later', line: 'A marketplace for sustainable products.' },
+];
+---
+<section class="parts" id="parts" data-river="parts">
+  <div class="in wide">
+    <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">03</span>The hub</p>
+    <h2 class="rv">Five parts of one hub</h2>
+    <p class="lede rv">Two are open, one is next, two come later. The stream reaches each one in turn.</p>
+    <ol class="trib">
+      {parts.map((p) => (
+        <li class={`part ${p.state} rv`}>
+          <span class={`pcircle ${p.motion}`} data-stop><svg class="hi" aria-hidden="true"><use href={`#hi-${p.icon}`} /></svg></span>
+          <h3>{p.name}</h3>
+          {p.state === 'open' && <span class="pill o"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Open now</span>}
+          {p.state === 'next' && <span class="pill n">Coming next</span>}
+          {p.state === 'later' && <span class="pill l">Later</span>}
+          <p>{p.line}</p>
+          {p.cta && (
+            <a class="go" href={p.cta.href} {...(p.cta.external ? { target: '_blank', rel: 'noopener' } : {})}>
+              {p.cta.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg>
+            </a>
+          )}
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

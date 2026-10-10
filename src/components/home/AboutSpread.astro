@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+import { photo } from '../../lib/images';
+---
+<section class="about" id="about" data-river="wide">
+  <div class="in wide">
+    <figure class="rv">
+      <Image src={photo('valley')} alt="A forested valley with a river winding between green hills, seen from above" widths={[480, 800, 1000]} sizes="(max-width: 900px) calc(100vw - 32px), 450px" loading="lazy" />
+      <svg class="orn hi" aria-hidden="true"><use href="#hi-sprig" /></svg>
+    </figure>
+    <div>
+      <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">02</span>About</p>
+      <p class="quote rv" data-dot>Where sustainability is made, not performed.</p>
+      <p class="by rv"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Diksha, founder of QuintaEarth</p>
+      <h2 class="sr">About QuintaEarth</h2>
+      <p class="body rv">QuintaEarth is a hub for everyone who works in, studies or cares about sustainability, green tech and clean tech. Our vision is one place to learn, connect, showcase, solve and trade.</p>
+    </div>
+  </div>
+</section>

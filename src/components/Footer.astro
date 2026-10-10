@@ -1,0 +1,88 @@
+---
+import '../styles/footer.css';
+import { site } from '../data/site';
+import { page } from '../lib/url';
+
+const groups = [
+  {
+    title: 'QuintaEarth',
+    links: [
+      { label: 'About', href: page('about') },
+      { label: 'Our work', href: page('our-work') },
+      { label: 'Volunteer', href: page('volunteer') },
+      { label: 'Reviews', href: page('testimonials') },
+      { label: 'Contact', href: page('contact') },
+    ],
+  },
+  {
+    title: 'Read',
+    links: [
+      { label: 'Insights', href: page('insights') },
+      { label: 'Press releases', href: page('press') },
+      { label: 'Industries', href: page('industries') },
+      { label: 'UN goals', href: page('sdgs') },
+    ],
+  },
+];
+const year = new Date().getFullYear();
+---
+<footer class="site-foot">
+  <svg class="reeds" id="meadow" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <rect width="1440" height="120" fill="#ffffff" />
+    <g id="mdGrass"></g>
+    <g id="mdFlowers"></g>
+    <path d="M0 120 C 200 106, 400 113, 720 104 S 1240 113, 1440 106 L1440 120 Z" fill="#245a2e" />
+    <path d="M0 120 C 200 110, 400 116, 720 109 S 1240 116, 1440 110 L1440 120 Z" fill="#14301c" />
+    <g id="mdLife">
+      <g class="df">
+        <g class="dfb">
+          <ellipse class="dw" cx="-3" cy="-4" rx="7" ry="1.5" fill="#d3e7df" stroke="#4d6e3d" stroke-width=".6" />
+          <ellipse class="dw w2" cx="3" cy="-4" rx="7" ry="1.5" fill="#d3e7df" stroke="#4d6e3d" stroke-width=".6" />
+          <ellipse class="dw" cx="-3" cy="4" rx="7" ry="1.5" fill="#d3e7df" stroke="#4d6e3d" stroke-width=".6" />
+          <ellipse class="dw w2" cx="3" cy="4" rx="7" ry="1.5" fill="#d3e7df" stroke="#4d6e3d" stroke-width=".6" />
+          <path d="M-10 0 L 12 0" stroke="#4d6e3d" stroke-width="2.2" stroke-linecap="round" />
+          <circle cx="12" cy="0" r="2.2" fill="#8a6a1c" />
+        </g>
+        <animateMotion dur="17s" repeatCount="indefinite" rotate="auto" path="M-60 44 C 260 18, 460 64, 740 34 S 1180 56, 1500 26" />
+      </g>
+      <g class="bf" id="bf1">
+        <path class="wing wl" d="M0 0 C -8 -9, -16 -8, -15 -1 C -16 5, -9 8, 0 2 Z" fill="#d9b85a" />
+        <path class="wing wr" d="M0 0 C 8 -9, 16 -8, 15 -1 C 16 5, 9 8, 0 2 Z" fill="#d9b85a" />
+        <path d="M0 -4 L0 4" stroke="#5a4a1c" stroke-width="1.6" stroke-linecap="round" />
+      </g>
+      <g class="bf" id="bf2">
+        <path class="wing wl" d="M0 0 C -7 -8, -14 -7, -13 -1 C -14 4, -8 7, 0 2 Z" fill="#fff" stroke="#4d6e3d" stroke-width=".9" />
+        <path class="wing wr" d="M0 0 C 7 -8, 14 -7, 13 -1 C 14 4, 8 7, 0 2 Z" fill="#fff" stroke="#4d6e3d" stroke-width=".9" />
+        <path d="M0 -4 L0 4" stroke="#4d6e3d" stroke-width="1.6" stroke-linecap="round" />
+      </g>
+    </g>
+    <g id="mdSeeds"></g>
+  </svg>
+  <div class="wide grid">
+    <div class="brand">
+      <p class="wm">QuintaEarth</p>
+      <p class="tag">Earth is our home.</p>
+      <a class="em" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+    {groups.map((g) => (
+      <div>
+        <h2>{g.title}</h2>
+        <ul>{g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      </div>
+    ))}
+    <div>
+      <h2>Follow</h2>
+      <ul>
+        {site.socials.map((s) => (
+          <li><a href={s.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href={`#i-${s.icon}`} /></svg>{s.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div class="wide legal">© {year} QuintaEarth</div>
+</footer>
+
+<script>
+  import { initMeadow } from '../scripts/meadow';
+  initMeadow();
+</script>

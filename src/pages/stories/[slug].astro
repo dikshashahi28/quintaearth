@@ -1,0 +1,109 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { Picture, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import PageHead from '../../components/page/PageHead.astro';
+import ArticleMeta from '../../components/page/ArticleMeta.astro';
+import InsightCard from '../../components/page/InsightCard.astro';
+import { getSub } from '../../data/industries';
+import { site } from '../../data/site';
+import { getStories, shortCompany, storySlug, storyToInsight, streamBySub } from '../../lib/content';
+import { storyImage } from '../../lib/images';
+import { absolute, page } from '../../lib/url';
+
+export const getStaticPaths = (async () => {
+  const stories = await getStories();
+  const seen = new Set<string>();
+  return stories.map((story) => {
+    const slug = storySlug(story);
+    if (seen.has(slug)) throw new Error(`Two stories share the URL "stories/${slug}"`);
+    seen.add(slug);
+    return { params: { slug }, props: { story } };
+  });
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { story } = Astro.props;
+const { data } = story;
+const { Content } = await render(story);
+const sub = getSub(data.sub);
+const ind = sub.industry;
+const self = storyToInsight(story);
+const siblings = ((await streamBySub()).get(sub.slug) ?? []).filter((it) => it.id !== story.id);
+const photo = storyImage(storySlug(story));
+const share = photo ? await getImage({ src: photo, width: 1200, format: 'jpg' }) : undefined;
+
+const description = data.dek.join(' ') || `${data.company}: ${data.product}`;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: data.title,
+  description,
+  about: { '@type': 'Organization', name: shortCompany(data.company) },
+  keywords: data.tags.join(', '),
+  timeRequired: `PT${self.minutes}M`,
+  ...(share ? { image: absolute(share.src, Astro.site) } : {}),
+  publisher: { '@type': 'Organization', name: site.name },
+  mainEntityOfPage: absolute(page(`stories/${storySlug(story)}`), Astro.site),
+  citation: data.sources,
+};
+const facts = [
+  { label: 'Company', value: data.company },
+  { label: 'Product', value: data.product },
+  { label: 'Country', value: data.country },
+  ...(data.launchDate ? [{ label: 'Milestones', value: data.launchDate }] : []),
+];
+---
+<Page title={data.title} description={description} imageUrl={share?.src} type="article" jsonLd={[ld]} current="industries">
+  <PageHead
+    title={data.title}
+    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name, href: page(sub.slug) }, { label: 'Insight' }]}
+    width="col"
+  >
+    {data.dek.map((line) => <p class="dek">{line}</p>)}
+    {data.dateline && <p class="dateline">{data.dateline}</p>}
+    <ArticleMeta minutes={self.minutes} sdgs={data.sdgs} />
+  </PageHead>
+
+  <article class="page-body article-body">
+    <div class="col">
+      {photo && data.image && (
+        <figure class="lead-figure">
+          <Picture src={photo} alt={data.image.alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800, 1200]} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
+          {data.image.caption && <figcaption set:html={data.image.caption} />}
+        </figure>
+      )}
+      {data.glance.length > 0 && (
+        <aside class="glance" aria-labelledby="glance-h">
+          <h2 id="glance-h"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg>At a glance</h2>
+          <dl>{data.glance.map((g) => <><dt>{g.label}</dt><dd>{g.text}</dd></>)}</dl>
+        </aside>
+      )}
+      <div class="prose"><Content /></div>
+
+      <footer class="article-foot">
+        <div>
+          <h2>The record</h2>
+          <dl class="record">{facts.map((f) => <><dt>{f.label}</dt><dd>{f.value}</dd></>)}</dl>
+        </div>
+        {data.links.length > 0 && (
+          <div>
+            <h2>Links</h2>
+            <p class="links">{data.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg></a>)}</p>
+          </div>
+        )}
+      </footer>
+    </div>
+  </article>
+
+  {siblings.length > 0 && (
+    <section class="page-body" aria-labelledby="more-h">
+      <div class="wide">
+        <hr class="rule">
+        <div class="section-title"><h2 id="more-h">More in {sub.name}</h2><a class="tlink" href={page(sub.slug)}>All {siblings.length + 1} Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></div>
+        <div class="cards">{siblings.slice(0, 3).map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
+      </div>
+    </section>
+  )}
+</Page>

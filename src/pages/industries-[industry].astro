@@ -1,0 +1,56 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import InsightCard from '../components/page/InsightCard.astro';
+import { industries } from '../data/industries';
+import { streamBySub } from '../lib/content';
+import { page } from '../lib/url';
+
+export const getStaticPaths = (() => industries.map((industry, i) => ({ params: { industry: industry.slug }, props: { industry, i } }))) satisfies GetStaticPaths;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { industry: ind, i } = Astro.props;
+
+const bySub = await streamBySub();
+const ids = new Set(ind.subs.flatMap((s) => (bySub.get(s.slug) ?? []).map((it) => it.id)));
+const prev = industries[i - 1];
+const next = industries[i + 1];
+---
+<Page title={`${ind.name} · Industries`} description={`${ind.name}: ${ind.subs.map((s) => s.name).join(', ')}. ${ids.size} Insights filed.`} current="industries">
+  <PageHead
+    title={ind.name}
+    icon={ind.icon}
+    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name }]}
+    facts={[{ value: ind.subs.length, label: 'sub-categories' }, { value: ids.size, label: 'Insights' }]}
+  >
+    <ul class="chips jump" aria-label="Jump to a sub-category">
+      {ind.subs.map((s) => <li><a class="chip" href={`#${s.slug}`}>{s.name}</a></li>)}
+    </ul>
+  </PageHead>
+
+  {ind.subs.map((s) => {
+    const list = bySub.get(s.slug) ?? [];
+    return (
+      <section class="page-body sub-block" id={s.slug} aria-labelledby={`${s.slug}-h`}>
+        <div class="wide">
+          <div class="section-title">
+            <h2 id={`${s.slug}-h`}><a href={page(s.slug)}>{s.name}</a></h2>
+            <a class="tlink" href={page(s.slug)}>All {list.length} Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+          </div>
+          {list.length
+            ? <div class="cards">{list.slice(0, 3).map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
+            : <p class="empty-note">Nothing filed here yet.</p>}
+        </div>
+      </section>
+    );
+  })}
+
+  <section class="page-body">
+    <div class="wide">
+      <nav class="pager" aria-label="Industries">
+        {prev && <a class="prev" href={page(`industries-${prev.slug}`)}><span class="dir"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left" /></svg>Previous</span><span class="t">{prev.name}</span></a>}
+        {next && <a class="next" href={page(`industries-${next.slug}`)}><span class="dir">Next<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></span><span class="t">{next.name}</span></a>}
+      </nav>
+    </div>
+  </section>
+</Page>

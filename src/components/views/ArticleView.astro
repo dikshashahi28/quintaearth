@@ -1,0 +1,82 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import PageHead from '../page/PageHead.astro';
+import ArticleMeta from '../page/ArticleMeta.astro';
+import InsightCard from '../page/InsightCard.astro';
+import { getSub } from '../../data/industries';
+import { site } from '../../data/site';
+import { type Article, articleToInsight, getStream, isoDate, readMinutes } from '../../lib/content';
+import { absolute, asset, page } from '../../lib/url';
+
+interface Props { article: Article }
+const { article } = Astro.props;
+const { data } = article;
+const { Content } = await render(article);
+const essay = article.collection === 'insights';
+const list = essay ? { label: 'Insights', href: page('insights') } : { label: 'Press', href: page('press') };
+const self = articleToInsight(article);
+
+// read next: same sub-category or project first, then shared UN goals, then the newest
+const stream = (await getStream({ press: true })).filter((it) => it.id !== article.id);
+const score = (it: (typeof stream)[number]) =>
+  (it.subs.some((s) => data.subs.includes(s)) ? 6 : 0) + it.sdgs.filter((n) => data.sdgs.includes(n)).length + (it.date ? 1 : 0);
+const related = stream.map((it, i) => ({ it, s: score(it), i })).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, 3).map((x) => x.it);
+
+const share = await getImage({ src: data.image, width: 1200, format: 'jpg' });
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': essay ? 'Article' : 'NewsArticle',
+  headline: data.title,
+  description: data.description,
+  datePublished: isoDate(data.date),
+  image: absolute(share.src, Astro.site),
+  timeRequired: `PT${readMinutes(article.body)}M`,
+  publisher: { '@type': 'Organization', name: site.name, logo: { '@type': 'ImageObject', url: absolute(asset('assets/logo.png'), Astro.site) } },
+  mainEntityOfPage: absolute(page(article.id), Astro.site),
+};
+---
+<Page title={data.title} description={data.description} imageUrl={share.src} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}>
+  <PageHead title={data.title} crumbs={[list, { label: essay ? 'Insight' : 'Desk note' }]} width="col">
+    <ArticleMeta minutes={self.minutes} date={data.date} sdgs={data.sdgs} />
+  </PageHead>
+
+  <article class="page-body article-body">
+    <div class="col">
+      <figure class="lead-figure">
+        <Picture src={data.image} alt={data.imageAlt} formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800, 1200]} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
+      </figure>
+      <div class="prose"><Content /></div>
+
+      <footer class="article-foot">
+        {(data.subs.length > 0 || data.euRules) && (
+          <div>
+            <h2>Filed under</h2>
+            <ul class="chips">
+              {data.subs.map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}
+              {data.euRules && <li><span class="chip">EU green-claims rules, all industries</span></li>}
+            </ul>
+          </div>
+        )}
+        {data.sources.length > 0 && (
+          <div>
+            <h2>Sources</h2>
+            <ol class="sources">{data.sources.map((u) => <li><a href={u} target="_blank" rel="noopener">{u}</a></li>)}</ol>
+          </div>
+        )}
+        {data.note && <p class="note-line">{data.note}</p>}
+      </footer>
+    </div>
+  </article>
+
+  {related.length > 0 && (
+    <section class="page-body" aria-labelledby="related-h">
+      <div class="wide">
+        <hr class="rule">
+        <div class="section-title"><h2 id="related-h">Read next</h2></div>
+        <div class="cards">{related.map((it) => <InsightCard item={it} />)}</div>
+      </div>
+    </section>
+  )}
+</Page>

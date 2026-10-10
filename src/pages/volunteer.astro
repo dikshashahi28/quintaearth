@@ -1,0 +1,113 @@
+---
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+
+const genders = [
+  ['woman', 'Woman'],
+  ['man', 'Man'],
+  ['non-binary', 'Non-binary'],
+  ['prefer-not-to-say', 'Prefer not to say'],
+] as const;
+// the four short text fields share one shape
+const texts = [
+  { id: 'designation', label: 'Designation', autocomplete: 'organization-title' },
+  { id: 'education', label: 'Education', autocomplete: undefined },
+  { id: 'city', label: 'City', autocomplete: 'address-level2' },
+  { id: 'college', label: 'College', autocomplete: 'organization' },
+] as const;
+const pairs = [texts.slice(0, 2), texts.slice(2, 4)];
+---
+<Page current="volunteer" title="Volunteer" description="Volunteer with QuintaEarth: join hands with us for a better life and beautiful future.">
+  <PageHead title="Volunteer with us" crumbs={[{ label: 'Volunteer' }]} lede="Join hands with us for a better life and beautiful future." width="col" />
+
+  <section class="page-body" aria-label="Volunteer form">
+    <div class="col">
+      <form class="form" id="volunteer-form" action="#" method="post" enctype="multipart/form-data" novalidate>
+        <p class="form-note">All fields are required.</p>
+        <div class="row2">
+          <div class="field">
+            <label for="volunteer-name">Name</label>
+            <input id="volunteer-name" name="name" type="text" autocomplete="name" maxlength="80" required aria-describedby="volunteer-name-error">
+            <p class="err" id="volunteer-name-error"></p>
+          </div>
+          <div class="field">
+            <label for="volunteer-gender">Gender</label>
+            <select id="volunteer-gender" name="gender" required aria-describedby="volunteer-gender-error">
+              <option value="">Choose one</option>
+              {genders.map(([value, label]) => <option value={value}>{label}</option>)}
+            </select>
+            <p class="err" id="volunteer-gender-error"></p>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="volunteer-phone">Phone number</label>
+            <div class="phone">
+              <button type="button" class="cc-btn" id="volunteer-cc-btn" aria-expanded="false" aria-controls="volunteer-cc-panel" aria-label="Country code, India plus 91">
+                <span id="volunteer-cc-flag" aria-hidden="true">🇮🇳</span>
+                <span id="volunteer-cc-dial">+91</span>
+                <svg class="ic" aria-hidden="true"><use href="#i-caret-down" /></svg>
+              </button>
+              <input id="volunteer-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="12" required aria-describedby="volunteer-phone-error">
+              <div class="cc-panel" id="volunteer-cc-panel" hidden>
+                <label class="sr" for="volunteer-cc-search">Search country</label>
+                <input id="volunteer-cc-search" type="search" placeholder="Search country" autocomplete="off" spellcheck="false">
+                <ul id="volunteer-cc-list" aria-label="Countries"></ul>
+              </div>
+            </div>
+            <p class="err" id="volunteer-phone-error"></p>
+          </div>
+          <div class="field">
+            <label for="volunteer-email">Email</label>
+            <input id="volunteer-email" name="email" type="email" autocomplete="email" maxlength="100" spellcheck="false" required aria-describedby="volunteer-email-error">
+            <p class="err" id="volunteer-email-error"></p>
+          </div>
+        </div>
+        {pairs.map((pair) => (
+          <div class="row2">
+            {pair.map((f) => (
+              <div class="field">
+                <label for={`volunteer-${f.id}`}>{f.label}</label>
+                <input id={`volunteer-${f.id}`} name={f.id} type="text" autocomplete={f.autocomplete} maxlength="80" required aria-describedby={`volunteer-${f.id}-error`}>
+                <p class="err" id={`volunteer-${f.id}-error`}></p>
+              </div>
+            ))}
+          </div>
+        ))}
+        <div class="field">
+          <label for="volunteer-resume">Resume</label>
+          <input id="volunteer-resume" class="file" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required aria-describedby="volunteer-resume-hint volunteer-resume-error">
+          <p class="hint" id="volunteer-resume-hint">PDF or Word (.doc, .docx)</p>
+          <p class="err" id="volunteer-resume-error"></p>
+        </div>
+        <div class="field">
+          <label for="volunteer-why">Why you want to volunteer</label>
+          <textarea id="volunteer-why" name="why" rows="4" maxlength="400" required aria-describedby="volunteer-why-hint volunteer-why-error"></textarea>
+          <p class="hint" id="volunteer-why-hint">20 to 400 characters.</p>
+          <p class="err" id="volunteer-why-error"></p>
+        </div>
+        <div class="field">
+          <label class="check" for="volunteer-consent">
+            <input id="volunteer-consent" name="consent" type="checkbox" required aria-describedby="volunteer-consent-error">
+            <span>I understand this is a volunteer signup, not a job application.</span>
+          </label>
+          <p class="err" id="volunteer-consent-error"></p>
+        </div>
+        <div class="form-send">
+          <button class="btn btn-fill" type="submit">Submit</button>
+          <p class="form-status" id="volunteer-status" role="status"></p>
+        </div>
+      </form>
+
+      <div class="thanks" id="volunteer-thanks" tabindex="-1" hidden>
+        <h2>Thank you.</h2>
+        <p>Our team will contact you soon.</p>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { initVolunteerForm } from '../scripts/volunteer-form';
+  initVolunteerForm();
+</script>

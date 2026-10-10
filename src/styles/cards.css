@@ -1,0 +1,46 @@
+/* Insight cards and UN goal tags. Loaded by the components that use them, on any page. */
+/* UN goal tags. full: number + name (article heads); compact: numbered dots (cards) */
+.goals { display: flex; flex-wrap: wrap; gap: 6px; }
+.goal {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 3px 12px 3px 4px;
+  border-radius: 100px; background: #fff; border: 1px solid var(--hair);
+  font-size: 13px; color: var(--muted); text-decoration: none; transition: border-color .2s, color .2s, background-color .2s;
+}
+.goal b { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 4px; border-radius: 100px; background: var(--shallow); color: var(--river-deep); font: 600 12px/1 var(--font-body); font-variant-numeric: tabular-nums; }
+a.goal:hover { border-color: var(--river); color: var(--river-deep); }
+.goals.compact { gap: 4px; align-items: center; }
+.goals-label { margin-right: 2px; font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
+.goals.compact .goal { min-height: 0; padding: 0; border: 0; background: none; }
+.goals.compact .goal b { min-width: 26px; height: 26px; transition: background-color .2s, color .2s; }
+.goals.compact a.goal:is(:hover, :focus-visible) b { background: var(--river); color: #fff; }
+
+/* ---------- Insight cards: stories, essays and press share one card ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 24px 20px; }
+.card {
+  position: relative; display: flex; flex-direction: column; overflow: hidden;
+  border-radius: var(--r-lg); background: #fff; border: 1px solid var(--hair);
+  transition: border-color .25s, box-shadow .35s var(--ease), transform .35s var(--ease);
+}
+.card:hover { border-color: var(--mist); box-shadow: var(--shadow-card); transform: translateY(-3px); }
+.card-img { aspect-ratio: 16 / 10; overflow: hidden; background: var(--shallow); }
+.card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.card:hover .card-img img { transform: scale(1.04); }
+.card-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 16px; }
+.card .where { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; font-weight: 600; color: var(--river-deep); }
+.card .where time { font-weight: 400; color: var(--muted); }
+/* the company a piece is about, in the where line; each name stays on one line */
+.card .where .co { display: inline-flex; flex-wrap: wrap; gap: 4px 6px; color: var(--deep); }
+.card .where .co b { font-weight: 600; white-space: nowrap; }
+.card .where .co b + b::before { content: "·"; margin-right: 6px; color: var(--reed); }
+.card .where .co i { font-style: normal; font-weight: 400; color: var(--muted); }
+.card .kind { padding: 1px 8px; border-radius: 100px; background: var(--shallow); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
+.card h2, .card h3 { font-size: 20px; line-height: 1.28; }
+/* the whole card is the link; the title's anchor stretches over it, goal tags sit above it */
+.card :is(h2, h3) a { color: inherit; text-decoration: none; }
+.card :is(h2, h3) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.card :is(h2, h3) a:focus-visible { outline: none; }
+.card:has(:is(h2, h3) a:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
+.card .dek { font-size: 15px; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card .foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.card .foot .goals { position: relative; z-index: 1; }
+.card .time { flex: none; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
