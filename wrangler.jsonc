@@ -30,5 +30,24 @@
   ],
   // uploaded photos, logos and documents; served through /files/<key>
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "quintaearth-files" }],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "env": {
+    // dev.quintaearth.com: the same code with its own database, files and secrets (AUTH_SECRET, EMAIL_API_KEY).
+    // Build with CLOUDFLARE_ENV=dev PUBLIC_DEPLOY=dev, then `wrangler deploy`; PUBLIC_DEPLOY=dev keeps it out of search.
+    "dev": {
+      "name": "quintaearth-dev",
+      "vars": { "SITE_URL": "https://dev.quintaearth.com", "EMAIL_FROM": "QuintaEarth Dev <hello@quintaearth.com>" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "quintaearth-dev",
+          // created with `wrangler d1 create quintaearth-dev --location weur`
+          "database_id": "bca5db5d-2beb-42c0-b6ed-50fc4dfafb0a",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [{ "binding": "FILES", "bucket_name": "quintaearth-files-dev" }],
+      "routes": [{ "pattern": "dev.quintaearth.com", "custom_domain": true }]
+    }
+  }
 }
