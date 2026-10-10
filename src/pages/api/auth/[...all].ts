@@ -8,8 +8,12 @@ export const prerender = false;
 // endpoints, such as update-user, would let a member change their name and skip both.
 const allowed = new Set(['GET /api/auth/magic-link/verify', 'GET /api/auth/get-session', 'POST /api/auth/sign-out']);
 
-export const ALL: APIRoute = ({ request }) => {
+export const ALL: APIRoute = async ({ request }) => {
   const { pathname } = new URL(request.url);
-  if (!allowed.has(`${request.method} ${pathname.replace(/\/+$/, '')}`)) return new Response('Not found', { status: 404 });
+  if (!allowed.has(`${request.method} ${pathname.replace(/\/+$/, '')}`)) {
+    // discard any unread body first: answering a POST without reading it can drop the connection
+    await request.body?.cancel().catch(() => {});
+    return new Response('Not found', { status: 404 });
+  }
   return auth.handler(request);
 };
