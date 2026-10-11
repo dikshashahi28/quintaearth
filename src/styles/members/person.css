@@ -1,6 +1,6 @@
 /* Public person page, "the spring" (approved comp of 10 Oct 2026, board "Person"): a white head with the
    portrait stone, then two columns. On the left a river rail runs beside the bio and the skills, a bead per part,
-   the first lighting gold; on the right "Works at" and the industries. Tokens from tokens.css; .stone, .mark,
+   every bead at rest (a public page completes nothing, so nothing lights gold); on the right "Works at" and the industries. Tokens from tokens.css; .stone, .mark,
    .chip, .tlink, .idc from members.css. Classes are pp- so the shared page-head and crumb rules stay out. */
 
 /* head */
@@ -41,10 +41,6 @@
 .pp-rail .track { position: absolute; left: 11px; top: 28px; bottom: -15px; width: 3px; border-radius: 2px; background: var(--water); }
 .pp-rail .track.tail { bottom: 0; }
 .pp-rail .bead { position: absolute; left: 5px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
-.pp-rail.lit .bead { animation: pp-light .4s var(--ease) .35s both; }
-.pp-rail.lit .bead::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: pp-ring 1.2s ease-out .45s 1 forwards; }
-@keyframes pp-light { from { background: var(--page); border-color: var(--river); transform: scale(1); } to { background: var(--gold); border-color: var(--gold); transform: scale(1.15); } }
-@keyframes pp-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
 
 /* right column: works at, industries */
 .pp-side { min-width: 0; }
@@ -71,12 +67,9 @@
   .pp-bio { font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pp-rail.lit .bead { animation: none; background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
-  .pp-rail.lit .bead::after { animation: none; }
   .pp-links .tlink .ms, .pp-chips .chip.has, .pp-workat { transition: none; }
   .pp-chips .chip.has:hover, .pp-workat:hover { transform: none; }
 }
 @media (forced-colors: active) {
   .pp-rail .bead { border-color: CanvasText; }
-  .pp-rail.lit .bead { background: Highlight; border-color: Highlight; }
 }

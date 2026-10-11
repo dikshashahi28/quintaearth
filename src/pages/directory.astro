@@ -1,9 +1,10 @@
 ---
 // The directory (design: Directory, option A "chips on top": filters as chips over the results, companies as photo
-// cards on a river rail, people as a plainer list). Filters are plain GET parameters so every result page has a shareable URL.
+// cards across the full width, people as a plainer list). Filters are plain GET parameters so every result page has a shareable URL.
 // Only known slugs and codes reach searchDirectory; empty or unknown parameters are dropped by a redirect.
 import Member from '../layouts/Member.astro';
 import Icon from '../components/members/Icon.astro';
+import IdentityMark from '../components/members/IdentityMark.astro';
 import FilterForm, { type DirectoryState } from '../components/members/public/FilterForm.astro';
 import { and, desc, inArray, eq } from 'drizzle-orm';
 import { db, schema } from '../db/client';
@@ -52,7 +53,7 @@ const cleanParams = new URLSearchParams(clean.split('?')[1] ?? '');
 const given = [...params.entries()];
 if (given.length !== [...cleanParams.keys()].length || given.some(([k, v]) => cleanParams.get(k) !== v)) return Astro.redirect(clean, 302);
 
-const { rows, more, total } = await searchDirectory({
+const { rows, more, counts } = await searchDirectory({
   q: state.q || undefined,
   type: state.type || undefined,
   industry: state.industry || undefined,
@@ -70,12 +71,16 @@ const hasFilters = !!(state.industry || state.sub || state.country || state.sdg 
 const goalLabel = state.sdg ? `Goal ${state.sdg}: ${goalTitle(state.sdg)}` : '';
 const filtered = hasFilters || !!state.q;
 
+const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+// the count names what it counts: "4 companies · 9 people" with no type chosen, else only the chosen one.
+// "Identity checked" only applies to companies, so people are left out of the line when it is on.
 const first = (pageNo - 1) * PAGE_SIZE + 1;
-const noun = state.type === 'company' ? ['company', 'companies'] : state.type === 'person' ? ['person', 'people'] : ['result', 'results'];
-const word = (n: number) => (n === 1 ? noun[0] : noun[1]);
-const count = pageNo === 1 && !more
-  ? { n: String(rows.length), rest: word(rows.length) }
-  : rows.length ? { n: `${first}–${first + rows.length - 1}`, rest: `of ${total} ${word(total)}` } : null;
+const countParts = [
+  ...(state.type !== 'person' ? [{ n: counts.company, w: plural(counts.company, 'company', 'companies') }] : []),
+  ...(state.type !== 'company' && !state.checked ? [{ n: counts.person, w: plural(counts.person, 'person', 'people') }] : []),
+];
+const range = pageNo > 1 || more ? `showing ${first}–${first + rows.length - 1}` : '';
+const showCount = rows.length > 0;
 
 const short = (text: string | null) => {
   if (!text) return null;
@@ -91,7 +96,7 @@ const subOrder = new Map([...subSlugs].map((s, i) => [s, i]));
 const subsFor = (id: string) => (subsOf.get(id) ?? []).filter((s) => subOrder.has(s)).sort((a, b) => subOrder.get(a)! - subOrder.get(b)!).slice(0, 3).map((s) => subName(s)!);
 
 // for the company cards: published listings (newest first, as the company page lists them), the first one with a
-// photo gives the card its photo, and the public evidence files on them are the "documents"
+// photo gives the card its photo, and the public evidence files on them are its "evidence"
 const coIds = rows.filter((r) => r.type === 'company').map((r) => r.id);
 const listingRows = await inChunks(coIds, (slice) => db.select({ id: schema.listings.id, org: schema.listings.organizationId, photoKey: schema.listings.photoKey })
   .from(schema.listings).where(and(inArray(schema.listings.organizationId, slice), eq(schema.listings.status, 'published')))
@@ -119,11 +124,8 @@ const people = rows.filter((r) => r.type === 'person').map((r) => ({
   initials: r.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join(''),
   href: pageUrl(`people/${r.slug}`), where: place(r.city, r.country), line: short(r.line),
 }));
-// the river rail: one bead per row of three company cards, one for the people
-const rails: ({ kind: 'co'; cards: typeof companies } | { kind: 'people' })[] = [];
-for (let i = 0; i < companies.length; i += 3) rails.push({ kind: 'co', cards: companies.slice(i, i + 3) });
-if (people.length) rails.push({ kind: 'people' });
-const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+// a search or filters that match no one: a plain way back from each
+const clearSearchHref = state.q ? without({ q: '' }) : '';
 ---
 <Member
   title={state.q ? `“${state.q}” in the directory` : 'Directory'}
@@ -143,76 +145,81 @@ const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
     <section class="qd-results" aria-label="Results">
       <div class="wide">
         <div class="qd-res-top">
-          <p class="qd-count" role="status">{count && <><span class="n">{count.n}</span> {count.rest}</>}</p>
+          <p class="qd-count" role="status">{showCount && <>{countParts.map((c, i) => <>{i > 0 && <span class="sep" aria-hidden="true"> · </span>}<span class="n">{c.n}</span> {c.w}</>)}{range && <span class="range"> · {range}</span>}</>}</p>
         </div>
 
-        {rails.length === 0
-          ? <p class="qd-empty">{pageNo > 1 ? 'No more results.' : 'No one matches yet.'}</p>
-          : (
-            <div data-qd-rails>
-              {rails.map((row, i) => (
-                <div class:list={['qd-rrow', { last: i === rails.length - 1 }]} data-qd-row>
-                  <div class="qd-rail" aria-hidden="true">
-                    <span class:list={['bead', { lit: i === 0 }]}></span>
-                    {i < rails.length - 1 && <span class={`track d${Math.min(i, 3)}`}><span class="fill"></span></span>}
-                  </div>
-                  <div class="qd-rbody">
-                    {row.kind === 'co' ? (
-                      <>
-                        {i === 0 && <h2 class="sr">Companies</h2>}
-                        <ul class="qd-cgrid">
-                          {row.cards.map((c) => (
-                            <li>
-                              <article class="qd-card">
-                                <div class="qd-ph">
-                                  {c.photo
-                                    ? <img class:list={{ logo: c.photo.logo }} src={c.photo.url} alt="" width="640" height="400" loading="lazy" decoding="async" data-qd-img />
-                                    : <span class="qd-blank" aria-hidden="true"><Icon name="storefront" /></span>}
-                                  <span class="qd-mark" aria-hidden="true">{c.logo ? <img src={fileUrl(c.logo)} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span><Icon name="storefront" /></span>}</span>
-                                  {c.checked && <span class="qd-idb"><Icon name="badge" /><span class="sr">Identity checked</span></span>}
-                                </div>
-                                <div class="qd-ctext">
-                                  <h3><a href={c.href}>{c.name}</a></h3>
-                                  {c.where && <p class="qd-meta"><Icon name="location_on" />{c.where}</p>}
-                                  {c.line && <p class="qd-line">{c.line}</p>}
-                                  {c.subs.length > 0 && <div class="qd-chips">{c.subs.map((t) => <span class="qd-chip">{t}</span>)}</div>}
-                                  <div class="qd-cfoot">
-                                    {(c.docs > 0 || c.listings > 0) && (
-                                      <p class="qd-proof">
-                                        {c.docs > 0 && <span><span class="n">{c.docs}</span> {plural(c.docs, 'document', 'documents')}</span>}
-                                        {c.docs > 0 && c.listings > 0 && <span class="sep" aria-hidden="true">·</span>}
-                                        {c.listings > 0 && <span><span class="n">{c.listings}</span> {plural(c.listings, 'listing', 'listings')}</span>}
-                                      </p>
-                                    )}
-                                    <a class="qd-tlink" href={c.enquire}><Icon name="mail" />Send an enquiry<span class="sr"> to {c.name}</span></a>
-                                  </div>
-                                </div>
-                              </article>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    ) : (
-                      <>
-                        <h2 class="qd-ph2">People</h2>
-                        <ul class="qd-pgrid">
-                          {people.map((p) => (
-                            <li class="qd-person">
-                              <span class="qd-stone" aria-hidden="true">{p.photo ? <img src={p.photo} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span>{p.initials}</span>}</span>
-                              <div class="qd-pb">
-                                <h3><a href={p.href}>{p.name}</a></h3>
-                                {p.where && <p class="where">{p.where}</p>}
-                                {p.line && <p class="l">{p.line}</p>}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
+        {rows.length === 0
+          ? (
+            <div class="qd-empty">
+              <p>{pageNo > 1 ? 'No more results.' : 'No one matches yet.'}</p>
+              {pageNo === 1 && (clearSearchHref || hasFilters) && (
+                <p class="qd-empty-acts">
+                  {clearSearchHref && <a class="qd-fclear" href={clearSearchHref}>Clear search</a>}
+                  {hasFilters && <a class="qd-fclear" href={clearHref}>Clear filters</a>}
+                </p>
+              )}
             </div>
+          )
+          : (
+            <>
+              {companies.length > 0 && (
+                <div class="qd-block">
+                  <h2 class="sr">Companies</h2>
+                  <ul class="qd-cgrid">
+                    {companies.map((c) => (
+                      <li>
+                        <article class:list={['qd-card', { noph: !c.photo }]}>
+                          <div class="qd-ph">
+                            {c.photo
+                              ? <img class:list={{ logo: c.photo.logo }} src={c.photo.url} alt="" width="640" height="400" loading="lazy" decoding="async" data-qd-img />
+                              : <span class="qd-blank" aria-hidden="true"><Icon name="storefront" /></span>}
+                            <span class="qd-mark" aria-hidden="true">{c.logo ? <img src={fileUrl(c.logo)} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span><Icon name="storefront" /></span>}</span>
+                          </div>
+                          <div class="qd-ctext">
+                            <h3><a href={c.href}>{c.name}</a></h3>
+                            {(c.where || c.checked) && (
+                              <div class="qd-meta">
+                                {c.where && <span><Icon name="location_on" />{c.where}</span>}
+                                {c.checked && <IdentityMark small />}
+                              </div>
+                            )}
+                            {c.line && <p class="qd-line">{c.line}</p>}
+                            {c.subs.length > 0 && <div class="qd-chips">{c.subs.map((t) => <span class="qd-chip">{t}</span>)}</div>}
+                            <div class="qd-cfoot">
+                              {(c.docs > 0 || c.listings > 0) && (
+                                <p class="qd-proof">
+                                  {c.docs > 0 && <span><span class="n">{c.docs}</span> evidence</span>}
+                                  {c.docs > 0 && c.listings > 0 && <span class="sep" aria-hidden="true">·</span>}
+                                  {c.listings > 0 && <span><span class="n">{c.listings}</span> {plural(c.listings, 'listing', 'listings')}</span>}
+                                </p>
+                              )}
+                              <a class="qd-tlink" href={c.enquire}><Icon name="mail" />Send an enquiry<span class="sr"> to {c.name}</span></a>
+                            </div>
+                          </div>
+                        </article>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {people.length > 0 && (
+                <div class="qd-block">
+                  <h2 class="qd-ph2">People</h2>
+                  <ul class="qd-pgrid">
+                    {people.map((p) => (
+                      <li class="qd-person">
+                        <span class="qd-stone" aria-hidden="true">{p.photo ? <img src={p.photo} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span>{p.initials}</span>}</span>
+                        <div class="qd-pb">
+                          <h3><a href={p.href}>{p.name}</a></h3>
+                          {p.where && <p class="where">{p.where}</p>}
+                          {p.line && <p class="l">{p.line}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
           )}
 
         {(pageNo > 1 || more) && (
@@ -228,21 +235,13 @@ const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 </Member>
 
 <script>
-  // the river rail: the first bead is lit; pointing at (or tabbing into) a row lights every bead down to it and
-  // fills the track between them. A photo or logo that fails to load becomes the tinted placeholder.
-  const rows = [...document.querySelectorAll<HTMLElement>('[data-qd-row]')];
-  const light = (upto: number) => rows.forEach((r, i) => {
-    r.querySelector('.bead')?.classList.toggle('lit', i === 0 || i <= upto);
-    r.querySelector('.fill')?.classList.toggle('on', i < upto);
-  });
-  rows.forEach((r, i) => {
-    r.addEventListener('mouseenter', () => light(i));
-    r.addEventListener('focusin', () => light(i));
-  });
-  document.querySelector('[data-qd-rails]')?.addEventListener('mouseleave', () => light(0));
+  // a photo or logo that fails to load becomes the tinted placeholder
   const fail = (img: HTMLImageElement) => {
     const blank = document.createElement('span');
-    blank.className = img.closest('.qd-ph') && !img.closest('.qd-mark') ? 'qd-blank' : 'qd-noimg';
+    const main = !!img.closest('.qd-ph') && !img.closest('.qd-mark');
+    blank.className = main ? 'qd-blank' : 'qd-noimg';
+    // with no photo the card takes its photo-less layout (on a phone: no photo band, the mark beside the name)
+    if (main) img.closest('.qd-card')?.classList.add('noph');
     blank.setAttribute('aria-hidden', 'true');
     img.replaceWith(blank);
   };

@@ -1,7 +1,7 @@
 ---
 // One listing on a public company page (design: Company, 10 Oct "spring" board). Every card carries a photo:
-// a listing without one, or whose photo fails to load, shows a tinted placeholder stone instead. Evidence files
-// sit behind a small disclosure on the card, never as a visible document list.
+// a listing without one, or whose photo fails to load, shows a tinted placeholder stone instead. Its evidence files
+// are always in view under it, by name; opening one is a click (a new tab).
 import Icon from '../Icon.astro';
 import { fileUrl } from '../../../lib/storage-url';
 import { hostOf } from '../../../lib/labels';
@@ -47,14 +47,14 @@ const fileType = (ct: string, fname: string) => {
     {link && <a class="qe-tlink" href={link} target="_blank" rel="noopener nofollow ugc"><Icon name="open_in_new" />{hostOf(link)}<span class="sr"> (opens in a new tab)</span></a>}
   </div>
   {evidence.length > 0 && (
-    <details class="qe-files">
-      <summary><Icon name="attach_file" />{evidence.length} evidence {evidence.length === 1 ? 'file' : 'files'}<span class="sr"> for {name}</span><Icon name="expand_more" class="chev" /></summary>
+    <div class="qe-files" id={`evidence-${slug}`}>
+      <h4 class="qe-files-h"><Icon name="attach_file" />{evidence.length} evidence {evidence.length === 1 ? 'file' : 'files'}<span class="sr"> for {name}</span></h4>
       <p class="qe-files-note">Anyone can open these files.</p>
       <ul aria-label={`Evidence for ${name}`}>
         {evidence.map((e) => (
           <li><a href={fileUrl(e.key)} target="_blank" rel="noopener"><Icon name={e.contentType.startsWith('image/') ? 'image' : 'description'} /><span><b>{e.name}</b><small>{fileType(e.contentType, e.name)} · {fileSize(e.size)}</small></span><span class="sr"> (opens in a new tab)</span></a></li>
         ))}
       </ul>
-    </details>
+    </div>
   )}
 </li>

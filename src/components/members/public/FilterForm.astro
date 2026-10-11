@@ -1,7 +1,8 @@
 ---
 // The directory search and filters (design: Directory, option A "chips on top"). One plain GET form, so every
 // result page has a shareable URL and everything works without script: the chips are <details> panels holding
-// radios and a checkbox, posted by "Search", "Done" or "Show results". With script (in this file) a pick posts at
+// radios and a checkbox, posted by "Search", "Done" or "Show results". In the industry panel each industry's
+// heading is a pick of its own (?industry=), its sub-categories (?sub=) under it. With script (in this file) a pick posts at
 // once, one panel opens at a time, Escape or a click outside closes it, and the panels get a search box.
 import Icon from '../Icon.astro';
 import { industries } from '../../../data/industries';
@@ -41,20 +42,19 @@ const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : 
     </fieldset>
     <span class="qd-fsep" aria-hidden="true"></span>
 
-    {s.industry && <input type="hidden" name="industry" value={s.industry}>}
     <details class="qd-fwrap full" data-qd-pop>
       <summary class:list={['qd-fchip', { has: !!indLabel }]}>{indLabel ?? 'Industry'}<Icon name="expand_more" class="caret" /></summary>
       <div class="qd-pop ind">
         <label class="sr" for="ind-q">Search industries</label>
         <span class="qd-inwrap" hidden data-qd-js><Icon name="search" /><input class="qd-inp" id="ind-q" type="search" maxlength="60" autocomplete="off" placeholder="Search industries" data-qd-find></span>
         <fieldset class="qd-igrps">
-          <legend class="sr">Sub-category</legend>
+          <legend class="sr">Industry or sub-category</legend>
           {groups.map((g) => (
             <fieldset class="qd-igrp" data-qd-group>
-              <legend>{g.name}</legend>
+              <legend><label class="qd-chip qd-pick whole" data-qd-head={g.name}><input type="radio" name="industry" value={g.slug} checked={s.industry === g.slug} data-qd-auto data-qd-ind><Icon name="check" />{g.name}<span class="sr">, all of it</span></label></legend>
               <div class="qd-chips">
                 {g.subs.map((x) => (
-                  <label class="qd-chip qd-pick" data-qd-item><input type="radio" name="sub" value={x.slug} checked={s.sub === x.slug} data-qd-auto><Icon name="check" />{x.name}</label>
+                  <label class="qd-chip qd-pick" data-qd-item><input type="radio" name="sub" value={x.slug} checked={s.sub === x.slug} data-qd-auto data-qd-sub><Icon name="check" />{x.name}</label>
                 ))}
               </div>
             </fieldset>
@@ -114,7 +114,15 @@ const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : 
       location.assign(`${form.action}${qs ? `?${qs}` : ''}`);
     };
     form.addEventListener('submit', (e) => { e.preventDefault(); go(); });
-    form.addEventListener('change', (e) => { if ((e.target as HTMLElement).matches('[data-qd-auto]')) go(); });
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (!t.matches('[data-qd-auto]')) return;
+      // an industry and a sub-category from another industry would match no one: picking one drops the other
+      const group = t.closest('[data-qd-group]');
+      if (t.matches('[data-qd-ind]')) for (const x of form.querySelectorAll<HTMLInputElement>('[data-qd-sub]')) { if (x.closest('[data-qd-group]') !== group) x.checked = false; }
+      if (t.matches('[data-qd-sub]')) for (const x of form.querySelectorAll<HTMLInputElement>('[data-qd-ind]')) { if (x.closest('[data-qd-group]') !== group) x.checked = false; }
+      go();
+    });
 
     const pops = [...form.querySelectorAll<HTMLDetailsElement>('[data-qd-pop]')];
     const filter = (d: HTMLElement, raw: string) => {
@@ -122,8 +130,11 @@ const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : 
       let any = false;
       for (const g of d.querySelectorAll<HTMLElement>('[data-qd-group]')) {
         let shown = 0;
+        // a match on the industry's own name shows the whole industry
+        const head = !!q && (g.querySelector<HTMLElement>('[data-qd-head]')?.dataset.qdHead ?? '').toLowerCase().includes(q);
+        if (head) shown++;
         for (const it of g.querySelectorAll<HTMLElement>('[data-qd-item]')) {
-          const hit = !q || (it.textContent ?? '').toLowerCase().includes(q);
+          const hit = !q || head || (it.textContent ?? '').toLowerCase().includes(q);
           it.hidden = !hit;
           if (hit) shown++;
         }
