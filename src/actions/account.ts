@@ -237,7 +237,9 @@ export const account = {
       const handle = await freeHandle(name, async (h) => !!(await db.query.profiles.findFirst({ where: eq(schema.profiles.handle, h), columns: { id: true } })));
       // only the first answer counts, even if two submissions race
       const setUser = db.update(schema.user).set({ name, accountType, updatedAt: now }).where(and(eq(schema.user.id, me.id), isNull(schema.user.accountType)));
-      const addProfile = db.insert(schema.profiles).values({ id: crypto.randomUUID(), userId: me.id, handle }).onConflictDoNothing({ target: schema.profiles.userId });
+      // no "on conflict do nothing" here on purpose: a second submission racing the first must FAIL on the profile's
+      // unique user id, so its whole batch (and a second company) is rolled back; the catch below then reports success
+      const addProfile = db.insert(schema.profiles).values({ id: crypto.randomUUID(), userId: me.id, handle });
       // one D1 batch: all rows are written or none. A parallel submission of the same form can win the race and
       // take the handle or slug first; then setup is already done and this one reports success.
       try {
