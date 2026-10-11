@@ -1,20 +1,17 @@
 ---
-// Public person page (design: Person). Only published profiles exist here; anything else is a 404.
+// Public person page (design: Person, "the spring": styles/members/person.css). Only published profiles exist here; anything else is a 404.
 import { and, inArray, eq } from 'drizzle-orm';
 import Member from '../../layouts/Member.astro';
-import ProfileHead from '../../components/members/public/ProfileHead.astro';
-import ExternalLinks from '../../components/members/public/ExternalLinks.astro';
-import TagSections from '../../components/members/public/TagSections.astro';
+import PersonHead from '../../components/members/public/PersonHead.astro';
 import Avatar from '../../components/members/Avatar.astro';
-import Icon from '../../components/members/Icon.astro';
 import IdentityMark from '../../components/members/IdentityMark.astro';
 import { db, schema } from '../../db/client';
 import { inChunks } from '../../db/chunks';
 import { getPublicPerson } from '../../db/queries/public';
 import { fileUrl } from '../../lib/storage-url';
 import { absolute, page } from '../../lib/url';
-import { ldJson, place } from '../../lib/labels';
-import '../../styles/members/public.css';
+import { industryLinks, ldJson, place, subLinks } from '../../lib/labels';
+import '../../styles/members/person.css';
 
 export const prerender = false;
 
@@ -33,6 +30,10 @@ const companies = person.companies.map((c) => {
 
 const where = place(person.city, person.country);
 const skills = person.tags.skill;
+const fields = [...industryLinks(person.tags.industry), ...subLinks(person.tags.sub)];
+// the river rail on the left: one bead per part that is there (bio, skills); the first lights gold
+const hasBio = !!person.bio;
+const hasSkills = skills.length > 0;
 const url = absolute(Astro.url.pathname, Astro.site);
 const description = (person.headline ?? person.bio ?? `${person.name} on QuintaEarth`).replace(/\s+/g, ' ').slice(0, 160);
 
@@ -52,37 +53,52 @@ const personLd = {
 ---
 <Member title={person.name} description={description} current="directory">
   <script slot="head" type="application/ld+json" set:html={ldJson(personLd)} />
-  <ProfileHead name={person.name} line={person.headline} imageKey={person.photoKey}>
-    {where && <Fragment slot="meta"><span><Icon name="location_on" />{where}</span></Fragment>}
-    {(person.website || person.linkedin) && <Fragment slot="acts"><ExternalLinks website={person.website} linkedin={person.linkedin} /></Fragment>}
-  </ProfileHead>
-  <section class="body">
-    <div class="wide two">
-      <div>
-        {person.bio && <p class="lead bio">{person.bio}</p>}
-        {skills.length > 0 && (
-          <div class="sec" style={person.bio ? 'margin-top: 48px' : undefined}>
-            <h2>Skills</h2>
-            <div class="chips">{skills.map((s) => <span class="chip">{s.charAt(0).toUpperCase() + s.slice(1)}</span>)}</div>
-          </div>
-        )}
-      </div>
-      <div>
-        {companies.length > 0 && (
-          <section class="sec">
-            <h2>Works at</h2>
-            <div class="workats">
-              {companies.map((c) => (
-                <a class="workat" href={page(`companies/${c.slug}`)}>
-                  <Avatar name={c.name} imageKey={c.logoKey} kind="company" size="sm" />
-                  <span style="min-width: 0"><b>{c.name}</b>{c.place && <small>{c.place}</small>}{c.checked && <IdentityMark small />}</span>
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
-        <TagSections industries={person.tags.industry} subs={person.tags.sub} sdgs={[]} />
-      </div>
+  <PersonHead name={person.name} line={person.headline} imageKey={person.photoKey} where={where} website={person.website} linkedin={person.linkedin} />
+  <section class="pp-body" aria-label="Profile">
+    <div class="wide pp-two">
+      {(hasBio || hasSkills) && (
+        <div class="pp-spine">
+          {hasBio && (
+            <>
+              <div class="pp-rail lit" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: !hasSkills }]}></span></div>
+              <div class:list={['pp-part', { last: !hasSkills }]}><p class="pp-bio">{person.bio}</p></div>
+            </>
+          )}
+          {hasSkills && (
+            <>
+              <div class:list={['pp-rail', { lit: !hasBio }]} aria-hidden="true"><span class="bead"></span><span class="track tail"></span></div>
+              <div class="pp-part pp-sec last">
+                <h2>Skills</h2>
+                <div class="pp-chips">{skills.map((s) => <span class="chip">{s.charAt(0).toUpperCase() + s.slice(1)}</span>)}</div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {(companies.length > 0 || fields.length > 0) && (
+        <div class="pp-side">
+          {companies.length > 0 && (
+            <section class="pp-sec">
+              <h2>Works at</h2>
+              <div class="pp-workats">
+                {companies.map((c) => (
+                  <a class="pp-workat" href={page(`companies/${c.slug}`)}>
+                    <Avatar name={c.name} imageKey={c.logoKey} kind="company" size="sm" />
+                    <span class="txt"><b>{c.name}</b>{c.place && <small>{c.place}</small>}{c.checked && <IdentityMark small />}</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+          {fields.length > 0 && (
+            <section class="pp-sec">
+              <h2>Industries</h2>
+              <div class="pp-chips">{fields.map((f) => <a class="chip has" href={f.href}>{f.label}</a>)}</div>
+            </section>
+          )}
+        </div>
+      )}
     </div>
   </section>
+  <div class="wide pp-end"></div>
 </Member>
