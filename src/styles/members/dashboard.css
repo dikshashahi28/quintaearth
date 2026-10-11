@@ -44,7 +44,8 @@
 .dhome-rail .bead.lit { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
 .dhome-rail .bead.lit::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: dh-ring 1.2s ease-out var(--d, 0s) 1 forwards; }
 
-.dhome-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--hair); background: var(--page); }
+.dhome-card { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--hair); background: var(--page); }
+.dhome-card .end:empty { display: none; }
 .dhome-row:first-child .dhome-card { border-top: 1px solid var(--hair); }
 .dhome-card:has(a:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
 .dhome-card .txt { min-width: 0; }
@@ -78,8 +79,11 @@
   .dhead-row { gap: 16px; }
   .dhome-row { column-gap: 14px; }
   .dhome-pw, .dhome-more, .dhome-next { margin-left: 38px; }
-  .dhome-card { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .dhome-card .end { justify-content: space-between; }
+  /* phone: title and pills stack on the left, the arrow stays on the right across both */
+  .dhome-card { grid-template-columns: minmax(0, 1fr) 22px; grid-template-areas: "txt go" "end go"; gap: 10px 12px; }
+  .dhome-card .txt { grid-area: txt; }
+  .dhome-card .end { grid-area: end; flex-wrap: wrap; gap: 8px 12px; }
+  .dhome-card .go { grid-area: go; align-self: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   .dhome-rail .bead.lit::after { animation: none; }

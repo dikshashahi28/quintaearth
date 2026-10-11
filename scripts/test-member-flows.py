@@ -537,6 +537,8 @@ check('6 parallel reviews: one decision wins, the rest 409, company matches it',
 # 3: a demoted admin loses private files at once
 sql(f"update user set role='member' where email='{C.email}'")
 check('demoted admin: private file 404 at once', C2.req('GET', f'/files/{idkey}')[0] == 404, '')
+# later checks still need the admin
+sql(f"update user set role='admin' where email='{C.email}'")
 # 5: admin pages are not advertised: signed out gets the 404 page too, not a sign-in redirect
 st, h, b = User('anon2').req('GET', '/admin')
 check('/admin signed out is the designed 404 page, no sign-in redirect', st == 404 and b'<html' in b and not h.get('Location'), f'{st} {h.get("Location")}')

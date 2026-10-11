@@ -347,6 +347,14 @@ Built from the approved "QuintaEarth member pages" canvas; styles in `src/styles
 - **Admin table:** bordered, scrolls sideways on small screens.
 - **Hit areas:** breadcrumb links and chips are 44px tall on member pages.
 
+### Member pages, "the spring" (added 11 Oct 2026)
+The member screens were redesigned on the "QuintaEarth member pages · the spring" canvas and ported on 11 Oct 2026. The account doors (`/join`, `/signin`, `/welcome`; `src/layouts/Account.astro`, `src/styles/members/spring.css`) are a full-screen split: a photo of people doing the work on the left under a Forest Deep wash, the brand line in Literata and a gold sub-line, a mist river that draws itself down to a gold spring; the form on white on the right beside its own river rail. The dashboard, enquiries, profile editor, public pages and the directory keep the site header and the dashboard shell and carry the rail in their body (`src/styles/members/dashboard.css`, `enquiries.css`, `profile-editor.css`, `company.css`, `person.css`, `directory.css`).
+- **The rail's one rule.** A bead is a 12px white disc with a 2px River Green ring, 24px column, 20px gap to the content. It lights gold (Bead Gold fill and ring, scale 1.15, one gold ring sent outward) only for something completed: a form step whose fields are valid, a profile section that is filled in, a dashboard part that is live, the newest message in a thread. Never on hover, never on scroll position, never as decoration; a page with nothing to complete has no rail (the directory) or an unlit rail (the public person page). The 3px Water track between beads fills River Green only between two lit beads, animated with `transform: scaleY` from the top, never `height`. Lit state is set in the markup so it is right without JavaScript and in a background tab; script only adds the ring animation and live updates.
+- **Beads work without JavaScript:** the server renders the lit state; `Account.astro` and the editors update it on `input`/`change`.
+- **Account doors on phone:** the photo becomes a short band (about 120 to 140px) that keeps the brand line, so the first field is one short scroll away.
+- **Identity checked** keeps its neutral grey pill with the words visible on every surface, cards included (see the Don'ts).
+- **Proof leads:** evidence counts sit in the company header meta and evidence rows stay open on listing cards; the one word is "evidence".
+
 ## Do's and Don'ts
 
 ### Do:

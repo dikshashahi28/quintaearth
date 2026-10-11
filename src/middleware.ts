@@ -64,6 +64,9 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     res.headers.append('Set-Cookie', hintCookie(want, ctx.url.protocol === 'https:'));
   }
   // member pages are personal, and any page rendered for a signed-in member carries their initials: never cache them
-  if (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user) res.headers.set('Cache-Control', 'private, no-store');
+  if (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user) {
+    // the dev server's /_image responses have immutable headers; in production images are static files
+    try { res.headers.set('Cache-Control', 'private, no-store'); } catch { /* leave the response as it is */ }
+  }
   return res;
 });

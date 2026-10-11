@@ -1,7 +1,6 @@
 ---
 // The account pages (sign up, sign in, welcome): a full-screen split with no site header. Photo and river on the
 // left, the form on the right. Design: "the spring" comp (styles/members/spring.css).
-import { Image } from 'astro:assets';
 import '../styles/base.css';
 import '../styles/members.css';
 import '../styles/members/account.css';
@@ -25,6 +24,9 @@ interface Props {
   sub?: string;
 }
 const { title, description, scene, sceneAlt, scenePos, say, sub } = Astro.props;
+// this page renders on request; the runtime image service is not served by the Worker, so the photo is the plain
+// build-time asset (about 1000px wide) rather than a resized set
+const shot = photo(scene);
 ---
 <!doctype html>
 <html lang="en">
@@ -43,7 +45,7 @@ const { title, description, scene, sceneAlt, scenePos, say, sub } = Astro.props;
 <body>
   <div class="qe-root">
     <aside class="qe-scene" style={scenePos ? `--pos: ${scenePos}` : undefined}>
-      <Image src={photo(scene)} alt={sceneAlt} widths={[720, 1080, 1600]} sizes="(max-width: 1100px) 100vw, 50vw" loading="eager" fetchpriority="high" />
+      <img src={shot.src} width={shot.width} height={shot.height} alt={sceneAlt} loading="eager" fetchpriority="high" />
       <div class="qe-wash"></div>
       <svg class="qe-river" viewBox="0 0 140 1000" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
         <path class="w" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>

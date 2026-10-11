@@ -105,8 +105,8 @@ const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
             {r.pill && <StatusPill status={r.pill.status} label={r.pill.label} />}
             {r.idc && <IdentityMark small />}
             {!!r.count && <span class="cnt"><b>{r.count}</b> new</span>}
-            <Icon name="arrow_forward" class="go" />
           </div>
+          <Icon name="arrow_forward" class="go" />
         </div>
       </li>
     ))}
