@@ -1,0 +1,19 @@
+---
+// Enquiry dates are written by the server in UTC. This redoes every <time data-local> in the reader's own zone:
+// "msg" as "11 Oct, 13:38", "day" as Today, Yesterday or "3 Oct". Without JS the UTC text stays.
+---
+<script>
+  const short = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+  const clock = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const dayOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const today = dayOf(new Date());
+  for (const t of document.querySelectorAll<HTMLTimeElement>('time[data-local]')) {
+    const d = new Date(t.dateTime);
+    if (Number.isNaN(d.getTime())) continue;
+    if (t.dataset.local === 'msg') t.textContent = `${short.format(d)}, ${clock.format(d)}`;
+    else {
+      const diff = Math.round((today - dayOf(d)) / 864e5);
+      t.textContent = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : short.format(d);
+    }
+  }
+</script>

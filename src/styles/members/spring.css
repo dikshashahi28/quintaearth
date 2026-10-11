@@ -80,7 +80,7 @@
 .qe-door .stone .ms { font-size: 26px; }
 .qe-door:has(input:checked) .stone { border-color: var(--gold); }
 .qe-door:has(input:checked) .stone > span { background: var(--river); color: var(--page); }
-.qe-door input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.qe-door input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border-radius: inherit; opacity: 0; pointer-events: none; } /* full-size, so the browser's "choose one" bubble points at the door */
 .qe-door:has(input:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
 .qe-door .txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .qe-door b { font-weight: 500; font-size: 16px; color: var(--deep); }

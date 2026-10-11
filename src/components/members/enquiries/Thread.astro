@@ -7,6 +7,7 @@ import { actions } from 'astro:actions';
 import Icon from '../Icon.astro';
 import { initialsOf } from '../../../lib/member-hint';
 import { msgDate, paragraphs } from './data';
+import LocalTime from './LocalTime.astro';
 
 interface Message { id: string; side: 'buyer' | 'company'; authorUserId: string | null; body: string; createdAt: Date }
 interface Props {
@@ -61,7 +62,7 @@ const field = `reply-${enquiry.id}`;
         <div class:list={['eq-msg', { mine: m.side === side }]}>
           <div class="from">
             <span class="stone xs" aria-hidden="true"><span>{f.initials}</span></span>
-            <div class="who"><b>{f.name}</b>{f.org && <span>{f.org}</span>}<span><time datetime={m.createdAt.toISOString()}>{msgDate(m.createdAt)}</time></span></div>
+            <div class="who"><b>{f.name}</b>{f.org && <span>{f.org}</span>}<span><time datetime={m.createdAt.toISOString()} data-local="msg">{msgDate(m.createdAt)}</time></span></div>
           </div>
           {paragraphs(m.body).map((p) => <p>{p}</p>)}
         </div>
@@ -105,6 +106,7 @@ const field = `reply-${enquiry.id}`;
     </div>
   </div>
 </article>
+<LocalTime />
 
 <script>
   // the thread is on screen: mark it read. A POST, so link prefetchers (mail scanners) that only GET the page never

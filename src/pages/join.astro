@@ -8,6 +8,8 @@ import Doors from '../components/members/forms/Doors.astro';
 import GoButton from '../components/members/forms/GoButton.astro';
 import GoogleButton from '../components/members/forms/GoogleButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
+import InviteNote from '../components/members/forms/InviteNote.astro';
+import { invitationFromNext } from '../components/members/forms/invitation';
 import { googleSignIn } from '../lib/auth';
 import { page } from '../lib/url';
 
@@ -47,6 +49,9 @@ if (result && Astro.request.method === 'POST') {
   } catch { formNext = next; }
 }
 const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '/signin';
+// on the way to a team invitation: name the company and skip the type doors (joining a team makes the account a
+// company account at setup, so no type is sent)
+const invite = await invitationFromNext(formNext);
 ---
 <Account title="Join QuintaEarth" description="Create your QuintaEarth account." scene="tea-harvest" sceneAlt="Two tea pickers smiling among rows of bright green tea bushes"
   say="Where sustainability is made, not performed." sub="Joining is totally free">
@@ -66,6 +71,7 @@ const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '
   ) : (
     <form class="qe-form" method="POST" action={actions.account.sendSignInLink}>
       <h1>Join QuintaEarth</h1>
+      {invite && <InviteNote company={invite.company} join />}
       {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>
       <div class="qe-grid">
@@ -77,10 +83,12 @@ const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '
           </div>
         </>}
 
-        <div class="qe-rail" data-for="type" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
-        <div class="qe-step">
-          <Doors value={typed.type} error={fieldErrors.type} />
-        </div>
+        {!invite && <>
+          <div class="qe-rail" data-for="type" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+          <div class="qe-step">
+            <Doors value={typed.type} error={fieldErrors.type} />
+          </div>
+        </>}
 
         <div class="qe-rail" data-for="join-name join-email" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
         <div class="qe-step">

@@ -30,7 +30,11 @@ if (result?.data) return Astro.redirect(`${here}?sent=${result.data.id}`, 303);
 const errors: Record<string, string | undefined> = {};
 const emptyText: Record<string, string> = { subject: 'Add a subject.', message: 'Write at least a couple of sentences.' };
 if (result?.error && isInputError(result.error)) for (const [k, v] of Object.entries(result.error.fields)) errors[k] = fieldError(v as string[] | undefined, emptyText[k] ?? 'Check this field.');
-const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+// an input error on a field the form does not show (organizationId, the honeypot, listingId when there are no
+// listings) would otherwise fail silently, so it gets the form-wide line instead
+const shown = new Set(['subject', 'fromCompany', 'message', ...(org.listings.length ? ['listingId'] : [])]);
+const hiddenError = !!result?.error && isInputError(result.error) && Object.keys(result.error.fields).some((k) => !shown.has(k));
+const failed = result?.error && (!isInputError(result.error) || hiddenError) ? actionErrorMessage(result.error) : null;
 
 // what was typed, so a failed send does not lose the message
 let typed: Record<string, string> = {};

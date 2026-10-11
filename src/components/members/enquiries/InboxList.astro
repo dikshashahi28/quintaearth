@@ -2,9 +2,10 @@
 // The left pane of the inbox: one row per enquiry on a river rail. A new enquiry's bead lights gold, and the
 // rail fills from the top down to the last new one, so the eye runs straight to what needs a reply.
 import { initialsOf } from '../../../lib/member-hint';
-import type { Pager } from './data';
+import type { ListDate, Pager } from './data';
+import LocalTime from './LocalTime.astro';
 
-export interface InboxItem { id: string; href: string; source: string; date: string; name: string; subject: string; isNew: boolean }
+export interface InboxItem { id: string; href: string; source: string; date: ListDate; name: string; subject: string; isNew: boolean }
 interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string; pager?: Pager }
 const { items, currentId, label, class: cls, pager } = Astro.props;
 
@@ -22,7 +23,7 @@ const delay = (i: number) => (i === 0 ? 0 : 0.2 + (i - 1) * 0.26);
       </span>
       <span class="stone xs" aria-hidden="true"><span>{initialsOf(it.name)}</span></span>
       <span class="tx">
-        <span class="top"><span>{it.source}</span><span>{it.date}</span></span>
+        <span class="top"><span>{it.source}</span><span><time datetime={it.date.iso} data-local="day">{it.date.text}</time></span></span>
         <b>{it.name}</b>
         <span class="s">{it.subject}</span>
         {it.isNew && <span class="sr">, new</span>}
@@ -36,3 +37,4 @@ const delay = (i: number) => (i === 0 ? 0 : 0.2 + (i - 1) * 0.26);
     </p>
   )}
 </nav>
+<LocalTime />

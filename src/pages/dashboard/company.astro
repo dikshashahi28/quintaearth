@@ -82,7 +82,7 @@ const v = org && data ? {
 
 const sizes = [
   { value: '1-10', label: '1–10' }, { value: '11-50', label: '11–50' }, { value: '51-200', label: '51–200' },
-  { value: '201-1000', label: '201–1,000' }, { value: '1000+', label: '1,000+' },
+  { value: '201-1000', label: '201–999' }, { value: '1000+', label: '1,000+' },
 ];
 const savedFlag = Astro.url.searchParams.get('saved');
 const saved = ({ details: ctx.company?.published ? 'Saved. Your company page is live.' : 'Saved. Your company page is hidden from the public.', logo: 'Logo saved.', nologo: 'Logo removed.', invite: 'Invitation sent.', uninvite: 'Invitation cancelled.', removed: 'Removed from the team.' } as Record<string, string>)[savedFlag ?? ''] ?? null;
@@ -119,10 +119,11 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <h2 id="logo-h">Logo</h2>
         <div class="upload">
           <Avatar name={org.name} imageKey={org.logoKey} kind="company" />
-          {!isOwner ? <p class="hint">Only an owner can change the logo.</p> : <div class="upload-acts">
+          {!isOwner ? <p class="hint">Only an owner can change the logo.</p> : <div class="upload-acts co-logo">
             <FileDrop id="c-logo" name="logo" maxMB={2} required action={post(actions.company.setLogo)} icon="upload" accept="image/jpeg,image/png,image/webp"
               label={org.logoKey ? 'Replace logo' : 'Add a logo'} hint="JPG, PNG or WebP, up to 2 MB" button="Upload logo" error={logoMessage}>
               <input type="hidden" name="organizationId" value={org.id} />
+              <label class="btn btn-line co-choose" for="c-logo">Choose a logo</label>
             </FileDrop>
             {org.logoKey && (
               <form method="POST" action={post(actions.company.removeLogo)}>
@@ -278,4 +279,27 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
   import { saveFirst } from '../../components/members/forms/save-first';
   const main = document.querySelector<HTMLFormElement>('form[data-main]');
   if (main) saveFirst(main, document.querySelectorAll<HTMLFormElement>('[data-save-first] form'));
+
+  // the logo works like the profile photo: choosing a file uploads it (through saveFirst, so unsaved edits are
+  // kept); without JS the native file input and its "Upload logo" button stay
+  const logoBox = document.querySelector<HTMLElement>('.co-logo');
+  const logo = logoBox?.querySelector<HTMLInputElement>('#c-logo');
+  if (logoBox && logo) {
+    logoBox.classList.add('js');
+    // FileDrop's own check clears a file over the limit; read the input after it has run
+    logo.addEventListener('change', () => { setTimeout(() => { if (logo.value && logo.checkValidity()) logo.form?.requestSubmit(); }); });
+  }
 </script>
+
+<style is:global>
+  /* the logo uploader, the same pattern as the profile photo (profile-editor.css .pe-choose), scoped to .co-logo.
+     Kept here rather than in editors.css while the member CSS files are being reworked for phones. */
+  .co-logo .co-choose { order: 1; cursor: pointer; transition: background .2s; }
+  .co-logo .co-choose:hover { background: var(--shallow); }
+  .co-logo:not(.js) .co-choose { display: none; }
+  .co-logo.js .drop-in { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .co-logo.js .drop > button[type="submit"] { display: none; }
+  .co-logo .drop:has(.drop-in:focus-visible) .co-choose { outline: 2px solid var(--river); outline-offset: 3px; }
+  .co-logo .drop .drop-t { display: flex; flex-direction: column; gap: 2px; }
+  .co-logo .drop .drop-t label { font-size: 16px; line-height: 1.4; }
+</style>
