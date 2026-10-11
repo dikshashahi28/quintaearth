@@ -1,0 +1,53 @@
+---
+// Head of a public person page (design: Person, "the spring"): on white, breadcrumb with "›" separators, the
+// portrait stone beside the name, headline and place, then Website and LinkedIn as text links. Member-supplied
+// URLs open in a new tab with no referrer trust and no follow.
+import Avatar from '../Avatar.astro';
+import Icon from '../Icon.astro';
+import { absolute, page } from '../../../lib/url';
+import { ldJson } from '../../../lib/labels';
+
+interface Props { name: string; line?: string | null; imageKey?: string | null; where?: string | null; website?: string | null; linkedin?: string | null }
+const { name, line, imageKey, where, website, linkedin } = Astro.props;
+const rel = 'noopener nofollow ugc';
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: absolute(page('index'), Astro.site) },
+    { '@type': 'ListItem', position: 2, name: 'Directory', item: absolute(page('directory'), Astro.site) },
+    { '@type': 'ListItem', position: 3, name, item: absolute(Astro.url.pathname, Astro.site) },
+  ],
+};
+---
+<script type="application/ld+json" set:html={ldJson(breadcrumbLd)} />
+<header class="pp-head">
+  <div class="wide">
+    <nav class="pp-crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={page('index')}>Home</a></li>
+        <li><span class="sep" aria-hidden="true">›</span><a href={page('directory')}>Directory</a></li>
+        <li><span class="sep" aria-hidden="true">›</span><span aria-current="page">{name}</span></li>
+      </ol>
+    </nav>
+    <div class="pp-who">
+      <Avatar name={name} imageKey={imageKey} />
+      <div class="txt">
+        <h1>{name}</h1>
+        {line && <p class="pp-line">{line}</p>}
+        {where && <div class="pp-meta"><span><Icon name="location_on" />{where}</span></div>}
+      </div>
+    </div>
+    {(website || linkedin) && (
+      <div class="pp-links">
+        {website && <a class="tlink" href={website} target="_blank" rel={rel}><Icon name="language" />Website<span class="sr"> (opens in a new tab)</span></a>}
+        {linkedin && (
+          <a class="tlink" href={linkedin} target="_blank" rel={rel}>
+            <svg class="ms" viewBox="0 0 256 256" aria-hidden="true"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z" /></svg>LinkedIn<span class="sr"> (opens in a new tab)</span>
+          </a>
+        )}
+      </div>
+    )}
+  </div>
+</header>
