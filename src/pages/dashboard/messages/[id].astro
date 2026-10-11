@@ -38,13 +38,13 @@ const items = rows.map(({ enquiry: e, company }) => ({
   name: company, subject: e.subject, isNew: e.buyerUnread,
 }));
 const [names, listing] = await Promise.all([authorNames(t.messages.map((m) => m.authorUserId)), listingName(row.enquiry.listingId)]);
+const back = withQuery('/dashboard/messages', { show: show === 'closed' ? 'closed' : null });
 ---
 <Dashboard ctx={ctx} current="messages" title={row.enquiry.subject} heading="Sent enquiries"
-  crumbs={[{ label: 'Sent enquiries', href: '/dashboard/messages' }, { label: row.enquiry.subject }]}>
+  crumbs={[{ label: 'Sent enquiries', href: back }, { label: row.enquiry.subject }]}>
   <Inbox show={show} openCount={all.filter((r) => r.enquiry.status !== 'closed').length}
     tabs={{ open: '/dashboard/messages', closed: withQuery('/dashboard/messages', { show: 'closed' }) }}
-    items={items} currentId={id} label="Sent enquiries" mode="thread"
-    backHref={withQuery('/dashboard/messages', { show: show === 'closed' ? 'closed' : null })} backLabel="All sent enquiries">
+    items={items} currentId={id} label="Sent enquiries" mode="thread">
     <Thread enquiry={row.enquiry} messages={t.messages} side="buyer" viewerId={user.id} companyName={row.company}
       listing={listing} names={names} base={`/dashboard/messages/${id}`} error={error} />
   </Inbox>

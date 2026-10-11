@@ -69,7 +69,7 @@ const savedPhoto = savedFlag === 'photo' ? 'Photo saved.' : savedFlag === 'nopho
 const pageUrl = profile ? `/people/${profile.handle}` : null;
 const live = !!profile?.published;
 
-// the river rail: a bead per section, lit when it is filled in; the track runs green down to the last lit bead
+// the river rail: a bead per section, lit when it is filled in; a track runs green only between two lit beads
 const has = (s: string) => s.trim() !== '';
 const lit = {
   photo: !!profile?.photoKey,
@@ -81,12 +81,9 @@ const lit = {
   save: !!savedDetails,
 };
 const order = Object.values(lit);
-const last = order.lastIndexOf(true);
-const on = (i: number) => i < last;
+const on = (i: number) => order[i] && order[i + 1];
 ---
 <Dashboard ctx={ctx} current="profile" title="Your profile" crumbs={[{ label: 'Your profile' }]}>
-  {live && pageUrl && <div class="head-acts" slot="head"><a class="tlink" href={pageUrl}>View your page<Icon name="arrow_forward" /></a></div>}
-
   {!profile ? (
     <div class="formw">
       <EmptyState title="Your profile" note="Finish setting up your account first." action={{ href: '/welcome', label: 'Set up your account' }} />
@@ -157,9 +154,9 @@ const on = (i: number) => i < last;
         </section>
 
         <Rail step="save" lit={lit.save} on={false} delay={0} end />
-        <div class="form-send pe-send">
+        <div class="form-send pe-send" data-pe-send>
           <button class="btn btn-fill" type="submit">Save changes</button>
-          {live && pageUrl && <a class="tlink" href={pageUrl}>View your page</a>}
+          {live && pageUrl && <a class="tlink" href={pageUrl}>View your page<Icon name="arrow_forward" /></a>}
           <FormStatus saved={savedDetails} error={detailsError} />
         </div>
       </form>
@@ -168,7 +165,7 @@ const on = (i: number) => i < last;
 </Dashboard>
 
 <script>
-  import { saveFirst } from '../../components/members/forms/save-first';
+  import { saveFirst, snapshot } from '../../components/members/forms/save-first';
   const main = document.querySelector<HTMLFormElement>('form[data-main]');
   if (main) saveFirst(main, document.querySelectorAll<HTMLFormElement>('[data-save-first] form'));
 
@@ -222,13 +219,19 @@ const on = (i: number) => i < last;
         save: saved,
       };
       const states = rails.map((r) => !!lit[r.dataset.step!]);
-      const last = states.lastIndexOf(true);
       rails.forEach((r, i) => {
         r.querySelector('.bead')?.classList.toggle('lit', states[i]);
-        r.querySelector('.fill')?.classList.toggle('on', i < last);
+        r.querySelector('.fill')?.classList.toggle('on', states[i] && !!states[i + 1]);
       });
     };
-    const edited = () => { saved = false; update(); };
+    // once anything differs from what was loaded, the save row sticks to the bottom of the window until it is in view
+    const initial = snapshot(new FormData(main));
+    const send = root.querySelector<HTMLElement>('[data-pe-send]');
+    const edited = () => {
+      saved = false;
+      update();
+      send?.classList.toggle('dirty', snapshot(new FormData(main)) !== initial);
+    };
     main.addEventListener('input', edited);
     main.addEventListener('change', edited);
     update();

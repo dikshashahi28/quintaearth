@@ -1,6 +1,7 @@
 ---
-// Two-pane inbox: Open/Closed tabs, the list on its river rail, and a thread beside it (the default slot).
-// On phone the panes stack: mode "list" shows only the list, mode "thread" only the thread with a link back.
+// Two-pane inbox: Open/Closed tabs, the list on its river rail, and a thread (or a "choose one" note) beside it.
+// Below 900px the panes stack: mode "list" shows only the list, mode "thread" only the thread. The way back is the
+// page's breadcrumb, so the thread view carries no second back link and no tabs there.
 import InboxList, { type InboxItem } from './InboxList.astro';
 import type { Show } from './data';
 import '../../../styles/members/enquiries.css';
@@ -13,25 +14,18 @@ interface Props {
   currentId?: string;
   label: string;
   mode: 'list' | 'thread';
-  backHref: string;
-  backLabel: string;
 }
-const { show, tabs, openCount, items, currentId, label, mode, backHref, backLabel } = Astro.props;
+const { show, tabs, openCount, items, currentId, label, mode } = Astro.props;
 ---
-<div class="eq-tabs" role="group" aria-label="Show">
+<div class:list={['eq-tabs', `eq-tabs-${mode}`]} role="group" aria-label="Show">
   <a class:list={['chip', { on: show === 'open' }]} href={tabs.open} aria-current={show === 'open' ? 'true' : undefined}>Open{openCount > 0 && <i>{openCount}</i>}</a>
   <a class:list={['chip', { on: show === 'closed' }]} href={tabs.closed} aria-current={show === 'closed' ? 'true' : undefined}>Closed</a>
 </div>
 {items.length === 0
   ? <slot name="empty" />
   : (
-    <div class:list={['eq-inbox', `eq-${mode}`]}>
+    <div class:list={['eq-inbox', `eq-m-${mode}`]}>
       <InboxList items={items} currentId={currentId} label={label} />
-      <div class="eq-pane">
-        {mode === 'thread' && (
-          <a class="tlink eq-back" href={backHref}><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>{backLabel}</a>
-        )}
-        <slot />
-      </div>
+      <div class="eq-pane"><slot /></div>
     </div>
   )}

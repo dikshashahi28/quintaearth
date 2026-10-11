@@ -12,10 +12,8 @@
 /* the two panes */
 .eq-inbox { display: grid; grid-template-columns: 284px minmax(0, 1fr); border: 1px solid var(--hair); border-radius: 16px; background: var(--page); }
 .eq-pane { min-width: 0; }
-.eq-back { display: none; }
-.eq-back svg { width: 18px; height: 18px; fill: currentColor; transition: transform .35s var(--ease); }
-.eq-back:hover { color: var(--river-deep); }
-.eq-back:hover svg { transform: translateX(-3px); }
+/* the index opens no thread (opening one marks it read), so the pane asks for a pick */
+.eq-pick { display: flex; align-items: center; justify-content: center; min-height: 240px; height: 100%; margin: 0; padding: 32px; box-sizing: border-box; font-size: 15px; color: var(--muted); text-align: center; }
 
 /* beads, shared by both rails */
 :is(.eq-ilist, .eq-thread) .bead { position: absolute; left: 6px; top: 40px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; z-index: 1; transition: background .35s, border-color .35s, transform .35s; }
@@ -26,7 +24,7 @@
 .eq-ilist { border-right: 1px solid var(--hair); min-width: 0; }
 .eq-item { position: relative; display: grid; grid-template-columns: 24px 48px minmax(0, 1fr); column-gap: 12px; align-items: start; min-width: 0; overflow-x: clip; padding: 16px 18px 16px 14px; border-bottom: 1px solid var(--hair); background: var(--page); color: var(--text); text-decoration: none; transition: transform .35s var(--ease), box-shadow .35s, background .2s; }
 .eq-item:first-child { border-top-left-radius: 15px; }
-.eq-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(20, 48, 28, .14); z-index: 2; color: var(--text); }
+.eq-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); z-index: 2; color: var(--text); }
 .eq-item.on { background: var(--shallow); }
 .eq-item .rc { position: relative; align-self: stretch; }
 .eq-item .seg { position: absolute; left: 11px; top: -17px; bottom: -17px; width: 3px; background: var(--water); overflow: hidden; }
@@ -61,10 +59,8 @@
 .eq-row { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; }
 .eq-row .rc { position: relative; }
 .eq-row .track { position: absolute; left: 10.5px; top: 52px; bottom: -40px; width: 3px; border-radius: 2px; background: var(--water); }
-.eq-row .fill { display: block; width: 100%; height: 0; border-radius: 2px; background: var(--river); transition: height .9s var(--ease); }
-.eq-row .fill.on { height: 100%; }
-.eq-row .fill.d1 { animation: eq-tall .45s cubic-bezier(.4, 0, .6, 1) .15s both; }
-.eq-row .fill.d2 { animation: eq-tall .45s var(--ease) .6s both; }
+.eq-row .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; transition: transform .9s var(--ease); }
+.eq-row .fill.on { transform: scaleY(1); }
 .eq-msg { padding: 22px 0 18px; min-width: 0; }
 .eq-msg.mine { padding-left: 28px; border-left: 2px solid var(--water); }
 .eq-msg .from { display: flex; align-items: center; gap: 14px; }
@@ -81,7 +77,7 @@
 .eq-reply { display: flex; flex-direction: column; gap: 18px; }
 .eq-field { display: flex; flex-direction: column; gap: 8px; }
 .eq-field label { font-weight: 500; font-size: 16px; line-height: 1.4; color: var(--deep); }
-.eq-area { display: block; width: 100%; min-height: 128px; margin: 0; padding: 12px 16px; border-radius: 12px; border: 1.5px solid #7a957a; background: var(--page); font: 400 16px/1.55 var(--font-body); color: var(--text); box-sizing: border-box; resize: vertical; caret-color: var(--river); transition: border-color .2s, box-shadow .2s; }
+.eq-area { display: block; width: 100%; min-height: 128px; margin: 0; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--field-line); background: var(--page); font: 400 16px/1.55 var(--font-body); color: var(--text); box-sizing: border-box; resize: vertical; caret-color: var(--river); transition: border-color .2s, box-shadow .2s; }
 .eq-area::placeholder { color: var(--placeholder); }
 .eq-area:hover { border-color: var(--reed-ink); }
 .eq-area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
@@ -89,10 +85,13 @@
 .eq-err { margin: 0; font-size: 14px; color: var(--danger); }
 .eq-err:empty { display: none; }
 .eq-send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
-.eq-close { margin-left: auto; }
+/* closing sits apart from Send reply: its own quiet row under a hairline, at the far edge, and it asks first */
+.eq-closeline { display: flex; justify-content: flex-end; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--hair); }
+.eq-close { min-height: 44px; font-size: 15px; color: var(--muted); }
+.eq-close:hover { color: var(--river-deep); }
 .eq-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 28px; border-radius: 100px; border: 0; background: var(--river); color: var(--page); font: 500 16px/1 var(--font-body); cursor: pointer; transition: background .2s, transform .35s var(--ease), box-shadow .35s; }
 .eq-btn svg { width: 18px; height: 18px; fill: currentColor; transition: transform .35s var(--ease); }
-.eq-btn:hover { background: var(--river-deep); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(20, 48, 28, .18); }
+.eq-btn:hover { background: var(--river-deep); transform: translateY(-1px); box-shadow: var(--shadow-lift); }
 .eq-btn:hover svg { transform: translateX(3px); }
 .eq-btn:active { transform: scale(.98); box-shadow: none; }
 .eq-closed { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
@@ -100,34 +99,45 @@
 .eq-closed form { display: contents; }
 
 @keyframes eq-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes eq-tall { from { height: 0; } to { height: 100%; } }
 @keyframes eq-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
 
 @media (max-width: 900px) {
   /* the panes stack: the index shows the list, a thread page shows the thread */
   .eq-inbox { grid-template-columns: minmax(0, 1fr); }
   .eq-ilist { border-right: 0; }
-  .eq-inbox.eq-list .eq-pane { display: none; }
-  .eq-inbox.eq-thread .eq-ilist { display: none; }
-  .eq-list .eq-item:first-child { border-top-right-radius: 15px; }
-  .eq-list .eq-item:last-child { border-bottom: 0; border-radius: 0 0 15px 15px; }
-  .eq-back { display: inline-flex; margin: 18px 18px 4px; }
+  .eq-m-list .eq-pane { display: none; }
+  .eq-m-thread .eq-ilist { display: none; }
+  .eq-m-list .eq-item:first-child { border-top-right-radius: 15px; }
+  .eq-m-list .eq-item:last-child { border-bottom: 0; border-radius: 0 0 15px 15px; }
+  /* a thread page shows one thread: the tabs switch lists that are not on screen, and the breadcrumb leads back */
+  .eq-tabs-thread { display: none; }
   .eq-thread { padding: 18px 18px 26px; }
-  .eq-back + .eq-thread { padding-top: 0; }
 }
 @media (max-width: 640px) {
+  /* the thread sits straight on the page: no card around it, the rail a 3px edge where only lit beads show */
+  .eq-m-thread { border: 0; border-radius: 0; background: none; }
+  .eq-m-thread .eq-thread { padding: 0; }
   .eq-thread h2 { font-size: 24px; }
-  .eq-msg.mine { padding-left: 16px; }
-  .eq-row { column-gap: 14px; }
+  .eq-meta { margin-bottom: 0; }
+  .eq-msg.mine { padding-left: 14px; border-left: 0; }
+  .eq-row { grid-template-columns: 3px minmax(0, 1fr); column-gap: 14px; }
+  .eq-row .track { left: 0; top: 22px; bottom: -22px; }
+  .eq-row:last-child .track { display: none; }
+  .eq-thread .eq-row .bead { left: 0; top: 22px; width: 3px; height: 18px; border: 0; border-radius: 2px; background: none; transform: none; }
+  .eq-thread .eq-row .bead.lit { background: var(--gold); }
+  .eq-thread .eq-row .bead.lit::after { content: none; }
+  /* the reply row: no rail beside it, so the field and button run the full width */
+  .eq-row:last-child { grid-template-columns: minmax(0, 1fr); }
+  .eq-row:last-child > .rc { display: none; }
+  .eq-end { padding-top: 22px; }
   .eq-send { flex-direction: column; align-items: stretch; }
   .eq-send .eq-btn { width: 100%; }
-  .eq-send .tlink { align-self: flex-start; margin-left: 0; }
+  .eq-closeline { justify-content: flex-start; margin-top: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .eq-item .seg > span, .eq-row .fill.d1, .eq-row .fill.d2 { animation: none; transform: none; }
-  .eq-row .fill.d1, .eq-row .fill.d2 { height: 100%; }
+  .eq-item .seg > span { animation: none; transform: none; }
   :is(.eq-ilist, .eq-thread) .bead.lit::after { animation: none; opacity: 0; }
-  .eq-row .fill, .eq-item, .eq-btn, .eq-tabs .chip, .eq-back svg, .eq-btn svg, :is(.eq-ilist, .eq-thread) .bead { transition: none; }
+  .eq-row .fill, .eq-item, .eq-btn, .eq-tabs .chip, .eq-btn svg, :is(.eq-ilist, .eq-thread) .bead { transition: none; }
   .eq-item:hover, .eq-tabs a.chip:hover, .eq-btn:hover { transform: none; }
 }
 
