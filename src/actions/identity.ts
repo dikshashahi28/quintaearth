@@ -1,7 +1,7 @@
 // "Identity checked": owners ask for it, admins decide. The mark says who a company is, not that it is green.
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { env } from 'cloudflare:workers';
 import { db, schema } from '../db/client';
 import { noticeMail, sendMail } from '../lib/email';
@@ -35,6 +35,8 @@ export const identity = {
       const documentKey = input.document && input.document.size > 0
         ? await putFile(input.document, 'identity', { userId: user.id, organizationId: input.organizationId })
         : null;
+      // the check above is only a friendly early answer: two requests sent at the same moment both pass it, and the
+      // unique index on pending rows (migration 0004) lets only one of them in
       try {
         await db.insert(schema.identityChecks).values({
           id, organizationId: input.organizationId, requestedBy: user.id, registrationNumber: input.registrationNumber,
@@ -42,6 +44,9 @@ export const identity = {
         });
       } catch (e) {
         await deleteFile(documentKey);
+        if (/UNIQUE constraint failed/i.test(String((e as { cause?: unknown }).cause ?? '') + String(e))) {
+          throw new ActionError({ code: 'CONFLICT', message: 'A request is already waiting for review.' });
+        }
         throw e;
       }
       return { id };
@@ -61,10 +66,16 @@ export const identity = {
       if (!check) throw new ActionError({ code: 'NOT_FOUND', message: 'Request not found.' });
       if (check.status !== 'pending') throw new ActionError({ code: 'CONFLICT', message: 'This request was already decided.' });
       const now = new Date();
-      await db.batch([
-        db.update(schema.identityChecks).set({ status: decision, reason, reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(schema.identityChecks.id, checkId)),
-        db.update(schema.organizations).set({ identityCheckedAt: decision === 'approved' ? now : null, updatedAt: now }).where(eq(schema.organizations.id, check.organizationId)),
+      // two admins deciding at the same moment both pass the check above; in this batch the company changes only
+      // while the request is still pending, and the request is then decided only if it still is, so one decision wins
+      const stillPending = sql`EXISTS (SELECT 1 FROM identity_checks WHERE id = ${checkId} AND status = 'pending')`;
+      const [, decided] = await db.batch([
+        db.update(schema.organizations).set({ identityCheckedAt: decision === 'approved' ? now : null, updatedAt: now })
+          .where(and(eq(schema.organizations.id, check.organizationId), stillPending)),
+        db.update(schema.identityChecks).set({ status: decision, reason, reviewedBy: admin.id, reviewedAt: now, updatedAt: now })
+          .where(and(eq(schema.identityChecks.id, checkId), eq(schema.identityChecks.status, 'pending'))).returning({ id: schema.identityChecks.id }),
       ]);
+      if (!decided.length) throw new ActionError({ code: 'CONFLICT', message: 'This request was already decided.' });
       const owner = check.requestedBy ? await db.query.user.findFirst({ where: eq(schema.user.id, check.requestedBy), columns: { email: true } }) : null;
       if (owner) {
         const lines = decision === 'approved'

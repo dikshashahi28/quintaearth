@@ -54,7 +54,14 @@ export const auth = betterAuth({
       expiresIn: 10 * 60,
       // only a hash of each link is stored, so a database copy cannot be used to sign in
       storeToken: 'hashed',
-      sendMagicLink: async ({ email, url }) => sendMail(signInLinkMail(email, url)),
+      // the email points at our own page (src/pages/signin/link.astro), which spends the token only when the person
+      // presses Continue; the library's verify address would spend it on any GET, such as a mail scanner's prefetch
+      sendMagicLink: async ({ email, url }) => {
+        const link = new URL('/signin/link', env.SITE_URL);
+        link.search = new URL(url).search;
+        link.searchParams.delete('errorCallbackURL');
+        await sendMail(signInLinkMail(email, link.toString()));
+      },
     }),
   ],
 });

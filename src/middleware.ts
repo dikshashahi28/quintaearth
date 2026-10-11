@@ -7,34 +7,49 @@ import { HINT, hintCookie, initialsOf } from './lib/member-hint';
 const cleanPath = (path: string) => path.replace(/\/index\.html$/, '').replace(/\.html$/, '').replace(/\/+$/, '') || '/';
 const isMemberArea = (path: string) => {
   const p = cleanPath(path);
-  return p === '/dashboard' || p.startsWith('/dashboard/') || p === '/welcome' || p === '/admin' || p.startsWith('/admin/');
+  return p === '/dashboard' || p.startsWith('/dashboard/') || p === '/welcome';
+};
+// admin pages are not advertised: anyone who is not an admin, signed out included, gets the site's normal 404
+const isAdminArea = (path: string) => {
+  const p = cleanPath(path);
+  return p === '/admin' || p.startsWith('/admin/');
 };
 
 export const onRequest = defineMiddleware(async (ctx, next) => {
   ctx.locals.user = null;
   ctx.locals.session = null;
-  if (ctx.isPrerendered || ctx.url.pathname.startsWith('/api/')) return next();
+  if (ctx.isPrerendered || ctx.url.pathname.startsWith('/api/')) {
+    const res = await next();
+    // a prerendered page (the 404 page, when a member page returns 404) rendered inside a signed-in request still
+    // carries the member's initials in its header, so it must not be cached; the cookie's presence is enough to know
+    if (ctx.isPrerendered && (ctx.cookies.has('qe.session_token') || ctx.cookies.has('__Secure-qe.session_token'))) {
+      res.headers.set('Cache-Control', 'private, no-store');
+    }
+    return res;
+  }
 
   // imported here so the build-time prerender never loads Worker-only modules
   const { auth } = await import('./lib/auth');
   // returnHeaders: the library may refresh the session cookies, and those must reach the browser
-  // the member area and every write (form posts, actions) read the session from the database, so a revoked session,
-  // a removed admin role or a stale name never acts; plain public page views use the signed cookie copy and skip that read
+  // the member area, admin pages, uploaded files and every write (form posts, actions) read the session from the
+  // database, so a revoked session (signed out elsewhere, or ended by a password change), a removed admin role or a
+  // stale name never acts or opens a private file; plain public page views use the signed cookie copy and skip that read
+  const path = ctx.url.pathname;
   const writes = ctx.request.method !== 'GET' && ctx.request.method !== 'HEAD';
   const { headers: authHeaders, response: found } = await auth.api.getSession({
     headers: ctx.request.headers,
-    query: { disableCookieCache: writes || isMemberArea(ctx.url.pathname) || ctx.url.pathname.startsWith('/_actions/') },
+    query: { disableCookieCache: writes || isMemberArea(path) || isAdminArea(path) || path.startsWith('/files/') || path.startsWith('/_actions/') },
     returnHeaders: true,
   });
   ctx.locals.user = found?.user ?? null;
   ctx.locals.session = found?.session ?? null;
 
-  const path = ctx.url.pathname;
   let res: Response;
   if (isMemberArea(path) && !found) res = ctx.redirect(`/signin?next=${encodeURIComponent(path + ctx.url.search)}`);
   else if (isMemberArea(path) && !found!.user.accountType && cleanPath(path) !== '/welcome') res = ctx.redirect('/welcome');
-  // admin pages answer 404 to everyone else, so their existence is not advertised
-  else if (cleanPath(path).startsWith('/admin') && found!.user.role !== 'admin') res = new Response(null, { status: 404 });
+  // a bodyless 404 is answered with the site's 404 page
+  else if (isAdminArea(path) && found?.user.role !== 'admin') res = new Response(null, { status: 404 });
+  else if (isAdminArea(path) && !found!.user.accountType) res = ctx.redirect('/welcome');
   else res = await next();
 
   // the page may have set or cleared a login cookie itself (e.g. dropping the cached session after setup);
@@ -49,6 +64,6 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     res.headers.append('Set-Cookie', hintCookie(want, ctx.url.protocol === 'https:'));
   }
   // member pages are personal, and any page rendered for a signed-in member carries their initials: never cache them
-  if (isMemberArea(path) || cleanPath(path) === '/signin' || ctx.locals.user) res.headers.set('Cache-Control', 'private, no-store');
+  if (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user) res.headers.set('Cache-Control', 'private, no-store');
   return res;
 });

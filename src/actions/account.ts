@@ -1,7 +1,7 @@
 // Server code behind the sign-in and account forms. Forms post here without client JavaScript.
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
-import { and, eq, gt, isNull, like, lt, ne, or } from 'drizzle-orm';
+import { and, eq, isNull, like, ne, or } from 'drizzle-orm';
 import { newPassword, optionalNewPassword, optText, reqText } from '../lib/validate';
 import { safeNext } from '../lib/next';
 import type { BatchItem } from 'drizzle-orm/batch';
@@ -115,15 +115,14 @@ export const account = {
     handler: async ({ email, password, next }, ctx) => {
       const { db, schema } = await import('../db/client');
       const { auth, applyAuthCookies } = await import('../lib/auth');
+      const { take, release } = await import('../lib/throttle');
       const address = email.toLowerCase();
       const ip = ctx.request.headers.get('cf-connecting-ip');
       const keys = failureKeys(address, ip);
-      const since = new Date(Date.now() - WINDOW);
-      const counts = await Promise.all(keys.map(async ({ key, limit }) => (await db.select({ id: schema.signInFailures.id }).from(schema.signInFailures)
-        .where(and(eq(schema.signInFailures.key, key), gt(schema.signInFailures.at, since))).limit(limit)).length));
-      if (keys.some(({ limit }, i) => counts[i]! >= limit)) {
-        throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'Too many tries. Wait 15 minutes, or sign in with an email link.' });
-      }
+      // every attempt takes its slot up front, in one statement with the count, so parallel guesses cannot all slip
+      // under the limit; a wrong password keeps the slot (it is a failure), a right one hands it back below
+      const held = await take(keys.map((k) => ({ ...k, windowMs: WINDOW })));
+      if (!held) throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'Too many tries. Wait 15 minutes, or sign in with an email link.' });
       try {
         const { headers } = await auth.api.signInEmail({ body: { email: address, password }, headers: ctx.request.headers, returnHeaders: true });
         applyAuthCookies(ctx.cookies, headers);
@@ -132,17 +131,16 @@ export const account = {
         const who = await db.query.user.findFirst({ where: eq(schema.user.email, address), columns: { name: true } });
         ctx.cookies.set(HINT, initialsOf(who?.name), { path: '/', sameSite: 'lax', secure: ctx.url.protocol === 'https:', maxAge: 60 * 60 * 24 * 30 });
       } catch (e) {
-        const now = new Date();
-        await db.batch([
-          db.insert(schema.signInFailures).values(keys.map(({ key }) => ({ key, at: now }))),
-          db.delete(schema.signInFailures).where(lt(schema.signInFailures.at, new Date(now.getTime() - 24 * 60 * 60_000))),
-        ]);
         if ((e as { statusCode?: number }).statusCode === 401 || (e as { status?: string }).status === 'UNAUTHORIZED') {
           throw new ActionError({ code: 'UNAUTHORIZED', message: 'Email or password is wrong.' });
         }
         throw e;
       }
-      await db.delete(schema.signInFailures).where(eq(schema.signInFailures.key, keys[0]!.key));
+      // the member knows the password: earlier misses against this address (from here or spread out) no longer
+      // count, so a slow attack cannot lock them out later. The network address counter is left alone: clearing it
+      // on any success would let someone reset it by signing in to their own account between guesses.
+      await release(held);
+      await db.delete(schema.signInFailures).where(or(eq(schema.signInFailures.key, keys[0]!.key), eq(schema.signInFailures.key, `email:${address}`)));
       return { next: safeNext(next) };
     },
   }),
@@ -174,13 +172,13 @@ export const account = {
         const { verifyPassword } = await import('../lib/password');
         if (!current) throw new ActionError({ code: 'BAD_REQUEST', message: 'Enter your current password.' });
         // guesses at the current password count like sign-in guesses
-        const { blocked, record } = await import('../lib/throttle');
-        const guess = [{ key: `current:${me.id}`, limit: 8, windowMs: 15 * 60_000 }];
-        if (await blocked(guess)) throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'Too many tries. Wait 15 minutes, or sign in again with an email link.' });
+        const { take, release } = await import('../lib/throttle');
+        const held = await take([{ key: `current:${me.id}`, limit: 8, windowMs: 15 * 60_000 }]);
+        if (!held) throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'Too many tries. Wait 15 minutes, or sign in again with an email link.' });
         if (!(await verifyPassword({ hash: existing.password, password: current }))) {
-          await record(guess);
           throw new ActionError({ code: 'BAD_REQUEST', message: 'Your current password is wrong.' });
         }
+        await release(held);
       }
       await savePassword(me.id, password);
       await db.batch([

@@ -72,6 +72,15 @@ def outbox(email):
 
 def link_in(mail): return re.search(re.escape(B) + r'/\S+', mail['text']).group(0)
 
+def follow_link(u, url):
+    # an emailed sign-in link opens a page with one Continue button (a GET spends nothing); pressing it posts the
+    # page's hidden fields back, which signs in and redirects. Answers like req() with the post's response.
+    path = url.replace(B, '')
+    st, _, b = u.req('GET', path)
+    fields = dict(re.findall(rb'<input type="hidden" name="([^"]+)" value="([^"]*)"', b))
+    fields = {k.decode(): __import__('html').unescape(v.decode()) for k, v in fields.items()}
+    return u.form(urllib.parse.urlparse(path).path, fields)
+
 def sql(q):
     cmd = ['pnpm', '-s', 'wrangler', 'd1', 'execute', 'quintaearth', '--local', '--json', '--command', q] + (['--persist-to', PERSIST] if PERSIST else [])
     out = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True).stdout
@@ -79,7 +88,7 @@ def sql(q):
 
 def login(u, kind, company=''):
     u.form('/signin?_action=account.sendSignInLink', {'email': u.email, 'next': '/dashboard'})
-    st, h, _ = u.req('GET', link_in(outbox(u.email)).replace(B, ''))
+    st, h, _ = follow_link(u, link_in(outbox(u.email)))
     st, h, _ = u.form('/welcome?_action=account.chooseAccountType', {'name': u.email.split('.')[0].title() + ' Test', 'type': kind, 'company': company, 'password': PW})
     return st == 302 and h['Location'].endswith('/dashboard')
 
@@ -98,7 +107,7 @@ check('login teammate (individual)', login(D, 'individual'))
 # a double-submitted welcome form: one profile, one company, no error page
 W = User('twice')
 W.form('/signin?_action=account.sendSignInLink', {'email': W.email, 'next': '/dashboard'})
-W.req('GET', link_in(outbox(W.email)).replace(B, ''))
+follow_link(W, link_in(outbox(W.email)))
 import threading
 wc = []
 ts = [threading.Thread(target=lambda: wc.append(W.form('/welcome?_action=account.chooseAccountType', {'name': 'Twice Test', 'type': 'company', 'company': f'Twice {RUN}', 'password': PW})[0])) for _ in range(4)]
@@ -273,8 +282,8 @@ inv_path = link_in(outbox(E.email)).replace(B, '')
 st, h, _ = E.req('GET', inv_path)
 check('invite link sends a signed-out person to sign in', st == 302 and '/signin?next=' in h['Location'], f'{st}')
 E.form('/signin?_action=account.sendSignInLink', {'email': E.email, 'next': inv_path})
-st, h, _ = E.req('GET', link_in(outbox(E.email)).replace(B, ''))
-check('new member lands back on the invitation', st == 302 and h['Location'].endswith(inv_path), h.get('Location', ''))
+st, h, _ = follow_link(E, link_in(outbox(E.email)))
+check('new member lands back on the invitation', st == 303 and h['Location'].endswith(inv_path), h.get('Location', ''))
 etok = urllib.parse.parse_qs(urllib.parse.urlparse(inv_path).query)['token'][0]
 st, j = E.action('company.acceptInvite', {'token': etok})
 st2, h2, _ = E.req('GET', '/dashboard')
@@ -287,7 +296,7 @@ check('invited member can edit their profile', st == 200, f'{st} {j}')
 # right after setup, a public page must show the member's new name, not the empty one cached at sign-in
 N = User('fresh')
 N.form('/signin?_action=account.sendSignInLink', {'email': N.email, 'next': '/dashboard'})
-N.req('GET', link_in(outbox(N.email)).replace(B, ''))
+follow_link(N, link_in(outbox(N.email)))
 N.form('/welcome?_action=account.chooseAccountType', {'name': 'Nadia Fresh', 'type': 'individual', 'password': PW})
 st, _, b = N.req('GET', f'/companies/{OSLUG}/enquire')
 check('enquiry form names the sender right after setup', b'your name (Nadia Fresh)' in b, f'{st}')
@@ -334,15 +343,15 @@ st, j = X.action('account.signIn', {'email': A.email, 'password': PW})
 check('sign-in works again once the pause ends', st == 200, f'{st} {j}')
 S = User('short')
 S.form('/signin?_action=account.sendSignInLink', {'email': S.email, 'next': '/dashboard'})
-S.req('GET', link_in(outbox(S.email)).replace(B, ''))
+follow_link(S, link_in(outbox(S.email)))
 st, j = S.action('account.chooseAccountType', {'name': 'Short Pw', 'type': 'individual', 'password': 'short'})
 check('new member: password under 10 characters -> 400, account not set up', st == 400 and sql(f"select account_type from user where email='{S.email}'")[0]['account_type'] is None, f'{st}')
 # forgotten password: the email link signs in once and lands on the password page
 F = User('forgot'); F.email = Bu.email
 F.form('/signin?_action=account.sendSignInLink', {'email': F.email, 'next': '/dashboard/messages'})
-st, h, _ = F.req('GET', link_in(outbox(F.email)).replace(B, ''))
+st, h, _ = follow_link(F, link_in(outbox(F.email)))
 loc = urllib.parse.urlparse(h.get('Location', ''))
-check('email link for a known member lands on the password page', st == 302 and loc.path == '/dashboard/password' and urllib.parse.parse_qs(loc.query).get('next') == ['/dashboard/messages'], h.get('Location', ''))
+check('email link for a known member lands on the password page', st == 303 and loc.path == '/dashboard/password' and urllib.parse.parse_qs(loc.query).get('next') == ['/dashboard/messages'], h.get('Location', ''))
 NEWPW = f'new-{RUN}-password'
 st, h, _ = F.form('/dashboard/password?_action=account.setPassword&next=%2Fdashboard%2Fmessages', {'password': NEWPW})
 check('fresh link sign-in sets a new password without the old one, then goes on (saying so)', st == 303 and h['Location'] == '/dashboard/messages?flash=password', f'{st} {h.get("Location")}')
@@ -387,7 +396,7 @@ check('non-admin review -> 403', st == 403, f'{st}')
 sql(f"update user set role='admin' where email='{C.email}'")
 # role is cached in the session cookie for up to 5 minutes; sign in again to pick it up
 C2 = User('admin'); C2.email = C.email
-C2.form('/signin?_action=account.sendSignInLink', {'email': C2.email}); C2.req('GET', link_in(outbox(C2.email)).replace(B, ''))
+C2.form('/signin?_action=account.sendSignInLink', {'email': C2.email}); follow_link(C2, link_in(outbox(C2.email)))
 check('admin can open identity doc', C2.req('GET', f'/files/{idkey}')[0] == 200, '')
 st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'rejected'})
 check('reject without reason -> 400', st == 400, f'{st}')
@@ -434,7 +443,7 @@ check('parallel company creates: no 500, one company', 500 not in cc and n_race 
 I2 = User('skipper')
 A.action('company.invite', {'organizationId': OID, 'email': I2.email})
 I2.form('/signin?_action=account.sendSignInLink', {'email': I2.email, 'next': '/dashboard'})
-I2.req('GET', link_in(outbox(I2.email)).replace(B, ''))
+follow_link(I2, link_in(outbox(I2.email)))
 st, _, b = I2.req('GET', '/welcome')
 check('welcome names the team of a pending invitation', st == 200 and b'You are joining' in b, f'{st}')
 I2.form('/welcome?_action=account.chooseAccountType', {'name': 'Skip Per', 'password': PW})
@@ -464,6 +473,84 @@ st, _, b = R.req('GET', loc)
 st2, _, b2 = R.req('GET', loc)
 n2 = sql(f"select count(*) n from verification where identifier like '%{R.email}%' or value like '%{R.email}%'")[0]['n']
 check('the sent page names the address, and reloading sends nothing', st == 200 and R.email.encode() in b and R.email.encode() in b2 and n1 == n2, f'{st} {n1} {n2}')
+
+# --- auth (Grok review, 11 Oct) ---
+import threading
+sql(f"delete from sign_in_failures where key like '%{A.email}%'")
+# 1: dot segments that normalise to a second slash cannot send a member off-site after sign-in
+for nxt in ('/.//evil.example', '/foo/..//evil.example'):
+    st, h, _ = User('dot').form('/signin?_action=account.signIn', {'email': A.email, 'password': PW, 'next': nxt})
+    check(f'next {nxt} cannot leave the site', st == 303 and h.get('Location') == '/dashboard', f'{st} {h.get("Location")}')
+# each burst comes from its own network address, so it neither spends nor meets the suite's shared per-address budget
+def act_from(u, name, fields, ip):
+    return u.req('POST', f'/_actions/{name}', urllib.parse.urlencode(fields).encode(), {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'cf-connecting-ip': ip})[0]
+# 2: limits hold under a burst of parallel requests (count and record are one statement)
+PL = User('burst')
+pc = []
+ts = [threading.Thread(target=lambda: pc.append(act_from(PL, 'account.sendSignInLink', {'email': PL.email}, '198.51.100.31'))) for _ in range(12)]
+[t.start() for t in ts]; [t.join() for t in ts]
+n_links = sql(f"select count(*) n from verification where identifier like '%{PL.email}%' or value like '%{PL.email}%'")[0]['n']
+check('12 parallel link requests: at most 5 sent, the rest 429', pc.count(200) == 5 and pc.count(429) == 7 and n_links <= 5, f'{sorted(pc)} sent={n_links}')
+GX = f'guess.{RUN}@example.com'
+gc = []
+ts = [threading.Thread(target=lambda: gc.append(act_from(User('g'), 'account.signIn', {'email': GX, 'password': 'wrong-password-1'}, '198.51.100.32'))) for _ in range(16)]
+[t.start() for t in ts]; [t.join() for t in ts]
+n_pair = sql(f"select count(*) n from sign_in_failures where key='pair:{GX}|198.51.100.32'")[0]['n']
+check('16 parallel wrong passwords: only 8 are tried, the rest 429', gc.count(401) == 8 and gc.count(429) == 8 and n_pair == 8, f'{sorted(gc)} rows={n_pair}')
+# 19: a right password clears the spread-out count for that address too (not the network address count)
+def signin_from(ip, password):
+    r = urllib.request.Request(B + '/_actions/account.signIn', data=urllib.parse.urlencode({'email': A.email, 'password': password}).encode(), method='POST',
+        headers={'Origin': B, 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'cf-connecting-ip': ip})
+    try:
+        with User('ip').op.open(r) as res: return res.status
+    except urllib.error.HTTPError as e: return e.code
+signin_from('198.51.100.21', 'wrong-password-1'); signin_from('198.51.100.22', 'wrong-password-1')
+before = sql(f"select count(*) n from sign_in_failures where key='email:{A.email}'")[0]['n']
+st = signin_from('198.51.100.23', PW)
+row = sql(f"select (select count(*) from sign_in_failures where key='email:{A.email}') e, (select count(*) from sign_in_failures where key='pair:{A.email}|198.51.100.21') p, (select count(*) from sign_in_failures where key='ip:198.51.100.21') i, (select count(*) from sign_in_failures where key like '%198.51.100.23') ok")[0]
+check('right password clears the address-wide count, keeps the guessers\' own counts, and is not itself a failure', st == 200 and before == 2 and row == {'e': 0, 'p': 1, 'i': 1, 'ok': 0}, f'{st} {before} {row}')
+# 3: a revoked session cannot open a private file, even inside the signed cookie's 5 minutes
+A3 = User('revoke'); A3.email = A.email
+pw_signin(A3, PW)
+st1 = A3.req('GET', f'/files/{idkey}')[0]
+tok = urllib.parse.unquote(next(c.value for c in A3.jar if c.name.endswith('qe.session_token'))).split('.')[0]
+sql(f"delete from session where token='{tok}'")
+st2 = A3.req('GET', f'/files/{idkey}')[0]
+check('revoked session: private file 404 at once (was 200 before)', st1 == 200 and st2 == 404, f'{st1} {st2}')
+# 22: two identity requests sent at once: one waits, the other is refused; two admins deciding at once: one wins
+sql(f"update organizations set identity_checked_at=null where id='{OID}'")
+ic = []
+ts = [threading.Thread(target=lambda: ic.append(A.action('identity.request', {'organizationId': OID, 'registrationNumber': 'U40106PN2019PTC123456', 'registrationCountry': 'IN', 'workEmail': 'asha@sungrid.example'})[0])) for _ in range(5)]
+[t.start() for t in ts]; [t.join() for t in ts]
+n_pending = sql(f"select count(*) n from identity_checks where organization_id='{OID}' and status='pending'")[0]['n']
+check('5 parallel identity requests: one pending, the rest 409', n_pending == 1 and ic.count(200) == 1 and ic.count(409) == 4, f'{sorted(ic)} pending={n_pending}')
+CID2 = sql(f"select id from identity_checks where organization_id='{OID}' and status='pending'")[0]['id']
+rc = []
+ts = [threading.Thread(target=lambda d=d: rc.append((d, C2.action('identity.review', {'checkId': CID2, 'decision': d, 'reason': 'Need the certificate.'})[0]))) for d in ('approved', 'rejected') * 3]
+[t.start() for t in ts]; [t.join() for t in ts]
+won = [d for d, st in rc if st == 200]
+row = sql(f"select c.status, o.identity_checked_at from identity_checks c join organizations o on o.id=c.organization_id where c.id='{CID2}'")[0]
+check('6 parallel reviews: one decision wins, the rest 409, company matches it', len(won) == 1 and [st for _, st in rc].count(409) == 5 and row['status'] == won[0] and (row['identity_checked_at'] is not None) == (won[0] == 'approved'), f'{rc} {row}')
+# 3: a demoted admin loses private files at once
+sql(f"update user set role='member' where email='{C.email}'")
+check('demoted admin: private file 404 at once', C2.req('GET', f'/files/{idkey}')[0] == 404, '')
+# 5: admin pages are not advertised: signed out gets the 404 page too, not a sign-in redirect
+st, h, b = User('anon2').req('GET', '/admin')
+check('/admin signed out is the designed 404 page, no sign-in redirect', st == 404 and b'<html' in b and not h.get('Location'), f'{st} {h.get("Location")}')
+# 8: opening an emailed link (a scanner's prefetch) does not spend it; only the Continue button does
+ML = User('scanned')
+ML.req('POST', '/signin?_action=account.sendSignInLink', urllib.parse.urlencode({'email': ML.email, 'next': '/dashboard'}).encode(), {'Content-Type': 'application/x-www-form-urlencoded', 'cf-connecting-ip': '198.51.100.33'})
+mlink = link_in(outbox(ML.email))
+check('the emailed link is a page on this site, not the library endpoint', urllib.parse.urlparse(mlink).path == '/signin/link', mlink)
+st1, h1, b1 = User('scanner').req('GET', mlink.replace(B, ''))
+st2, _, _ = User('scanner2').req('GET', mlink.replace(B, ''))
+check('opening the link shows a Continue button, signs nobody in, is not cached', st1 == 200 and st2 == 200 and b'Continue' in b1 and 'no-store' in (h1.get('Cache-Control') or '') and not any(c.startswith('qe.session') for c in (h1.get_all('Set-Cookie') or [])), f'{st1} {st2}')
+st, h, _ = follow_link(ML, mlink)
+check('after prefetches, Continue still signs in', st == 303 and h.get('Location', '').startswith('/welcome') and ML.req('GET', '/welcome')[0] == 200, f'{st} {h.get("Location")}')
+st, h, _ = follow_link(User('again'), mlink)
+check('the link works once', st == 303 and h.get('Location') == '/signin?error=link', f'{st} {h.get("Location")}')
+st, _, _ = anon.req('GET', '/api/auth/magic-link/verify?' + urllib.parse.urlparse(mlink).query)
+check('the library\'s GET verify endpoint is closed', st == 404, f'{st}')
 
 fails = [r for r in results if r[1] == 'FAIL']
 print(f'\n{len(results) - len(fails)}/{len(results)} passed')

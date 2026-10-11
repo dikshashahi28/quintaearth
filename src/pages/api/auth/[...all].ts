@@ -7,7 +7,8 @@ export const prerender = false;
 // goes through our own actions, which validate input and keep the search index in step. The library's other
 // endpoints, such as update-user, would let a member change their name and skip both.
 // Google sends the member back to the callback after they choose an account (sign-in with Google starts in an action).
-const allowed = new Set(['GET /api/auth/magic-link/verify', 'GET /api/auth/callback/google', 'GET /api/auth/get-session', 'POST /api/auth/sign-out']);
+// Email links are spent by /signin/link after a click, never by a GET here (mail scanners prefetch links).
+const allowed = new Set(['GET /api/auth/callback/google', 'GET /api/auth/get-session', 'POST /api/auth/sign-out']);
 
 export const ALL: APIRoute = async ({ request, redirect }) => {
   const { pathname } = new URL(request.url);
