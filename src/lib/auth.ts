@@ -9,6 +9,9 @@ import { db, schema } from '../db/client';
 import { sendMail, signInLinkMail } from './email';
 import { hashPassword, verifyPassword } from './password';
 
+/** whether the Google button is offered: both halves of the Google client must be configured */
+export const googleSignIn = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+
 export const auth = betterAuth({
   appName: 'QuintaEarth',
   baseURL: env.SITE_URL,
@@ -38,6 +41,12 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
     password: { hash: hashPassword, verify: verifyPassword },
   },
+  // "Continue with Google": on only where both secrets are set (wrangler secret put GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET).
+  // Google's redirect URI for the client is `${SITE_URL}/api/auth/callback/google`. A Google account whose address
+  // matches an existing member is linked to that member (Google vouches for the address, and ours was proved by link).
+  socialProviders: googleSignIn ? {
+    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, prompt: 'select_account' },
+  } : {},
   advanced: { cookiePrefix: 'qe' },
   telemetry: { enabled: false },
   plugins: [

@@ -23,6 +23,10 @@ const profile = await myProfile(user.id);
 const hasPassword = !!(await db.query.account.findFirst({
   where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'credential')), columns: { password: true },
 }))?.password;
+// a member who came in with Google signs in that way; a password is an extra, not a gap
+const viaGoogle = hasPassword ? false : !!(await db.query.account.findFirst({
+  where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'google')), columns: { id: true },
+}));
 const host = new URL(Astro.site ?? Astro.url).host;
 const firstName = user.name.trim().split(/\s+/)[0] || user.name;
 const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -55,7 +59,7 @@ const enquiryText = ctx.newEnquiries === 0 ? 'No new enquiries.' : `From ${sende
 <Dashboard ctx={ctx} current="overview" title="Dashboard" heading={`Hello, ${firstName}`}
   lede={`Signed in as ${user.email} · ${user.accountType === 'company' ? 'Company account' : 'Individual account'}`}>
   {!hasPassword && (
-    <p class="notice dhome-pw">Set a password to sign in without an email link. <a class="tlink" href="/dashboard/password">Set a password</a></p>
+    <p class="notice dhome-pw">{viaGoogle ? 'You sign in with Google. A password works too.' : 'Set a password to sign in without an email link.'} <a class="tlink" href="/dashboard/password">Set a password</a></p>
   )}
   {!profile && <EmptyState id="dhome-profile" title="Your profile" note="Nothing here yet." action={{ href: '/dashboard/profile', label: 'Start your profile' }} />}
   <ul class="rows">

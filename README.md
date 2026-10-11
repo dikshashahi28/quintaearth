@@ -72,3 +72,7 @@ Cloudflare Bulk Redirects, only needed if GitHub Pages keeps hosting behind Clou
 The partner, volunteer and review forms post JSON to Google Apps Script web apps that write to Google
 Sheets (`src/data/site.ts`). Review sign-in needs `PUBLIC_GOOGLE_CLIENT_ID` set at build time; without it
 the review form is hidden.
+
+Member sign-in offers "Continue with Google" when the Worker has `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+(`wrangler secret put`, per environment). The OAuth client's authorised redirect URI is
+`<SITE_URL>/api/auth/callback/google`. Without the secrets the button is not shown and email + password stands alone.

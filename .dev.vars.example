@@ -7,3 +7,6 @@ EMAIL_API_KEY=
 EMAIL_FROM=QuintaEarth <hello@quintaearth.com>
 # tests only: send mail to a local catcher instead of the provider (see scripts/mail-sink.py)
 EMAIL_API_URL=
+# optional: "Continue with Google" (OAuth client in Google Cloud; redirect URI <SITE_URL>/api/auth/callback/google)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=

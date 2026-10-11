@@ -60,3 +60,6 @@ export const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === 
 /** a new password: 10 to 128 characters (long enough to resist guessing, short enough to hash quickly) */
 export const newPassword = z.preprocess((v) => v ?? '', z.string()
   .min(10, 'Use at least 10 characters.').max(128, 'Use at most 128 characters.'));
+/** the same rules when a password may be left out (a member who signs in with Google) */
+export const optionalNewPassword = z.preprocess((v) => v || null, z.string()
+  .min(10, 'Use at least 10 characters.').max(128, 'Use at most 128 characters.').nullable());

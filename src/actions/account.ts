@@ -2,7 +2,7 @@
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { and, eq, gt, isNull, like, lt, ne, or } from 'drizzle-orm';
-import { newPassword, optText, reqText } from '../lib/validate';
+import { newPassword, optionalNewPassword, optText, reqText } from '../lib/validate';
 import { safeNext } from '../lib/next';
 import type { BatchItem } from 'drizzle-orm/batch';
 
@@ -27,6 +27,12 @@ async function savePassword(userId: string, password: string) {
   const now = new Date();
   await db.insert(schema.account).values({ id: credentialId(userId), userId, accountId: userId, providerId: 'credential', password: hash, createdAt: now, updatedAt: now })
     .onConflictDoUpdate({ target: schema.account.id, set: { password: hash, updatedAt: now } });
+}
+
+/** whether the member has a Google account linked (then a password is optional) */
+export async function signsInWithGoogle(userId: string): Promise<boolean> {
+  const { db, schema } = await import('../db/client');
+  return !!(await db.query.account.findFirst({ where: and(eq(schema.account.userId, userId), eq(schema.account.providerId, 'google')), columns: { id: true } }));
 }
 
 export const account = {
@@ -56,6 +62,36 @@ export const account = {
         headers: ctx.request.headers,
       });
       return { email };
+    },
+  }),
+
+  /**
+   * Starts "Continue with Google": answers with Google's account chooser address, which the page redirects to.
+   * Google sends the member back to /api/auth/callback/google; a new address gets an account and goes on to
+   * /welcome (or the invitation it came from) to choose a name and type, a known one goes where it was headed.
+   */
+  signInWithGoogle: defineAction({
+    accept: 'form',
+    input: z.object({ next: z.string().max(200).nullish() }),
+    handler: async ({ next }, ctx) => {
+      const { auth, applyAuthCookies, googleSignIn } = await import('../lib/auth');
+      if (!googleSignIn) throw new ActionError({ code: 'NOT_FOUND', message: 'Google sign-in is not available.' });
+      const target = safeNext(next);
+      const { headers, response } = await auth.api.signInSocial({
+        body: {
+          provider: 'google',
+          callbackURL: target,
+          newUserCallbackURL: target.startsWith('/invite?') ? target : '/welcome',
+          errorCallbackURL: '/signin?error=google',
+          disableRedirect: true,
+        },
+        headers: ctx.request.headers,
+        returnHeaders: true,
+      });
+      if (!response.url) throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'Google sign-in did not start.' });
+      // the signed state cookie must reach the browser, or the callback refuses the answer
+      applyAuthCookies(ctx.cookies, headers);
+      return { url: response.url };
     },
   }),
 
@@ -149,6 +185,7 @@ export const account = {
   /**
    * First visit: a name and an account type. An individual gets a person profile; a company also gets a company
    * page with the member as owner. Someone who already joined a team by invitation only gives their name.
+   * A password is chosen here unless the member came in with Google, who then signs in with Google.
    */
   chooseAccountType: defineAction({
     accept: 'form',
@@ -156,7 +193,7 @@ export const account = {
       name: reqText(2, 80, 'Enter your name.'),
       type: z.enum(['individual', 'company']).nullish(),
       company: optText(120),
-      password: newPassword,
+      password: optionalNewPassword,
     }),
     handler: async ({ name, type, company, password }, ctx) => {
       const me = ctx.locals.user;
@@ -165,6 +202,7 @@ export const account = {
       // read from the database, not the session cookie, which caches the user for a few minutes
       const fresh = await db.query.user.findFirst({ where: eq(schema.user.id, me.id), columns: { accountType: true } });
       if (fresh?.accountType) return { type: fresh.accountType };
+      if (!password && !(await signsInWithGoogle(me.id))) throw new ActionError({ code: 'BAD_REQUEST', message: 'Choose a password.' });
 
       let joined = !!(await db.query.members.findFirst({ where: eq(schema.members.userId, me.id), columns: { role: true } }));
       // invited but never opened the invitation page: the email link proved this address, so join those teams now
@@ -216,8 +254,8 @@ export const account = {
         const done = await db.query.user.findFirst({ where: eq(schema.user.id, me.id), columns: { accountType: true } });
         if (!done?.accountType) throw e;
       }
-      // the email link has proved the address; from now on the member signs in with this password
-      await savePassword(me.id, password);
+      // the email link has proved the address; from now on the member signs in with this password (or with Google)
+      if (password) await savePassword(me.id, password);
       // drop the cached session copy so the next request sees the account type
       const { dropSessionCache } = await import('../lib/auth');
       await dropSessionCache(ctx.cookies);

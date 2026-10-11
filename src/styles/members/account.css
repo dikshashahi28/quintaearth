@@ -1,5 +1,14 @@
 /* Sign-in, welcome, invitation, dashboard home and the admin queue: the few rules members.css does not cover. */
 
+/* "Continue with Google" and the "or" line between it and the email form */
+.gform { display: contents; }
+.btn-google { width: 100%; max-width: 360px; gap: 12px; border-color: var(--field-line); color: var(--deep); }
+.btn-google:hover { border-color: var(--river); }
+.btn-google .glogo { flex: none; }
+.or { display: flex; align-items: center; gap: 14px; margin: 4px 0; font-size: 14px; color: var(--muted); }
+.or::before, .or::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--hair); }
+.form-status.bad + .gform { margin-top: 0; }
+
 /* the chosen account type is highlighted without script */
 .choice:has(input:checked) { border-color: var(--river); background: var(--shallow); }
 

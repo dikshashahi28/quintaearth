@@ -5,7 +5,9 @@ import { actions, isInputError } from 'astro:actions';
 import Member from '../layouts/Member.astro';
 import PageHead from '../components/page/PageHead.astro';
 import PasswordField from '../components/members/forms/PasswordField.astro';
+import GoogleButton from '../components/members/forms/GoogleButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
+import { googleSignIn } from '../lib/auth';
 import '../styles/members/account.css';
 import { page } from '../lib/url';
 
@@ -15,9 +17,14 @@ if (Astro.locals.user) return Astro.redirect('/dashboard');
 
 const params = Astro.url.searchParams;
 const next = params.get('next') ?? '';
-const linkError = params.get('error');
+const linkError = params.get('error') === 'link';
+// Google sends members back here when they cancel or the answer could not be used
+const googleError = params.get('error') === 'google';
 const signIn = Astro.getActionResult(actions.account.signIn);
 if (signIn?.data) return Astro.redirect(signIn.data.next, 303);
+// "Continue with Google": the action answers with Google's account chooser address
+const google = Astro.getActionResult(actions.account.signInWithGoogle);
+if (google?.data) return Astro.redirect(google.data.url, 303);
 const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
 // after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
 // short-lived cookie, never the URL
@@ -32,7 +39,7 @@ if (sendLink?.data) {
 }
 const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
 const byLink = params.get('by') === 'link' || !!sendLink || !!linkError;
-const result = byLink ? sendLink : signIn;
+const result = byLink ? sendLink : (google ?? signIn);
 const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
 
@@ -68,6 +75,8 @@ const withNext = (path: string, extra = '') => {
         <form class="form" method="POST" action={actions.account.sendSignInLink}>
           {linkError && <p class="form-status bad" role="alert">That link has expired or was already used. Ask for a new one.</p>}
           {failed && <p class="form-status bad" role="alert">We could not send the link. Try again in a minute.</p>}
+          {googleSignIn && <GoogleButton next={formNext} label="Join with Google" />}
+          {googleSignIn && <p class="or" aria-hidden="true">or with your email</p>}
           <input type="hidden" name="next" value={formNext}>
           <div class="field">
             <label for="link-email">Email</label>
@@ -83,7 +92,10 @@ const withNext = (path: string, extra = '') => {
         </form>
       ) : (
         <form class="form" method="POST" action={actions.account.signIn}>
+          {googleError && <p class="form-status bad" role="alert">Google sign-in did not finish. Try again, or sign in with your email.</p>}
           {failed && <p class="form-status bad" role="alert">{failed}</p>}
+          {googleSignIn && <GoogleButton next={formNext} />}
+          {googleSignIn && <p class="or" aria-hidden="true">or with your email</p>}
           <input type="hidden" name="next" value={formNext}>
           <div class="field">
             <label for="signin-email">Email</label>
