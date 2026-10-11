@@ -45,8 +45,11 @@ export const account = {
     input: z.object({
       email: z.email({ error: 'Enter a valid email address.' }).max(100),
       next: z.string().max(200).nullish(),
+      // the sign-up form asks these first; the welcome page then skips them
+      name: optText(80),
+      type: z.enum(['individual', 'company']).nullish(),
     }),
-    handler: async ({ email, next }, ctx) => {
+    handler: async ({ email, next, name, type }, ctx) => {
       const { auth } = await import('../lib/auth');
       // each link is an email: a few per address and per network address an hour keeps inboxes and the quota safe
       const { spend, HOUR } = await import('../lib/throttle');
@@ -57,8 +60,14 @@ export const account = {
       ], 'Too many links asked for. Try again in an hour.');
       const target = safeNext(next);
       const callbackURL = `/dashboard/password?next=${encodeURIComponent(target)}`;
+      const welcome = type ? `/welcome?type=${type}` : '/welcome';
       await auth.api.signInMagicLink({
-        body: { email: email.toLowerCase(), callbackURL, newUserCallbackURL: target.startsWith('/invite?') ? target : '/welcome', errorCallbackURL: '/signin?error=link' },
+        body: {
+          email: email.toLowerCase(),
+          // a new account takes this name; the welcome page asks for one otherwise
+          ...(name && name.length >= 2 ? { name } : {}),
+          callbackURL, newUserCallbackURL: target.startsWith('/invite?') ? target : welcome, errorCallbackURL: '/signin?error=link',
+        },
         headers: ctx.request.headers,
       });
       return { email };

@@ -1,0 +1,22 @@
+---
+// "I am joining as": two door stones, individual or company. A radio each, highlighted without script.
+import Icon from '../Icon.astro';
+interface Props { value?: string; error?: string[] }
+const { value = '', error } = Astro.props;
+---
+<fieldset class="field" aria-describedby="type-error">
+  <legend>I am joining as</legend>
+  <div class="qe-doors">
+    <label class="qe-door">
+      <input type="radio" name="type" value="individual" required checked={value === 'individual'}>
+      <span class="stone"><span><Icon name="person" /></span></span>
+      <span class="txt"><b>An individual</b><small>Professional, maker, scholar or volunteer</small></span>
+    </label>
+    <label class="qe-door">
+      <input type="radio" name="type" value="company" checked={value === 'company'}>
+      <span class="stone"><span><Icon name="storefront" /></span></span>
+      <span class="txt"><b>A company</b><small>Startup, vendor, brand or organisation</small></span>
+    </label>
+  </div>
+  <p class="err" id="type-error">{error?.join(' ')}</p>
+</fieldset>

@@ -185,7 +185,7 @@ Density is low and editorial. Sections are separated by generous vertical air ra
 
 The world was pinned by the user (Riverline artifact liked 8 Oct 2026) and shipped as a code-led refinement. It replaced the Environs Bootstrap template across the whole site in the 9 Oct 2026 Astro rebuild.
 
-Where it lives: the Astro site in `src/` (homepage `src/pages/index.astro`, sections in `src/components/home/`, inner pages through `src/components/page/PageHead.astro` and `src/components/views/`). `samples/riverline/index.html` is the original comp. The homepage grew from the comp's six numbered sections to ten (Press, YouTube, Volunteer and Collaborators came over from the old site in the rebuild). Inner pages open with a breadcrumb and title; numbered kickers stay on the homepage only.
+Where it lives: the Astro site in `src/` (homepage `src/pages/index.astro`, sections in `src/components/home/`, inner pages through `src/components/page/PageHead.astro` and `src/components/views/`). The original comp lived in `samples/riverline/index.html` until the samples folder was dropped from the repo on 11 Oct 2026 (git history before that commit still has it). The homepage grew from the comp's six numbered sections to ten (Press, YouTube, Volunteer and Collaborators came over from the old site in the rebuild). Inner pages open with a breadcrumb and title; numbered kickers stay on the homepage only.
 
 **Key Characteristics:**
 - White page, sky hero, one deep-green band; no other section fills.

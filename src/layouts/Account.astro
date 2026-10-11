@@ -1,0 +1,94 @@
+---
+// The account pages (sign up, sign in, welcome): a full-screen split with no site header. Photo and river on the
+// left, the form on the right. Design: "the spring" comp (styles/members/spring.css).
+import { Image } from 'astro:assets';
+import '../styles/base.css';
+import '../styles/members.css';
+import '../styles/members/account.css';
+import '../styles/members/spring.css';
+import FormFocus from '../components/members/forms/FormFocus.astro';
+import { site } from '../data/site';
+import { asset, page } from '../lib/url';
+import { photo } from '../lib/images';
+
+interface Props {
+  title: string;
+  description: string;
+  /** a photo from src/assets/photos, of people doing the work */
+  scene: string;
+  sceneAlt: string;
+  /** object-position for the photo */
+  scenePos?: string;
+  /** the line on the photo */
+  say: string;
+  /** a gold line under it */
+  sub?: string;
+}
+const { title, description, scene, sceneAlt, scenePos, say, sub } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{title} · {site.name}</title>
+  <meta name="description" content={description}>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#14301c">
+  <link rel="icon" href={asset('favicon.ico')} sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=Public+Sans:wght@400;500;600&display=swap">
+</head>
+<body>
+  <div class="qe-root">
+    <aside class="qe-scene" style={scenePos ? `--pos: ${scenePos}` : undefined}>
+      <Image src={photo(scene)} alt={sceneAlt} widths={[720, 1080, 1600]} sizes="(max-width: 1100px) 100vw, 50vw" loading="eager" fetchpriority="high" />
+      <div class="qe-wash"></div>
+      <svg class="qe-river" viewBox="0 0 140 1000" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
+        <path class="w" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
+        <path class="m" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
+        <circle class="halo" cx="92" cy="933" r="7"></circle>
+        <circle class="spring" cx="92" cy="933" r="7"></circle>
+      </svg>
+      <div class="qe-foot">
+        <p class="say">{say}</p>
+        {sub && <p class="sub">{sub}</p>}
+      </div>
+    </aside>
+    <main class="qe-pane" id="main">
+      <header class="qe-top">
+        <a class="logo" href={page('index')}><img src={asset('assets/logo.png')} alt="QuintaEarth" width="1088" height="231"></a>
+        <slot name="top" />
+      </header>
+      <div class="qe-body">
+        <slot />
+      </div>
+    </main>
+  </div>
+  <FormFocus />
+  <script>
+    // the river rail: each rail names the controls of its step (data-for="id id"); the bead lights and the track
+    // fills when they are all filled in and valid. "data-for='*'" is the send step: lit when the whole form is.
+    const rails = [...document.querySelectorAll<HTMLElement>('.qe-rail[data-for]')];
+    const update = () => {
+      for (const rail of rails) {
+        const form = rail.closest('form');
+        const ids = rail.dataset.for!.split(/\s+/).filter(Boolean);
+        const ok = ids[0] === '*'
+          ? !!form && form.checkValidity() && [...form.querySelectorAll<HTMLInputElement>('input[required]:not([type=radio])')].every((i) => i.value.trim() !== '')
+          : ids.every((id) => {
+              const els = [...document.querySelectorAll<HTMLInputElement>(`#${CSS.escape(id)}, input[name="${CSS.escape(id)}"]`)];
+              if (!els.length) return false;
+              if (els[0]!.type === 'radio') return els.some((r) => r.checked);
+              return els.every((i) => i.value.trim() !== '' && i.checkValidity());
+            });
+        rail.classList.toggle('lit', ok);
+        rail.classList.toggle('on', ok);
+      }
+    };
+    for (const form of document.querySelectorAll('form')) { form.addEventListener('input', update); form.addEventListener('change', update); }
+    update();
+  </script>
+</body>
+</html>

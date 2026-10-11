@@ -14,7 +14,7 @@
     // With a 404 page set, browser navigations that match no file get that page without the Worker ever running.
     // Every route rendered on request must be listed here; scripts/check-links.mjs fails the build if one is missing.
     "run_worker_first": [
-      "/signin", "/signout", "/welcome", "/invite", "/directory",
+      "/signin", "/join", "/signout", "/welcome", "/invite", "/directory",
       "/dashboard", "/dashboard/*", "/admin", "/admin/*",
       "/people/*", "/companies/*", "/files/*", "/api/*", "/_actions/*"
     ]
