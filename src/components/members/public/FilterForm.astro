@@ -1,60 +1,161 @@
 ---
-// The directory filters as a plain GET form, so every result page has a shareable URL. Rendered twice by the
-// directory (sidebar on desktop, folded under "Filters" on phone), so ids take a prefix.
+// The directory search and filters (design: Directory, option A "chips on top"). One plain GET form, so every
+// result page has a shareable URL and everything works without script: the chips are <details> panels holding
+// radios and a checkbox, posted by "Search", "Done" or "Show results". With script (in this file) a pick posts at
+// once, one panel opens at a time, Escape or a click outside closes it, and the panels get a search box.
 import Icon from '../Icon.astro';
 import { industries } from '../../../data/industries';
 import { countries } from '../../../data/countries';
-import { goals } from '../../../data/sdgs';
 
 export interface DirectoryState { q: string; type: '' | 'person' | 'company'; industry: string; sub: string; country: string; sdg: string; checked: boolean }
-interface Props { id: string; state: DirectoryState; class?: string; clearHref: string; hasFilters: boolean }
-const { id, state: s, class: cls, clearHref, hasFilters } = Astro.props;
-const byName = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+interface Props {
+  state: DirectoryState;
+  /** the same search without industry, sub-category, country, goal and identity filters */
+  clearHref: string;
+  /** the same search without industry and sub-category */
+  anyIndustryHref: string;
+  /** the same search without the UN goal (only shown when an older link carries one) */
+  noGoalHref: string;
+  goalLabel: string;
+  hasFilters: boolean;
+}
+const { state: s, clearHref, anyIndustryHref, noGoalHref, goalLabel, hasFilters } = Astro.props;
 const types = [['', 'All'], ['person', 'People'], ['company', 'Companies']] as const;
-// with an industry chosen, only its sub-categories (plus the chosen one, if it sits elsewhere)
-const subGroups = s.industry ? industries.filter((i) => i.slug === s.industry || i.subs.some((x) => x.slug === s.sub)) : industries;
+// with an industry chosen (older links), only its sub-categories, so a pick can never contradict it
+const groups = s.industry ? industries.filter((i) => i.slug === s.industry) : industries;
+const subLabel = s.sub ? industries.flatMap((i) => i.subs).find((x) => x.slug === s.sub)?.name : undefined;
+const indLabel = subLabel ?? (s.industry ? industries.find((i) => i.slug === s.industry)?.name : undefined);
+const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : undefined;
 ---
-<form class={cls} method="get" action="/directory" aria-label="Filters">
-  {s.q && <input type="hidden" name="q" value={s.q}>}
-  <fieldset class="field">
-    <legend>Show</legend>
-    <div class="seg">
-      {types.map(([v, label]) => <label class:list={{ on: s.type === v }}><input type="radio" name="type" value={v} checked={s.type === v}>{label}</label>)}
-    </div>
-  </fieldset>
-  <div class="field">
-    <label for={`${id}-ind`}>Industry</label>
-    <span class="selwrap"><select class="sel" id={`${id}-ind`} name="industry">
-      <option value="">Any industry</option>
-      {industries.map((i) => <option value={i.slug} selected={s.industry === i.slug}>{i.name}</option>)}
-    </select><Icon name="expand_more" /></span>
+<form class="qd-form" method="get" action="/directory" role="search" aria-label="Directory" data-qd-form>
+  <div class="qd-search">
+    <label class="sr" for="q">Search people and companies</label>
+    <span class="qd-inwrap"><Icon name="search" /><input class="qd-inp" id="q" name="q" type="search" value={s.q} maxlength="100" placeholder="Search people and companies"></span>
+    <button class="qd-btn" type="submit">Search</button>
   </div>
-  <div class="field">
-    <label for={`${id}-sub`}>Sub-category</label>
-    <span class="selwrap"><select class="sel" id={`${id}-sub`} name="sub">
-      <option value="">Any</option>
-      {subGroups.map((i) => (
-        <optgroup label={i.name}>{i.subs.map((sub) => <option value={sub.slug} selected={s.sub === sub.slug}>{sub.name}</option>)}</optgroup>
-      ))}
-    </select><Icon name="expand_more" /></span>
-  </div>
-  <div class="field">
-    <label for={`${id}-cty`}>Country</label>
-    <span class="selwrap"><select class="sel" id={`${id}-cty`} name="country">
-      <option value="">Any country</option>
-      {byName.map((c) => <option value={c.iso} selected={s.country === c.iso}>{c.name}</option>)}
-    </select><Icon name="expand_more" /></span>
-  </div>
-  <div class="field">
-    <label for={`${id}-sdg`}>UN goal</label>
-    <span class="selwrap"><select class="sel" id={`${id}-sdg`} name="sdg">
-      <option value="">Any goal</option>
-      {goals.map((g) => <option value={String(g.n)} selected={s.sdg === String(g.n)}>{g.n} {g.title}</option>)}
-    </select><Icon name="expand_more" /></span>
-  </div>
-  <label class="check"><input type="checkbox" name="checked" value="1" checked={s.checked}><span>Identity checked only</span></label>
-  <div class="acts">
-    <button class="btn btn-fill" type="submit">Show results</button>
-    {hasFilters && <a class="tlink" href={clearHref}>Clear filters</a>}
+
+  <div class="qd-fbar" role="group" aria-label="Filters">
+    <fieldset class="qd-seg">
+      <legend>Show</legend>
+      {types.map(([v, label]) => <label><input type="radio" name="type" value={v} checked={s.type === v} data-qd-auto>{label}</label>)}
+    </fieldset>
+    <span class="qd-fsep" aria-hidden="true"></span>
+
+    {s.industry && <input type="hidden" name="industry" value={s.industry}>}
+    <details class="qd-fwrap full" data-qd-pop>
+      <summary class:list={['qd-fchip', { has: !!indLabel }]}>{indLabel ?? 'Industry'}<Icon name="expand_more" class="caret" /></summary>
+      <div class="qd-pop ind">
+        <label class="sr" for="ind-q">Search industries</label>
+        <span class="qd-inwrap" hidden data-qd-js><Icon name="search" /><input class="qd-inp" id="ind-q" type="search" maxlength="60" autocomplete="off" placeholder="Search industries" data-qd-find></span>
+        <fieldset class="qd-igrps">
+          <legend class="sr">Sub-category</legend>
+          {groups.map((g) => (
+            <fieldset class="qd-igrp" data-qd-group>
+              <legend>{g.name}</legend>
+              <div class="qd-chips">
+                {g.subs.map((x) => (
+                  <label class="qd-chip qd-pick" data-qd-item><input type="radio" name="sub" value={x.slug} checked={s.sub === x.slug} data-qd-auto><Icon name="check" />{x.name}</label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+          <p class="qd-nomatch" hidden data-qd-none>No industries match.</p>
+        </fieldset>
+        <div class="qd-popfoot">
+          <a class="qd-fclear" href={anyIndustryHref}>Any industry</a>
+          <button class="qd-btn sm" type="submit">Done</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="qd-fwrap" data-qd-pop>
+      <summary class:list={['qd-fchip', { has: !!ctyLabel }]}><span>{ctyLabel ?? 'Country'}</span><Icon name="expand_more" class="caret" /></summary>
+      <div class="qd-pop cty">
+        <label class="sr" for="cty-q">Search countries</label>
+        <span class="qd-inwrap" hidden data-qd-js><Icon name="search" /><input class="qd-inp" id="cty-q" type="search" maxlength="60" autocomplete="off" placeholder="Search countries" data-qd-find></span>
+        <fieldset class="qd-opts" data-qd-group>
+          <legend class="sr">Country</legend>
+          <label class="qd-opt"><input type="radio" name="country" value="" checked={!s.country} data-qd-auto><span>Any country</span><Icon name="check" /></label>
+          {countries.map((c) => (
+            <label class="qd-opt" data-qd-item><input type="radio" name="country" value={c.iso} checked={s.country === c.iso} data-qd-auto><span>{c.name}</span><Icon name="check" /></label>
+          ))}
+          <p class="qd-nomatch" hidden data-qd-none>No countries match.</p>
+        </fieldset>
+        <div class="qd-popfoot end" data-qd-nojs>
+          <button class="qd-btn sm" type="submit">Done</button>
+        </div>
+      </div>
+    </details>
+
+    <label class="qd-fchip tog"><input type="checkbox" name="checked" value="1" checked={s.checked} data-qd-auto><span class="box" aria-hidden="true"><Icon name="check" /></span>Identity checked</label>
+
+    {s.sdg && (
+      <span class="qd-fchip has goal"><input type="hidden" name="sdg" value={s.sdg}>{goalLabel}<a class="x" href={noGoalHref} aria-label={`Remove filter ${goalLabel}`}><Icon name="close" /></a></span>
+    )}
+
+    <button class="qd-btn line sm" type="submit" data-qd-nojs>Show results</button>
+    {hasFilters && <a class="qd-fclear" href={clearHref}>Clear</a>}
   </div>
 </form>
+
+<script>
+  // with script: a pick posts the form at once; one panel open at a time; Escape and outside clicks close it;
+  // the panels' search boxes filter their lists. Without script none of this runs and the form posts as is.
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-qd-form]')) {
+    form.classList.add('js');
+    for (const el of form.querySelectorAll<HTMLElement>('[data-qd-js]')) el.hidden = false;
+    for (const el of form.querySelectorAll<HTMLElement>('[data-qd-nojs]')) el.hidden = true;
+
+    // go straight to the clean URL (only filled fields): the page would redirect there anyway
+    const go = () => {
+      const out = new URLSearchParams();
+      for (const [k, v] of new FormData(form)) if (typeof v === 'string' && v.trim()) out.append(k, v.trim());
+      const qs = out.toString();
+      location.assign(`${form.action}${qs ? `?${qs}` : ''}`);
+    };
+    form.addEventListener('submit', (e) => { e.preventDefault(); go(); });
+    form.addEventListener('change', (e) => { if ((e.target as HTMLElement).matches('[data-qd-auto]')) go(); });
+
+    const pops = [...form.querySelectorAll<HTMLDetailsElement>('[data-qd-pop]')];
+    const filter = (d: HTMLElement, raw: string) => {
+      const q = raw.trim().toLowerCase();
+      let any = false;
+      for (const g of d.querySelectorAll<HTMLElement>('[data-qd-group]')) {
+        let shown = 0;
+        for (const it of g.querySelectorAll<HTMLElement>('[data-qd-item]')) {
+          const hit = !q || (it.textContent ?? '').toLowerCase().includes(q);
+          it.hidden = !hit;
+          if (hit) shown++;
+        }
+        // an industry with no match hides; the country list keeps its "Any country" row
+        if (g.classList.contains('qd-igrp')) g.hidden = shown === 0;
+        if (shown) any = true;
+      }
+      const none = d.querySelector<HTMLElement>('[data-qd-none]');
+      if (none) none.hidden = any;
+    };
+    for (const d of pops) {
+      const find = d.querySelector<HTMLInputElement>('[data-qd-find]');
+      d.addEventListener('toggle', () => {
+        if (!d.open) return;
+        for (const o of pops) if (o !== d) o.open = false;
+        if (find) { find.value = ''; filter(d, ''); }
+        d.querySelector<HTMLInputElement>('input:checked')?.closest('label')?.scrollIntoView({ block: 'nearest' });
+        if (matchMedia('(hover: hover)').matches) find?.focus({ preventScroll: true });
+      });
+      find?.addEventListener('input', () => filter(d, find.value));
+      // Enter in a panel's search box picks nothing and must not post the form
+      find?.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+    }
+    form.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const open = pops.find((d) => d.open);
+      if (!open) return;
+      open.open = false;
+      open.querySelector('summary')?.focus();
+    });
+    document.addEventListener('click', (e) => {
+      for (const d of pops) if (d.open && !d.contains(e.target as Node)) d.open = false;
+    });
+  }
+</script>
