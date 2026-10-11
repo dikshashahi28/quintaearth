@@ -1,16 +1,31 @@
 ---
-// The left pane of the inbox: one link per enquiry, a gold dot for new ones.
+// The left pane of the inbox: one row per enquiry on a river rail. A new enquiry's bead lights gold, and the
+// rail fills from the top down to the last new one, so the eye runs straight to what needs a reply.
+import { initialsOf } from '../../../lib/member-hint';
+
 export interface InboxItem { id: string; href: string; source: string; date: string; name: string; subject: string; isNew: boolean }
 interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string }
 const { items, currentId, label, class: cls } = Astro.props;
+
+const lastNew = items.reduce((at, it, i) => (it.isNew ? i : at), -1);
+// each segment starts filling when the one above it is done: .2s for the first, .26s for each after
+const delay = (i: number) => (i === 0 ? 0 : 0.2 + (i - 1) * 0.26);
 ---
-<nav class:list={['ilist', cls]} aria-label={label}>
-  {items.map((it) => (
-    <a href={it.href} class:list={{ new: it.isNew, on: it.id === currentId }} aria-current={it.id === currentId ? 'true' : undefined}>
-      <span class="top"><span>{it.source}</span><span>{it.date}</span></span>
-      <b>{it.name}</b>
-      <span class="s">{it.subject}</span>
-      {it.isNew && <span class="sr">, new</span>}
+<nav class:list={['eq-ilist', cls]} aria-label={label}>
+  {items.map((it, i) => (
+    <a href={it.href} class:list={['eq-item', { new: it.isNew, on: it.id === currentId }]} aria-current={it.id === currentId ? 'true' : undefined}
+      style={`--d:${delay(i)}s`}>
+      <span class="rc" aria-hidden="true">
+        <span class="seg"><span class:list={{ half: i === lastNew, none: i > lastNew, end: i === lastNew }}></span></span>
+        <span class:list={['bead', { lit: it.isNew }]}></span>
+      </span>
+      <span class="stone xs" aria-hidden="true"><span>{initialsOf(it.name)}</span></span>
+      <span class="tx">
+        <span class="top"><span>{it.source}</span><span>{it.date}</span></span>
+        <b>{it.name}</b>
+        <span class="s">{it.subject}</span>
+        {it.isNew && <span class="sr">, new</span>}
+      </span>
     </a>
   ))}
 </nav>
