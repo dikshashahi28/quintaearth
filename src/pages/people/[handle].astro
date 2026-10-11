@@ -31,7 +31,7 @@ const companies = person.companies.map((c) => {
 const where = place(person.city, person.country);
 const skills = person.tags.skill;
 const fields = [...industryLinks(person.tags.industry), ...subLinks(person.tags.sub)];
-// the river rail on the left: one bead per part that is there (bio, skills); the first lights gold
+// the river rail on the left: one bead per part that is there (bio, skills), marking the parts only, so every bead stays at rest
 const hasBio = !!person.bio;
 const hasSkills = skills.length > 0;
 const url = absolute(Astro.url.pathname, Astro.site);
@@ -60,13 +60,13 @@ const personLd = {
         <div class="pp-spine">
           {hasBio && (
             <>
-              <div class="pp-rail lit" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: !hasSkills }]}></span></div>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: !hasSkills }]}></span></div>
               <div class:list={['pp-part', { last: !hasSkills }]}><p class="pp-bio">{person.bio}</p></div>
             </>
           )}
           {hasSkills && (
             <>
-              <div class:list={['pp-rail', { lit: !hasBio }]} aria-hidden="true"><span class="bead"></span><span class="track tail"></span></div>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class="track tail"></span></div>
               <div class="pp-part pp-sec last">
                 <h2>Skills</h2>
                 <div class="pp-chips">{skills.map((s) => <span class="chip">{s.charAt(0).toUpperCase() + s.slice(1)}</span>)}</div>

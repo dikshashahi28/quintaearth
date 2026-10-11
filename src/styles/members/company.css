@@ -29,6 +29,11 @@
 .qe-co .qe-meta svg.ms { font-size: 18px; color: var(--reed-ink); }
 .qe-co .qe-meta .qe-idc { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 10px 2px 7px; border-radius: 100px; border: 1px solid var(--id-line); background: var(--page); color: var(--ink-2); font-size: 13px; font-weight: 500; white-space: nowrap; box-sizing: border-box; }
 .qe-co .qe-meta .qe-idc svg.ms { font-size: 16px; color: var(--muted); }
+/* the evidence count: the same quiet pill, as a link down to the files */
+.qe-co .qe-meta a.qe-evc { color: var(--ink-2); text-decoration: none; transition: border-color .2s, color .2s; }
+.qe-co .qe-meta a.qe-evc:hover { border-color: var(--river); color: var(--river-deep); }
+.qe-co .qe-meta a.qe-evc { position: relative; }
+.qe-co .qe-meta a.qe-evc::after { content: ""; position: absolute; inset: -8px 0; }
 .qe-co .qe-head-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 24px; }
 
 /* button and text links */
@@ -41,16 +46,13 @@
 .qe-co .qe-tlink:hover { color: var(--river-deep); }
 .qe-co .qe-tlink svg { width: 20px; height: 20px; font-size: 20px; fill: currentColor; flex: none; }
 
-/* the river rail */
+/* the river rail: section markers only, so every bead stays at rest and no track fills */
 .qe-co .qe-body { padding: 8px 0 0 0; }
 .qe-co .qe-spine { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; }
 .qe-co .qe-rail { position: relative; width: 24px; }
 .qe-co .qe-rail .track { position: absolute; left: 11px; top: 27px; bottom: -11px; width: 3px; border-radius: 2px; background: var(--water); overflow: hidden; }
-.qe-co .qe-rail .fill { display: block; width: 100%; height: 0; border-radius: 2px; background: var(--river); }
-.qe-co .qe-rail.on .fill { height: 100%; animation: qe-co-grow .9s var(--ease) .25s both; }
-.qe-co .qe-rail .bead { position: absolute; left: 5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
-.qe-co .qe-rail.lit .bead { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
-.qe-co .qe-rail.lit .bead::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: qe-co-ring 1.2s ease-out .15s 1 forwards; }
+.qe-co .qe-rail .fill { display: none; }
+.qe-co .qe-rail .bead { position: absolute; left: 5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
 .qe-co .qe-rail.first .bead { top: 9px; }
 .qe-co .qe-rail.first .track { top: 25px; }
 .qe-co .qe-rail.last { height: 40px; }
@@ -90,17 +92,13 @@
 .qe-co .qe-acts { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 6px; }
 .qe-co .qe-acts .qe-tlink { font-size: 15px; }
 
-/* evidence: a disclosure on the card */
-.qe-co .qe-files { margin-top: 2px; }
-.qe-co .qe-files summary { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; font-weight: 500; color: var(--reed-ink); cursor: pointer; list-style: none; }
-.qe-co .qe-files summary::-webkit-details-marker { display: none; }
-.qe-co .qe-files summary:hover { color: var(--river-deep); }
-.qe-co .qe-files summary svg.ms { font-size: 18px; }
-.qe-co .qe-files summary .chev { transition: transform .25s var(--ease); }
-.qe-co .qe-files[open] summary .chev { transform: rotate(180deg); }
-.qe-co .qe-files-note { font-size: 13.5px; line-height: 1.45; color: var(--muted); }
-.qe-co .qe-files ul { margin: 6px 0 8px 0; border-top: 1px solid var(--hair); }
-.qe-co .qe-files li a { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 0; border-bottom: 1px solid var(--hair); text-decoration: none; color: var(--text); }
+/* evidence: always in view under the card, file names visible */
+.qe-co .qe-files { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hair); scroll-margin-top: 96px; }
+.qe-co .qe-files-h { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--reed-ink); }
+.qe-co .qe-files-h svg.ms { font-size: 18px; }
+.qe-co .qe-files-note { margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+.qe-co .qe-files ul { margin: 4px 0 8px 0; }
+.qe-co .qe-files li a { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 0; text-decoration: none; color: var(--text); }
 .qe-co .qe-files li a > svg.ms { font-size: 20px; color: var(--reed-ink); }
 .qe-co .qe-files li a > span:not(.sr) { min-width: 0; }
 .qe-co .qe-files li b { display: block; font-weight: 500; font-size: 14.5px; line-height: 1.35; color: var(--river); overflow-wrap: anywhere; }
@@ -125,8 +123,6 @@
 .qe-co .qe-end-who b { display: block; font: 400 22px/1.2 var(--font-display); letter-spacing: -0.01em; color: var(--deep); }
 .qe-co .qe-end-who small { display: block; font-size: 14px; line-height: 1.45; color: var(--muted); }
 
-@keyframes qe-co-grow { from { height: 0; } to { height: 100%; } }
-@keyframes qe-co-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
 
 @media (max-width: 1179px) { .qe-co .qe-frame { width: calc(100% - 32px); } }
 @media (max-width: 900px) { .qe-co .qe-lgrid { grid-template-columns: 1fr 1fr; } }
@@ -146,8 +142,6 @@
   .qe-co .qe-end .qe-btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .qe-co .qe-rail.on .fill { animation: none; }
-  .qe-co :is(.qe-rail .bead, .qe-card, .qe-ph img, .qe-btn, .qe-btn svg, .qe-stone, .qe-files summary .chev) { transition: none; }
-  .qe-co .qe-rail.lit .bead::after { animation: none; }
+  .qe-co :is(.qe-card, .qe-ph img, .qe-btn, .qe-btn svg, .qe-stone, .qe-evc) { transition: none; }
   .qe-co :is(.qe-card:hover, .qe-card:focus-within, .qe-card:hover .qe-ph img, .qe-people a:hover .qe-stone, .qe-btn:hover, .qe-btn:hover svg) { transform: none; }
 }

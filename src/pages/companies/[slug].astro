@@ -1,8 +1,8 @@
 ---
 // Public company page (design: Company, the 10 Oct "spring" board). Only published companies and their published
-// listings show here. A white head (breadcrumb, logo stone, name, meta, actions), then a river rail down the left
-// of the About, Products and services and Team sections: the first bead is lit, and each later bead lights gold
-// and the track above it fills green as the reader reaches its section.
+// listings show here. A white head (breadcrumb, logo stone, name, meta with the evidence count, actions), then a
+// river rail down the left of the About, Products and services and Team sections. The rail only marks the sections:
+// its beads stay at rest (white, green ring) and its track unfilled, since nothing on a public page is "completed".
 import Member from '../../layouts/Member.astro';
 import CompanyListingCard from '../../components/members/public/CompanyListingCard.astro';
 import Icon from '../../components/members/Icon.astro';
@@ -36,6 +36,9 @@ const listings = org.listings.map((l) => ({
   subs: l.tags.sub.map(subName).filter((s): s is string => !!s),
   serves: l.tags.serves.map(countryName).filter((s): s is string => !!s),
 }));
+// the proof up front: how many evidence files the listings carry, linking to the first listing that has any
+const evidenceCount = listings.reduce((n, l) => n + l.evidence.length, 0);
+const firstEvidence = listings.find((l) => l.evidence.length > 0);
 
 const breadcrumbLd = {
   '@context': 'https://schema.org',
@@ -84,12 +87,13 @@ const orgLd = {
           : <span class="qe-mark" role="img" aria-label={org.name}><Icon name="storefront" /></span>}
         <div class="qe-who-t">
           <h1>{org.name}</h1>
-          {(where || size || org.foundedYear || org.identityChecked) && (
+          {(where || size || org.foundedYear || org.identityChecked || evidenceCount > 0) && (
             <div class="qe-meta">
               {where && <span><Icon name="location_on" />{where}</span>}
               {size && <span><Icon name="group" />{size}</span>}
               {org.foundedYear && <span><Icon name="calendar_today" />Founded {org.foundedYear}</span>}
               {org.identityChecked && <span class="qe-idc"><Icon name="badge" />Identity checked</span>}
+              {firstEvidence && <a class="qe-idc qe-evc" href={`#evidence-${firstEvidence.slug}`}><Icon name="attach_file" />{evidenceCount} evidence {evidenceCount === 1 ? 'file' : 'files'}</a>}
             </div>
           )}
         </div>
@@ -109,7 +113,7 @@ const orgLd = {
       <div class="qe-spine">
         {hasAbout && (
           <>
-            <div class="qe-rail first lit" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+            <div class="qe-rail first" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
             <section class="qe-sec" aria-labelledby="about-h" data-step>
               <h2 id="about-h" class="sr">About</h2>
               {org.description && <p class="qe-lead">{org.description}</p>}
@@ -139,7 +143,7 @@ const orgLd = {
           </>
         )}
 
-        <div class:list={['qe-rail', { lit: !hasAbout, last: !hasTeam }]} aria-hidden="true"><span class="bead"></span>{hasTeam && <span class="track"><span class="fill"></span></span>}</div>
+        <div class:list={['qe-rail', { last: !hasTeam }]} aria-hidden="true"><span class="bead"></span>{hasTeam && <span class="track"><span class="fill"></span></span>}</div>
         <section class="qe-sec" aria-labelledby="offer-h" data-step>
           <h2 id="offer-h" class="qe-h2">Products and services</h2>
           {listings.length === 0
@@ -192,33 +196,3 @@ const orgLd = {
     </div>
   </div>
 </Member>
-
-<script>
-  // the river rail: as the reader reaches a section (scrolls it into view, hovers or tabs into it), the bead beside
-  // it lights gold and the track above it fills. Without JavaScript the first bead is lit and the rest stay open.
-  const spine = document.querySelector<HTMLElement>('.qe-co .qe-spine');
-  if (spine) {
-    const rails = [...spine.querySelectorAll<HTMLElement>(':scope > .qe-rail')];
-    const steps = [...spine.querySelectorAll<HTMLElement>(':scope > [data-step]')];
-    let reached = 0;
-    const reach = (n: number) => {
-      if (n <= reached) return;
-      reached = n;
-      rails.forEach((r, i) => {
-        if (i <= reached) r.classList.add('lit');
-        if (i < reached) r.classList.add('on');
-      });
-    };
-    steps.forEach((s, i) => {
-      if (i === 0) return;
-      s.addEventListener('mouseenter', () => reach(i));
-      s.addEventListener('focusin', () => reach(i));
-    });
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        for (const e of entries) if (e.isIntersecting) reach(steps.indexOf(e.target as HTMLElement));
-      }, { rootMargin: '0px 0px -35% 0px' });
-      steps.slice(1).forEach((s) => io.observe(s));
-    }
-  }
-</script>

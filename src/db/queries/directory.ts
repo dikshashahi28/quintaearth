@@ -29,10 +29,13 @@ export interface DirectoryRow {
 
 export const PAGE_SIZE = 24;
 
-export async function searchDirectory(f: DirectoryFilters): Promise<{ rows: DirectoryRow[]; more: boolean; total: number }> {
+/** how many of the matches are companies and how many are people (all pages) */
+export interface DirectoryCounts { company: number; person: number }
+
+export async function searchDirectory(f: DirectoryFilters): Promise<{ rows: DirectoryRow[]; more: boolean; total: number; counts: DirectoryCounts }> {
   const match = f.q ? ftsQuery(f.q) : null;
   // a search with no letters or digits (only punctuation or emoji) matches nothing, rather than everyone
-  if (f.q && !match) return { rows: [], more: false, total: 0 };
+  if (f.q && !match) return { rows: [], more: false, total: 0, counts: { company: 0, person: 0 } };
   const page = Math.max(1, Math.min(f.page ?? 1, 100));
 
   const tagFilter = (entity: 'profile' | 'organization', idCol: SQL) => {
@@ -64,13 +67,18 @@ export async function searchDirectory(f: DirectoryFilters): Promise<{ rows: Dire
     parts.push(sql`SELECT 'company' AS type, o.id, o.name, o.slug, o.description AS line, o.city, o.country, o.logo_key AS imageKey,
       (o.identity_checked_at IS NOT NULL) AS identityChecked, o.updated_at AS updatedAt FROM organizations o WHERE ${and(companies)}`);
   }
-  if (!parts.length) return { rows: [], more: false, total: 0 };
+  if (!parts.length) return { rows: [], more: false, total: 0, counts: { company: 0, person: 0 } };
 
   const rows = await db.all<DirectoryRow & { updatedAt: number }>(sql`${sql.join(parts, sql` UNION ALL `)}
     ORDER BY identityChecked DESC, updatedAt DESC LIMIT ${PAGE_SIZE + 1} OFFSET ${(page - 1) * PAGE_SIZE}`);
-  // the total is only worth a second query when there is more than one page
-  const total = rows.length > PAGE_SIZE || page > 1
-    ? (await db.all<{ n: number }>(sql`SELECT count(*) AS n FROM (${sql.join(parts, sql` UNION ALL `)})`))[0]?.n ?? 0
-    : rows.length;
-  return { rows: rows.slice(0, PAGE_SIZE).map(({ updatedAt: _u, ...r }) => r), more: rows.length > PAGE_SIZE, total };
+  // the totals are only worth a second query when there is more than one page; on a single page the rows are all of them
+  const counts: DirectoryCounts = { company: 0, person: 0 };
+  if (rows.length > PAGE_SIZE || page > 1) {
+    const byType = await db.all<{ type: 'person' | 'company'; n: number }>(sql`SELECT type, count(*) AS n FROM (${sql.join(parts, sql` UNION ALL `)}) GROUP BY type`);
+    for (const r of byType) counts[r.type] = r.n;
+  } else {
+    for (const r of rows) counts[r.type]++;
+  }
+  const total = counts.company + counts.person;
+  return { rows: rows.slice(0, PAGE_SIZE).map(({ updatedAt: _u, ...r }) => r), more: rows.length > PAGE_SIZE, total, counts };
 }
