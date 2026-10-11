@@ -8,6 +8,7 @@ import { dashContext } from '../../lib/dash-context';
 import Dashboard from '../../layouts/Dashboard.astro';
 import Icon from '../../components/members/Icon.astro';
 import StatusPill from '../../components/members/StatusPill.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
 import EmptyState from '../../components/members/EmptyState.astro';
 
 export const prerender = false;
@@ -34,7 +35,7 @@ const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
 
 let listings = { live: 0, draft: 0 };
 let anyEnquiries = false;
-let identity: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string; text: string; done: boolean } | null = null;
+let identity: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string; text: string; done: boolean; next?: string } | null = null;
 if (company) {
   const rows = await db.select({ status: schema.listings.status }).from(schema.listings).where(eq(schema.listings.organizationId, company.id));
   listings = { live: rows.filter((r) => r.status === 'published').length, draft: rows.filter((r) => r.status === 'draft').length };
@@ -46,39 +47,35 @@ if (company) {
   });
   if (company.identityCheckedAt) identity = { status: 'plain', label: 'Identity checked', text: `Since ${day(company.identityCheckedAt)}`, done: true };
   else if (latest?.status === 'pending') identity = { status: 'wait', label: 'Waiting', text: `Requested ${day(latest.createdAt)}`, done: false };
-  else if (latest?.status === 'rejected') identity = { status: 'wait', label: 'Needs more info', text: latest.reviewedAt ? `Asked on ${day(latest.reviewedAt)}` : 'Asked for more information', done: false };
-  else identity = { status: 'draft', label: 'Not requested', text: 'Ask for the "Identity checked" mark', done: false };
+  else if (latest?.status === 'rejected') identity = { status: 'wait', label: 'Needs more info', text: latest.reviewedAt ? `Asked on ${day(latest.reviewedAt)}` : 'Asked for more information', done: false, next: 'Send the information the identity check asks for' };
+  else identity = { status: 'draft', label: 'Not requested', text: 'Ask for the "Identity checked" mark', done: false, next: 'Ask for the "Identity checked" mark' };
 }
 const listingCount = listings.live + listings.draft;
 
 // one row per part of the member's presence; a part that is out in the world lights its bead on the river rail,
 // and the track fills between two lit beads in a row, one after the other
-type Row = { title: string; href: string; text?: string; lit: boolean; pill?: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string }; count?: number };
+// `next`: what to do when the row is not live yet; a row the member cannot move (enquiries, a pending check) has none
+type Row = { title: string; href: string; text?: string; lit: boolean; pill?: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string }; idc?: boolean; count?: number; next?: string };
 const rows: Row[] = [];
-if (profile) rows.push({ title: 'Your profile', href: '/dashboard/profile', text: `${host}/people/${profile.handle}`, lit: profile.published, pill: profile.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' } });
-if (!company) rows.push({ title: 'Start a company page', href: '/dashboard/company', lit: false });
+if (profile) rows.push({ title: 'Your profile', href: '/dashboard/profile', text: `${host}/people/${profile.handle}`, lit: profile.published, pill: profile.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your profile' });
+if (!company) rows.push({ title: 'Start a company page', href: '/dashboard/company', lit: false, next: 'Start a company page' });
 if (company) {
-  rows.push({ title: 'Company page', href: `/dashboard/company${orgQuery}`, text: `${host}/companies/${company.slug}`, lit: company.published, pill: company.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' } });
+  rows.push({ title: 'Company page', href: `/dashboard/company${orgQuery}`, text: `${host}/companies/${company.slug}`, lit: company.published, pill: company.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your company page' });
   rows.push({ title: 'Listings', href: `/dashboard/listings${orgQuery}`, lit: listings.live > 0,
-    pill: listings.live > 0 ? { status: 'live', label: 'Live' } : listings.draft > 0 ? { status: 'draft', label: 'Draft' } : undefined });
+    pill: listings.live > 0 ? { status: 'live', label: 'Live' } : listings.draft > 0 ? { status: 'draft', label: 'Draft' } : undefined,
+    next: listings.draft > 0 ? 'Publish a listing' : 'Add your first listing' });
   rows.push({ title: 'Enquiries', href: `/dashboard/enquiries${orgQuery}`, lit: anyEnquiries, count: ctx.newEnquiries });
-  if (identity) rows.push({ title: 'Identity check', href: `/dashboard/identity${orgQuery}`, text: identity.text, lit: identity.done, pill: identity });
+  // checked: the neutral grey "Identity checked" mark (never green or gold, DESIGN.md), the words visible
+  if (identity) rows.push({ title: 'Identity check', href: `/dashboard/identity${orgQuery}`, text: identity.text, lit: identity.done, pill: identity.done ? undefined : identity, idc: identity.done, next: identity.next });
 }
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
-// beads light one after another; a track fills when the bead below it is lit too
+// the one next step: the first part that is not live and that the member can move (with no profile, the
+// "Start your profile" box below is that step already)
+const nextRow = profile ? rows.find((r) => !r.lit && r.next) : undefined;
+// gold = that part is live, set statically; a track fills when the bead below it is lit too; only the rings
+// around lit beads move, one after another
 let lit = 0;
-const marks = rows.map((r, i) => {
-  const order = r.lit ? lit++ : -1;
-  const fills = r.lit && !!rows[i + 1]?.lit;
-  return { order, fills };
-});
-const drawn = marks.filter((m) => m.fills).length;
-let drawIdx = 0;
-const fillClass = marks.map((m) => {
-  if (!m.fills) return '';
-  const k = drawIdx++;
-  return drawn > 1 && k === 0 ? 'in' : drawn > 1 && k === drawn - 1 ? 'out' : '';
-});
+const marks = rows.map((r, i) => ({ order: r.lit ? lit++ : -1, fills: r.lit && !!rows[i + 1]?.lit }));
 const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
 ---
 <Dashboard ctx={ctx} current="overview" title="Dashboard" heading={`Hello, ${firstName}`} avatar={{ name: user.name, imageKey: profile?.photoKey }}
@@ -86,13 +83,14 @@ const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
   {!hasPassword && (
     <p class="notice dhome-pw">{viaGoogle ? 'You sign in with Google. A password works too.' : 'Set a password to sign in without an email link.'} <a class="tlink" href="/dashboard/password">Set a password</a></p>
   )}
+  {nextRow && <p class="dhome-next">Next step: <a class="tlink" href={nextRow.href}>{nextRow.next}</a>.</p>}
   {!profile && <EmptyState id="dhome-profile" title="Your profile" note="Nothing here yet." action={{ href: '/dashboard/profile', label: 'Start your profile' }} />}
   <ul class="dhome-rows">
     {rows.map((r, i) => (
       <li class="dhome-row">
         <div class="dhome-rail" aria-hidden="true">
           <span class:list={['bead', { lit: r.lit }]} style={r.lit ? delay(marks[i]!.order) : undefined}></span>
-          <span class="track"><span class:list={['fill', fillClass[i], { draw: marks[i]!.fills }]} style={marks[i]!.fills ? delay(marks[i]!.order) : undefined}></span></span>
+          <span class="track"><span class:list={['fill', { draw: marks[i]!.fills }]}></span></span>
         </div>
         <div class="dhome-card">
           <div class="txt">
@@ -105,6 +103,7 @@ const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
           </div>
           <div class="end">
             {r.pill && <StatusPill status={r.pill.status} label={r.pill.label} />}
+            {r.idc && <IdentityMark small />}
             {!!r.count && <span class="cnt"><b>{r.count}</b> new</span>}
             <Icon name="arrow_forward" class="go" />
           </div>

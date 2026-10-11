@@ -51,7 +51,7 @@ if (askCompany) rails.push(typeValue === 'company' ? 'welcome-company' : '');
 if (!viaGoogle) rails.push('welcome-password');
 ---
 <Account title="Welcome" description="Set up your QuintaEarth account." scene="solar-field" sceneAlt="Rows of solar panels across a farm, seen from above" scenePos="50% 50%"
-  say="Set up your QuintaEarth account.">
+  say="Where sustainability is made, not performed." sub="A few details and you are in">
   <form class="qe-form" method="POST" action={actions.account.chooseAccountType}>
     <h1 class="tight">Welcome to QuintaEarth</h1>
     <p class="signed">Signed in as {user.email}{viaGoogle ? ' with Google' : ''}</p>

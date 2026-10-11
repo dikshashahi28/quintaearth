@@ -35,8 +35,8 @@
 .qe-grid { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; row-gap: 0; }
 .qe-rail { position: relative; width: 24px; }
 .qe-rail .track { position: absolute; left: 11px; top: 28px; bottom: -15px; width: 3px; border-radius: 2px; background: var(--water); }
-.qe-rail .fill { display: block; width: 100%; height: 0; border-radius: 2px; background: var(--river); transition: height .9s var(--ease); }
-.qe-rail.on .fill { height: 100%; }
+.qe-rail .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; transition: transform .9s var(--ease); }
+.qe-rail.on .fill { transform: scaleY(1); }
 .qe-rail .bead { position: absolute; left: 5px; top: 9px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
 .qe-rail.lit .bead { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
 .qe-rail.lit .bead::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); animation: qe-ring 1.2s ease-out 1 forwards; }
@@ -96,15 +96,30 @@
 @keyframes qe-settle { to { transform: scale(1); } }
 
 @media (max-width: 1100px) {
-  .qe-scene { min-height: 340px; flex-basis: 100%; }
+  /* stacked: the photo keeps its band height and the form takes the rest, even on a short form */
+  .qe-root { flex-direction: column; flex-wrap: nowrap; }
+  .qe-scene { min-height: 340px; flex: none; }
+  .qe-pane { flex: 1 0 auto; }
   .qe-scene img { object-position: 50% 55%; }
   .qe-river { left: -48px; }
   .qe-foot { padding: 0 24px 36px 64px; }
 }
 @media (max-width: 640px) {
-  .qe-scene { min-height: 260px; }
-  .qe-top { padding: 20px 20px 0 20px; }
-  .qe-body { padding: 28px 20px 40px 20px; }
+  /* a short band, so the first field is on the first screen: the brand line and the gold line stay readable on a
+     deeper wash, the river shows only its last bend and the spring */
+  .qe-scene { min-height: 136px; }
+  .qe-wash { background: linear-gradient(180deg, rgba(20,48,28,.5) 0%, rgba(20,48,28,.78) 55%, rgba(20,48,28,.92) 100%); }
+  .qe-river { left: -60px; }
+  .qe-foot { padding: 0 20px 18px 48px; gap: 6px; }
+  .qe-foot .say { font-size: 22px; line-height: 1.18; max-width: 22ch; }
+  .qe-foot .sub { font-size: 14px; }
+  .qe-top { padding: 12px 20px 0 20px; }
+  .qe-body { padding: 16px 20px 40px 20px; }
+  .qe-form h1 { margin-bottom: 24px; }
+  .qe-form h1.tight { margin-bottom: 10px; }
+  .qe-form .lede, .qe-form .signed { margin-bottom: 24px; }
+  .qe-step { margin-bottom: 28px; }
+  .qe-step.tight { margin-bottom: 22px; }
   .qe-grid { column-gap: 14px; }
   .qe-top .aside .lead { display: none; }
 }
