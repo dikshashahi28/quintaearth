@@ -1,4 +1,4 @@
-/* Sign-in, welcome, invitation, dashboard home and the admin queue: the few rules members.css does not cover. */
+/* Sign-in, welcome, invitation and the admin queue: the few rules members.css does not cover. */
 
 /* "Continue with Google" and the "or" line between it and the email form */
 .gform { display: contents; }
@@ -11,10 +11,6 @@
 
 /* the chosen account type is highlighted without script */
 .choice:has(input:checked) { border-color: var(--river); background: var(--shallow); }
-
-/* dashboard home */
-.dhome-more { margin-top: 24px; }
-.dhome-pw { margin-bottom: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
 
 /* admin queue (members.css .adm-review holds the two columns) */
 .adm-status { margin-bottom: 20px; }
