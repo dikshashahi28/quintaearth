@@ -71,23 +71,31 @@ const { title, description, scene, sceneAlt, scenePos, say, sub } = Astro.props;
     // the river rail: each rail names the controls of its step (data-for="id id"); the bead lights and the track
     // fills when they are all filled in and valid. "data-for='*'" is the send step: lit when the whole form is.
     const rails = [...document.querySelectorAll<HTMLElement>('.qe-rail[data-for]')];
+    // a field the server sent back as invalid stays unlit until it is edited (a value put back by the server skips
+    // the browser's length checks, so checkValidity alone would light it next to its error)
+    const edited = new WeakSet<EventTarget>();
+    const flagged = (i: Element) => i.getAttribute('aria-invalid') === 'true' && !edited.has(i);
     const update = () => {
       for (const rail of rails) {
         const form = rail.closest('form');
         const ids = rail.dataset.for!.split(/\s+/).filter(Boolean);
         const ok = ids[0] === '*'
           ? !!form && form.checkValidity() && [...form.querySelectorAll<HTMLInputElement>('input[required]:not([type=radio])')].every((i) => i.value.trim() !== '')
+            && ![...form.querySelectorAll('[aria-invalid="true"]')].some(flagged)
           : ids.every((id) => {
               const els = [...document.querySelectorAll<HTMLInputElement>(`#${CSS.escape(id)}, input[name="${CSS.escape(id)}"]`)];
               if (!els.length) return false;
               if (els[0]!.type === 'radio') return els.some((r) => r.checked);
-              return els.every((i) => i.value.trim() !== '' && i.checkValidity());
+              return els.every((i) => i.value.trim() !== '' && i.checkValidity() && !flagged(i));
             });
         rail.classList.toggle('lit', ok);
         rail.classList.toggle('on', ok);
       }
     };
-    for (const form of document.querySelectorAll('form')) { form.addEventListener('input', update); form.addEventListener('change', update); }
+    for (const form of document.querySelectorAll('form')) {
+      form.addEventListener('input', (e) => { if (e.target) edited.add(e.target); update(); });
+      form.addEventListener('change', update);
+    }
     update();
   </script>
 </body>

@@ -30,6 +30,12 @@
 .qe-form .notice { margin: 0 0 28px 0; }
 .qe-form .form-status.bad { margin: 0 0 24px 0; }
 .qe-form .err-sum { margin-bottom: 24px; }
+/* errors after a post: pages.css styles these elsewhere but is not loaded here */
+.qe-form .form-status.bad { color: var(--danger); font-weight: 500; }
+.qe-form .field .err { font-size: 14px; line-height: 1.45; color: var(--danger); }
+.qe-form .qe-step [aria-invalid="true"], .qe-form .qe-step [aria-invalid="true"]:hover { border-color: var(--danger); }
+/* a focused field is scrolled clear of the on-screen keyboard with its hint or error line */
+.qe-form .inp { scroll-margin-bottom: 96px; }
 
 /* the river rail: a 24px column beside each step */
 .qe-grid { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; row-gap: 0; }
@@ -86,7 +92,7 @@
 .qe-sent p { margin: 8px 0 0 0; font-size: 16px; line-height: 1.55; color: var(--muted); }
 .qe-sent b { font-weight: 500; color: var(--text); }
 .qe-sent .tlink { margin-top: 16px; }
-.qe-rail.sent { padding-top: 22px; }
+.qe-rail.sent { padding: 22px 0 0 0; border: 0; border-radius: 0; background: none; }
 .qe-rail.sent .bead { top: 31px; }
 
 @keyframes qe-draw { to { stroke-dashoffset: 0; } }
@@ -122,6 +128,41 @@
   .qe-step.tight { margin-bottom: 22px; }
   .qe-grid { column-gap: 14px; }
   .qe-top .aside .lead { display: none; }
+  /* the form starts under the logo instead of floating mid-screen on a short form */
+  .qe-body { justify-content: flex-start; }
+  /* the spring sits clear of the photo line */
+  .qe-river { left: -66px; }
+  /* the go button is a full-width thumb target */
+  .qe-step .acts .qe-btn { flex: 1 1 100%; }
+  /* door stones: smaller, so both doors and the next field fit the first screen and the text keeps two lines at 320 */
+  .qe-doors { gap: 10px; margin-top: 12px; }
+  .qe-door { min-height: 72px; padding: 10px 16px 10px 10px; gap: 12px; }
+  .qe-door .stone { width: 48px; height: 48px; padding: 3px; }
+  .qe-door .stone .ms { font-size: 22px; }
+  .qe-door small { font-size: 14px; }
+  /* phone text floor: 16px for reading text, 14px for fine print */
+  .qe-step .note { font-size: 16px; }
+  .qe-step .hint { font-size: 14px; }
+  .qe-step .small .tlink { font-size: 15px; }
+}
+@media (max-width: 360px) {
+  /* logo and the top link share one line at 320 */
+  .qe-top { gap: 12px; }
+  .qe-top .logo img { height: 28px; }
+  .qe-top .aside { white-space: nowrap; }
+}
+@media (pointer: coarse) {
+  /* text links keep their look; the touch area grows to 44px around them */
+  .qe-top .aside a, .qe-after a, .qe-step .small a:not(.tlink) { position: relative; }
+  .qe-top .aside a::after, .qe-after a::after, .qe-step .small a:not(.tlink)::after { content: ""; position: absolute; inset: -12px -6px; }
+  .qe-body .err-sum a { min-height: 44px; }
+}
+@media (hover: none) {
+  /* no hover lift left stuck on a tapped door or button */
+  .qe-door:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+  .qe-btn:hover { transform: none; box-shadow: none; background: var(--river); }
+  .qe-btn:hover svg { transform: none; }
+  .qe-step .inp:hover:not(:focus):not([aria-invalid="true"]) { border-color: var(--field-line); }
 }
 @media (prefers-reduced-motion: reduce) {
   .qe-river .m { animation: none; stroke-dashoffset: 0; }
