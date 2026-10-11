@@ -11,6 +11,10 @@
 .dcrumbs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--river); text-decoration: none; }
 .dcrumbs a:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 4px; }
 .dcrumbs [aria-current] { color: var(--muted); }
+/* the current page can be a long listing name or enquiry subject: it shrinks to the row and ends in an ellipsis, never
+   widening the page on a phone (the full text is in the title and read out in full) */
+.dcrumbs li:last-child { min-width: 0; max-width: 100%; }
+.dcrumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dhead-row { display: flex; align-items: center; gap: 24px; margin-top: 12px; }
 .dhead-av { flex: none; display: block; }
 .dhead-txt { min-width: 0; }
@@ -93,4 +97,14 @@
   .dhome-rail .bead.lit { background: CanvasText; border-color: CanvasText; }
   .dhome-rail .fill { background: CanvasText; }
   .cnt, .dnav .n { border: 1px solid CanvasText; }
+}
+
+/* phone pass: a phone-sized gap before the footer, and no count text under 14px */
+@media (max-width: 640px) {
+  .dash { padding-bottom: 56px; }
+  .cnt, .dnav .n .sr { font-size: 14px; }
+}
+@media (hover: none) {
+  /* no hover nudge left stuck on a tapped row */
+  .dhome-card:hover .go, .dhome-more .tlink:hover svg { transform: none; }
 }

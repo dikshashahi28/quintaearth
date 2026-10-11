@@ -463,3 +463,28 @@ button.tlink { font: inherit; font-weight: 500; }
 .err-sum:focus { outline: 2px solid var(--danger); outline-offset: 3px; }
 .err-sum ul { margin-top: 6px; padding-left: 18px; list-style: disc; }
 .err-sum a { color: inherit; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; min-height: 32px; align-items: center; }
+
+/* ---- phone pass (11 Oct) ---- */
+@media (max-width: 640px) {
+  /* nothing under 14px on a phone: pills, counts, hints, captions and list meta */
+  .pill, .idc.sm, .field .count, .hint, .picks summary small, .files small, .steps small, .ilist .top, .res .chip { font-size: 14px; }
+  /* team rows: the remove button stays on the first line, beside the name, not on a row of its own */
+  .team li > form > .iconbtn { grid-column: 3; grid-row: 1; align-self: center; }
+  /* stacked facts start at the left edge (no browser indent) */
+  .facts dd { margin-left: 0; }
+  /* admin cards: every label in the body font (the date cell's numerals must not change it); the row link a 44px target */
+  .tbl td::before { font-family: var(--font-body); font-variant-numeric: normal; }
+  .tbl td a { display: inline-flex; align-items: center; min-height: 44px; }
+  .tbl td:has(> a) { align-items: center; }
+  /* listing rows: the thumbnail sits beside the first line of a long name, and names take a phone size */
+  .rows > li.lrow { align-items: start; }
+  .rows :is(h2, h3) { font-size: 20px; }
+  /* a very long chip list (countries) scrolls inside its own box instead of adding a few thousand pixels to the page */
+  .picks .chips:has(> .pickchip:nth-child(41)) { max-height: min(420px, 55vh); overflow: hidden auto; overscroll-behavior: contain; margin: 0 -4px 12px; padding: 4px 4px 12px; border-bottom: 1px solid var(--hair); }
+}
+@media (pointer: coarse) {
+  /* links in an error summary and the first breadcrumb are 44px targets on touch */
+  .err-sum a { min-height: 44px; }
+  .tbl td a { display: inline-flex; align-items: center; min-height: 44px; }
+  :is(.dcrumbs, .qe-crumbs, .pp-crumbs, .qd-crumbs) li:first-child a { min-width: 44px; }
+}

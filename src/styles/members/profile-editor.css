@@ -74,7 +74,9 @@
 /* outcomes: a plain line where it happened (FormFocus moves focus to it after the reload) */
 .pe .notice { margin: 0; padding: 0; border-radius: 0; background: none; color: var(--live-ink); font-size: 15px; font-weight: 500; }
 .pe .pe-send > .notice, .pe .pe-send > .form-status { flex-basis: 100%; }
-.pe .err-sum { grid-column: 2; }
+/* a summary over the main form sits in the content column beside the rail; one over the photo box stays inside the
+   box's own one-column stack, full width above it, with the error line under it */
+.pe > .err-sum { grid-column: 2; }
 
 @media (max-width: 640px) {
   .pe { column-gap: 14px; }
@@ -88,4 +90,13 @@
   .pe-rail .fill.on { animation: none; }
   .pe-rail .bead.lit::after { animation: none; }
   .pe .drop:hover, .pe .pe-send .btn-fill:hover { transform: none; }
+}
+
+/* phone pass: hints and counters at 14px; no hover lift left stuck on a tapped box or button */
+@media (max-width: 640px) {
+  .pe .hint, .pe .field .count { font-size: 14px; }
+}
+@media (hover: none) {
+  .pe .drop:hover { transform: none; box-shadow: none; border-color: var(--field-line); }
+  .pe .pe-send .btn-fill:hover { transform: none; box-shadow: none; background: var(--river); }
 }

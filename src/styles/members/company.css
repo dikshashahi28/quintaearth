@@ -14,7 +14,8 @@
 .qe-co .qe-head { padding: 20px 0 56px 0; }
 .qe-co .qe-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; font-size: 14px; color: var(--muted); }
 .qe-co .qe-crumbs li { display: inline-flex; align-items: center; white-space: nowrap; }
-.qe-co .qe-crumbs li:last-child { white-space: normal; }
+.qe-co .qe-crumbs li:last-child { min-width: 0; max-width: 100%; }
+.qe-co .qe-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .qe-co .qe-crumbs .sep { margin: 0 8px; color: var(--muted); }
 .qe-co .qe-crumbs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--river); text-decoration: none; }
 .qe-co .qe-crumbs a:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 3px; }
@@ -144,4 +145,14 @@
 @media (prefers-reduced-motion: reduce) {
   .qe-co :is(.qe-card, .qe-ph img, .qe-btn, .qe-btn svg, .qe-stone, .qe-evc) { transition: none; }
   .qe-co :is(.qe-card:hover, .qe-card:focus-within, .qe-card:hover .qe-ph img, .qe-people a:hover .qe-stone, .qe-btn:hover, .qe-btn:hover svg) { transform: none; }
+}
+
+/* phone pass: small print at 14px, and a listing with no photo gets a short band instead of a tall empty box */
+@media (max-width: 640px) {
+  .qe-co .qe-meta .qe-idc, .qe-co .qe-files-note, .qe-co .qe-files li small { font-size: 14px; }
+  .qe-co .qe-ph:not(:has(img)) { aspect-ratio: 2 / 1; }
+}
+@media (hover: none) {
+  .qe-co :is(.qe-card:hover, .qe-card:hover .qe-ph img, .qe-people a:hover .qe-stone, .qe-btn:hover, .qe-btn:hover svg) { transform: none; }
+  .qe-co :is(.qe-card:hover, .qe-people a:hover .qe-stone, .qe-btn:hover) { box-shadow: none; }
 }

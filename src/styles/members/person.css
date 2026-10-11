@@ -10,7 +10,8 @@
 .pp-crumbs .sep { margin: 0 8px; color: var(--muted); }
 .pp-crumbs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--river); text-decoration: none; }
 .pp-crumbs a:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 4px; }
-.pp-crumbs [aria-current] { white-space: normal; }
+.pp-crumbs li:last-child { min-width: 0; max-width: 100%; }
+.pp-crumbs [aria-current] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pp-who { display: flex; align-items: center; gap: 28px; margin-top: 20px; }
 .pp-who .txt { min-width: 0; }
 .pp-who h1 { margin: 0; font: 400 clamp(34px, 3.6vw, 48px)/1.1 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; overflow-wrap: anywhere; }
@@ -72,4 +73,9 @@
 }
 @media (forced-colors: active) {
   .pp-rail .bead { border-color: CanvasText; }
+}
+
+@media (hover: none) {
+  /* no hover lift left stuck on a tapped chip or company card */
+  .pp-chips .chip.has:hover, .pp-workat:hover, .pp-links .tlink:hover .ms { transform: none; box-shadow: none; }
 }

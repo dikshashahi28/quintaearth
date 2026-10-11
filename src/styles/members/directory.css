@@ -211,3 +211,19 @@
 .qd-res-top:has(.qd-count:empty) { display: none; }
 /* the segment options draw 36px tall as on the board; their hit area reaches the full 44px of the row */
 .qd-seg label::after { content: ""; position: absolute; inset: -4px 0; }
+
+/* phone pass */
+@media (max-width: 900px) {
+  /* the filter panels' search boxes at 16px, so iOS does not zoom the page when one is focused */
+  .qd-pop .qd-inp { font-size: 16px; }
+}
+@media (max-width: 640px) {
+  .qd-proof, .qd-person .where, .qd-chip, .qd-card .qd-chip { font-size: 14px; }
+}
+@media (hover: none) {
+  .qd-card:hover, .qd-person:hover .qd-stone, .qd-btn:hover, .qd-btn:hover svg.ms, .qd-tlink:hover svg.ms { transform: none; }
+  .qd-btn:hover svg.ms.back { transform: rotate(180deg); }
+  .qd-card:hover, .qd-person:hover .qd-stone { box-shadow: none; }
+  .qd-btn:not(.line):hover { box-shadow: none; background: var(--river); }
+  .qd-btn.line:hover { background: var(--page); color: var(--river); box-shadow: inset 0 0 0 1.5px var(--river); }
+}

@@ -151,3 +151,16 @@
 .eq-as b { font-weight: 500; color: var(--deep); }
 /* honeypot: off-screen, out of the tab order and hidden from assistive tech; people never fill it */
 .eq-hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+/* phone pass */
+@media (max-width: 640px) {
+  .eq-item .top { font-size: 14px; }
+  /* the rail ends with the last message instead of running on into the reply field below it */
+  .eq-row:has(+ .eq-row:last-child) .track { bottom: 0; }
+  .eq-pager .tlink { min-width: 44px; }
+}
+@media (hover: none) {
+  .eq-item:hover, .eq-tabs a.chip:hover, .eq-btn:hover, .eq-btn:hover svg { transform: none; }
+  .eq-item:hover, .eq-btn:hover { box-shadow: none; }
+  .eq-btn:hover { background: var(--river); }
+}
