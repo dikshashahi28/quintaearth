@@ -31,18 +31,18 @@ const photo = Astro.getActionResult(actions.listings.setPhoto);
 const unphoto = Astro.getActionResult(actions.listings.removePhoto);
 const added = Astro.getActionResult(actions.listings.addEvidence);
 const dropped = Astro.getActionResult(actions.listings.removeEvidence);
-if (saved?.data) return Astro.redirect(`${self}?saved=1`);
-if (photo?.data) return Astro.redirect(`${self}?photo=1`);
-if (unphoto?.data) return Astro.redirect(`${self}?nophoto=1`);
-if (added?.data) return Astro.redirect(`${self}?added=1`);
-if (dropped?.data) return Astro.redirect(`${self}?dropped=1`);
+if (saved?.data) return Astro.redirect(`${self}?saved=1`, 303);
+if (photo?.data) return Astro.redirect(`${self}?photo=1`, 303);
+if (unphoto?.data) return Astro.redirect(`${self}?nophoto=1`, 303);
+if (added?.data) return Astro.redirect(`${self}?added=1`, 303);
+if (dropped?.data) return Astro.redirect(`${self}?dropped=1`, 303);
 
 // the delete form posts to ?org=<company>, so the list it lands on is the same company's (the listing is gone by now)
 if (removed?.data) {
   const q = new URLSearchParams({ removed: '1' });
   const org = Astro.url.searchParams.get('org');
   if (org && /^[0-9a-f-]{36}$/i.test(org)) q.set('org', org);
-  return Astro.redirect(`/dashboard/listings?${q}`);
+  return Astro.redirect(`/dashboard/listings?${q}`, 303);
 }
 const listing = /^[0-9a-f-]{36}$/i.test(id) ? await db.query.listings.findFirst({ where: eq(schema.listings.id, id) }) : undefined;
 if (!listing) return new Response(null, { status: 404 });

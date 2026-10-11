@@ -1,12 +1,12 @@
 ---
-// The company's inbox: Open/Closed tabs and the list. No thread opens here: opening one (its own page) marks it
-// read, and a thread shown beside the list while still marked new would say two things at once.
+// The company's inbox: Open/Closed tabs and the list, a page at a time. No thread opens here: opening one (its own
+// page) marks it read, and a thread shown beside the list while still marked new would say two things at once.
 import Dashboard from '../../../layouts/Dashboard.astro';
 import Inbox from '../../../components/members/enquiries/Inbox.astro';
 import EmptyState from '../../../components/members/EmptyState.astro';
 import { dashContext } from '../../../lib/dash-context';
 import { inbox } from '../../../db/queries/dashboard';
-import { inTab, listDate, showOf, withQuery } from '../../../components/members/enquiries/data';
+import { listDate, pageLinks, showOf, withQuery } from '../../../components/members/enquiries/data';
 
 export const prerender = false;
 
@@ -18,8 +18,7 @@ const company = ctx.company;
 
 const show = showOf(Astro.url);
 const org = ctx.companies.length > 1 ? company.id : null;
-const all = await inbox(company.id);
-const rows = all.filter((e) => inTab(e.status, show));
+const { rows, more, page, counts } = await inbox(company.id, show, Number(Astro.url.searchParams.get('page')));
 const items = rows.map((e) => ({
   id: e.id, href: `/dashboard/enquiries/${e.id}`, source: e.fromCompany || 'Individual', date: listDate(e.updatedAt),
   name: e.fromName, subject: e.subject, isNew: e.companyUnread,
@@ -28,12 +27,12 @@ const items = rows.map((e) => ({
 const companyLink = company.published ? `/companies/${company.slug}` : `/dashboard/company${ctx.orgQuery}`;
 ---
 <Dashboard ctx={ctx} current="enquiries" title="Enquiries" crumbs={[{ label: 'Enquiries' }]}>
-  <Inbox show={show} openCount={all.filter((e) => e.status !== 'closed').length}
+  <Inbox show={show} openCount={counts.open} pager={pageLinks('/dashboard/enquiries', { org, show }, page, more)}
     tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
     items={items} label="Enquiries" mode="list">
     <p class="eq-pick">Choose an enquiry to read it and reply.</p>
     <Fragment slot="empty">
-      {all.length === 0
+      {counts.open + counts.closed === 0
         ? <EmptyState note="No enquiries yet." action={{ href: companyLink, label: company.published ? 'View your company page' : 'Finish your company page', quiet: true }} />
         : <EmptyState note={show === 'closed' ? 'No closed enquiries.' : 'No open enquiries.'} />}
     </Fragment>

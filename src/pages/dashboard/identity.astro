@@ -11,7 +11,7 @@ import FormStatus from '../../components/members/forms/FormStatus.astro';
 import FileDrop from '../../components/members/forms/FileDrop.astro';
 import { actionErrorMessage } from '../../components/members/forms/errors';
 import { dashContext } from '../../lib/dash-context';
-import { companyForEditor } from '../../db/queries/dashboard';
+import { companyChecks } from '../../db/queries/dashboard';
 import { countryName } from '../../lib/labels';
 import '../../styles/members/editors.css';
 
@@ -25,9 +25,9 @@ const ctx = await dashContext(user, Astro.url);
 if (!ctx.company) return Astro.redirect('/dashboard/company');
 
 const requested = Astro.getActionResult(actions.identity.request);
-if (requested?.data) return Astro.redirect(`/dashboard/identity${ctx.orgQuery ? `${ctx.orgQuery}&` : '?'}flash=identity`);
+if (requested?.data) return Astro.redirect(`/dashboard/identity${ctx.orgQuery ? `${ctx.orgQuery}&` : '?'}flash=identity`, 303);
 
-const data = await companyForEditor(user.id, ctx.company.id);
+const data = await companyChecks(user.id, ctx.company.id);
 if (!data) return Astro.redirect('/dashboard');
 const { org, checks } = data;
 const isOwner = data.role === 'owner';
@@ -90,7 +90,8 @@ const showForm = isOwner && (state === 'none' || state === 'rejected');
       )}
     </section>
 
-    {state === 'pending' && latest && (
+    {/* the registration number, work email and note are the owners' submission; other members see the status only */}
+    {isOwner && state === 'pending' && latest && (
       <section class="sec">
         <h2>What you sent</h2>
         <ul class="need">

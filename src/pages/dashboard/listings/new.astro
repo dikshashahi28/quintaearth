@@ -16,7 +16,7 @@ const ctx = await dashContext(user, Astro.url);
 if (!ctx.company) return Astro.redirect('/dashboard/listings');
 
 const result = Astro.getActionResult(actions.listings.save);
-if (result?.data) return Astro.redirect(`/dashboard/listings/${result.data.id}?saved=1`);
+if (result?.data) return Astro.redirect(`/dashboard/listings/${result.data.id}?saved=1`, 303);
 const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failure = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) ?? undefined : undefined;
 

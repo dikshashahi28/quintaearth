@@ -23,7 +23,7 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Fcompany');
 
 const created = Astro.getActionResult(actions.company.create);
-if (created?.data) return Astro.redirect(`/dashboard/company?org=${created.data.id}`);
+if (created?.data) return Astro.redirect(`/dashboard/company?org=${created.data.id}`, 303);
 
 const ctx = await dashContext(user, Astro.url);
 const here = (flag?: string) => `/dashboard/company${ctx.orgQuery}${flag ? `${ctx.orgQuery ? '&' : '?'}saved=${flag}` : ''}`;
@@ -36,13 +36,13 @@ const logoRemoved = Astro.getActionResult(actions.company.removeLogo);
 const invited = Astro.getActionResult(actions.company.invite);
 const removed = Astro.getActionResult(actions.company.removeMember);
 const revoked = Astro.getActionResult(actions.company.revokeInvite);
-if (updated?.data) return Astro.redirect(here('details'));
-if (logoSet?.data) return Astro.redirect(here('logo'));
-if (logoRemoved?.data) return Astro.redirect(here('nologo'));
-if (invited?.data) return Astro.redirect(here('invite'));
-if (revoked?.data) return Astro.redirect(here('uninvite'));
+if (updated?.data) return Astro.redirect(here('details'), 303);
+if (logoSet?.data) return Astro.redirect(here('logo'), 303);
+if (logoRemoved?.data) return Astro.redirect(here('nologo'), 303);
+if (invited?.data) return Astro.redirect(here('invite'), 303);
+if (revoked?.data) return Astro.redirect(here('uninvite'), 303);
 // leaving the team: the company is no longer yours to edit
-if (removed?.data) return Astro.redirect(removed.data.removed === user.id ? '/dashboard' : here('removed'));
+if (removed?.data) return Astro.redirect(removed.data.removed === user.id ? '/dashboard' : here('removed'), 303);
 
 const data = ctx.company ? await companyForEditor(user.id, ctx.company.id) : null;
 const msg = (e: { code?: string; message?: string } | undefined) => actionErrorMessage(e);
@@ -88,6 +88,7 @@ const savedFlag = Astro.url.searchParams.get('saved');
 const saved = ({ details: ctx.company?.published ? 'Saved. Your company page is live.' : 'Saved. Your company page is hidden from the public.', logo: 'Logo saved.', nologo: 'Logo removed.', invite: 'Invitation sent.', uninvite: 'Invitation cancelled.', removed: 'Removed from the team.' } as Record<string, string>)[savedFlag ?? ''] ?? null;
 
 const isOwner = data?.role === 'owner';
+const ownerOnly = 'Only an owner can change this.';
 const ownerCount = data?.team.filter((t) => t.role === 'owner').length ?? 0;
 const live = data?.listings.filter((l) => l.status === 'published').length ?? 0;
 const drafts = (data?.listings.length ?? 0) - live;
@@ -118,7 +119,7 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <h2 id="logo-h">Logo</h2>
         <div class="upload">
           <Avatar name={org.name} imageKey={org.logoKey} kind="company" />
-          <div class="upload-acts">
+          {!isOwner ? <p class="hint">Only an owner can change the logo.</p> : <div class="upload-acts">
             <FileDrop id="c-logo" name="logo" maxMB={2} required action={post(actions.company.setLogo)} icon="upload" accept="image/jpeg,image/png,image/webp"
               label={org.logoKey ? 'Replace logo' : 'Add a logo'} hint="JPG, PNG or WebP, up to 2 MB" button="Upload logo" error={logoMessage}>
               <input type="hidden" name="organizationId" value={org.id} />
@@ -129,7 +130,7 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
                 <button class="tlink" type="submit">Remove logo</button>
               </form>
             )}
-          </div>
+          </div>}
         </div>
       </section>
 
@@ -138,8 +139,14 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <section class="sec">
           <h2>Details</h2>
           <div class="form">
-            <Field id="c-name" name="name" label="Company name" value={v.name} error={errors.name} maxlength={120} required autocomplete="organization"
-              hint={org?.identityCheckedAt ? 'Changing the name removes the "Identity checked" mark until it is checked again.' : undefined} />
+            {isOwner
+              ? <Field id="c-name" name="name" label="Company name" value={v.name} error={errors.name} maxlength={120} required autocomplete="organization"
+                  hint={org?.identityCheckedAt ? 'Changing the name or website removes the "Identity checked" mark until it is checked again.' : undefined} />
+              : <div class="field">
+                  <label for="c-name">Company name</label>
+                  <input class="inp" type="text" id="c-name" name="name" value={v.name} readonly aria-describedby="c-name-hint" />
+                  <p class="hint" id="c-name-hint">{ownerOnly}</p>
+                </div>}
             <div class="row2">
               <Field id="c-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} />
               <CountrySelect id="c-country" name="country" label="Country" value={v.country} error={errors.country} />
@@ -167,7 +174,13 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <section class="sec">
           <h2>Links</h2>
           <div class="form">
-            <Field id="c-web" name="website" label="Website" value={v.website} error={errors.website} maxlength={300} optional inputmode="url" />
+            {isOwner
+              ? <Field id="c-web" name="website" label="Website" value={v.website} error={errors.website} maxlength={300} optional inputmode="url" />
+              : <div class="field">
+                  <label for="c-web">Website</label>
+                  <input class="inp" type="text" id="c-web" name="website" value={v.website} readonly aria-describedby="c-web-hint" />
+                  <p class="hint" id="c-web-hint">{ownerOnly}</p>
+                </div>}
             <Field id="c-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
           </div>
         </section>
@@ -175,8 +188,10 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
         <section class="sec">
           <h2>Company page</h2>
           <div class="form">
-            <label class="check"><input type="checkbox" name="published" checked={v.published} aria-describedby="c-url" /><span>Show the company page publicly</span></label>
-            <p class="hint" id="c-url">{pageUrl}</p>
+            {/* a disabled box posts nothing, so a member's form carries the stored value; the action refuses a change */}
+            {!isOwner && v.published && <input type="hidden" name="published" value="on" />}
+            <label class="check"><input type="checkbox" name="published" checked={v.published} disabled={!isOwner} aria-describedby="c-url" /><span>Show the company page publicly</span></label>
+            <p class="hint" id="c-url">{pageUrl}{!isOwner && <><br />{ownerOnly}</>}</p>
           </div>
         </section>
 

@@ -28,7 +28,7 @@ export const files = sqliteTable('files', {
   name: text('name').notNull(),
   contentType: text('content_type').notNull(),
   size: integer('size').notNull(),
-  /** public files are served to anyone; private ones (identity documents) only to the owner company and admins */
+  /** public files are served to anyone while the page showing them is published, else to its editors; private ones (identity documents) only to the owner company and admins */
   public: integer('public', { mode: 'boolean' }).notNull().default(true),
   createdAt: createdAt(),
 }, (t) => [index('files_listing_idx').on(t.listingId), index('files_org_idx').on(t.organizationId)]);

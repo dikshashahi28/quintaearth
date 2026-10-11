@@ -2,10 +2,11 @@
 // The left pane of the inbox: one row per enquiry on a river rail. A new enquiry's bead lights gold, and the
 // rail fills from the top down to the last new one, so the eye runs straight to what needs a reply.
 import { initialsOf } from '../../../lib/member-hint';
+import type { Pager } from './data';
 
 export interface InboxItem { id: string; href: string; source: string; date: string; name: string; subject: string; isNew: boolean }
-interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string }
-const { items, currentId, label, class: cls } = Astro.props;
+interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string; pager?: Pager }
+const { items, currentId, label, class: cls, pager } = Astro.props;
 
 const lastNew = items.reduce((at, it, i) => (it.isNew ? i : at), -1);
 // each segment starts filling when the one above it is done: .2s for the first, .26s for each after
@@ -28,4 +29,10 @@ const delay = (i: number) => (i === 0 ? 0 : 0.2 + (i - 1) * 0.26);
       </span>
     </a>
   ))}
+  {(pager?.newer || pager?.older) && (
+    <p class="eq-pager" style="display: flex; gap: 24px; margin: 0; padding: 8px 18px;">
+      {pager.newer && <a class="tlink" href={pager.newer}>Newer</a>}
+      {pager.older && <a class="tlink" href={pager.older}>Older</a>}
+    </p>
+  )}
 </nav>

@@ -1,11 +1,12 @@
 // Buyer-to-company messages. Senders must be signed in, so every enquiry comes from a confirmed email address.
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
-import { and, eq, gt } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { env } from 'cloudflare:workers';
 import { db, schema } from '../db/client';
 import { noticeMail, sendMail } from '../lib/email';
-import { isMember, requireMember, requireUser } from '../lib/guards';
+import { isMember, requireUser } from '../lib/guards';
+import { DAY, spend } from '../lib/throttle';
 import { optText, reqText } from '../lib/validate';
 
 const PER_DAY = 10;
@@ -40,11 +41,12 @@ export const enquiries = {
       if (!org?.published) throw new ActionError({ code: 'NOT_FOUND', message: 'Company not found.' });
       if (await isMember(user.id, org.id)) throw new ActionError({ code: 'BAD_REQUEST', message: 'You are on this company’s team.' });
       if (input.listingId) {
-        const l = await db.query.listings.findFirst({ where: and(eq(schema.listings.id, input.listingId), eq(schema.listings.organizationId, org.id)), columns: { id: true } });
+        // only a listing the public can see: a draft's id must not attach (or confirm that the draft exists)
+        const l = await db.query.listings.findFirst({ where: and(eq(schema.listings.id, input.listingId), eq(schema.listings.organizationId, org.id), eq(schema.listings.status, 'published')), columns: { id: true } });
         if (!l) throw new ActionError({ code: 'NOT_FOUND', message: 'Listing not found.' });
       }
-      const recent = await db.$count(schema.enquiries, and(eq(schema.enquiries.fromUserId, user.id), gt(schema.enquiries.createdAt, new Date(Date.now() - 864e5))));
-      if (recent >= PER_DAY) throw new ActionError({ code: 'TOO_MANY_REQUESTS', message: 'You have sent a lot of enquiries today. Try again tomorrow.' });
+      // the shared throttle counts and records in one statement, so parallel sends cannot pass the cap
+      await spend([{ key: `enquiry:${user.id}`, limit: PER_DAY, windowMs: DAY }], 'You have sent a lot of enquiries today. Try again tomorrow.');
 
       const id = crypto.randomUUID();
       // the session copy of the user can be minutes old; the enquiry keeps the current name for good
@@ -75,7 +77,6 @@ export const enquiries = {
       if (!e || (!onTeam && !isBuyer)) throw new ActionError({ code: 'NOT_FOUND', message: 'Enquiry not found.' });
       if (e.status === 'closed') throw new ActionError({ code: 'BAD_REQUEST', message: 'This enquiry is closed.' });
       // every reply emails the other side: a generous daily allowance per member
-      const { spend, DAY } = await import('../lib/throttle');
       await spend([{ key: `reply:${user.id}`, limit: 40, windowMs: DAY }], 'Too many replies today. Try again tomorrow.');
 
       const side = onTeam ? 'company' : 'buyer';
@@ -101,11 +102,38 @@ export const enquiries = {
     accept: 'form',
     input: z.object({ enquiryId: z.uuid(), status: z.enum(['open', 'closed']) }),
     handler: async ({ enquiryId, status }, ctx) => {
+      const user = requireUser(ctx);
       const e = await db.query.enquiries.findFirst({ where: eq(schema.enquiries.id, enquiryId), columns: { organizationId: true } });
-      if (!e) throw new ActionError({ code: 'NOT_FOUND', message: 'Enquiry not found.' });
-      await requireMember(ctx, e.organizationId);
+      // "missing" and "not on its team" are one answer, so ids cannot be probed
+      if (!e || !(await isMember(user.id, e.organizationId))) throw new ActionError({ code: 'NOT_FOUND', message: 'Enquiry not found.' });
       await db.update(schema.enquiries).set({ status, updatedAt: new Date() }).where(eq(schema.enquiries.id, enquiryId));
       return { status };
+    },
+  }),
+
+  /**
+   * The viewer has read the thread. Opening a thread is a GET and changes nothing (mail scanners prefetch the links
+   * in enquiry emails); the thread page posts here once it is shown. Without JavaScript, replying marks it read.
+   */
+  markRead: defineAction({
+    accept: 'form',
+    input: z.object({ enquiryId: z.uuid() }),
+    handler: async ({ enquiryId }, ctx) => {
+      const user = requireUser(ctx);
+      const e = await db.query.enquiries.findFirst({ where: eq(schema.enquiries.id, enquiryId), columns: { organizationId: true, fromUserId: true } });
+      const onTeam = !!e && (await isMember(user.id, e.organizationId));
+      if (!e || (!onTeam && e.fromUserId !== user.id)) throw new ActionError({ code: 'NOT_FOUND', message: 'Enquiry not found.' });
+      const t = schema.enquiries;
+      // the team's first read moves a new enquiry to open; the conditions keep a repeat post from writing anything
+      if (onTeam) {
+        await db.batch([
+          db.update(t).set({ companyUnread: false }).where(and(eq(t.id, enquiryId), eq(t.companyUnread, true))),
+          db.update(t).set({ status: 'open' }).where(and(eq(t.id, enquiryId), eq(t.status, 'new'))),
+        ]);
+      } else {
+        await db.update(t).set({ buyerUnread: false }).where(and(eq(t.id, enquiryId), eq(t.buyerUnread, true)));
+      }
+      return { read: true };
     },
   }),
 };

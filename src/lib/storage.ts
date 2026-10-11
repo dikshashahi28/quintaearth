@@ -1,4 +1,5 @@
-// Uploaded files live in the FILES bucket; a row in `files` records who owns each one and whether it is public.
+// Uploaded files live in the FILES bucket; a row in `files` records who owns each one and whether it may ever be
+// public. A `public` file is served to everyone only while the page showing it is published (src/pages/files).
 // The type is decided from the file's first bytes, not from what the browser claims.
 import { ActionError } from 'astro:actions';
 import { eq, sql } from 'drizzle-orm';

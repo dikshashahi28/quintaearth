@@ -25,7 +25,14 @@ export async function getPublicCompany(slug: string) {
   const ids = listings.map((l) => l.id);
   const evidence = await inChunks(ids, (slice) => db.select({ key: schema.files.key, name: schema.files.name, contentType: schema.files.contentType, size: schema.files.size, listingId: schema.files.listingId })
     .from(schema.files).where(and(inArray(schema.files.listingId, slice), eq(schema.files.purpose, 'evidence'), eq(schema.files.public, true))));
-  const listingTags = await Promise.all(ids.map((id) => tagsOf('listing', id)));
+  // every listing's tags in one IN query (in slices for D1's bind limit), not one query per listing
+  const tagRows = await inChunks(ids, (slice) => db.select({ id: schema.tags.entityId, kind: schema.tags.kind, value: schema.tags.value })
+    .from(schema.tags).where(and(eq(schema.tags.entityType, 'listing'), inArray(schema.tags.entityId, slice))));
+  const listingTags = ids.map((id) => {
+    const out: Record<'industry' | 'sub' | 'sdg' | 'skill' | 'serves', string[]> = { industry: [], sub: [], sdg: [], skill: [], serves: [] };
+    for (const t of tagRows) if (t.id === id) out[t.kind].push(t.value);
+    return out;
+  });
   // only teammates who chose to publish their own page are named
   const team = await db.select({ name: schema.user.name, handle: schema.profiles.handle, headline: schema.profiles.headline, photoKey: schema.profiles.photoKey })
     .from(schema.members)

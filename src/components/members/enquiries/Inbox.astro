@@ -3,7 +3,7 @@
 // Below 900px the panes stack: mode "list" shows only the list, mode "thread" only the thread. The way back is the
 // page's breadcrumb, so the thread view carries no second back link and no tabs there.
 import InboxList, { type InboxItem } from './InboxList.astro';
-import type { Show } from './data';
+import type { Pager, Show } from './data';
 import '../../../styles/members/enquiries.css';
 
 interface Props {
@@ -14,8 +14,10 @@ interface Props {
   currentId?: string;
   label: string;
   mode: 'list' | 'thread';
+  /** newer/older page links under the list */
+  pager?: Pager;
 }
-const { show, tabs, openCount, items, currentId, label, mode } = Astro.props;
+const { show, tabs, openCount, items, currentId, label, mode, pager } = Astro.props;
 ---
 <div class:list={['eq-tabs', `eq-tabs-${mode}`]} role="group" aria-label="Show">
   <a class:list={['chip', { on: show === 'open' }]} href={tabs.open} aria-current={show === 'open' ? 'true' : undefined}>Open{openCount > 0 && <i>{openCount}</i>}</a>
@@ -25,7 +27,7 @@ const { show, tabs, openCount, items, currentId, label, mode } = Astro.props;
   ? <slot name="empty" />
   : (
     <div class:list={['eq-inbox', `eq-m-${mode}`]}>
-      <InboxList items={items} currentId={currentId} label={label} />
+      <InboxList items={items} currentId={currentId} label={label} pager={pager} />
       <div class="eq-pane"><slot /></div>
     </div>
   )}

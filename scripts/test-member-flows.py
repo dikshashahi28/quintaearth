@@ -90,7 +90,8 @@ def login(u, kind, company=''):
     u.form('/signin?_action=account.sendSignInLink', {'email': u.email, 'next': '/dashboard'})
     st, h, _ = follow_link(u, link_in(outbox(u.email)))
     st, h, _ = u.form('/welcome?_action=account.chooseAccountType', {'name': u.email.split('.')[0].title() + ' Test', 'type': kind, 'company': company, 'password': PW})
-    return st == 302 and h['Location'].endswith('/dashboard')
+    # a successful POST answers 303 (Grok 14); it was 302 before 11 Oct
+    return st == 303 and h['Location'].endswith('/dashboard')
 
 def png(w=2, h=2):
     raw = b''.join(b'\x00' + b'\x80\xa0\x60' * w for _ in range(h))
@@ -195,9 +196,9 @@ check('listings.addEvidence pdf', st == 200, f'{st} {j}')
 st, j = Bu.action('listings.save', {'organizationId': OID, 'name': 'Spam', 'kind': 'product', 'status': 'published'})
 check('listings.save by outsider -> 403', st == 403, f'{st}')
 st, j = Bu.action('listings.remove', {'listingId': LID})
-check('listings.remove by outsider -> 403', st == 403, f'{st}')
+check('listings.remove by outsider -> 404 (same as a missing id)', st == 404, f'{st}')
 st, j = Bu.action('listings.removeEvidence', {'key': EVID})
-check('listings.removeEvidence by outsider -> 403', st == 403, f'{st}')
+check('listings.removeEvidence by outsider -> 404 (same as a missing key)', st == 404, f'{st}')
 
 # public pages + directory
 anon = User('anon')
@@ -238,6 +239,8 @@ check('company reply: unread for the buyer, read for the company', unread(EQ) ==
 st, _, b = Bu.req('GET', '/dashboard')
 check('buyer nav shows 1 new reply', st == 200 and re.search(rb'Sent enquiries<span class="n">1<', b) is not None, f'{st}')
 Bu.req('GET', f'/dashboard/messages/{EQ}')
+# the GET changes nothing (mail scanners prefetch it); the thread page posts enquiries.markRead once it is shown
+Bu.action('enquiries.markRead', {'enquiryId': EQ})
 check('buyer opening the thread reads it', unread(EQ)['b'] == 0, str(unread(EQ)))
 st, j = Bu.action('enquiries.reply', {'enquiryId': EQ, 'body': 'Thanks, what is the lead time?'})
 check('buyer reply: unread for the company again', st == 200 and unread(EQ) == {'c': 1, 'b': 0}, f'{st} {unread(EQ)}')
@@ -248,7 +251,7 @@ check('reply from the thread page confirms "Reply sent"', st == 303 and h['Locat
 st, j = C.action('enquiries.reply', {'enquiryId': EQ, 'body': 'Nosy'})
 check('outsider reply -> 404', st == 404, f'{st}')
 st, j = Bu.action('enquiries.setStatus', {'enquiryId': EQ, 'status': 'closed'})
-check('buyer cannot close company thread -> 403', st == 403, f'{st}')
+check('buyer cannot close company thread -> 404', st == 404, f'{st}')
 st, j = A.action('enquiries.setStatus', {'enquiryId': EQ, 'status': 'closed'})
 st2, j2 = Bu.action('enquiries.reply', {'enquiryId': EQ, 'body': 'One more thing'})
 check('reply to closed enquiry -> 400', st == 200 and st2 == 400, f'{st} {st2}')
@@ -463,7 +466,7 @@ pk = sql(f"select photo_key from listings where id='{L2}'")[0]['photo_key']
 st, j = A.action('listings.removePhoto', {'listingId': L2})
 check('listing photo can be removed (row cleared, file gone)', st == 200 and sql(f"select photo_key from listings where id='{L2}'")[0]['photo_key'] is None and anon.req('GET', f'/files/{pk}')[0] == 404, f'{st} {j}')
 st, j = Bu.action('listings.removePhoto', {'listingId': L2})
-check('listings.removePhoto by outsider -> 403', st == 403, f'{st}')
+check('listings.removePhoto by outsider -> 404 (same as a missing id)', st == 404, f'{st}')
 R = User('reload')
 st, h, _ = R.form('/signin?_action=account.sendSignInLink', {'email': R.email, 'next': '/dashboard/profile'})
 loc = h.get('Location', '')
@@ -551,6 +554,125 @@ st, h, _ = follow_link(User('again'), mlink)
 check('the link works once', st == 303 and h.get('Location') == '/signin?error=link', f'{st} {h.get("Location")}')
 st, _, _ = anon.req('GET', '/api/auth/magic-link/verify?' + urllib.parse.urlparse(mlink).query)
 check('the library\'s GET verify endpoint is closed', st == 404, f'{st}')
+# --- data and permissions (Grok review, 11 Oct) ---
+cache = lambda h: h.get('Cache-Control') or ''
+CO = {'organizationId': OID, 'name': f'Sun Grid Labs {RUN}', 'website': 'sungrid.example', 'published': 'on'}
+# 4: a file is public only while the page that shows it is; until then, only its editors (and admins) get it
+A.action('company.update', CO)
+A.action('listings.setPhoto', {'listingId': L2}, {'photo': ('d.png', 'image/png', png())})
+DPH = sql(f"select photo_key from listings where id='{L2}'")[0]['photo_key']
+st, j = A.action('listings.addEvidence', {'listingId': L2}, {'file': ('draft-cert.pdf', 'application/pdf', PDF)})
+DEV = j.get('key') if st == 200 else 'x'
+codes = [u.req('GET', f'/files/{k}')[0] for u in (anon, Bu) for k in (DEV, DPH)]
+check('draft listing photo and evidence: 404 for the public and for outsiders', codes == [404] * 4, str(codes))
+st, h, _ = D.req('GET', f'/files/{DEV}')
+# the route answers editors "private, max-age=60"; middleware makes any signed-in response "private, no-store"
+check('draft listing files: the team (and admins) get them, never from a shared cache', st == 200 and cache(h).startswith('private,') and C2.req('GET', f'/files/{DPH}')[0] == 200, f'{st} {cache(h)}')
+A.action('listings.save', {'organizationId': OID, 'listingId': L2, 'name': f'Photo test {RUN}', 'kind': 'product', 'status': 'published'})
+st, h, _ = anon.req('GET', f'/files/{DEV}')
+check('published listing of a published company: files public, cached 5 minutes (not a year)', st == 200 and cache(h) == 'public, max-age=300' and anon.req('GET', f'/files/{DPH}')[0] == 200, f'{st} {cache(h)}')
+A.action('company.update', {k: v for k, v in CO.items() if k != 'published'})
+codes = [anon.req('GET', f'/files/{k}')[0] for k in (DEV, DPH, logo)]
+check('unpublishing the company hides its listing files and logo again; the owner still gets the logo', codes == [404] * 3 and A.req('GET', f'/files/{logo}')[0] == 200, str(codes))
+bphoto = sql(f"select p.photo_key k, p.published p from profiles p join user u on u.id=p.user_id where u.email='{Bu.email}'")[0]
+check('photo of an unpublished profile: 404 for others, served to its owner', bphoto['p'] == 0 and anon.req('GET', f"/files/{bphoto['k']}")[0] == 404 and Bu.req('GET', f"/files/{bphoto['k']}")[0] == 200, str(bphoto))
+A.action('company.update', CO)
+check('logo of a published company stays public and long-cached', anon.req('GET', f'/files/{logo}')[0] == 200 and 'immutable' in cache(anon.req('GET', f'/files/{logo}')[1]), '')
+
+# 6: what "Identity checked" vouches for (name, website), visibility and the logo are the owners' to change
+sql(f"update organizations set identity_checked_at = 1700000000000 where id='{OID}'")
+codes = [D.action('company.update', f)[0] for f in ({**CO, 'website': 'phish.example'}, {**CO, 'name': 'Hijacked Co'}, {k: v for k, v in CO.items() if k != 'published'})]
+row = sql(f"select name, website, published, identity_checked_at c from organizations where id='{OID}'")[0]
+check('a member (not owner) cannot change the name, website or visibility -> 403', codes == [403] * 3 and row == {'name': CO['name'], 'website': 'https://sungrid.example/', 'published': 1, 'c': 1700000000000}, f'{codes} {row}')
+st, j = D.action('company.update', {**CO, 'description': f'Edited by a teammate {RUN}.'})
+row = sql(f"select description, identity_checked_at c from organizations where id='{OID}'")[0]
+check('a member can still edit the rest of the page; the mark stays', st == 200 and row == {'description': f'Edited by a teammate {RUN}.', 'c': 1700000000000}, f'{st} {row}')
+codes = [D.action('company.setLogo', {'organizationId': OID}, {'logo': ('l.png', 'image/png', png())})[0], D.action('company.removeLogo', {'organizationId': OID})[0]]
+check('a member cannot change or remove the logo -> 403', codes == [403, 403], str(codes))
+st, _, b = D.req('GET', f'/dashboard/company?org={OID}')
+check('company editor: name and website read-only for a member, no logo upload', st == 200 and re.search(rb'<input[^>]*id="c-name"[^>]*readonly', b) and re.search(rb'<input[^>]*id="c-web"[^>]*readonly', b) and b'name="logo"' not in b, f'{st}')
+st, j = A.action('company.update', {**CO, 'website': 'sungrid-new.example'})
+check('owner changing the website clears "Identity checked"', st == 200 and sql(f"select identity_checked_at c from organizations where id='{OID}'")[0]['c'] is None, f'{st} {j}')
+
+# 7 + 14: a member sees the identity check's status, not what the owner sent; the form post answers 303
+st, h, _ = A.form(f'/dashboard/identity?org={OID}&_action=identity.request', {'organizationId': OID, 'registrationNumber': f'REG{RUN}', 'registrationCountry': 'IN', 'workEmail': 'ops@sungrid.example', 'note': f'note {RUN}'})
+check('identity request form answers 303', st == 303 and 'flash=identity' in h.get('Location', ''), f'{st} {h.get("Location")}')
+st1, _, b1 = D.req('GET', f'/dashboard/identity?org={OID}')
+st2, _, b2 = A.req('GET', f'/dashboard/identity?org={OID}')
+check('identity page: a member sees the status only; the owner sees what was sent', st1 == 200 and b'In review' in b1 and f'REG{RUN}'.encode() not in b1 and b'ops@sungrid.example' not in b1 and f'note {RUN}'.encode() not in b1 and f'REG{RUN}'.encode() in b2, f'{st1} {st2}')
+
+# 14: successful form posts answer 303 (a 302 after POST may be replayed as a POST)
+st1, h1, _ = Bu.form('/dashboard/profile?_action=profile.update', {'name': 'Asha R. Rao'})
+st2, h2, _ = A.form(f'/dashboard/company?org={OID}&_action=company.update', {**CO, 'website': 'sungrid-new.example'})
+st3, h3, _ = A.form(f'/dashboard/listings/new?org={OID}&_action=listings.save', {'organizationId': OID, 'name': f'Draft only {RUN}', 'kind': 'product', 'status': 'draft'})
+L3 = (h3.get('Location') or '').split('?')[0].rsplit('/', 1)[-1]
+st4, h4, _ = A.form(f'/dashboard/listings/{L3}?_action=listings.save', {'organizationId': OID, 'listingId': L3, 'name': f'Draft only {RUN}', 'kind': 'product', 'status': 'draft'})
+check('profile, company, new listing and listing saves answer 303', [st1, st2, st3, st4] == [303] * 4 and h4.get('Location', '').endswith('?saved=1'), f'{[st1, st2, st3, st4]} {h3.get("Location")}')
+
+# 21: an enquiry can name only a published listing
+st, j = Bu.action('enquiries.send', {'organizationId': OID, 'listingId': L3, 'subject': 'About the draft', 'message': 'This names a draft listing by its id, which must not attach.'})
+check('an enquiry naming a draft listing -> 404', st == 404, f'{st} {j}')
+
+# 9: opening a thread is a GET and writes nothing; the page posts enquiries.markRead once shown
+st, j = Bu.action('enquiries.send', {'organizationId': OID, 'listingId': L2, 'subject': f'Read receipts {RUN}', 'message': 'Checking that opening a thread does not mark it read by itself.'})
+E2 = j.get('id') if st == 200 else ''
+er = lambda: sql(f"select status, company_unread c, buyer_unread b from enquiries where id='{E2}'")[0]
+st, _, b = A.req('GET', f'/dashboard/enquiries/{E2}')
+check('team GET of a new thread changes nothing; the page carries the mark-read hook', st == 200 and er() == {'status': 'new', 'c': 1, 'b': 0} and f'data-eq-unread="{E2}"'.encode() in b, f'{st} {er()}')
+check('markRead by someone off the thread -> 404', N.action('enquiries.markRead', {'enquiryId': E2})[0] == 404, '')
+st, j = D.action('enquiries.markRead', {'enquiryId': E2})
+check('markRead by the team: read, and new moves to open', st == 200 and er() == {'status': 'open', 'c': 0, 'b': 0}, f'{st} {er()}')
+st, _, b = A.req('GET', f'/dashboard/enquiries/{E2}')
+check('a read thread does not ask to be marked again', st == 200 and b'data-eq-unread' not in b, f'{st}')
+A.action('enquiries.reply', {'enquiryId': E2, 'body': 'Thanks, noted.'})
+Bu.req('GET', f'/dashboard/messages/{E2}')
+b_after_get = er()['b']
+Bu.action('enquiries.markRead', {'enquiryId': E2})
+check("buyer: the GET leaves the reply unread, the page's POST reads it", b_after_get == 1 and er()['b'] == 0, f'{b_after_get} {er()}')
+
+# 10: listing and enquiry ids cannot be probed: someone else's id answers like a missing one
+nid = str(uuid.uuid4())
+race = sql(f"select o.id from organizations o join members m on m.organization_id=o.id where o.name='Race Co {RUN}'")[0]['id']
+pairs = [
+    (Bu.action('listings.remove', {'listingId': L2})[0], Bu.action('listings.remove', {'listingId': nid})[0]),
+    (Bu.action('listings.setPhoto', {'listingId': L2}, {'photo': ('p.png', 'image/png', png())})[0], Bu.action('listings.setPhoto', {'listingId': nid}, {'photo': ('p.png', 'image/png', png())})[0]),
+    (Bu.action('listings.removeEvidence', {'key': DEV})[0], Bu.action('listings.removeEvidence', {'key': 'evidence/none.pdf'})[0]),
+    (Bu.action('listings.save', {'organizationId': race, 'listingId': L2, 'name': 'Moved', 'kind': 'product', 'status': 'draft'})[0], Bu.action('listings.save', {'organizationId': race, 'listingId': nid, 'name': 'Moved', 'kind': 'product', 'status': 'draft'})[0]),
+    (N.action('enquiries.setStatus', {'enquiryId': E2, 'status': 'closed'})[0], N.action('enquiries.setStatus', {'enquiryId': nid, 'status': 'closed'})[0]),
+]
+check('another company\'s listing or enquiry id answers 404, like a missing one', pairs == [(404, 404)] * 5, str(pairs))
+
+# 11: a save rewrites its search rows in the same batch: one row per live entity, none once hidden
+cnt = lambda eid: sql(f"select count(*) n from search where entity_id='{eid}'")[0]['n']
+check('search: one row for the live company and its live listing, none for the draft', (cnt(OID), cnt(L2), cnt(L3)) == (1, 1, 0), str((cnt(OID), cnt(L2), cnt(L3))))
+ts = [threading.Thread(target=lambda i=i: A.action('company.update', {**CO, 'website': 'sungrid-new.example', 'description': f'Parallel save {i}.'})) for i in range(4)]
+[t.start() for t in ts]; [t.join() for t in ts]
+check('parallel company saves leave one search row each', (cnt(OID), cnt(L2)) == (1, 1), str((cnt(OID), cnt(L2))))
+st, _, b = anon.req('GET', '/directory?q=parallel')
+check('directory finds the company by the text saved with it', st == 200 and OSLUG.encode() in b, f'{st}')
+A.action('company.update', {'organizationId': OID, 'name': CO['name'], 'website': 'sungrid-new.example'})
+check('unpublishing removes the company and its listings from search in the same save', (cnt(OID), cnt(L2)) == (0, 0), str((cnt(OID), cnt(L2))))
+A.action('company.update', {**CO, 'website': 'sungrid-new.example'})
+
+# 12: enquiry lists are read a page at a time
+sql(f"""WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 55)
+  INSERT INTO enquiries (id, organization_id, from_name, from_email, subject, status, company_unread, buyer_unread, created_at, updated_at)
+  SELECT 'bulk-{RUN}-' || i, '{OID}', 'Bulk Sender', 'bulk@example.com', 'Bulk ' || i, 'open', 0, 0, 1000 + i, 1000 + i FROM n""")
+n_open = sql(f"select count(*) n from enquiries where organization_id='{OID}' and status != 'closed'")[0]['n']
+st, _, b = A.req('GET', f'/dashboard/enquiries?org={OID}')
+st2, _, b2 = A.req('GET', f'/dashboard/enquiries?org={OID}&page=2')
+check('company inbox: 50 a page, an Older link, the next page, and the full open count', st == 200 and b.count(b'class="eq-item') == 50 and b'page=2' in b and b2.count(b'class="eq-item') == n_open - 50 and f'Open<i>{n_open}</i>'.encode() in b, f'{st} {b.count(b"class=\"eq-item")} {b2.count(b"class=\"eq-item")} {n_open}')
+
+# 18: the LinkedIn field takes linkedin.com addresses only
+st1, j1 = Bu.action('profile.update', {'name': 'Asha R. Rao', 'linkedin': 'https://evil.example/in/asha'})
+st2, j2 = A.action('company.update', {**CO, 'website': 'sungrid-new.example', 'linkedin': 'linkedin.com.evil.example/company/x'})
+st3, j3 = Bu.action('profile.update', {'name': 'Asha R. Rao', 'linkedin': 'linkedin.com/in/asha-rao'})
+li = sql(f"select p.linkedin from profiles p join user u on u.id=p.user_id where u.email='{Bu.email}'")[0]['linkedin']
+check('LinkedIn fields take linkedin.com addresses only, with a plain message', st1 == 400 and st2 == 400 and 'LinkedIn address' in json.dumps(j1) and st3 == 200 and li == 'https://linkedin.com/in/asha-rao', f'{st1} {st2} {st3} {li}')
+
+# enquiries: 10 a day per sender, counted by the shared throttle (one statement per send)
+codes = [N.action('enquiries.send', {'organizationId': OID, 'subject': f'Cap {i}', 'message': 'Checking the daily cap on enquiries from one member.'})[0] for i in range(11)]
+check('enquiries: 10 a day per sender, then 429', codes == [200] * 10 + [429], str(codes))
 
 fails = [r for r in results if r[1] == 'FAIL']
 print(f'\n{len(results) - len(fails)}/{len(results)} passed')

@@ -16,10 +16,10 @@ export const prerender = false;
 // the middleware guards this page; the check is a second lock
 const user = Astro.locals.user;
 if (!user) return Astro.redirect('/signin?next=%2Fwelcome');
-if (user.accountType) return Astro.redirect('/dashboard');
+if (user.accountType) return Astro.redirect('/dashboard', 303);
 
 const result = Astro.getActionResult(actions.account.chooseAccountType);
-if (result?.data) return Astro.redirect('/dashboard');
+if (result?.data) return Astro.redirect('/dashboard', 303);
 const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failed = result?.error && !isInputError(result.error);
 // joined a team by invitation: the account type is settled, only the name is asked

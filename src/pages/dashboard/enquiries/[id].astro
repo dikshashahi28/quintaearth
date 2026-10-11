@@ -1,5 +1,6 @@
 ---
-// One enquiry, opened by the company's team (the URL in "new enquiry" emails). Opening it marks it read.
+// One enquiry, opened by the company's team (the URL in "new enquiry" emails). The GET changes nothing (mail scanners
+// prefetch that URL); the thread marks itself read with a POST once it is shown, or when the team replies.
 // The list sits beside it on wide screens; on phone only the thread shows, and the breadcrumb leads back.
 import { actions, isInputError } from 'astro:actions';
 import Dashboard from '../../../layouts/Dashboard.astro';
@@ -8,7 +9,7 @@ import Thread from '../../../components/members/enquiries/Thread.astro';
 import { dashContext } from '../../../lib/dash-context';
 import { actionErrorMessage } from '../../../components/members/forms/errors';
 import { inbox, thread } from '../../../db/queries/dashboard';
-import { authorNames, fieldError, inTab, listDate, listingName, withQuery } from '../../../components/members/enquiries/data';
+import { authorNames, fieldError, listDate, listingName, withQuery } from '../../../components/members/enquiries/data';
 
 export const prerender = false;
 
@@ -38,24 +39,24 @@ const ctx = await dashContext(user, url);
 const company = ctx.company?.id === t.enquiry.organizationId ? ctx.company : null;
 if (!company) return new Response(null, { status: 404 });
 
-const all = await inbox(company.id);
-// thread() has just marked it read; the fresh row has the current status
-const enquiry = all.find((e) => e.id === id) ?? t.enquiry;
+const enquiry = t.enquiry;
 const show = enquiry.status === 'closed' ? 'closed' : 'open';
 const org = ctx.companies.length > 1 ? company.id : null;
-const items = all.filter((e) => inTab(e.status, show)).map((e) => ({
+// the list beside the thread is the first page of its tab; the open thread counts as read, since it is being read
+const { rows, counts } = await inbox(company.id, show);
+const items = rows.map((e) => ({
   id: e.id, href: `/dashboard/enquiries/${e.id}`, source: e.fromCompany || 'Individual', date: listDate(e.updatedAt),
-  name: e.fromName, subject: e.subject, isNew: e.companyUnread,
+  name: e.fromName, subject: e.subject, isNew: e.companyUnread && e.id !== id,
 }));
 const [names, listing] = await Promise.all([authorNames(t.messages.map((m) => m.authorUserId)), listingName(enquiry.listingId)]);
 const back = withQuery('/dashboard/enquiries', { org, show: show === 'closed' ? 'closed' : null });
 ---
 <Dashboard ctx={ctx} current="enquiries" title={enquiry.subject} heading="Enquiries"
   crumbs={[{ label: 'Enquiries', href: back }, { label: enquiry.subject }]}>
-  <Inbox show={show} openCount={all.filter((e) => e.status !== 'closed').length}
+  <Inbox show={show} openCount={counts.open}
     tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
     items={items} currentId={id} label="Enquiries" mode="thread">
     <Thread enquiry={enquiry} messages={t.messages} side="company" viewerId={user.id} companyName={company.name}
-      listing={listing} names={names} base={`/dashboard/enquiries/${id}`} error={error} />
+      listing={listing} names={names} base={`/dashboard/enquiries/${id}`} error={error} unread={t.unread} />
   </Inbox>
 </Dashboard>
