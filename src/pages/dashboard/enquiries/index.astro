@@ -1,13 +1,12 @@
 ---
-// The company's inbox: Open/Closed tabs, the list, and the newest enquiry beside it on wide screens.
-// Showing it here does not mark it read; opening it (its own page) does.
+// The company's inbox: Open/Closed tabs and the list. No thread opens here: opening one (its own page) marks it
+// read, and a thread shown beside the list while still marked new would say two things at once.
 import Dashboard from '../../../layouts/Dashboard.astro';
 import Inbox from '../../../components/members/enquiries/Inbox.astro';
-import Thread from '../../../components/members/enquiries/Thread.astro';
 import EmptyState from '../../../components/members/EmptyState.astro';
 import { dashContext } from '../../../lib/dash-context';
 import { inbox } from '../../../db/queries/dashboard';
-import { authorNames, inTab, listDate, listingName, messagesOf, showOf, withQuery } from '../../../components/members/enquiries/data';
+import { inTab, listDate, showOf, withQuery } from '../../../components/members/enquiries/data';
 
 export const prerender = false;
 
@@ -26,19 +25,13 @@ const items = rows.map((e) => ({
   name: e.fromName, subject: e.subject, isNew: e.companyUnread,
 }));
 
-const first = rows[0];
-const messages = first ? await messagesOf(first.id) : [];
-const [names, listing] = first ? await Promise.all([authorNames(messages.map((m) => m.authorUserId)), listingName(first.listingId)]) : [new Map<string, string>(), null];
 const companyLink = company.published ? `/companies/${company.slug}` : `/dashboard/company${ctx.orgQuery}`;
 ---
 <Dashboard ctx={ctx} current="enquiries" title="Enquiries" crumbs={[{ label: 'Enquiries' }]}>
   <Inbox show={show} openCount={all.filter((e) => e.status !== 'closed').length}
     tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
-    items={items} currentId={first?.id} label="Enquiries" mode="list" backHref="" backLabel="">
-    {first && (
-      <Thread enquiry={first} messages={messages} side="company" viewerId={user.id} companyName={company.name}
-        listing={listing} names={names} base={`/dashboard/enquiries/${first.id}`} />
-    )}
+    items={items} label="Enquiries" mode="list">
+    <p class="eq-pick">Choose an enquiry to read it and reply.</p>
     <Fragment slot="empty">
       {all.length === 0
         ? <EmptyState note="No enquiries yet." action={{ href: companyLink, label: company.published ? 'View your company page' : 'Finish your company page', quiet: true }} />

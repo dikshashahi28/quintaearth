@@ -1,6 +1,7 @@
 ---
 // One enquiry: subject, what it is about, the messages on a river rail, then the reply form (and close/reopen
-// for the company). The newest message's bead is lit; typing a reply runs the rail on to the form's bead.
+// for the company). The newest message's bead is lit; typing a reply lights the form's bead and fills the track
+// between the two (the rail contract: green only between two lit beads). Below 640px the rail shrinks to a 3px edge.
 // Forms post to the thread's own URL so the result lands on the thread page, whichever page shows it.
 import { actions } from 'astro:actions';
 import Icon from '../Icon.astro';
@@ -53,7 +54,7 @@ const field = `reply-${enquiry.id}`;
       <div class="eq-row">
         <div class="rc" aria-hidden="true">
           <span class:list={['bead', { lit: i === last }]}></span>
-          <span class="track"><span class:list={['fill', { on: i < last, d1: i === 0 && i < last, d2: i === 1 && i < last }]} data-eq-last={i === last ? '' : undefined}></span></span>
+          <span class="track"><span class="fill" data-eq-last={i === last ? '' : undefined}></span></span>
         </div>
         <div class:list={['eq-msg', { mine: m.side === side }]}>
           <div class="from">
@@ -91,10 +92,12 @@ const field = `reply-${enquiry.id}`;
           </div>
           <div class="eq-send">
             <button class="eq-btn" type="submit">Send reply<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button>
-            {side === 'company' && (
-              <button class="tlink eq-close" type="submit" formaction={setStatus} formnovalidate name="status" value="closed">Mark as closed</button>
-            )}
           </div>
+          {side === 'company' && (
+            <div class="eq-closeline">
+              <button class="tlink eq-close" type="submit" formaction={setStatus} formnovalidate name="status" value="closed" data-eq-close>Mark as closed</button>
+            </div>
+          )}
         </form>
       )}
     </div>
@@ -115,5 +118,11 @@ const field = `reply-${enquiry.id}`;
     };
     body.addEventListener('input', sync);
     sync();
+  }
+  // closing is a step away from replying, so it asks first (without JS the button posts straight away)
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-eq-close]')) {
+    b.addEventListener('click', (e) => {
+      if (!confirm('Close this enquiry? You can reopen it later from the Closed tab.')) e.preventDefault();
+    });
   }
 </script>

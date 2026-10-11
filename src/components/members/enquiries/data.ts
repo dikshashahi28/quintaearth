@@ -25,11 +25,6 @@ export const msgDate = (d: Date) => `${short.format(d)}, ${clock.format(d)}`;
 /** a message body as paragraphs: blank lines split paragraphs */
 export const paragraphs = (body: string) => body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
-/** messages of a thread, oldest first, read without changing its status */
-export function messagesOf(enquiryId: string) {
-  return db.select().from(schema.enquiryMessages).where(eq(schema.enquiryMessages.enquiryId, enquiryId)).orderBy(asc(schema.enquiryMessages.createdAt));
-}
-
 export async function listingName(listingId: string | null) {
   if (!listingId) return null;
   const l = await db.query.listings.findFirst({ where: eq(schema.listings.id, listingId), columns: { name: true } });

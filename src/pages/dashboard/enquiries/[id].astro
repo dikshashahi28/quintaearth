@@ -1,6 +1,6 @@
 ---
 // One enquiry, opened by the company's team (the URL in "new enquiry" emails). Opening it marks it read.
-// The list sits beside it on wide screens; on phone only the thread shows, with a link back.
+// The list sits beside it on wide screens; on phone only the thread shows, and the breadcrumb leads back.
 import { actions, isInputError } from 'astro:actions';
 import Dashboard from '../../../layouts/Dashboard.astro';
 import Inbox from '../../../components/members/enquiries/Inbox.astro';
@@ -51,10 +51,10 @@ const [names, listing] = await Promise.all([authorNames(t.messages.map((m) => m.
 const back = withQuery('/dashboard/enquiries', { org, show: show === 'closed' ? 'closed' : null });
 ---
 <Dashboard ctx={ctx} current="enquiries" title={enquiry.subject} heading="Enquiries"
-  crumbs={[{ label: 'Enquiries', href: withQuery('/dashboard/enquiries', { org }) }, { label: enquiry.subject }]}>
+  crumbs={[{ label: 'Enquiries', href: back }, { label: enquiry.subject }]}>
   <Inbox show={show} openCount={all.filter((e) => e.status !== 'closed').length}
     tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
-    items={items} currentId={id} label="Enquiries" mode="thread" backHref={back} backLabel="All enquiries">
+    items={items} currentId={id} label="Enquiries" mode="thread">
     <Thread enquiry={enquiry} messages={t.messages} side="company" viewerId={user.id} companyName={company.name}
       listing={listing} names={names} base={`/dashboard/enquiries/${id}`} error={error} />
   </Inbox>
