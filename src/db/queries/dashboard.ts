@@ -1,5 +1,5 @@
 // Data for the signed-in member's own pages. Callers pass the session user; nothing here is public.
-import { and, asc, desc, eq, gt, inArray, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { db, schema } from '../client';
 import { inChunks } from '../chunks';
 import { tagsOf } from '../../lib/tags';
@@ -34,32 +34,79 @@ export async function companyForEditor(userId: string, organizationId: string) {
   return { org, role: m.role, tags: await tagsOf('organization', organizationId), team, invites, listings, files, checks };
 }
 
-/** enquiries a company received, newest first */
-export async function inbox(organizationId: string) {
-  return db.select().from(schema.enquiries).where(eq(schema.enquiries.organizationId, organizationId)).orderBy(desc(schema.enquiries.updatedAt));
+/** the listings index: the company's listings with their evidence counts, without the editor's team, invites or checks */
+export async function companyListings(userId: string, organizationId: string) {
+  const m = await db.query.members.findFirst({ where: and(eq(schema.members.organizationId, organizationId), eq(schema.members.userId, userId)), columns: { role: true } });
+  if (!m) return null;
+  const listings = await db.select({ id: schema.listings.id, name: schema.listings.name, kind: schema.listings.kind, status: schema.listings.status, photoKey: schema.listings.photoKey })
+    .from(schema.listings).where(eq(schema.listings.organizationId, organizationId)).orderBy(desc(schema.listings.updatedAt));
+  const docs = await db.select({ listingId: schema.files.listingId, n: sql<number>`count(*)` }).from(schema.files)
+    .where(and(eq(schema.files.organizationId, organizationId), eq(schema.files.purpose, 'evidence'))).groupBy(schema.files.listingId);
+  const docCount = new Map(docs.map((d) => [d.listingId, d.n]));
+  return listings.map((l) => ({ ...l, docs: docCount.get(l.id) ?? 0 }));
 }
 
-/** enquiries the user sent */
-export async function sent(userId: string) {
-  return db.select({ enquiry: schema.enquiries, company: schema.organizations.name }).from(schema.enquiries)
+/** the identity page: the company and its identity checks, newest first; null when the user is not on it */
+export async function companyChecks(userId: string, organizationId: string) {
+  const m = await db.query.members.findFirst({ where: and(eq(schema.members.organizationId, organizationId), eq(schema.members.userId, userId)), columns: { role: true } });
+  if (!m) return null;
+  const org = (await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId),
+    columns: { id: true, name: true, country: true, identityCheckedAt: true } }))!;
+  const checks = await db.select().from(schema.identityChecks).where(eq(schema.identityChecks.organizationId, organizationId)).orderBy(desc(schema.identityChecks.createdAt));
+  return { org, role: m.role, checks };
+}
+
+/** enquiry lists are read a page at a time */
+export const INBOX_PAGE = 50;
+type Show = 'open' | 'closed';
+const inTab = (show: Show) => (show === 'closed' ? eq(schema.enquiries.status, 'closed') : ne(schema.enquiries.status, 'closed'));
+const pageOf = (page: number) => Math.max(1, Math.min(Math.floor(page) || 1, 1000));
+
+/** how many enquiries match `where`, split into the Open tab (new and open) and Closed */
+async function tabCounts(where: ReturnType<typeof eq>) {
+  const rows = await db.select({ closed: sql<number>`${schema.enquiries.status} = 'closed'`, n: sql<number>`count(*)` })
+    .from(schema.enquiries).where(where).groupBy(sql`1`);
+  const counts = { open: 0, closed: 0 };
+  for (const r of rows) counts[r.closed ? 'closed' : 'open'] = r.n;
+  return counts;
+}
+
+/** one page of the enquiries a company received in one tab, newest first, and both tabs' counts */
+export async function inbox(organizationId: string, show: Show, page = 1) {
+  const p = pageOf(page);
+  const mine = eq(schema.enquiries.organizationId, organizationId);
+  const rows = await db.select().from(schema.enquiries).where(and(mine, inTab(show)))
+    .orderBy(desc(schema.enquiries.updatedAt)).limit(INBOX_PAGE + 1).offset((p - 1) * INBOX_PAGE);
+  return { rows: rows.slice(0, INBOX_PAGE), more: rows.length > INBOX_PAGE, page: p, counts: await tabCounts(mine) };
+}
+
+/** one page of the enquiries the user sent in one tab, newest first, and both tabs' counts */
+export async function sent(userId: string, show: Show, page = 1) {
+  const p = pageOf(page);
+  const mine = eq(schema.enquiries.fromUserId, userId);
+  const rows = await db.select({ enquiry: schema.enquiries, company: schema.organizations.name }).from(schema.enquiries)
     .innerJoin(schema.organizations, eq(schema.organizations.id, schema.enquiries.organizationId))
-    .where(eq(schema.enquiries.fromUserId, userId)).orderBy(desc(schema.enquiries.updatedAt));
+    .where(and(mine, inTab(show))).orderBy(desc(schema.enquiries.updatedAt)).limit(INBOX_PAGE + 1).offset((p - 1) * INBOX_PAGE);
+  return { rows: rows.slice(0, INBOX_PAGE), more: rows.length > INBOX_PAGE, page: p, counts: await tabCounts(mine) };
 }
 
-/** one thread, if the user is its buyer or on the receiving team; opening it as the team marks it read */
+/**
+ * One thread, if the user is its buyer or on the receiving team. Read-only: a GET of the thread page (which mail
+ * scanners prefetch) must not mark it read; the page posts enquiries.markRead once it is shown.
+ */
 export async function thread(userId: string, enquiryId: string) {
-  const e = await db.query.enquiries.findFirst({ where: eq(schema.enquiries.id, enquiryId) });
-  if (!e) return null;
+  const row = (await db.select({ enquiry: schema.enquiries, company: schema.organizations.name }).from(schema.enquiries)
+    .innerJoin(schema.organizations, eq(schema.organizations.id, schema.enquiries.organizationId))
+    .where(eq(schema.enquiries.id, enquiryId)).limit(1))[0];
+  if (!row) return null;
+  const e = row.enquiry;
   const onTeam = !!(await db.query.members.findFirst({ where: and(eq(schema.members.organizationId, e.organizationId), eq(schema.members.userId, userId)), columns: { role: true } }));
   if (!onTeam && e.fromUserId !== userId) return null;
-  // opening the thread reads it, for whichever side opened it
-  if (onTeam && (e.status === 'new' || e.companyUnread)) {
-    await db.update(schema.enquiries).set({ companyUnread: false, ...(e.status === 'new' ? { status: 'open' as const } : {}) }).where(eq(schema.enquiries.id, enquiryId));
-  } else if (!onTeam && e.buyerUnread) {
-    await db.update(schema.enquiries).set({ buyerUnread: false }).where(eq(schema.enquiries.id, enquiryId));
-  }
   const messages = await db.select().from(schema.enquiryMessages).where(eq(schema.enquiryMessages.enquiryId, enquiryId)).orderBy(asc(schema.enquiryMessages.createdAt));
-  return { enquiry: e, messages, side: onTeam ? 'company' as const : 'buyer' as const };
+  const side = onTeam ? 'company' as const : 'buyer' as const;
+  // what the viewer has not read yet; the page marks it read after it is shown
+  const unread = side === 'company' ? e.companyUnread || e.status === 'new' : e.buyerUnread;
+  return { enquiry: e, company: row.company, messages, side, unread };
 }
 
 /** admin queue: oldest pending first */

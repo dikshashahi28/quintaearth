@@ -21,8 +21,10 @@ interface Props {
   base: string;
   error?: { body?: string; form?: string };
   class?: string;
+  /** the viewer has not read it yet: once shown, the page posts enquiries.markRead (the GET itself changes nothing) */
+  unread?: boolean;
 }
-const { enquiry, messages, side, viewerId, companyName, listing, names, base, error = {}, class: cls } = Astro.props;
+const { enquiry, messages, side, viewerId, companyName, listing, names, base, error = {}, class: cls, unread = false } = Astro.props;
 const closed = enquiry.status === 'closed';
 const reply = `${base}${String(actions.enquiries.reply)}`;
 const setStatus = `${base}${String(actions.enquiries.setStatus)}`;
@@ -41,7 +43,7 @@ function from(m: Message) {
 const last = messages.length - 1;
 const field = `reply-${enquiry.id}`;
 ---
-<article class:list={['eq-thread', cls]} aria-labelledby={`t-${enquiry.id}`} data-eq-thread>
+<article class:list={['eq-thread', cls]} aria-labelledby={`t-${enquiry.id}`} data-eq-thread data-eq-unread={unread ? enquiry.id : undefined}>
   <h2 id={`t-${enquiry.id}`}>{enquiry.subject}</h2>
   <div class="eq-meta">
     {side === 'buyer' && <span><Icon name="storefront" />To: {companyName}</span>}
@@ -105,6 +107,13 @@ const field = `reply-${enquiry.id}`;
 </article>
 
 <script>
+  // the thread is on screen: mark it read. A POST, so link prefetchers (mail scanners) that only GET the page never
+  // do; without JavaScript, replying marks it read instead
+  for (const t of document.querySelectorAll<HTMLElement>('[data-eq-unread]')) {
+    const body = new FormData();
+    body.set('enquiryId', t.dataset.eqUnread ?? '');
+    fetch('/_actions/enquiries.markRead', { method: 'POST', body, headers: { Accept: 'application/json' }, credentials: 'same-origin', keepalive: true }).catch(() => {});
+  }
   // typing a reply runs the rail from the newest message down to the form, whose bead lights gold
   for (const t of document.querySelectorAll<HTMLElement>('[data-eq-thread]')) {
     const body = t.querySelector<HTMLTextAreaElement>('[data-eq-body]');

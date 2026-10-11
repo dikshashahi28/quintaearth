@@ -3,20 +3,22 @@ import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { and, eq, gt } from 'drizzle-orm';
 import { db, schema } from '../db/client';
-import { requireMember } from '../lib/guards';
+import { isMember, requireMember, requireUser } from '../lib/guards';
 import { freeHandle } from '../lib/handles';
-import { reindex, unindex } from '../lib/search';
+import { listingDoc, searchRows } from '../lib/search';
 import { deleteFile, putFile } from '../lib/storage';
 import { clearAllTags, setTags } from '../lib/tags';
 import { countriesField, optText, optUrl, reqText, subsField, uniq } from '../lib/validate';
 
 const MAX_EVIDENCE = 10;
 
-/** the listing, after checking the caller is on its company's team */
+const notFound = () => new ActionError({ code: 'NOT_FOUND', message: 'Listing not found.' });
+
+/** the listing, after checking the caller is on its company's team; "missing" and "not yours" are one answer, so ids cannot be probed */
 async function ownListing(ctx: Parameters<typeof requireMember>[0], listingId: string) {
+  const user = requireUser(ctx);
   const l = await db.query.listings.findFirst({ where: eq(schema.listings.id, listingId) });
-  if (!l) throw new ActionError({ code: 'NOT_FOUND', message: 'Listing not found.' });
-  const { user } = await requireMember(ctx, l.organizationId);
+  if (!l || !(await isMember(user.id, l.organizationId))) throw notFound();
   return { listing: l, user };
 }
 
@@ -39,13 +41,19 @@ export const listings = {
       await requireMember(ctx, input.organizationId);
       let id = input.listingId;
       const fields = { name: input.name, kind: input.kind, description: input.description, link: input.link, status: input.status, updatedAt: new Date() };
+      const subs = uniq(input.subs), serves = uniq(input.serves);
+      // the search row is rewritten in the same batch as the listing, from what is being saved
+      const org = (await db.query.organizations.findFirst({ where: eq(schema.organizations.id, input.organizationId), columns: { name: true, published: true } }))!;
+      const doc = listingDoc(fields, org, { sub: subs, serves });
       if (id) {
         const { listing } = await ownListing(ctx, id);
-        if (listing.organizationId !== input.organizationId) throw new ActionError({ code: 'FORBIDDEN', message: 'Listing not found.' });
+        if (listing.organizationId !== input.organizationId) throw notFound();
+        const listingId = id;
         await db.batch([
-          db.update(schema.listings).set(fields).where(eq(schema.listings.id, id)),
-          ...setTags('listing', id, 'sub', uniq(input.subs)),
-          ...setTags('listing', id, 'serves', uniq(input.serves)),
+          db.update(schema.listings).set(fields).where(eq(schema.listings.id, listingId)),
+          ...setTags('listing', listingId, 'sub', subs),
+          ...setTags('listing', listingId, 'serves', serves),
+          ...searchRows('listing', listingId, doc),
         ]);
       } else {
         // a double-clicked "Publish" posts twice: the same name from the same company within a minute is one listing
@@ -62,8 +70,9 @@ export const listings = {
         })));
         const create = (s: string) => db.batch([
           db.insert(schema.listings).values({ id: newId, organizationId: input.organizationId, slug: s, ...fields }),
-          ...setTags('listing', newId, 'sub', uniq(input.subs)),
-          ...setTags('listing', newId, 'serves', uniq(input.serves)),
+          ...setTags('listing', newId, 'sub', subs),
+          ...setTags('listing', newId, 'serves', serves),
+          ...searchRows('listing', newId, doc),
         ]);
         // another request can take the free slug between the check and the insert: when that request was this
         // same double-click it is the twin, so answer with it; otherwise the name only shares a slug, so add a suffix
@@ -74,7 +83,6 @@ export const listings = {
           await create(`${slug}-${crypto.randomUUID().slice(0, 6)}`);
         }
       }
-      await reindex('listing', id);
       return { id };
     },
   }),
@@ -85,8 +93,7 @@ export const listings = {
     handler: async ({ listingId }, ctx) => {
       const { listing } = await ownListing(ctx, listingId);
       const fileKeys = (await db.select({ key: schema.files.key }).from(schema.files).where(eq(schema.files.listingId, listingId))).map((f) => f.key);
-      await db.batch([clearAllTags('listing', listingId), db.delete(schema.listings).where(eq(schema.listings.id, listingId))]);
-      await unindex('listing', [listingId]);
+      await db.batch([clearAllTags('listing', listingId), db.delete(schema.listings).where(eq(schema.listings.id, listingId)), ...searchRows('listing', listingId, null)]);
       for (const key of [...fileKeys, listing.photoKey]) await deleteFile(key);
       return { removed: listingId };
     },

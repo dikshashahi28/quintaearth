@@ -1,5 +1,6 @@
 // "Identity checked": a company asks, an admin reviews. It says who they are, never that they are green.
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { createdAt, updatedAt, user } from './auth';
 import { organizations } from './accounts';
 
@@ -22,4 +23,6 @@ export const identityChecks = sqliteTable('identity_checks', {
   reason: text('reason'),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-}, (t) => [index('identity_checks_status_idx').on(t.status, t.createdAt), index('identity_checks_org_idx').on(t.organizationId)]);
+}, (t) => [index('identity_checks_status_idx').on(t.status, t.createdAt), index('identity_checks_org_idx').on(t.organizationId),
+  // one pending request per company (migrations/0004_identity_one_pending.sql)
+  uniqueIndex('identity_checks_one_pending_idx').on(t.organizationId).where(sql`status = 'pending'`)]);

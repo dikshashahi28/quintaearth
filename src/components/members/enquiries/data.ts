@@ -4,10 +4,7 @@ import { db, schema } from '../../../db/client';
 import { inChunks } from '../../../db/chunks';
 
 export type Show = 'open' | 'closed';
-type Status = 'new' | 'open' | 'closed';
 
-/** the Open tab holds new and open enquiries; Closed holds the rest */
-export const inTab = (status: Status, show: Show) => (show === 'closed' ? status === 'closed' : status !== 'closed');
 export const showOf = (url: URL): Show => (url.searchParams.get('show') === 'closed' ? 'closed' : 'open');
 
 const day = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
@@ -48,6 +45,14 @@ export async function companyName(organizationId: string) {
 export function withQuery(path: string, params: Record<string, string | null | undefined>) {
   const q = new URLSearchParams(Object.entries(params).filter((e): e is [string, string] => !!e[1])).toString();
   return q ? `${path}?${q}` : path;
+}
+
+export interface Pager { newer?: string; older?: string }
+
+/** links to the next and previous page of an enquiry list (lists are read a page at a time) */
+export function pageLinks(path: string, params: { org?: string | null; show: Show }, page: number, more: boolean): Pager {
+  const at = (p: number) => withQuery(path, { org: params.org, show: params.show === 'closed' ? 'closed' : null, page: p > 1 ? String(p) : null });
+  return { newer: page > 1 ? at(page - 1) : undefined, older: more ? at(page + 1) : undefined };
 }
 
 /** which side wrote each enquiry's latest message */

@@ -1,11 +1,11 @@
 ---
-// Enquiries the member sent to companies. No thread opens here: opening one (its own page) marks a reply read.
+// Enquiries the member sent to companies, a page at a time. No thread opens here: opening one (its own page) marks a reply read.
 import Dashboard from '../../../layouts/Dashboard.astro';
 import Inbox from '../../../components/members/enquiries/Inbox.astro';
 import EmptyState from '../../../components/members/EmptyState.astro';
 import { dashContext } from '../../../lib/dash-context';
 import { sent } from '../../../db/queries/dashboard';
-import { inTab, lastSides, listDate, showOf, withQuery } from '../../../components/members/enquiries/data';
+import { lastSides, listDate, pageLinks, showOf, withQuery } from '../../../components/members/enquiries/data';
 
 export const prerender = false;
 
@@ -14,8 +14,7 @@ if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(Astro.url.pa
 const ctx = await dashContext(user, Astro.url);
 
 const show = showOf(Astro.url);
-const all = await sent(user.id);
-const rows = all.filter((r) => inTab(r.enquiry.status, show));
+const { rows, more, page, counts } = await sent(user.id, show, Number(Astro.url.searchParams.get('page')));
 const last = await lastSides(rows.map((r) => r.enquiry.id));
 const items = rows.map(({ enquiry: e, company }) => ({
   id: e.id, href: `/dashboard/messages/${e.id}`, source: last.get(e.id) === 'company' ? 'Replied' : 'Sent', date: listDate(e.updatedAt),
@@ -24,12 +23,12 @@ const items = rows.map(({ enquiry: e, company }) => ({
 
 ---
 <Dashboard ctx={ctx} current="messages" title="Sent enquiries" crumbs={[{ label: 'Sent enquiries' }]}>
-  <Inbox show={show} openCount={all.filter((r) => r.enquiry.status !== 'closed').length}
+  <Inbox show={show} openCount={counts.open} pager={pageLinks('/dashboard/messages', { show }, page, more)}
     tabs={{ open: '/dashboard/messages', closed: withQuery('/dashboard/messages', { show: 'closed' }) }}
     items={items} label="Sent enquiries" mode="list">
     <p class="eq-pick">Choose an enquiry to read it and reply.</p>
     <Fragment slot="empty">
-      {all.length === 0
+      {counts.open + counts.closed === 0
         ? <EmptyState note="No enquiries sent yet." action={{ href: '/directory', label: 'Find companies in the directory', quiet: true }} />
         : <EmptyState note={show === 'closed' ? 'No closed enquiries.' : 'No open enquiries.'} />}
     </Fragment>

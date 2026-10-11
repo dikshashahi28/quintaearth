@@ -36,6 +36,15 @@ export const optUrl = z.string().trim().max(300).nullish().transform((v, ctx) =>
   }
 });
 
+/** a LinkedIn address (linkedin.com or a subdomain such as in.linkedin.com), or null: the pages label it LinkedIn */
+export const optLinkedIn = (example: string) => optUrl.transform((v, ctx) => {
+  if (!v) return null;
+  const host = new URL(v).hostname.toLowerCase();
+  if (host === 'linkedin.com' || host.endsWith('.linkedin.com')) return v;
+  ctx.addIssue({ code: 'custom', message: `Enter a LinkedIn address, like ${example}.` });
+  return z.NEVER;
+});
+
 export const optCountry = z.string().nullish().transform((v) => v || null)
   .refine((v) => v === null || countryCodes.has(v), 'Choose a country from the list.');
 

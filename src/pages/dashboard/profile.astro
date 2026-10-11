@@ -28,9 +28,9 @@ const updated = Astro.getActionResult(actions.profile.update);
 const photoSet = Astro.getActionResult(actions.profile.setPhoto);
 const photoRemoved = Astro.getActionResult(actions.profile.removePhoto);
 // post, redirect, get: a reload never posts twice
-if (updated?.data) return Astro.redirect('/dashboard/profile?saved=details');
-if (photoSet?.data) return Astro.redirect('/dashboard/profile?saved=photo');
-if (photoRemoved?.data) return Astro.redirect('/dashboard/profile?saved=nophoto');
+if (updated?.data) return Astro.redirect('/dashboard/profile?saved=details', 303);
+if (photoSet?.data) return Astro.redirect('/dashboard/profile?saved=photo', 303);
+if (photoRemoved?.data) return Astro.redirect('/dashboard/profile?saved=nophoto', 303);
 
 const ctx = await dashContext(user, Astro.url);
 const profile = await myProfile(user.id);

@@ -7,12 +7,12 @@ import { db, schema } from '../db/client';
 import { sendMail, noticeMail } from '../lib/email';
 import { requireMember, requireUser } from '../lib/guards';
 import { freeHandle } from '../lib/handles';
-import { reindexCompany } from '../lib/search';
+import { companyListingRows, organizationDoc, searchRows } from '../lib/search';
 import { deleteFile, putFile } from '../lib/storage';
 import { setTags } from '../lib/tags';
 import { hashToken, newToken } from '../lib/tokens';
 import { DAY, spend } from '../lib/throttle';
-import { checkbox, industriesField, optCountry, optText, optUrl, reqText, sdgsField, subsField, uniq } from '../lib/validate';
+import { checkbox, industriesField, optCountry, optLinkedIn, optText, optUrl, reqText, sdgsField, subsField, uniq } from '../lib/validate';
 
 const orgId = z.uuid();
 const INVITE_DAYS = 7;
@@ -70,29 +70,39 @@ export const company = {
         return n;
       }),
       website: optUrl,
-      linkedin: optUrl,
+      linkedin: optLinkedIn('linkedin.com/company/your-company'),
       industries: industriesField,
       subs: subsField,
       sdgs: sdgsField,
       published: checkbox,
     }),
     handler: async (input, ctx) => {
-      await requireMember(ctx, input.organizationId);
+      const { membership } = await requireMember(ctx, input.organizationId);
       const id = input.organizationId;
-      // "Identity checked" vouches for the name that was checked: a new name needs a new check
-      const before = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, id), columns: { name: true, identityCheckedAt: true } });
-      const renamed = !!before?.identityCheckedAt && before.name !== input.name;
+      const before = (await db.query.organizations.findFirst({ where: eq(schema.organizations.id, id),
+        columns: { name: true, website: true, published: true, identityCheckedAt: true } }))!;
+      // what "Identity checked" vouches for (the name and the website people land on) and whether the page is
+      // public are the owners' to change; the rest of the page is the whole team's
+      if (membership.role !== 'owner' && (before.name !== input.name || (before.website ?? null) !== input.website || before.published !== input.published)) {
+        throw new ActionError({ code: 'FORBIDDEN', message: 'Only owners can change the company name, website or whether the page is public.' });
+      }
+      // a new name or website needs a new check
+      const uncheck = !!before.identityCheckedAt && (before.name !== input.name || (before.website ?? null) !== input.website);
+      const industries = uniq(input.industries), subs = uniq(input.subs);
+      // the company's search row and its listings' rows (they carry its name and visibility) change in the same batch
+      const listingRows = await companyListingRows(id, { name: input.name, published: input.published });
       await db.batch([
         db.update(schema.organizations).set({
-          ...(renamed ? { identityCheckedAt: null } : {}),
+          ...(uncheck ? { identityCheckedAt: null } : {}),
           name: input.name, description: input.description, city: input.city, country: input.country, size: input.size,
           foundedYear: input.foundedYear, website: input.website, linkedin: input.linkedin, published: input.published, updatedAt: new Date(),
         }).where(eq(schema.organizations.id, id)),
-        ...setTags('organization', id, 'industry', uniq(input.industries)),
-        ...setTags('organization', id, 'sub', uniq(input.subs)),
+        ...setTags('organization', id, 'industry', industries),
+        ...setTags('organization', id, 'sub', subs),
         ...setTags('organization', id, 'sdg', uniq(input.sdgs)),
+        ...searchRows('organization', id, organizationDoc(input, { industry: industries, sub: subs })),
+        ...listingRows,
       ]);
-      await reindexCompany(id);
       return { published: input.published };
     },
   }),
@@ -101,7 +111,8 @@ export const company = {
     accept: 'form',
     input: z.object({ organizationId: orgId, logo: z.instanceof(File) }),
     handler: async ({ organizationId, logo }, ctx) => {
-      const { user } = await requireMember(ctx, organizationId);
+      // the logo sits next to the "Identity checked" mark: owners only
+      const { user } = await requireMember(ctx, organizationId, { owner: true });
       const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId), columns: { logoKey: true } });
       const key = await putFile(logo, 'logo', { userId: user.id, organizationId });
       await db.update(schema.organizations).set({ logoKey: key, updatedAt: new Date() }).where(eq(schema.organizations.id, organizationId));
@@ -114,7 +125,7 @@ export const company = {
     accept: 'form',
     input: z.object({ organizationId: orgId }),
     handler: async ({ organizationId }, ctx) => {
-      await requireMember(ctx, organizationId);
+      await requireMember(ctx, organizationId, { owner: true });
       const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId), columns: { logoKey: true } });
       await db.update(schema.organizations).set({ logoKey: null, updatedAt: new Date() }).where(eq(schema.organizations.id, organizationId));
       await deleteFile(org?.logoKey);
