@@ -300,7 +300,7 @@
   .scene .fly.f3{animation:fly-m 30s linear infinite;animation-delay:-8s}
   .rot{min-width:0;display:inline}
   .hero h1{font-size:clamp(26px,8.4vw,42px)}
-  .hero .kicker{font-size:11px;letter-spacing:.06em;max-width:30ch}
+  .hero .kicker{font-size:14px;letter-spacing:.04em;max-width:30ch}
   .stones ul{grid-template-columns:1fr;gap:18px}
   .stones li{display:grid;grid-template-columns:88px minmax(0,1fr);column-gap:16px;align-items:start;text-align:left}
   .stones li > :not(.stone){grid-column:2;justify-self:start}
@@ -342,4 +342,13 @@
   .chips li{opacity:1}
   .scene *{animation:none !important}
   .scene .cloud.c1{transform:translateX(1290px)}.scene .cloud.c2{transform:translateX(170px)}.scene .cloud.c3{transform:translateX(230px)}
+}
+
+/* phones (mobile pass): section rhythm sized for a phone, 14px labels */
+@media (max-width:640px){
+  .flow > section{padding-block:52px}
+  .stones .tag,.pill,.pebble,.ph .badge,.work h3,.filed span,.filed em,.feat .meta{font-size:14px}
+}
+@media (hover:none){
+  .pebble:hover .pl{color:inherit}
 }

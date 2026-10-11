@@ -138,3 +138,20 @@
   .logo img, .logo::after { animation: none; }
   .acts .me { transition: none; }
 }
+
+/* phone sheet (mobile pass): the page behind is dimmed and does not scroll; every link in the sheet,
+   and the logo, is a 44px target; the industry links do not keep a hover underline after a tap */
+@media (max-width: 900px) {
+  .logo { display: inline-flex; align-items: center; min-height: 44px; }
+  :root:has(.hdr.open) { overflow: hidden; }
+  .hdr.open .nav {
+    box-shadow: 0 16px 32px rgba(20, 48, 28, .1), 0 0 0 100vmax rgba(20, 48, 28, .32);
+    clip-path: inset(0 0 -100vmax 0);
+  }
+  .mega-h a, .mega li a { min-height: 44px; }
+  .mega ul { gap: 0 16px; }
+}
+@media (hover: none) {
+  .mega li a:hover:not(:focus-visible) { color: var(--muted); transform: none; }
+  .mega :is(li a, .mega-h a):hover:not(:focus-visible)::after { transform: scaleX(0); }
+}
