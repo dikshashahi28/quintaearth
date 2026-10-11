@@ -74,9 +74,12 @@ export function initHeader(): void {
   });
   document.addEventListener('click', (e) => {
     if (hdr.contains(e.target as Node)) return;
+    // the open phone sheet dims the page: a tap on the dimmed part only closes the sheet,
+    // it must not also follow a link the reader cannot see properly
+    if (phone.matches && hdr.classList.contains('open')) { e.preventDefault(); e.stopPropagation(); }
     setMenu(false);
     setMega(false);
-  });
+  }, { capture: true });
   // keyboard users tabbing past the last link must not leave the menu open over the page (WCAG 2.4.11)
   hdr.addEventListener('focusout', (e) => {
     const next = e.relatedTarget as Node | null;

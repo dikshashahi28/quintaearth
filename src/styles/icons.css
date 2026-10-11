@@ -39,3 +39,8 @@
   .anim .rv .hi { transform: none; opacity: 1; transition: none; }
   [class*='m-']:is(:hover, :focus-visible) .hi { animation: none; }
 }
+
+/* phones (mobile pass): the reveal does not fade there (base.css), so the icons stay visible too */
+@media (max-width: 640px) {
+  .anim .rv .hi { opacity: 1; }
+}

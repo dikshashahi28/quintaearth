@@ -109,3 +109,18 @@ a.chip:is(:hover, :focus-visible) { border-color: var(--river); color: var(--riv
 @media (max-width: 400px) {
   .btn { white-space: normal; text-align: center; line-height: 1.25; padding-block: 10px; max-width: 100%; }
 }
+
+/* phones and touch screens (mobile pass): a quicker reveal, 14px labels, 44px chips, no sticky hover lifts */
+@media (max-width: 640px) {
+  /* no fade on phones: a fling can outrun any observer margin, and faded content read as a blank page */
+  .anim .rv { opacity: 1; transform: translateY(12px); transition: transform .5s var(--ease); }
+  .kicker { font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .chip { min-height: 44px; }
+}
+@media (hover: none) {
+  .btn:hover { transform: none; box-shadow: none; }
+  a.chip:hover:not(:focus-visible) { transform: none; }
+  .tlink:hover .ic, .btn:hover .ic.arr { transform: none; }
+}

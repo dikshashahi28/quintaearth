@@ -341,3 +341,17 @@
 .card-slot > .card { flex: 1; }
 .card-slot[hidden] { display: none; }
 .more-row { margin-top: 32px; text-align: center; }
+
+/* phones and touch screens (mobile pass): 14px small print, 44px breadcrumb links, no stuck hover lifts */
+@media (max-width: 640px) {
+  .field .hint, .note-line, .lead-figure figcaption, .pager .dir, .ind-photo .badge, .goal-card .tally { font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .crumbs a, .reading a { min-height: 44px; }
+  /* heading links on the industries index: the whole line is the target */
+  .ind-card h2 a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+@media (hover: none) {
+  .goal-card:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+  .ind-photo:hover img { transform: none; }
+}

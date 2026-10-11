@@ -47,3 +47,20 @@ a.goal:hover { border-color: var(--river); color: var(--river-deep); }
 .card .foot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .card .foot .goals { position: relative; z-index: 1; }
 .card .time { flex: none; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* phones (mobile pass): shorter photos and a two-line dek, so a list of cards is not a screen per card;
+   14px labels; full goal tags get a 44px touch height; no hover lift left stuck after a tap */
+@media (max-width: 640px) {
+  .card-img { aspect-ratio: 2 / 1; }
+  .card .dek { -webkit-line-clamp: 2; }
+  .card .where, .card .time, .goal { font-size: 14px; }
+  .card .kind { font-size: 14px; letter-spacing: .04em; }
+}
+@media (pointer: coarse) {
+  .goal { min-height: 44px; }
+  .goals.compact .goal { min-height: 0; }
+}
+@media (hover: none) {
+  .card:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+  .card:hover .card-img img { transform: none; }
+}
