@@ -1,5 +1,7 @@
 ---
 // The member's own person page editor: photo, details, tags, links and whether /people/<handle> is public.
+// Design: "the spring" Profile board. A river rail runs beside the sections, a bead per section that lights gold as
+// it is filled in (styles/members/profile-editor.css).
 import { actions, isInputError } from 'astro:actions';
 import Dashboard from '../../layouts/Dashboard.astro';
 import Avatar from '../../components/members/Avatar.astro';
@@ -10,10 +12,12 @@ import TagFields from '../../components/members/forms/TagFields.astro';
 import FormStatus from '../../components/members/forms/FormStatus.astro';
 import FileDrop from '../../components/members/forms/FileDrop.astro';
 import EmptyState from '../../components/members/EmptyState.astro';
+import Rail from '../../components/members/profile/Rail.astro';
 import { actionErrorMessage } from '../../components/members/forms/errors';
 import { dashContext } from '../../lib/dash-context';
 import { myProfile } from '../../db/queries/dashboard';
 import '../../styles/members/editors.css';
+import '../../styles/members/profile-editor.css';
 
 export const prerender = false;
 
@@ -60,9 +64,25 @@ const v = {
 };
 
 const savedFlag = Astro.url.searchParams.get('saved');
-const saved = savedFlag === 'details' ? (profile?.published ? 'Saved. Your profile is live.' : 'Saved. Your profile is hidden from the public.') : savedFlag === 'photo' ? 'Photo saved.' : savedFlag === 'nophoto' ? 'Photo removed.' : null;
+const savedDetails = savedFlag === 'details' && !sent ? (profile?.published ? 'Saved. Your profile is live.' : 'Saved. Your profile is hidden from the public.') : null;
+const savedPhoto = savedFlag === 'photo' ? 'Photo saved.' : savedFlag === 'nophoto' ? 'Photo removed.' : null;
 const pageUrl = profile ? `/people/${profile.handle}` : null;
 const live = !!profile?.published;
+
+// the river rail: a bead per section, lit when it is filled in; the track runs green down to the last lit bead
+const has = (s: string) => s.trim() !== '';
+const lit = {
+  photo: !!profile?.photoKey,
+  details: has(v.name) && has(v.headline) && has(v.bio),
+  tags: v.industries.length > 0 || v.subs.length > 0,
+  skills: has(v.skills),
+  links: has(v.linkedin) || has(v.website),
+  page: v.published,
+  save: !!savedDetails,
+};
+const order = Object.values(lit);
+const last = order.lastIndexOf(true);
+const on = (i: number) => i < last;
 ---
 <Dashboard ctx={ctx} current="profile" title="Your profile" crumbs={[{ label: 'Your profile' }]}>
   {live && pageUrl && <div class="head-acts" slot="head"><a class="tlink" href={pageUrl}>View your page<Icon name="arrow_forward" /></a></div>}
@@ -72,28 +92,31 @@ const live = !!profile?.published;
       <EmptyState title="Your profile" note="Finish setting up your account first." action={{ href: '/welcome', label: 'Set up your account' }} />
     </div>
   ) : (
-    <div class="formw">
-      <FormStatus saved={saved} error={detailsError} />
-
+    <div class="pe" data-photo={lit.photo ? '1' : undefined}>
+      <Rail step="photo" lit={lit.photo} on={on(0)} delay={0.1} />
       <section class="sec" aria-labelledby="photo-h" data-save-first>
         <h2 id="photo-h">Photo</h2>
         <div class="upload">
           <Avatar name={v.name || user.name} imageKey={profile.photoKey} />
           <div class="upload-acts">
             <FileDrop id="p-photo" name="photo" maxMB={5} required action={actions.profile.setPhoto} icon="photo_camera" accept="image/jpeg,image/png,image/webp"
-              label={profile.photoKey ? 'Replace photo' : 'Add a photo'} hint="JPG, PNG or WebP, up to 5 MB" button="Upload photo" error={photoMessage} />
+              label={profile.photoKey ? 'Replace photo' : 'Add a photo'} hint="JPG, PNG or WebP, up to 5 MB" button="Upload photo" error={photoMessage}>
+              <label class="btn btn-line pe-choose" for="p-photo">Choose a photo</label>
+            </FileDrop>
             {profile.photoKey && (
               <form method="POST" action={actions.profile.removePhoto}>
                 <button class="tlink" type="submit">Remove photo</button>
               </form>
             )}
+            <FormStatus saved={savedPhoto} />
           </div>
         </div>
       </section>
 
       <form class="secs" method="POST" action={actions.profile.update} data-main>
-        <section class="sec">
-          <h2>Details</h2>
+        <Rail step="details" lit={lit.details} on={on(1)} delay={0.3} />
+        <section class="sec" aria-labelledby="details-h">
+          <h2 id="details-h">Details</h2>
           <div class="form">
             <Field id="p-name" name="name" label="Name" value={v.name} error={errors.name} maxlength={80} required autocomplete="name" />
             <Field id="p-head" name="headline" label="Headline" value={v.headline} error={errors.headline} maxlength={120} count />
@@ -105,36 +128,40 @@ const live = !!profile?.published;
           </div>
         </section>
 
+        <Rail step="tags" lit={lit.tags} on={on(2)} delay={0.44} />
         <TagFields prefix="p" industries={v.industries} subs={v.subs} errors={errors} />
 
-        <section class="sec">
-          <h2>Skills</h2>
+        <Rail step="skills" lit={lit.skills} on={on(3)} delay={0.58} />
+        <section class="sec" aria-labelledby="skills-h">
+          <h2 id="skills-h">Skills</h2>
           <Field id="p-skills" name="skills" label="Skills" value={v.skills} error={errors.skills} maxlength={400}
             hint="Separate with commas, up to 15." placeholder="Solar PV design, grid integration" />
         </section>
 
-        <section class="sec">
-          <h2>Links</h2>
+        <Rail step="links" lit={lit.links} on={on(4)} delay={0.72} />
+        <section class="sec" aria-labelledby="links-h">
+          <h2 id="links-h">Links</h2>
           <div class="form">
             <Field id="p-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
             <Field id="p-web" name="website" label="Website" value={v.website} error={errors.website} maxlength={300} optional inputmode="url" />
           </div>
         </section>
 
-        <section class="sec">
-          <h2>Your page</h2>
-          <div class="form">
+        <Rail step="page" lit={lit.page} on={on(5)} delay={0.86} toEnd />
+        <section class="sec" aria-labelledby="page-h">
+          <h2 id="page-h">Your page</h2>
+          <div class="pe-page">
             <label class="check"><input type="checkbox" name="published" checked={v.published} aria-describedby="p-url" /><span>Show my page publicly</span></label>
             <p class="hint" id="p-url">{pageUrl}</p>
           </div>
         </section>
 
-        <section class="sec">
-          <div class="form-send">
-            <button class="btn btn-fill" type="submit">Save changes</button>
-            {live && pageUrl && <a class="tlink" href={pageUrl}>View your page</a>}
-          </div>
-        </section>
+        <Rail step="save" lit={lit.save} on={false} delay={0} end />
+        <div class="form-send pe-send">
+          <button class="btn btn-fill" type="submit">Save changes</button>
+          {live && pageUrl && <a class="tlink" href={pageUrl}>View your page</a>}
+          <FormStatus saved={savedDetails} error={detailsError} />
+        </div>
       </form>
     </div>
   )}
@@ -144,4 +171,66 @@ const live = !!profile?.published;
   import { saveFirst } from '../../components/members/forms/save-first';
   const main = document.querySelector<HTMLFormElement>('form[data-main]');
   if (main) saveFirst(main, document.querySelectorAll<HTMLFormElement>('[data-save-first] form'));
+
+  const root = document.querySelector<HTMLElement>('.pe');
+  if (root && main) {
+    root.classList.add('js');
+
+    // the photo: choosing a file uploads it (through saveFirst, so unsaved edits are kept); without JS the
+    // native file input and its "Upload photo" button stay
+    const photo = root.querySelector<HTMLInputElement>('#p-photo');
+    photo?.addEventListener('change', () => {
+      // FileDrop's own check clears a file over the limit; read the input after it has run
+      setTimeout(() => { if (photo.value && photo.checkValidity()) photo.form?.requestSubmit(); });
+    });
+
+    // "used / max" beside a limited field, kept up to date as the member types
+    for (const count of root.querySelectorAll<HTMLElement>('.labrow .count')) {
+      const field = count.closest('.field')?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input, textarea');
+      if (!field) continue;
+      field.addEventListener('input', () => { count.textContent = `${field.value.length} / ${field.maxLength}`; });
+    }
+
+    // sub-category groups follow the industries, as on first paint: a group opens when its industry is ticked or one
+    // of its subs is, and its "n chosen" count keeps up (groups are in the same order as the industry chips)
+    const inds = [...main.querySelectorAll<HTMLInputElement>('input[name="industries"]')];
+    const groups = [...main.querySelectorAll<HTMLDetailsElement>('fieldset.subs details')];
+    const syncGroup = (i: number) => {
+      const g = groups[i];
+      if (!g) return;
+      const n = g.querySelectorAll('input[name="subs"]:checked').length;
+      let small = g.querySelector('summary small');
+      if (n && !small) { small = document.createElement('small'); g.querySelector('summary .ms')?.before(small); }
+      if (small) { if (n) small.textContent = `${n} chosen`; else small.remove(); }
+      g.open = !!inds[i]?.checked || n > 0;
+    };
+    inds.forEach((input, i) => input.addEventListener('change', () => syncGroup(i)));
+    groups.forEach((g, i) => g.addEventListener('change', () => syncGroup(i)));
+
+    // the river rail: same rules as the server's first paint
+    const val = (id: string) => !!(document.getElementById(id) as HTMLInputElement | null)?.value.trim();
+    let saved = !!root.querySelector('.pe-rail[data-step="save"] .bead.lit');
+    const rails = [...root.querySelectorAll<HTMLElement>('.pe-rail[data-step]')];
+    const update = () => {
+      const lit: Record<string, boolean> = {
+        photo: root.dataset.photo === '1',
+        details: val('p-name') && val('p-head') && val('p-bio'),
+        tags: !!main.querySelector('input[name="industries"]:checked, input[name="subs"]:checked'),
+        skills: val('p-skills'),
+        links: val('p-li') || val('p-web'),
+        page: !!main.querySelector<HTMLInputElement>('input[name="published"]')?.checked,
+        save: saved,
+      };
+      const states = rails.map((r) => !!lit[r.dataset.step!]);
+      const last = states.lastIndexOf(true);
+      rails.forEach((r, i) => {
+        r.querySelector('.bead')?.classList.toggle('lit', states[i]);
+        r.querySelector('.fill')?.classList.toggle('on', i < last);
+      });
+    };
+    const edited = () => { saved = false; update(); };
+    main.addEventListener('input', edited);
+    main.addEventListener('change', edited);
+    update();
+  }
 </script>
