@@ -15,8 +15,20 @@ import '../../styles/members/person.css';
 
 export const prerender = false;
 
-const person = await getPublicPerson(Astro.params.handle ?? '');
+const handle = Astro.params.handle ?? '';
+const viewer = Astro.locals.user ?? null;
+let person = await getPublicPerson(handle);
+// a hidden profile: its owner gets a preview; everyone else the same 404 as a missing page
+let preview = false;
+if (!person && viewer && await db.query.profiles.findFirst({ where: and(eq(schema.profiles.handle, handle), eq(schema.profiles.userId, viewer.id)), columns: { id: true } })) {
+  person = await getPublicPerson(handle, { hidden: true });
+  preview = !!person;
+}
 if (!person) return new Response(null, { status: 404 });
+if (preview) {
+  Astro.response.headers.set('Cache-Control', 'private, no-store');
+  Astro.response.headers.set('X-Robots-Tag', 'noindex');
+}
 
 // logo, place and trust mark for the "Works at" cards (getPublicPerson only returns name and slug)
 const slugs = person.companies.map((c) => c.slug);
@@ -51,8 +63,9 @@ const personLd = {
   ...((person.website || person.linkedin) && { sameAs: [person.website, person.linkedin].filter(Boolean) }),
 };
 ---
-<Member title={person.name} description={description} current="directory">
+<Member title={person.name} description={description} current="directory" noindex={preview}>
   <script slot="head" type="application/ld+json" set:html={ldJson(personLd)} />
+  {preview && <div class="wide pp-preview"><p class="notice" role="status">Only you can see this page until you publish it.</p></div>}
   <PersonHead name={person.name} line={person.headline} imageKey={person.photoKey} where={where} website={person.website} linkedin={person.linkedin} />
   <section class="pp-body" aria-label="Profile">
     <div class="wide pp-two">
@@ -102,3 +115,8 @@ const personLd = {
   </section>
   <div class="wide pp-end"></div>
 </Member>
+
+<style>
+  /* the hidden profile's preview line (scoped here while the member CSS files are reworked for phones) */
+  .pp-preview { padding-top: 20px; }
+</style>

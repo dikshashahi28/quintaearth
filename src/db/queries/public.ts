@@ -1,11 +1,12 @@
-// Data for the public pages. Only published people, companies and listings are ever returned.
+// Data for the public pages. Only published people, companies and listings are returned (except an owner's preview, `hidden`).
 import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '../client';
 import { inChunks } from '../chunks';
 import { tagsOf } from '../../lib/tags';
 
-export async function getPublicPerson(handle: string) {
-  const p = await db.query.profiles.findFirst({ where: and(eq(schema.profiles.handle, handle), eq(schema.profiles.published, true)) });
+/** `hidden`: also an unpublished profile, for its owner's preview (the caller checks who is looking) */
+export async function getPublicPerson(handle: string, { hidden = false } = {}) {
+  const p = await db.query.profiles.findFirst({ where: and(eq(schema.profiles.handle, handle), hidden ? undefined : eq(schema.profiles.published, true)) });
   if (!p) return null;
   const u = (await db.query.user.findFirst({ where: eq(schema.user.id, p.userId), columns: { name: true } }))!;
   const companies = await db.select({ name: schema.organizations.name, slug: schema.organizations.slug, role: schema.members.role })
@@ -16,8 +17,10 @@ export async function getPublicPerson(handle: string) {
   return { ...profile, name: u.name, tags: await tagsOf('profile', p.id), companies };
 }
 
-export async function getPublicCompany(slug: string) {
-  const org = await db.query.organizations.findFirst({ where: and(eq(schema.organizations.slug, slug), eq(schema.organizations.published, true)) });
+/** `hidden`: also an unpublished company, for its team's preview (the caller checks who is looking); its listings,
+ * evidence and team are still only what the public would see once it is published */
+export async function getPublicCompany(slug: string, { hidden = false } = {}) {
+  const org = await db.query.organizations.findFirst({ where: and(eq(schema.organizations.slug, slug), hidden ? undefined : eq(schema.organizations.published, true)) });
   if (!org) return null;
   const listings = await db.select().from(schema.listings)
     .where(and(eq(schema.listings.organizationId, org.id), eq(schema.listings.status, 'published')))

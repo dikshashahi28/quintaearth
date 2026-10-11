@@ -6,6 +6,8 @@
 import Member from '../../layouts/Member.astro';
 import CompanyListingCard from '../../components/members/public/CompanyListingCard.astro';
 import Icon from '../../components/members/Icon.astro';
+import { and, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client';
 import { getPublicCompany } from '../../db/queries/public';
 import { fileUrl } from '../../lib/storage-url';
 import { absolute, page } from '../../lib/url';
@@ -14,8 +16,22 @@ import '../../styles/members/company.css';
 
 export const prerender = false;
 
-const org = await getPublicCompany(Astro.params.slug ?? '');
+const slug = Astro.params.slug ?? '';
+const viewer = Astro.locals.user ?? null;
+let org = await getPublicCompany(slug);
+// a hidden company: its team (and admins) get a preview; everyone else the same 404 as a missing page
+let preview = false;
+if (!org && viewer) {
+  const hidden = await getPublicCompany(slug, { hidden: true });
+  const onTeam = hidden && (viewer.role === 'admin' || !!(await db.query.members.findFirst({
+    where: and(eq(schema.members.organizationId, hidden.id), eq(schema.members.userId, viewer.id)), columns: { role: true } })));
+  if (hidden && onTeam) { org = hidden; preview = true; }
+}
 if (!org) return new Response(null, { status: 404 });
+if (preview) {
+  Astro.response.headers.set('Cache-Control', 'private, no-store');
+  Astro.response.headers.set('X-Robots-Tag', 'noindex');
+}
 
 const where = place(org.city, org.country);
 const size = sizeLabel(org.size);
@@ -69,7 +85,7 @@ const orgLd = {
 };
 
 ---
-<Member title={org.name} description={description} current="directory">
+<Member title={org.name} description={description} current="directory" noindex={preview}>
   <script slot="head" type="application/ld+json" set:html={ldJson(orgLd)} />
   <script slot="head" type="application/ld+json" set:html={ldJson(breadcrumbLd)} />
   <div class="qe-co">
@@ -81,6 +97,7 @@ const orgLd = {
           <li><span class="sep" aria-hidden="true">›</span><span aria-current="page">{org.name}</span></li>
         </ol>
       </nav>
+      {preview && <p class="notice qe-preview" role="status">Only your team can see this page until you publish it.</p>}
       <div class="qe-who">
         {org.logoKey
           ? <span class="qe-mark"><img src={fileUrl(org.logoKey)} alt={org.name} width="118" height="118" /></span>
@@ -99,7 +116,7 @@ const orgLd = {
         </div>
       </div>
       <div class="qe-head-acts">
-        <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>
+        {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
         {org.website && <a class="qe-tlink" href={org.website} target="_blank" rel={rel}><Icon name="language" />Website<span class="sr"> (opens in a new tab)</span></a>}
         {org.linkedin && (
           <a class="qe-tlink" href={org.linkedin} target="_blank" rel={rel}>
@@ -162,7 +179,7 @@ const orgLd = {
                 <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
                 <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
               </div>
-              <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>
+              {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
             </div>
           )}
         </section>
@@ -187,7 +204,7 @@ const orgLd = {
                   <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
                   <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
                 </div>
-                <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>
+                {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
               </div>
             </section>
           </>
@@ -196,3 +213,8 @@ const orgLd = {
     </div>
   </div>
 </Member>
+
+<style>
+  /* the hidden company's preview line (scoped here while the member CSS files are reworked for phones) */
+  .qe-preview { margin: 0 0 20px; max-width: 60ch; }
+</style>

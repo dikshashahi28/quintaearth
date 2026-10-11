@@ -1,5 +1,6 @@
 ---
-// One labelled text input or textarea with its error line (aria-describedby) and, for limited text, a server-rendered count.
+// One labelled text input or textarea with its error line (aria-describedby) and, for limited text, a "used / max" count:
+// rendered by the server, then kept up to date while the member types.
 interface Props {
   id: string;
   name: string;
@@ -33,7 +34,7 @@ const attrs = {
 ---
 <div class="field">
   {count && maxlength
-    ? <div class="labrow"><label for={id}>{label}{optional && <span class="opt"> (optional)</span>}</label><span class="count">{v.length} / {maxlength}</span></div>
+    ? <div class="labrow"><label for={id}>{label}{optional && <span class="opt"> (optional)</span>}</label><span class="count" data-count-for={id}>{v.length} / {maxlength}</span></div>
     : <label for={id}>{label}{optional && <span class="opt"> (optional)</span>}</label>}
   {textarea
     ? <textarea class="area" rows={rows} {...attrs}>{v}</textarea>
@@ -41,3 +42,13 @@ const attrs = {
   {hint && <p class="hint" id={hintId}>{hint}</p>}
   <p class="err" id={errId}>{error?.join(' ')}</p>
 </div>
+<script>
+  // the count follows the text as it is typed (without JS it shows what was there at load)
+  for (const count of document.querySelectorAll<HTMLElement>('.count[data-count-for]')) {
+    const field = document.getElementById(count.dataset.countFor ?? '') as HTMLInputElement | HTMLTextAreaElement | null;
+    if (!field) continue;
+    const sync = () => { count.textContent = `${field.value.length} / ${field.maxLength}`; };
+    field.addEventListener('input', sync);
+    sync();
+  }
+</script>

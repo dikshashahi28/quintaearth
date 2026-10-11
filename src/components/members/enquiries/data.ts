@@ -11,12 +11,13 @@ const day = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCD
 const short = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 const clock = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
 
-/** list dates: Today, Yesterday, else "3 Oct" */
+/** list dates: Today, Yesterday, else "3 Oct" (UTC days; LocalTime.astro redoes them in the reader's zone) */
 export function listDate(d: Date, now = new Date()) {
   const diff = Math.round((day(now) - day(d)) / 864e5);
-  return diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : short.format(d);
+  return { text: diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' : short.format(d), iso: d.toISOString() };
 }
-/** message dates: "10 Oct, 09:12" (UTC) */
+export type ListDate = ReturnType<typeof listDate>;
+/** message dates: "10 Oct, 09:12" (UTC; LocalTime.astro redoes them in the reader's zone) */
 export const msgDate = (d: Date) => `${short.format(d)}, ${clock.format(d)}`;
 
 /** a message body as paragraphs: blank lines split paragraphs */

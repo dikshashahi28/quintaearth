@@ -132,7 +132,7 @@ check('profile.update rejects unknown industry', st == 400, f'{st}')
 st, j = Bu.action('profile.update', {'name': 'Asha Rao', 'website': 'javascript:alert(1)'})
 check('profile.update rejects javascript: url', st == 400, f'{st}')
 row = sql(f"select p.website, (select group_concat(value) from tags where entity_id=p.id and kind='skill') skills from profiles p where handle='{handle}'")[0]
-check('profile url normalised + skills deduped', row['website'] == 'https://asha.example.com/' and row['skills'].count('solar pv') == 1, str(row))
+check('profile url normalised + skills deduped', row['website'] == 'https://asha.example.com/' and row['skills'].lower().split(',').count('solar pv') == 1, str(row))
 st, j = User('anon').action('profile.update', {'name': 'Xavier Test'})
 check('profile.update signed out -> 401', st == 401, f'{st}')
 st, j = Bu.action('profile.setPhoto', files={'photo': ('me.png', 'image/png', png())})
@@ -675,6 +675,87 @@ check('LinkedIn fields take linkedin.com addresses only, with a plain message', 
 # enquiries: 10 a day per sender, counted by the shared throttle (one statement per send)
 codes = [N.action('enquiries.send', {'organizationId': OID, 'subject': f'Cap {i}', 'message': 'Checking the daily cap on enquiries from one member.'})[0] for i in range(11)]
 check('enquiries: 10 a day per sender, then 429', codes == [200] * 10 + [429], str(codes))
+
+# --- QA defects (11 Oct) ---
+import html as _html
+CO_NAME = sql(f"select name from organizations where id='{OID}'")[0]['name']
+A.action('company.update', {**CO, 'name': CO_NAME})
+Q = User('qa')
+check('QA: a fresh member signs in', login(Q, 'individual'))
+st, j = Q.action('enquiries.send', {'organizationId': OID, 'subject': 'Local time check', 'message': 'Checking that the times show in the reader zone.'})
+QEQ = j.get('id') if st == 200 and isinstance(j, dict) else ''
+# 2: every enquiry date is a <time> with its instant, which the page's script redoes in the reader's zone
+st, _, b = A.req('GET', f'/dashboard/enquiries/{QEQ}')
+check('QA 2: thread and list dates are <time datetime> the page localises', st == 200 and re.search(rb'<time datetime="[0-9T:.\-]+Z" data-local="msg">', b) is not None
+      and re.search(rb'<time datetime="[0-9T:.\-]+Z" data-local="day">', b) is not None, f'{st}')
+st, _, b = Q.req('GET', '/dashboard/messages')
+check('QA 2: the sent list dates are <time datetime> too', st == 200 and b'data-local="day"' in b, f'{st}')
+# 7: the thread being opened does not count in its own page's badge (company and buyer side)
+def badge(body, label): m = re.search(label.encode() + rb'<span class="n">(\d+)<', body); return int(m.group(1)) if m else 0
+before = badge(A.req('GET', '/dashboard/enquiries')[2], 'Enquiries')
+QEQ2 = Q.action('enquiries.send', {'organizationId': OID, 'subject': 'Badge check', 'message': 'One more to check the badge count on the thread.'})[1].get('id')
+listed = badge(A.req('GET', '/dashboard/enquiries')[2], 'Enquiries')
+on_thread = badge(A.req('GET', f'/dashboard/enquiries/{QEQ2}')[2], 'Enquiries')
+check('QA 7: company badge leaves out the open thread', listed == before + 1 and on_thread == listed - 1, f'{before} {listed} {on_thread}')
+A.action('enquiries.reply', {'enquiryId': QEQ2, 'body': 'Thanks, we will look at it.'})
+b1 = badge(Q.req('GET', '/dashboard')[2], 'Sent enquiries')
+b2 = badge(Q.req('GET', f'/dashboard/messages/{QEQ2}')[2], 'Sent enquiries')
+check('QA 7: buyer badge leaves out the open thread', b1 >= 1 and b2 == b1 - 1, f'{b1} {b2}')
+# 3: an input error on a field the form does not show still says something
+st, _, b = Q.form(f'/companies/{OSLUG}/enquire?_action=enquiries.send', {'organizationId': 'not-a-uuid', 'listingId': '', 'subject': 'Hidden field', 'message': 'A message long enough to pass the length check.'})
+check('QA 3: hidden-field error shows "Check the form and try again."', st == 400 and b'Check the form and try again.' in b, f'{st}')
+# 5: sign-in by link shows the action's own message, not a fixed one
+# from its own network address, so it does not spend the suite's shared per-address link budget
+L = User('links')
+lform = lambda: L.req('POST', '/signin?by=link&_action=account.sendSignInLink', urllib.parse.urlencode({'email': L.email, 'next': ''}).encode(),
+                      {'Content-Type': 'application/x-www-form-urlencoded', 'cf-connecting-ip': '198.51.100.41'})
+for _ in range(5): lform()
+st, _, b = lform()
+check('QA 5: sign-in link error shows the real reason', st == 429 and b'Too many links asked for' in b and b'Try again in a minute' not in b, f'{st}')
+# 6: skills keep the member's capitals; repeats are dropped whatever their case
+st, j = Q.action('profile.update', {'name': 'Quinn Test', 'skills': 'PV design, ESG , pv  design, esg'})
+qskills = sorted(r['value'] for r in sql(f"select t.value from tags t join profiles p on p.id=t.entity_id join user u on u.id=p.user_id where u.email='{Q.email}' and t.kind='skill'"))
+check('QA 6: skills keep their capitals, deduped case-insensitively', st == 200 and qskills == ['ESG', 'PV design'], f'{st} {qskills}')
+# 9: company size options do not overlap
+st, _, b = A.req('GET', '/dashboard/company')
+check('QA 9: size options 201–999 and 1,000+', st == 200 and '201–999'.encode() in b and '201–1,000'.encode() not in b and b'value="201-1000"' in b, f'{st}')
+# 10: a signed-out invitee keeps the invitation on sign-in and sign-up; sign-up skips the type doors
+V = User('invitee')
+A.action('company.invite', {'organizationId': OID, 'email': V.email})
+vpath = link_in(outbox(V.email)).replace(B, '')
+q = urllib.parse.quote(vpath, safe='')
+line = re.compile(rb'You were invited to join <b[^>]*>' + re.escape(_html.escape(CO_NAME).encode()) + rb'</b>')
+st1, _, b1 = V.req('GET', f'/signin?next={q}')
+st2, _, b2 = V.req('GET', f'/join?next={q}')
+st3, _, b3 = V.req('GET', '/join')
+check('QA 10: sign-in and sign-up name the inviting company', st1 == 200 and line.search(b1) and st2 == 200 and line.search(b2) and not line.search(b3), f'{st1} {st2} {st3}')
+check('QA 10: sign-up skips the type doors for an invitee only', b'name="type"' not in b2 and b'name="type"' in b3, '')
+st, h, _ = V.req('POST', '/join?_action=account.sendSignInLink', urllib.parse.urlencode({'name': 'Vera Invitee', 'email': V.email, 'next': vpath}).encode(),
+                 {'Content-Type': 'application/x-www-form-urlencoded', 'cf-connecting-ip': '198.51.100.42'})
+st2, h2, _ = follow_link(V, link_in(outbox(V.email)))
+check('QA 10: an invitee joins without a type and lands on the invitation', st == 303 and st2 == 303 and h2['Location'].endswith(vpath), f'{st} {st2} {h2.get("Location")}')
+# password page: it asks for the current password exactly when the action demands it
+st, _, b = Q.req('GET', '/dashboard/password')
+fresh_ok = st == 200 and b'name="current"' not in b
+sql(f"update session set created_at = created_at - 20*60*1000 where user_id=(select id from user where email='{Q.email}')")
+st, _, b = Q.req('GET', '/dashboard/password')
+st2, j2 = Q.action('account.setPassword', {'password': f'qa-{RUN}-password'})
+check('QA password: field shown exactly when the action needs it (fresh: no; after 15 min: yes)', fresh_ok and st == 200 and b'name="current"' in b and st2 == 400 and 'current password' in (j2 or {}).get('message', ''), f'{st} {st2}')
+# 14: hidden pages: the team (and admins) and the profile's owner get a preview; everyone else the 404
+A.action('company.update', {k: v for k, v in CO.items() if k != 'published'} | {'name': CO_NAME})
+st1, h1, b1 = A.req('GET', f'/companies/{OSLUG}')
+st2 = D.req('GET', f'/companies/{OSLUG}')[0]
+st3 = Q.req('GET', f'/companies/{OSLUG}')[0]
+st4 = User('anon').req('GET', f'/companies/{OSLUG}')[0]
+check('QA 14: hidden company: team preview with notice, no-store, noindex; others 404', st1 == 200 and b'Only your team can see this page until you publish it.' in b1 and 'no-store' in h1.get('Cache-Control', '')
+      and b'noindex' in b1 and st2 == 200 and st3 == 404 and st4 == 404, f'{st1} {st2} {st3} {st4}')
+A.action('company.update', {**CO, 'name': CO_NAME})
+qhandle = sql(f"select p.handle from profiles p join user u on u.id=p.user_id where u.email='{Q.email}'")[0]['handle']
+st1, h1, b1 = Q.req('GET', f'/people/{qhandle}')
+st2 = A.req('GET', f'/people/{qhandle}')[0]
+st3 = User('anon').req('GET', f'/people/{qhandle}')[0]
+check('QA 14: hidden profile: owner preview with notice, no-store, noindex; others 404', st1 == 200 and b'Only you can see this page until you publish it.' in b1 and 'no-store' in h1.get('Cache-Control', '')
+      and b'noindex' in b1 and st2 == 404 and st3 == 404, f'{st1} {st2} {st3}')
 
 fails = [r for r in results if r[1] == 'FAIL']
 print(f'\n{len(results) - len(fails)}/{len(results)} passed')

@@ -7,6 +7,8 @@ import PasswordField from '../components/members/forms/PasswordField.astro';
 import GoButton from '../components/members/forms/GoButton.astro';
 import GoogleButton from '../components/members/forms/GoogleButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
+import InviteNote from '../components/members/forms/InviteNote.astro';
+import { invitationFromNext } from '../components/members/forms/invitation';
 import { googleSignIn } from '../lib/auth';
 import { page } from '../lib/url';
 
@@ -59,6 +61,8 @@ const withNext = (path: string, extra = '') => {
   return s ? `${path}?${s}` : path;
 };
 const title = byLink ? 'Email me a link' : 'Sign in';
+// on the way to a team invitation: say so, naming the company
+const invite = await invitationFromNext(formNext);
 ---
 <Account title={title} description="Sign in to QuintaEarth." scene="weaver-woman" sceneAlt="A weaver working threads at a wooden loom" scenePos="50% 40%"
   say="Where sustainability is made, not performed.">
@@ -80,8 +84,9 @@ const title = byLink ? 'Email me a link' : 'Sign in';
     <form class="qe-form" method="POST" action={actions.account.sendSignInLink}>
       <h1 class="tight">Email me a link</h1>
       <p class="lede">New here, or forgot your password? The link signs you in once, then you choose a password.</p>
+      {invite && <InviteNote company={invite.company} />}
       {linkError && <p class="form-status bad" role="alert">That link has expired or was already used. Ask for a new one.</p>}
-      {failed && <p class="form-status bad" role="alert">We could not send the link. Try again in a minute.</p>}
+      {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>
       <div class="qe-grid">
         <div class="qe-rail" data-for="link-email" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
@@ -104,6 +109,7 @@ const title = byLink ? 'Email me a link' : 'Sign in';
   ) : (
     <form class="qe-form" method="POST" action={actions.account.signIn}>
       <h1>Sign in</h1>
+      {invite && <InviteNote company={invite.company} />}
       {googleError && <p class="form-status bad" role="alert">Google sign-in did not finish. Try again, or sign in with your email.</p>}
       {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>

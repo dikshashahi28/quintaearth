@@ -59,9 +59,14 @@ export const subsField = multi(subSlugs, 12, 'sub-category');
 export const sdgsField = multi(sdgNumbers, 17, 'goal');
 export const countriesField = multi(countryCodes, 60, 'country');
 
-/** "solar pv, Hydrogen , solar PV" -> ["solar pv", "hydrogen"] */
-export const skillsField = z.string().max(400).nullish().transform((v) =>
-  [...new Set((v ?? '').split(',').map((s) => s.trim().toLowerCase().replace(/\s+/g, ' ')).filter((s) => s.length >= 2 && s.length <= 40))].slice(0, 15));
+/** "PV design, ESG , pv  design" -> ["PV design", "ESG"]: the member's capitals kept, repeats dropped whatever their case */
+export const skillsField = z.string().max(400).nullish().transform((v) => {
+  const seen = new Map<string, string>();
+  for (const s of (v ?? '').split(',').map((x) => x.trim().replace(/\s+/g, ' '))) {
+    if (s.length >= 2 && s.length <= 40 && !seen.has(s.toLowerCase())) seen.set(s.toLowerCase(), s);
+  }
+  return [...seen.values()].slice(0, 15);
+});
 
 /** an unchecked checkbox sends nothing */
 export const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean());

@@ -1,6 +1,6 @@
 // What every dashboard page needs: the signed-in member, their companies, and which company is open.
 // A member of several companies switches with ?org=<id>; otherwise the first (by name) is open.
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { db, schema } from '../db/client';
 import { myCompanies } from '../db/queries/dashboard';
 import type { SessionUser } from './auth';
@@ -22,9 +22,12 @@ export async function dashContext(user: SessionUser, url: URL): Promise<DashCont
   const wanted = url.searchParams.get('org');
   const company = companies.find((c) => c.id === wanted) ?? companies[0] ?? null;
   const orgQuery = company && companies.length > 1 ? `?org=${company.id}` : '';
+  // on a thread's own page that thread is being read (it marks itself read once shown), so the badge leaves it out
+  const open = url.pathname.match(/^\/dashboard\/(enquiries|messages)\/([^/]+)\/?$/);
+  const reading = (kind: string) => (open?.[1] === kind ? ne(schema.enquiries.id, open[2]) : undefined);
   const newEnquiries = company
-    ? await db.$count(schema.enquiries, and(eq(schema.enquiries.organizationId, company.id), eq(schema.enquiries.companyUnread, true)))
+    ? await db.$count(schema.enquiries, and(eq(schema.enquiries.organizationId, company.id), eq(schema.enquiries.companyUnread, true), reading('enquiries')))
     : 0;
-  const newReplies = await db.$count(schema.enquiries, and(eq(schema.enquiries.fromUserId, user.id), eq(schema.enquiries.buyerUnread, true)));
+  const newReplies = await db.$count(schema.enquiries, and(eq(schema.enquiries.fromUserId, user.id), eq(schema.enquiries.buyerUnread, true), reading('messages')));
   return { user, companies, company, orgQuery, newEnquiries, newReplies };
 }

@@ -4,9 +4,7 @@ import { actions } from 'astro:actions';
 import Member from '../layouts/Member.astro';
 import PageHead from '../components/page/PageHead.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
-import { and, eq, gt, isNull } from 'drizzle-orm';
-import { db, schema } from '../db/client';
-import { hashToken } from '../lib/tokens';
+import { invitation } from '../components/members/forms/invitation';
 import '../styles/members/account.css';
 
 export const prerender = false;
@@ -16,9 +14,7 @@ if (!Astro.locals.user) return Astro.redirect(`/signin?next=${encodeURIComponent
 const result = Astro.getActionResult(actions.company.acceptInvite);
 if (result?.data) return Astro.redirect(`/dashboard?org=${result.data.organizationId}&flash=joined`);
 // look the invitation up now, so the page names the company, or says up front that the link no longer works
-const invite = token.length >= 20 && token.length <= 100 ? (await db.select({ email: schema.invites.email, company: schema.organizations.name })
-  .from(schema.invites).innerJoin(schema.organizations, eq(schema.organizations.id, schema.invites.organizationId))
-  .where(and(eq(schema.invites.tokenHash, await hashToken(token)), isNull(schema.invites.acceptedAt), gt(schema.invites.expiresAt, new Date()))).limit(1))[0] : undefined;
+const invite = await invitation(token);
 Astro.response.headers.set('Cache-Control', 'private, no-store');
 Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 ---
