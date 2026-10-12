@@ -4,9 +4,9 @@ description: "Indorama’s recycled polyester yarn on KH Editions’ New York lo
 date: 2026-09-23
 topic: "Cleantech"
 sdgs: [9, 12, 13]
-image: "../../assets/articles/insight-thai-nyfw-circular-makers.jpg"
-imageAlt: "Recycled polymer flakes or yarn cones suggesting circular textile feedstock"
-imageCredit: { label: "Nareeta Martin / Unsplash (not Indorama/KH campaign art)", href: "https://unsplash.com/photos/_H6wpor9mjs" }
+image: "article-insight-thai"
+imageAlt: "A woman's hands stitch a red embroidered hill-tribe textile at a wooden table"
+imageCredit: { label: "Kamaruld Salleh / Unsplash", href: "https://unsplash.com/photos/GVpeVYxEFgw" }
 subs: ["materials-circular-materials"]
 project: "Indorama Ventures and KH Editions at NYFW"
 companies: ["Indorama Ventures", "KH Editions"]

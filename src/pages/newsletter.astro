@@ -1,0 +1,30 @@
+---
+// Where the footer form lands without JavaScript: the subscription runs through the same action and the answer
+// is shown here. With JavaScript the footer shows the answer in place and this page is never visited.
+import { actions, isInputError } from 'astro:actions';
+import Page from '../layouts/Page.astro';
+import PageHead from '../components/page/PageHead.astro';
+import { actionErrorMessage } from '../components/members/forms/errors';
+import { site } from '../data/site';
+import { page } from '../lib/url';
+
+export const prerender = false;
+
+const result = Astro.getActionResult(actions.newsletter.subscribe);
+const email = result?.data?.email ?? null;
+const fieldError = result?.error && isInputError(result.error) ? result.error.fields.email?.[0] : undefined;
+const failed = result?.error ? (fieldError ?? actionErrorMessage(result.error)) : null;
+// nothing to show on a plain visit: the form lives in the footer of every page
+if (!result) return Astro.redirect(page('index'), 303);
+---
+<Page title="New Insights by email" description="Your subscription to QuintaEarth's Insights." noindex>
+  <PageHead title={email ? 'Thank you.' : 'That did not work.'} crumbs={[{ label: 'Newsletter' }]} width="col" />
+  <div class="page-body">
+    <div class="col prose">
+      {email
+        ? <p>New Insights will come to <strong>{email}</strong>. To stop them, reply to any of our emails or write to <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+        : <p>{failed} Scroll to the foot of any page to try again.</p>}
+      <p><a class="tlink" href={page('insights')}>Read the latest Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></p>
+    </div>
+  </div>
+</Page>

@@ -4,9 +4,9 @@ description: "After a long pause, a Singapore label rebuilds on biodegradable na
 date: 2026-09-23
 topic: "Press"
 sdgs: [8, 12, 15]
-image: "../../assets/articles/singapore-aijek-relaunch-biodegradable.jpg"
-imageAlt: "Natural plant-fibre fabric with delicate cutwork embroidery in soft light"
-imageCredit: { label: "Lauren Fleischmann / Unsplash", href: "https://unsplash.com/photos/R2aodqJn3b8" }
+image: "article-press-aijek"
+imageAlt: "Open cotton bolls on dry stems in a cotton field under a blue sky"
+imageCredit: { label: "Trisha Downing / Unsplash", href: "https://unsplash.com/photos/pyud8ZaVq4I" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
 companies: ["Aijek"]

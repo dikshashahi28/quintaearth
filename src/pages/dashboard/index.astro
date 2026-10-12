@@ -35,11 +35,13 @@ const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 
 
 let listings = { live: 0, draft: 0 };
 let anyEnquiries = false;
+let totalEnquiries = 0;
 let identity: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string; text: string; done: boolean; next?: string } | null = null;
 if (company) {
   const rows = await db.select({ status: schema.listings.status }).from(schema.listings).where(eq(schema.listings.organizationId, company.id));
   listings = { live: rows.filter((r) => r.status === 'published').length, draft: rows.filter((r) => r.status === 'draft').length };
-  anyEnquiries = ctx.newEnquiries > 0 || (await db.$count(schema.enquiries, eq(schema.enquiries.organizationId, company.id))) > 0;
+  totalEnquiries = await db.$count(schema.enquiries, eq(schema.enquiries.organizationId, company.id));
+  anyEnquiries = ctx.newEnquiries > 0 || totalEnquiries > 0;
 
   const latest = await db.query.identityChecks.findFirst({
     where: eq(schema.identityChecks.organizationId, company.id), orderBy: desc(schema.identityChecks.createdAt),
@@ -98,7 +100,7 @@ const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
             {r.title === 'Listings' ? (
               <p>{listingCount === 0 ? 'No listings yet.' : <><span class="num">{listingCount}</span> {plural(listingCount, 'listing', 'listings')}, <span class="num">{listings.live}</span> live</>}</p>
             ) : r.title === 'Enquiries' ? (
-              <p>{ctx.newEnquiries === 0 ? 'No new enquiries.' : <><span class="num">{ctx.newEnquiries}</span> new {plural(ctx.newEnquiries, 'enquiry', 'enquiries')}</>}</p>
+              <p>{ctx.newEnquiries === 0 ? (totalEnquiries === 0 ? 'No enquiries yet.' : <>Nothing new. <span class="num">{totalEnquiries}</span> {plural(totalEnquiries, 'enquiry', 'enquiries')} so far.</>) : <><span class="num">{ctx.newEnquiries}</span> new {plural(ctx.newEnquiries, 'enquiry', 'enquiries')}</>}</p>
             ) : r.text && <p>{r.text}</p>}
           </div>
           <div class="end">

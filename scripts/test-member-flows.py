@@ -141,16 +141,21 @@ st, j = Bu.action('profile.setPhoto', files={'photo': ('me.png', 'image/png', FA
 check('profile.setPhoto rejects html disguised as png', st == 400, f'{st}')
 
 # company
-st, j = A.action('company.update', {'organizationId': OID, 'name': f'Sun Grid Labs {RUN}', 'description': 'Solar microgrids for villages and cold storage.', 'city': 'Pune', 'country': 'IN',
-    'size': '11-50', 'foundedYear': '2019', 'website': 'sungrid.example', 'industries': ['energy'], 'subs': ['energy-solar'], 'sdgs': ['7'], 'published': 'on'})
+CO_FULL = {'organizationId': OID, 'name': f'Sun Grid Labs {RUN}', 'description': 'Solar microgrids for villages and cold storage.', 'city': 'Pune', 'country': 'IN',
+    'size': '11-50', 'foundedYear': '2019', 'website': 'sungrid.example', 'industries': ['energy'], 'subs': ['energy-solar'], 'sdgs': ['7'], 'published': 'on'}
+st, j = A.action('company.update', CO_FULL)
+check('a company page cannot go public without a logo', st == 400 and 'logo' in str(j), f'{st} {j}')
+st, j = A.action('company.setLogo', files={'logo': ('logo.png', 'image/png', png())}, fields={'organizationId': OID})
+logo = j.get('key') if st == 200 and isinstance(j, dict) else None
+check('company.setLogo', st == 200 and logo, f'{st} {j}')
+st, j = A.action('company.update', CO_FULL)
 check('company.update by owner', st == 200, f'{st} {j}')
+st, j = A.action('company.removeLogo', {'organizationId': OID})
+check('the logo of a public page cannot be removed, only replaced', st == 400 and sql(f"select logo_key from organizations where id='{OID}'")[0]['logo_key'] == logo, f'{st} {j}')
 st, j = A.action('company.update', {'organizationId': OID, 'name': 'X Co', 'foundedYear': '2999'})
 check('company.update rejects future year', st == 400, f'{st}')
 st, j = Bu.action('company.update', {'organizationId': OID, 'name': 'Hijacked'})
 check('company.update by outsider -> 403', st == 403, f'{st}')
-st, j = A.action('company.setLogo', files={'logo': ('logo.png', 'image/png', png())}, fields={'organizationId': OID})
-logo = j.get('key') if st == 200 and isinstance(j, dict) else None
-check('company.setLogo', st == 200 and logo, f'{st} {j}')
 st, h, b = User('anon').req('GET', f'/files/{logo}')
 check('public logo served as image/png with nosniff', st == 200 and h['Content-Type'] == 'image/png' and h['X-Content-Type-Options'] == 'nosniff', f'{st}')
 

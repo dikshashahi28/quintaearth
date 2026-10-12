@@ -4,9 +4,9 @@ description: "Confiance’s India brief for The Ocean Cleanup shows how ocean-cl
 date: 2026-09-23
 topic: "Cleantech"
 sdgs: [12, 14, 17]
-image: "../../assets/articles/insight-confiance-ocean-cleanup-india.jpg"
-imageAlt: "Waterway or shoreline suggesting plastic pollution recovery work"
-imageCredit: { label: "Brian Yurasits / Unsplash (not The Ocean Cleanup campaign stills)", href: "https://unsplash.com/photos/0a97-KD0xaw" }
+image: "article-insight-confiance"
+imageAlt: "A man leans from a wooden boat to pull waste from a weed-covered river at dusk"
+imageCredit: { label: "Saif Rahman / Unsplash", href: "https://unsplash.com/photos/wcOm7W67X3w" }
 subs: ["tech-ocean"]
 project: "Confiance river plastic clean-up"
 companies: ["The Ocean Cleanup", "Confiance Communications"]

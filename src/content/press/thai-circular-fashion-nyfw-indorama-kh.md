@@ -4,9 +4,9 @@ description: "Recycled PET yarn meets Thai streetwear on a New York runway — c
 date: 2026-09-23
 topic: "Press"
 sdgs: [9, 12, 13]
-image: "../../assets/articles/thai-circular-fashion-nyfw-indorama-kh.jpg"
-imageAlt: "Abstract recycled textile and bottle forms suggesting circular fashion materials"
-imageCredit: { label: "Nareeta Martin / Unsplash (not a NYFW or brand campaign image)", href: "https://unsplash.com/photos/_H6wpor9mjs" }
+image: "article-press-thai"
+imageAlt: "A man works at his stall in a Bangkok night market under portable lights"
+imageCredit: { label: "Duangphorn Wiriya / Unsplash", href: "https://unsplash.com/photos/zgQKzDL1Pt0" }
 subs: ["materials-circular-materials"]
 project: "Indorama Ventures and KH Editions at NYFW"
 companies: ["Indorama Ventures", "KH Editions"]

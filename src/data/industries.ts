@@ -17,8 +17,8 @@ export interface Industry {
   icon: IconName;
   /** hover motion class for the icon (see styles/icons.css) */
   motion: string;
+  /** a site photograph by name (src/data/media.json); its alt comes with it */
   image: string;
-  imageAlt: string;
   subs: SubCategory[];
 }
 
@@ -27,7 +27,7 @@ const sub = (slug: string, name: string): SubCategory => ({ slug, name });
 export const industries: Industry[] = [
   {
     slug: 'technology', name: 'Technology', icon: 'tech', motion: 'm-pulse',
-    image: 'mangrove-river', imageAlt: 'A river winding through mangrove forest, seen from above',
+    image: 'industry-technology',
     subs: [
       sub('tech-agriculture', 'Agriculture'), sub('tech-biology', 'Biology'), sub('tech-finance', 'Finance'),
       sub('tech-food', 'Food'), sub('tech-nuclear', 'Nuclear'), sub('tech-ocean', 'Ocean'),
@@ -36,7 +36,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'energy', name: 'Energy', icon: 'sun', motion: 'm-spin',
-    image: 'solar-field', imageAlt: 'Rows of solar panels across an open field',
+    image: 'industry-energy',
     subs: [
       sub('energy-cleantech', 'CleanTech'), sub('energy-decarbonization', 'Decarbonization'),
       sub('energy-storage', 'Energy storage'), sub('energy-geothermal', 'Geothermal energy'),
@@ -45,7 +45,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'materials', name: 'Materials science', icon: 'materials', motion: 'm-turn',
-    image: 'weaver-woman', imageAlt: 'A weaver working at a carpet loom',
+    image: 'industry-materials',
     subs: [
       sub('materials-circular-economy', 'Circular economy'), sub('materials-circular-materials', 'Circular materials'),
       sub('materials-low-carbon-industry', 'Low carbon industry'), sub('materials-recyclable-products', 'Recyclable products'),
@@ -55,7 +55,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'green-architecture', name: 'Green architecture', icon: 'arch', motion: 'm-rise',
-    image: 'hill-village', imageAlt: 'A hillside village among green trees, seen from above',
+    image: 'industry-architecture',
     subs: [
       sub('arch-green-buildings', 'Green buildings'), sub('arch-micro-climate-systems', 'Micro climate systems'),
       sub('arch-resource-lifecycle', 'Resource lifecycle'), sub('arch-sustainable-site-planning', 'Sustainable site planning'),
@@ -64,7 +64,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'transportation', name: 'Transportation and logistics', icon: 'transport', motion: 'm-drive',
-    image: 'cargo-ship', imageAlt: 'A cargo ship loaded with containers at sea',
+    image: 'industry-transport',
     subs: [
       sub('transport-biofuels', 'Biofuels'), sub('transport-clean-mobility', 'Clean mobility'), sub('transport-evs', 'EVs'),
       sub('transport-hydrogen-aviation', 'Hydrogen aviation'), sub('transport-logistics-software', 'Logistics software'),
@@ -73,7 +73,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'eco-restoration', name: 'Eco-restoration', icon: 'sprout', motion: 'm-grow',
-    image: 'mangrove-aerial', imageAlt: 'Dense mangrove forest beside open water, seen from above',
+    image: 'industry-eco',
     subs: [
       sub('eco-cleantech', 'CleanTech'), sub('eco-climate-resilience-software', 'Climate resilience software'),
       sub('eco-acoustics', 'Eco-acoustics'), sub('eco-robotics', 'Robotics'), sub('eco-sustainable-forestry', 'Sustainable forestry'),
@@ -81,7 +81,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'planetary', name: 'Planetary engineering', icon: 'planet', motion: 'm-orbit',
-    image: 'lone-mountain', imageAlt: 'A lone mountain rising over green plains in haze',
+    image: 'industry-planetary',
     subs: [
       sub('planetary-atmospheric-frontiers', 'Atmospheric frontiers'), sub('planetary-geological-interventions', 'Geological interventions'),
       sub('planetary-solar-radiation-management', 'Solar radiation management'), sub('planetary-space-frontiers', 'Space frontiers'),
@@ -89,7 +89,7 @@ export const industries: Industry[] = [
   },
   {
     slug: 'advanced-technology', name: 'Advanced technology', icon: 'atom', motion: 'm-orbit',
-    image: 'forest-mist', imageAlt: 'Mist rolling over a dark conifer forest',
+    image: 'industry-advanced',
     subs: [
       sub('advanced-deep-space-exploration', 'Deep space exploration'),
       sub('advanced-extreme-environment-engineering', 'Extreme environment engineering'),

@@ -39,9 +39,9 @@
 .pp-part.last { margin-bottom: 0; }
 .pp-bio { margin: 0; max-width: 60ch; font-size: 19px; line-height: 1.6; color: var(--text); white-space: pre-line; overflow-wrap: anywhere; }
 .pp-rail { position: relative; width: 24px; }
-.pp-rail .track { position: absolute; left: 11px; top: 28px; bottom: -15px; width: 3px; border-radius: 2px; background: var(--water); }
+.pp-rail .track { position: absolute; left: 10.5px; top: 28px; bottom: -15px; width: 3px; border-radius: 2px; background: var(--water); }
 .pp-rail .track.tail { bottom: 0; }
-.pp-rail .bead { position: absolute; left: 5px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
+.pp-rail .bead { position: absolute; left: 6px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
 
 /* right column: works at, industries */
 .pp-side { min-width: 0; }
@@ -59,6 +59,9 @@
 
 @media (max-width: 900px) {
   .pp-two { grid-template-columns: 1fr; gap: 48px; }
+  /* stacked under the rail, the side sections start on the rail's content line (24px rail + 20px gap) instead of
+     jutting out to the page edge */
+  .pp-two:has(.pp-spine) .pp-side { padding-left: 44px; }
 }
 @media (max-width: 640px) {
   .pp-who { flex-direction: column; align-items: flex-start; gap: 18px; }

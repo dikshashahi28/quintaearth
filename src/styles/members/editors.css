@@ -1,7 +1,8 @@
 /* The member's own editors: /dashboard/profile, /dashboard/company, /dashboard/identity. Loaded after members.css. */
 
-/* a form that holds several sections continues the .sec rhythm after the section before it */
-.sec + .secs > .sec:first-child, .secs + .sec { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--hair); }
+/* a form that holds several sections continues the .sec rhythm after the section before it (first-of-type: the form
+   opens with hidden inputs; the profile editor's rail sets its own rhythm) */
+:not(.pe) > .sec + .secs > .sec:first-of-type, .secs + .sec { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--hair); }
 
 
 /* team rows: pills and remove/leave forms */

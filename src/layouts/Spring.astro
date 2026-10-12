@@ -1,0 +1,67 @@
+---
+// Public pages in "the spring" (12 Oct 2026): the site header and footer, then a scene (a photo of people doing
+// the work under a Forest Deep wash, the brand line in Literata with a gold line, a mist river that draws itself
+// down to a gold spring) and the page on white beside its own river rail. The spring sits exactly above the
+// rail's first bead, so the river flows from the scene into the content. Use it for every public page with the
+// site header, forms included (/contact carries the doors' form on its rail); Account.astro is only for the doors
+// without the site header (/join, /signin, /welcome), and member screens use Dashboard.astro / Member.astro. The
+// plain Page.astro pattern (sky head, white body) is not for new pages. Styles: spring-core.css + spring-page.css.
+import '../styles/spring-core.css';
+import '../styles/spring-page.css';
+import type { ComponentProps } from 'astro/types';
+import Base from './Base.astro';
+import SpringScene from '../components/spring/SpringScene.astro';
+import { absolute, page } from '../lib/url';
+
+type BaseProps = ComponentProps<typeof Base>;
+interface Props extends Omit<BaseProps, 'mainClass' | 'title'> {
+  /** the page title: the h1 on white, the breadcrumb and the <title> */
+  title: string;
+  /** a site photograph by name (src/data/media.json), of people doing the work */
+  scene: string;
+  /** the photo's own alt when unset */
+  sceneAlt?: string;
+  /** object-position for the photo; the photo's own focal point when unset */
+  scenePos?: string;
+  /** object-position for the short band at 1100px and below; scenePos when unset */
+  scenePosSm?: string;
+  /** the line on the photo */
+  say: string;
+  /** a gold line under it */
+  sub?: string;
+  /** a Moss Grey line under the h1; most pages have none */
+  lede?: string;
+}
+const { title, scene, sceneAlt, scenePos, scenePosSm, say, sub, lede, ...base } = Astro.props;
+
+// the breadcrumb for search engines: Home, then this page
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: absolute(page('index'), Astro.site) },
+    { '@type': 'ListItem', position: 2, name: title, item: absolute(Astro.url.pathname, Astro.site) },
+  ],
+};
+---
+<Base {...base} title={title} mainClass="sp">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbLd).replace(/</g, '\\u003c')} />
+  {/* the rail paints at rest (every bead lit) only where the arrival script will not run; otherwise a slow load
+      would show every bead gold, fade them white and light the first again once the module arrived */}
+  <script slot="head" is:inline>if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('rail-live')</script>
+  <slot name="head" slot="head" />
+  <SpringScene class="sp-scene" scene={scene} sceneAlt={sceneAlt} scenePos={scenePos} scenePosSm={scenePosSm} say={say} sub={sub} />
+  <div class="sp-body">
+    <div class="wide">
+      <nav class="sp-crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={page('index')}>Home</a></li>
+          <li><span class="sep" aria-hidden="true">›</span><span aria-current="page">{title}</span></li>
+        </ol>
+      </nav>
+      <h1>{title}</h1>
+      {lede && <p class="sp-lede">{lede}</p>}
+      <slot />
+    </div>
+  </div>
+</Base>

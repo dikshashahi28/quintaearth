@@ -4,9 +4,9 @@ description: "An Italian house publishes deeper country-of-origin visibility for
 date: 2026-09-23
 topic: "Press"
 sdgs: [8, 12, 15]
-image: "../../assets/articles/ferragamo-leather-origin-mapping.jpg"
-imageAlt: "Artisan leather workshop tools and hides suggesting material origin work"
-imageCredit: { label: "Laura Chouette / Unsplash (not a Ferragamo or AP News image)", href: "https://unsplash.com/photos/8e0EHPIy0Zc" }
+image: "article-press-ferragamo"
+imageAlt: "A leather craftsman cuts a hide on a workbench strewn with leather offcuts and tools"
+imageCredit: { label: "Sergio Peláez / Unsplash", href: "https://unsplash.com/photos/a2EAaN3ha_c" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
 companies: ["Ferragamo"]

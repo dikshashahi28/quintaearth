@@ -1,0 +1,942 @@
+{
+ "who-stone-1": {
+  "width": 5184,
+  "height": 3456,
+  "alt": "A young man in a yellow shirt crouches at the edge of a woodland stream and reaches into the water",
+  "focal": "62% 45%",
+  "files": {
+   "480": "who-stone-1-64d5ba53-480.webp",
+   "800": "who-stone-1-64d5ba53-800.webp",
+   "1200": "who-stone-1-64d5ba53-1200.webp",
+   "1600": "who-stone-1-64d5ba53-1600.webp",
+   "2000": "who-stone-1-64d5ba53-2000.webp",
+   "2600": "who-stone-1-64d5ba53-2600.webp"
+  },
+  "share": "who-stone-1-64d5ba53-share.jpg",
+  "credit": {
+   "photographer": "James Kovin",
+   "profile": "https://unsplash.com/@james2k",
+   "photo": "https://unsplash.com/photos/K0Q2fSZSXTM",
+   "licence": "Unsplash License"
+  }
+ },
+ "who-stone-4": {
+  "width": 5666,
+  "height": 3777,
+  "alt": "Women and men from a village sit in a loose circle on bare farmland, talking",
+  "focal": "50% 55%",
+  "files": {
+   "480": "who-stone-4-832793ff-480.webp",
+   "800": "who-stone-4-832793ff-800.webp",
+   "1200": "who-stone-4-832793ff-1200.webp",
+   "1600": "who-stone-4-832793ff-1600.webp",
+   "2000": "who-stone-4-832793ff-2000.webp",
+   "2600": "who-stone-4-832793ff-2600.webp"
+  },
+  "share": "who-stone-4-832793ff-share.jpg",
+  "credit": {
+   "photographer": "EqualStock",
+   "profile": "https://unsplash.com/@equalstock",
+   "photo": "https://unsplash.com/photos/kBkrFGnS5us",
+   "licence": "Unsplash License"
+  }
+ },
+ "who-stone-5": {
+  "width": 5062,
+  "height": 3031,
+  "alt": "Clay-covered hands shape a small pot on a spinning potter's wheel",
+  "focal": "45% 50%",
+  "files": {
+   "480": "who-stone-5-b69f3c70-480.webp",
+   "800": "who-stone-5-b69f3c70-800.webp",
+   "1200": "who-stone-5-b69f3c70-1200.webp",
+   "1600": "who-stone-5-b69f3c70-1600.webp",
+   "2000": "who-stone-5-b69f3c70-2000.webp",
+   "2600": "who-stone-5-b69f3c70-2600.webp"
+  },
+  "share": "who-stone-5-b69f3c70-share.jpg",
+  "credit": {
+   "photographer": "SwapnIl Dwivedi",
+   "profile": "https://unsplash.com/@momentance",
+   "photo": "https://unsplash.com/photos/w46tRF64qNc",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-energy": {
+  "width": 8192,
+  "height": 5464,
+  "alt": "A worker on a tin shed roof fits solar panels, with palm trees and the sea behind",
+  "focal": "50% 45%",
+  "files": {
+   "480": "industry-energy-94e8b656-480.webp",
+   "800": "industry-energy-94e8b656-800.webp",
+   "1200": "industry-energy-94e8b656-1200.webp",
+   "1600": "industry-energy-94e8b656-1600.webp",
+   "2000": "industry-energy-94e8b656-2000.webp",
+   "2600": "industry-energy-94e8b656-2600.webp"
+  },
+  "share": "industry-energy-94e8b656-share.jpg",
+  "credit": {
+   "photographer": "Infinara",
+   "profile": "https://unsplash.com/@infinara",
+   "photo": "https://unsplash.com/photos/ClWvi3gkWTc",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-architecture": {
+  "width": 4000,
+  "height": 6000,
+  "alt": "A woman carries a stack of bricks on her head past bamboo scaffolding on a brick building site",
+  "focal": "50% 35%",
+  "files": {
+   "480": "industry-architecture-b27ef5c7-480.webp",
+   "800": "industry-architecture-b27ef5c7-800.webp",
+   "1200": "industry-architecture-b27ef5c7-1200.webp",
+   "1600": "industry-architecture-b27ef5c7-1600.webp",
+   "2000": "industry-architecture-b27ef5c7-2000.webp",
+   "2600": "industry-architecture-b27ef5c7-2600.webp"
+  },
+  "share": "industry-architecture-b27ef5c7-share.jpg",
+  "credit": {
+   "photographer": "Tim Umphreys",
+   "profile": "https://unsplash.com/@timumphreys",
+   "photo": "https://unsplash.com/photos/d2kc7Lpldu8",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-planetary": {
+  "width": 4928,
+  "height": 3264,
+  "alt": "A researcher in a red jacket releases a large research balloon over a snowfield at dusk while two colleagues watch",
+  "focal": "35% 45%",
+  "files": {
+   "480": "industry-planetary-f1d56bcd-480.webp",
+   "800": "industry-planetary-f1d56bcd-800.webp",
+   "1200": "industry-planetary-f1d56bcd-1200.webp",
+   "1600": "industry-planetary-f1d56bcd-1600.webp",
+   "2000": "industry-planetary-f1d56bcd-2000.webp",
+   "2600": "industry-planetary-f1d56bcd-2600.webp"
+  },
+  "share": "industry-planetary-f1d56bcd-share.jpg",
+  "credit": {
+   "photographer": "NOAA",
+   "profile": "https://unsplash.com/@noaa",
+   "photo": "https://unsplash.com/photos/5hZJVGPG6vo",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-advanced": {
+  "width": 5568,
+  "height": 3712,
+  "alt": "A technician in a blue cleanroom suit works at a bench instrument in a white cleanroom",
+  "focal": "60% 50%",
+  "files": {
+   "480": "industry-advanced-d1a4cd5d-480.webp",
+   "800": "industry-advanced-d1a4cd5d-800.webp",
+   "1200": "industry-advanced-d1a4cd5d-1200.webp",
+   "1600": "industry-advanced-d1a4cd5d-1600.webp",
+   "2000": "industry-advanced-d1a4cd5d-2000.webp",
+   "2600": "industry-advanced-d1a4cd5d-2600.webp"
+  },
+  "share": "industry-advanced-d1a4cd5d-share.jpg",
+  "credit": {
+   "photographer": "Toon Lambrechts",
+   "profile": "https://unsplash.com/@mycellhub",
+   "photo": "https://unsplash.com/photos/pVkMHP3RINU",
+   "licence": "Unsplash License"
+  }
+ },
+ "community-pond": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "Three people work around a wooden table with laptops and notebooks, seen from above",
+  "focal": "50% 50%",
+  "files": {
+   "480": "community-pond-50df2409-480.webp",
+   "800": "community-pond-50df2409-800.webp",
+   "1200": "community-pond-50df2409-1200.webp",
+   "1600": "community-pond-50df2409-1600.webp",
+   "2000": "community-pond-50df2409-2000.webp",
+   "2600": "community-pond-50df2409-2600.webp"
+  },
+  "share": "community-pond-50df2409-share.jpg",
+  "credit": {
+   "photographer": "CoWomen",
+   "profile": "https://unsplash.com/@cowomen",
+   "photo": "https://unsplash.com/photos/3ALW9V3jNkc",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-stories": {
+  "width": 4678,
+  "height": 4678,
+  "alt": "A grower holds freshly picked red coffee cherries in cupped hands above a woven basket",
+  "focal": "50% 35%",
+  "files": {
+   "480": "offer-stories-9bcacc44-480.webp",
+   "800": "offer-stories-9bcacc44-800.webp",
+   "1200": "offer-stories-9bcacc44-1200.webp",
+   "1600": "offer-stories-9bcacc44-1600.webp",
+   "2000": "offer-stories-9bcacc44-2000.webp",
+   "2600": "offer-stories-9bcacc44-2600.webp"
+  },
+  "share": "offer-stories-9bcacc44-share.jpg",
+  "credit": {
+   "photographer": "Carlos Felipe Ramírez Mesa",
+   "profile": "https://unsplash.com/@cafera13",
+   "photo": "https://unsplash.com/photos/U0dqLMx4vvw",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-audit": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "A woman in a blue factory uniform checks a tagged stack of finished textiles on a work table",
+  "focal": "45% 50%",
+  "files": {
+   "480": "offer-audit-1bd8b5a4-480.webp",
+   "800": "offer-audit-1bd8b5a4-800.webp",
+   "1200": "offer-audit-1bd8b5a4-1200.webp",
+   "1600": "offer-audit-1bd8b5a4-1600.webp",
+   "2000": "offer-audit-1bd8b5a4-2000.webp",
+   "2600": "offer-audit-1bd8b5a4-2600.webp"
+  },
+  "share": "offer-audit-1bd8b5a4-share.jpg",
+  "credit": {
+   "photographer": "EqualStock",
+   "profile": "https://unsplash.com/@equalstock",
+   "photo": "https://unsplash.com/photos/niC-8W7158E",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-cbam": {
+  "width": 7952,
+  "height": 5304,
+  "alt": "A steelworker in a face visor pulls a glowing bar from a furnace door",
+  "focal": "45% 50%",
+  "files": {
+   "480": "offer-cbam-842bdd7e-480.webp",
+   "800": "offer-cbam-842bdd7e-800.webp",
+   "1200": "offer-cbam-842bdd7e-1200.webp",
+   "1600": "offer-cbam-842bdd7e-1600.webp",
+   "2000": "offer-cbam-842bdd7e-2000.webp",
+   "2600": "offer-cbam-842bdd7e-2600.webp"
+  },
+  "share": "offer-cbam-842bdd7e-share.jpg",
+  "credit": {
+   "photographer": "Bhupathi Srinu",
+   "profile": "https://unsplash.com/@bhupathi_",
+   "photo": "https://unsplash.com/photos/pjGqgc_JZcY",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-listing": {
+  "width": 4736,
+  "height": 3157,
+  "alt": "A man weaves a cane chair at the open door of his workshop, finished cane furniture stacked behind him",
+  "focal": "40% 50%",
+  "files": {
+   "480": "offer-listing-818c2a5d-480.webp",
+   "800": "offer-listing-818c2a5d-800.webp",
+   "1200": "offer-listing-818c2a5d-1200.webp",
+   "1600": "offer-listing-818c2a5d-1600.webp",
+   "2000": "offer-listing-818c2a5d-2000.webp",
+   "2600": "offer-listing-818c2a5d-2600.webp"
+  },
+  "share": "offer-listing-818c2a5d-share.jpg",
+  "credit": {
+   "photographer": "Job Savelsberg",
+   "profile": "https://unsplash.com/@jobsavelsberg",
+   "photo": "https://unsplash.com/photos/7UZRCMt9FME",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-terms": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "A carpenter in a teal shirt marks a plank with a pencil at a workshop bench",
+  "focal": "50% 40%",
+  "files": {
+   "480": "scene-terms-cf582bed-480.webp",
+   "800": "scene-terms-cf582bed-800.webp",
+   "1200": "scene-terms-cf582bed-1200.webp",
+   "1600": "scene-terms-cf582bed-1600.webp",
+   "2000": "scene-terms-cf582bed-2000.webp",
+   "2600": "scene-terms-cf582bed-2600.webp"
+  },
+  "share": "scene-terms-cf582bed-share.jpg",
+  "credit": {
+   "photographer": "Minh Đức",
+   "profile": "https://unsplash.com/@meanduck",
+   "photo": "https://unsplash.com/photos/IAR-l-Cq4Is",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-contact": {
+  "width": 4813,
+  "height": 2520,
+  "alt": "A farm worker carrying a bundle on their head walks toward the camera along a narrow path through a rice field at dawn",
+  "focal": "57% 45%",
+  "files": {
+   "480": "scene-contact-be0c7a15-480.webp",
+   "800": "scene-contact-be0c7a15-800.webp",
+   "1200": "scene-contact-be0c7a15-1200.webp",
+   "1600": "scene-contact-be0c7a15-1600.webp",
+   "2000": "scene-contact-be0c7a15-2000.webp",
+   "2600": "scene-contact-be0c7a15-2600.webp"
+  },
+  "share": "scene-contact-be0c7a15-share.jpg",
+  "credit": {
+   "photographer": "Abhishek Ravi",
+   "profile": "https://unsplash.com/@greensyntax",
+   "photo": "https://unsplash.com/photos/B45kO_czCrg",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-join": {
+  "width": 5447,
+  "height": 3631,
+  "alt": "A fisherman standing on dark rocks casts a wide net into the sea",
+  "focal": "62% 45%",
+  "files": {
+   "480": "scene-join-49d5f63e-480.webp",
+   "800": "scene-join-49d5f63e-800.webp",
+   "1200": "scene-join-49d5f63e-1200.webp",
+   "1600": "scene-join-49d5f63e-1600.webp",
+   "2000": "scene-join-49d5f63e-2000.webp",
+   "2600": "scene-join-49d5f63e-2600.webp"
+  },
+  "share": "scene-join-49d5f63e-share.jpg",
+  "credit": {
+   "photographer": "Sandip Kalal",
+   "profile": "https://unsplash.com/@atomsmasher",
+   "photo": "https://unsplash.com/photos/tMqgXU7A70E",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-welcome": {
+  "width": 1950,
+  "height": 2922,
+  "alt": "A beekeeper in a veil holds a frame covered in bees up to the evening light",
+  "focal": "50% 30%",
+  "files": {
+   "480": "scene-welcome-7d4aa9bc-480.webp",
+   "800": "scene-welcome-7d4aa9bc-800.webp",
+   "1200": "scene-welcome-7d4aa9bc-1200.webp",
+   "1600": "scene-welcome-7d4aa9bc-1600.webp",
+   "1950": "scene-welcome-7d4aa9bc-1950.webp"
+  },
+  "share": "scene-welcome-7d4aa9bc-share.jpg",
+  "credit": {
+   "photographer": "HiveBoxx",
+   "profile": "https://unsplash.com/@hiveboxx",
+   "photo": "https://unsplash.com/photos/65icrs88YYs",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-thai": {
+  "width": 4785,
+  "height": 3185,
+  "alt": "A woman's hands stitch a red embroidered hill-tribe textile at a wooden table",
+  "focal": "55% 50%",
+  "files": {
+   "480": "article-insight-thai-a0f3e36b-480.webp",
+   "800": "article-insight-thai-a0f3e36b-800.webp",
+   "1200": "article-insight-thai-a0f3e36b-1200.webp",
+   "1600": "article-insight-thai-a0f3e36b-1600.webp",
+   "2000": "article-insight-thai-a0f3e36b-2000.webp",
+   "2600": "article-insight-thai-a0f3e36b-2600.webp"
+  },
+  "share": "article-insight-thai-a0f3e36b-share.jpg",
+  "credit": {
+   "photographer": "Kamaruld Salleh",
+   "profile": "https://unsplash.com/@ks_works",
+   "photo": "https://unsplash.com/photos/GVpeVYxEFgw",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-press-ferragamo": {
+  "width": 4000,
+  "height": 2667,
+  "alt": "A leather craftsman cuts a hide on a workbench strewn with leather offcuts and tools",
+  "focal": "50% 55%",
+  "files": {
+   "480": "article-press-ferragamo-4fc51ed3-480.webp",
+   "800": "article-press-ferragamo-4fc51ed3-800.webp",
+   "1200": "article-press-ferragamo-4fc51ed3-1200.webp",
+   "1600": "article-press-ferragamo-4fc51ed3-1600.webp",
+   "2000": "article-press-ferragamo-4fc51ed3-2000.webp",
+   "2600": "article-press-ferragamo-4fc51ed3-2600.webp"
+  },
+  "share": "article-press-ferragamo-4fc51ed3-share.jpg",
+  "credit": {
+   "photographer": "Sergio Peláez",
+   "profile": "https://unsplash.com/@sergio24",
+   "photo": "https://unsplash.com/photos/a2EAaN3ha_c",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-ferragamo": {
+  "width": 3200,
+  "height": 2400,
+  "alt": "Cattle graze on a hillside pasture beneath a group of trees, with a patchwork of fields in the valley beyond",
+  "focal": "50% 55%",
+  "files": {
+   "480": "article-insight-ferragamo-6f7db71a-480.webp",
+   "800": "article-insight-ferragamo-6f7db71a-800.webp",
+   "1200": "article-insight-ferragamo-6f7db71a-1200.webp",
+   "1600": "article-insight-ferragamo-6f7db71a-1600.webp",
+   "2000": "article-insight-ferragamo-6f7db71a-2000.webp",
+   "2600": "article-insight-ferragamo-6f7db71a-2600.webp"
+  },
+  "share": "article-insight-ferragamo-6f7db71a-share.jpg",
+  "credit": {
+   "photographer": "Jakob Cotton",
+   "profile": "https://unsplash.com/@jakobcotton",
+   "photo": "https://unsplash.com/photos/UQJf6y91zZs",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-empco-vs-gcd": {
+  "width": 3001,
+  "height": 2000,
+  "alt": "Three European Union flags fly in front of the glass facade of the European Commission building in Brussels",
+  "focal": "50% 50%",
+  "files": {
+   "480": "article-insight-empco-vs-gcd-216a7cce-480.webp",
+   "800": "article-insight-empco-vs-gcd-216a7cce-800.webp",
+   "1200": "article-insight-empco-vs-gcd-216a7cce-1200.webp",
+   "1600": "article-insight-empco-vs-gcd-216a7cce-1600.webp",
+   "2000": "article-insight-empco-vs-gcd-216a7cce-2000.webp",
+   "2600": "article-insight-empco-vs-gcd-216a7cce-2600.webp"
+  },
+  "share": "article-insight-empco-vs-gcd-216a7cce-share.jpg",
+  "credit": {
+   "photographer": "Carl Gruner",
+   "profile": "https://unsplash.com/@squads_cap",
+   "photo": "https://unsplash.com/photos/dxQ6ISn7_tQ",
+   "licence": "Unsplash License"
+  }
+ },
+ "who-stone-2": {
+  "width": 5368,
+  "height": 3579,
+  "alt": "An engineer in glasses solders a wiring harness onto a prototype board at a workbench",
+  "focal": "55% 45%",
+  "files": {
+   "480": "who-stone-2-15bdf98d-480.webp",
+   "800": "who-stone-2-15bdf98d-800.webp",
+   "1200": "who-stone-2-15bdf98d-1200.webp",
+   "1600": "who-stone-2-15bdf98d-1600.webp",
+   "2000": "who-stone-2-15bdf98d-2000.webp",
+   "2600": "who-stone-2-15bdf98d-2600.webp"
+  },
+  "share": "who-stone-2-15bdf98d-share.jpg",
+  "credit": {
+   "photographer": "Kumpan Electric",
+   "profile": "https://unsplash.com/@kumpan_electric",
+   "photo": "https://unsplash.com/photos/G1Xk2C87Rb8",
+   "licence": "Unsplash License"
+  }
+ },
+ "about-spread": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "A woman in a sari lifts a tray of seedlings in a shade-net plant nursery",
+  "focal": "50% 45%",
+  "files": {
+   "480": "about-spread-40aba3f1-480.webp",
+   "800": "about-spread-40aba3f1-800.webp",
+   "1200": "about-spread-40aba3f1-1200.webp",
+   "1600": "about-spread-40aba3f1-1600.webp",
+   "2000": "about-spread-40aba3f1-2000.webp",
+   "2600": "about-spread-40aba3f1-2600.webp"
+  },
+  "share": "about-spread-40aba3f1-share.jpg",
+  "credit": {
+   "photographer": "EqualStock",
+   "profile": "https://unsplash.com/@equalstock",
+   "photo": "https://unsplash.com/photos/lv5FvD65Cz4",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-technology": {
+  "width": 6720,
+  "height": 4480,
+  "alt": "A farmer in a red jacket holds a controller as a small drone flies over flooded paddy fields",
+  "focal": "50% 45%",
+  "files": {
+   "480": "industry-technology-9388967c-480.webp",
+   "800": "industry-technology-9388967c-800.webp",
+   "1200": "industry-technology-9388967c-1200.webp",
+   "1600": "industry-technology-9388967c-1600.webp",
+   "2000": "industry-technology-9388967c-2000.webp",
+   "2600": "industry-technology-9388967c-2600.webp"
+  },
+  "share": "industry-technology-9388967c-share.jpg",
+  "credit": {
+   "photographer": "I'M ZION",
+   "profile": "https://unsplash.com/@ziontech",
+   "photo": "https://unsplash.com/photos/0qmozg-eQj0",
+   "licence": "Unsplash License"
+  }
+ },
+ "vol-stone": {
+  "width": 3840,
+  "height": 2160,
+  "alt": "Volunteers in blue T-shirts bend to pick litter into blue sacks along a lake shore",
+  "focal": "50% 55%",
+  "files": {
+   "480": "vol-stone-04e0083d-480.webp",
+   "800": "vol-stone-04e0083d-800.webp",
+   "1200": "vol-stone-04e0083d-1200.webp",
+   "1600": "vol-stone-04e0083d-1600.webp",
+   "2000": "vol-stone-04e0083d-2000.webp",
+   "2600": "vol-stone-04e0083d-2600.webp"
+  },
+  "share": "vol-stone-04e0083d-share.jpg",
+  "credit": {
+   "photographer": "Vitaly Gariev",
+   "profile": "https://unsplash.com/@silverkblack",
+   "photo": "https://unsplash.com/photos/FJRYUL_YHXg",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-services": {
+  "width": 5400,
+  "height": 3600,
+  "alt": "A chemist in a white coat works over a rack of sample tubes at a laboratory bench",
+  "focal": "65% 35%",
+  "files": {
+   "480": "scene-services-abf58a88-480.webp",
+   "800": "scene-services-abf58a88-800.webp",
+   "1200": "scene-services-abf58a88-1200.webp",
+   "1600": "scene-services-abf58a88-1600.webp",
+   "2000": "scene-services-abf58a88-2000.webp",
+   "2600": "scene-services-abf58a88-2600.webp"
+  },
+  "share": "scene-services-abf58a88-share.jpg",
+  "credit": {
+   "photographer": "National Cancer Institute",
+   "profile": "https://unsplash.com/@nci",
+   "photo": "https://unsplash.com/photos/6q1C_XDNR4s",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-sponsored": {
+  "width": 3840,
+  "height": 2160,
+  "alt": "A woman with a notebook talks with a man in an apron in his painting studio",
+  "focal": "40% 50%",
+  "files": {
+   "480": "offer-sponsored-55ad8244-480.webp",
+   "800": "offer-sponsored-55ad8244-800.webp",
+   "1200": "offer-sponsored-55ad8244-1200.webp",
+   "1600": "offer-sponsored-55ad8244-1600.webp",
+   "2000": "offer-sponsored-55ad8244-2000.webp",
+   "2600": "offer-sponsored-55ad8244-2600.webp"
+  },
+  "share": "offer-sponsored-55ad8244-share.jpg",
+  "credit": {
+   "photographer": "Vitaly Gariev",
+   "profile": "https://unsplash.com/@silverkblack",
+   "photo": "https://unsplash.com/photos/pe9rSorLxZ0",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-privacy": {
+  "width": 6240,
+  "height": 4161,
+  "alt": "Sacks of grain stacked beside a conveyor belt in a warehouse, a worker at the far end",
+  "focal": "50% 40%",
+  "files": {
+   "480": "scene-privacy-a59c473b-480.webp",
+   "800": "scene-privacy-a59c473b-800.webp",
+   "1200": "scene-privacy-a59c473b-1200.webp",
+   "1600": "scene-privacy-a59c473b-1600.webp",
+   "2000": "scene-privacy-a59c473b-2000.webp",
+   "2600": "scene-privacy-a59c473b-2600.webp"
+  },
+  "share": "scene-privacy-a59c473b-share.jpg",
+  "credit": {
+   "photographer": "motomoto sc",
+   "profile": "https://unsplash.com/@motomotosc",
+   "photo": "https://unsplash.com/photos/Ru9Uf4G0Gx0",
+   "licence": "Unsplash License"
+  }
+ },
+ "scene-signin": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "A young technician at a workshop bench fits a curved part under a desk lamp",
+  "focal": "65% 40%",
+  "files": {
+   "480": "scene-signin-83545fe9-480.webp",
+   "800": "scene-signin-83545fe9-800.webp",
+   "1200": "scene-signin-83545fe9-1200.webp",
+   "1600": "scene-signin-83545fe9-1600.webp",
+   "2000": "scene-signin-83545fe9-2000.webp",
+   "2600": "scene-signin-83545fe9-2600.webp"
+  },
+  "share": "scene-signin-83545fe9-share.jpg",
+  "credit": {
+   "photographer": "Spencer Liao",
+   "profile": "https://unsplash.com/@spencerliao",
+   "photo": "https://unsplash.com/photos/B07sbiunrtY",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-press-thai": {
+  "width": 4496,
+  "height": 3000,
+  "alt": "A man works at his stall in a Bangkok night market under portable lights",
+  "focal": "40% 50%",
+  "files": {
+   "480": "article-press-thai-c13d076d-480.webp",
+   "800": "article-press-thai-c13d076d-800.webp",
+   "1200": "article-press-thai-c13d076d-1200.webp",
+   "1600": "article-press-thai-c13d076d-1600.webp",
+   "2000": "article-press-thai-c13d076d-2000.webp",
+   "2600": "article-press-thai-c13d076d-2600.webp"
+  },
+  "share": "article-press-thai-c13d076d-share.jpg",
+  "credit": {
+   "photographer": "Duangphorn Wiriya",
+   "profile": "https://unsplash.com/@ph_an_tom",
+   "photo": "https://unsplash.com/photos/zgQKzDL1Pt0",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-press-torque": {
+  "width": 3840,
+  "height": 2160,
+  "alt": "A hand writes with a fountain pen in a lined notebook under a desk lamp",
+  "focal": "50% 40%",
+  "files": {
+   "480": "article-press-torque-67014e05-480.webp",
+   "800": "article-press-torque-67014e05-800.webp",
+   "1200": "article-press-torque-67014e05-1200.webp",
+   "1600": "article-press-torque-67014e05-1600.webp",
+   "2000": "article-press-torque-67014e05-2000.webp",
+   "2600": "article-press-torque-67014e05-2600.webp"
+  },
+  "share": "article-press-torque-67014e05-share.jpg",
+  "credit": {
+   "photographer": "Infralist.com",
+   "profile": "https://unsplash.com/@infralist",
+   "photo": "https://unsplash.com/photos/UOiNcIb6IWQ",
+   "licence": "Unsplash License"
+  }
+ },
+ "who-stone-3": {
+  "width": 1958,
+  "height": 1958,
+  "alt": "A man wheels a trolley stacked with taped cardboard cartons down a narrow city lane",
+  "focal": "50% 45%",
+  "files": {
+   "480": "who-stone-3-e93f97e0-480.webp",
+   "800": "who-stone-3-e93f97e0-800.webp",
+   "1200": "who-stone-3-e93f97e0-1200.webp",
+   "1600": "who-stone-3-e93f97e0-1600.webp",
+   "1958": "who-stone-3-e93f97e0-1958.webp"
+  },
+  "share": "who-stone-3-e93f97e0-share.jpg",
+  "credit": {
+   "photographer": "Anoof Junaid",
+   "profile": "https://unsplash.com/@anoojfunaid",
+   "photo": "https://unsplash.com/photos/yUu2H68ingI",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-materials": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "Workers sit sorting nets and bales of plastic in an open-sided recycling yard",
+  "focal": "50% 55%",
+  "files": {
+   "480": "industry-materials-2b76aba5-480.webp",
+   "800": "industry-materials-2b76aba5-800.webp",
+   "1200": "industry-materials-2b76aba5-1200.webp",
+   "1600": "industry-materials-2b76aba5-1600.webp",
+   "2000": "industry-materials-2b76aba5-2000.webp",
+   "2600": "industry-materials-2b76aba5-2600.webp"
+  },
+  "share": "industry-materials-2b76aba5-share.jpg",
+  "credit": {
+   "photographer": "Parastoo Maleki",
+   "profile": "https://unsplash.com/@blueswallow",
+   "photo": "https://unsplash.com/photos/vJdz_J_Uf9E",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-transport": {
+  "width": 5758,
+  "height": 3839,
+  "alt": "A container port seen from above, with cranes and stacked containers beside the sea",
+  "focal": "50% 50%",
+  "files": {
+   "480": "industry-transport-88b2678d-480.webp",
+   "800": "industry-transport-88b2678d-800.webp",
+   "1200": "industry-transport-88b2678d-1200.webp",
+   "1600": "industry-transport-88b2678d-1600.webp",
+   "2000": "industry-transport-88b2678d-2000.webp",
+   "2600": "industry-transport-88b2678d-2600.webp"
+  },
+  "share": "industry-transport-88b2678d-share.jpg",
+  "credit": {
+   "photographer": "Olga Subach",
+   "profile": "https://unsplash.com/@create4eyes",
+   "photo": "https://unsplash.com/photos/Zuxxq0iHkN4",
+   "licence": "Unsplash License"
+  }
+ },
+ "industry-eco": {
+  "width": 2700,
+  "height": 2025,
+  "alt": "People plant mangrove saplings across a tidal flat at dusk",
+  "focal": "50% 55%",
+  "files": {
+   "480": "industry-eco-a30cd1f5-480.webp",
+   "800": "industry-eco-a30cd1f5-800.webp",
+   "1200": "industry-eco-a30cd1f5-1200.webp",
+   "1600": "industry-eco-a30cd1f5-1600.webp",
+   "2000": "industry-eco-a30cd1f5-2000.webp",
+   "2600": "industry-eco-a30cd1f5-2600.webp"
+  },
+  "share": "industry-eco-a30cd1f5-share.jpg",
+  "credit": {
+   "photographer": "sutirta budiman",
+   "profile": "https://unsplash.com/@sutirtab",
+   "photo": "https://unsplash.com/photos/dwctehXPvXg",
+   "licence": "Unsplash License"
+  }
+ },
+ "vol-arch": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "Bare hands press soil around a young seedling among green leaves",
+  "focal": "50% 60%",
+  "files": {
+   "480": "vol-arch-306ad863-480.webp",
+   "800": "vol-arch-306ad863-800.webp",
+   "1200": "vol-arch-306ad863-1200.webp",
+   "1600": "vol-arch-306ad863-1600.webp",
+   "2000": "vol-arch-306ad863-2000.webp",
+   "2600": "vol-arch-306ad863-2600.webp"
+  },
+  "share": "vol-arch-306ad863-share.jpg",
+  "credit": {
+   "photographer": "Jonathan Kemper",
+   "profile": "https://unsplash.com/@jupp",
+   "photo": "https://unsplash.com/photos/4z3lnwEvZQw",
+   "licence": "Unsplash License"
+  }
+ },
+ "offer-csr": {
+  "width": 5184,
+  "height": 3456,
+  "alt": "Children sit together on a village school veranda, watching something off camera",
+  "focal": "50% 50%",
+  "files": {
+   "480": "offer-csr-1397d754-480.webp",
+   "800": "offer-csr-1397d754-800.webp",
+   "1200": "offer-csr-1397d754-1200.webp",
+   "1600": "offer-csr-1397d754-1600.webp",
+   "2000": "offer-csr-1397d754-2000.webp",
+   "2600": "offer-csr-1397d754-2600.webp"
+  },
+  "share": "offer-csr-1397d754-share.jpg",
+  "credit": {
+   "photographer": "Yannis H",
+   "profile": "https://unsplash.com/@yansphotobook",
+   "photo": "https://unsplash.com/photos/uaPaEM7MiQQ",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-csrd": {
+  "width": 3000,
+  "height": 4000,
+  "alt": "A machinist in a waistcoat works at an old green lathe in a small workshop",
+  "focal": "50% 45%",
+  "files": {
+   "480": "article-insight-csrd-8bcfd5f8-480.webp",
+   "800": "article-insight-csrd-8bcfd5f8-800.webp",
+   "1200": "article-insight-csrd-8bcfd5f8-1200.webp",
+   "1600": "article-insight-csrd-8bcfd5f8-1600.webp",
+   "2000": "article-insight-csrd-8bcfd5f8-2000.webp",
+   "2600": "article-insight-csrd-8bcfd5f8-2600.webp"
+  },
+  "share": "article-insight-csrd-8bcfd5f8-share.jpg",
+  "credit": {
+   "photographer": "ammar ahsan",
+   "profile": "https://unsplash.com/@meere",
+   "photo": "https://unsplash.com/photos/SsTd-oR60S4",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-empco-makers": {
+  "width": 6000,
+  "height": 4000,
+  "alt": "Hands stitch a small care label onto a folded linen garment",
+  "focal": "45% 45%",
+  "files": {
+   "480": "article-insight-empco-makers-7e8e3db5-480.webp",
+   "800": "article-insight-empco-makers-7e8e3db5-800.webp",
+   "1200": "article-insight-empco-makers-7e8e3db5-1200.webp",
+   "1600": "article-insight-empco-makers-7e8e3db5-1600.webp",
+   "2000": "article-insight-empco-makers-7e8e3db5-2000.webp",
+   "2600": "article-insight-empco-makers-7e8e3db5-2600.webp"
+  },
+  "share": "article-insight-empco-makers-7e8e3db5-share.jpg",
+  "credit": {
+   "photographer": "byhome work",
+   "profile": "https://unsplash.com/@byhomework",
+   "photo": "https://unsplash.com/photos/x19mK3HcG7M",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-aijek": {
+  "width": 4000,
+  "height": 2250,
+  "alt": "A woman in a batik workshop holds up a white shirt with a hand-drawn pattern",
+  "focal": "45% 50%",
+  "files": {
+   "480": "article-insight-aijek-153f93ce-480.webp",
+   "800": "article-insight-aijek-153f93ce-800.webp",
+   "1200": "article-insight-aijek-153f93ce-1200.webp",
+   "1600": "article-insight-aijek-153f93ce-1600.webp",
+   "2000": "article-insight-aijek-153f93ce-2000.webp",
+   "2600": "article-insight-aijek-153f93ce-2600.webp"
+  },
+  "share": "article-insight-aijek-153f93ce-share.jpg",
+  "credit": {
+   "photographer": "Joshua Kuswardi",
+   "profile": "https://unsplash.com/@aeosojk",
+   "photo": "https://unsplash.com/photos/Z6y68ndU_ac",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-confiance": {
+  "width": 3264,
+  "height": 3263,
+  "alt": "A man leans from a wooden boat to pull waste from a weed-covered river at dusk",
+  "focal": "45% 45%",
+  "files": {
+   "480": "article-insight-confiance-2358d523-480.webp",
+   "800": "article-insight-confiance-2358d523-800.webp",
+   "1200": "article-insight-confiance-2358d523-1200.webp",
+   "1600": "article-insight-confiance-2358d523-1600.webp",
+   "2000": "article-insight-confiance-2358d523-2000.webp",
+   "2600": "article-insight-confiance-2358d523-2600.webp"
+  },
+  "share": "article-insight-confiance-2358d523-share.jpg",
+  "credit": {
+   "photographer": "Saif Rahman",
+   "profile": "https://unsplash.com/@aperturediaries",
+   "photo": "https://unsplash.com/photos/wcOm7W67X3w",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-le-meridien": {
+  "width": 3024,
+  "height": 4032,
+  "alt": "Small coral islands and ring reefs of a Maldives atoll seen from the air",
+  "focal": "50% 60%",
+  "files": {
+   "480": "article-insight-le-meridien-e346cbda-480.webp",
+   "800": "article-insight-le-meridien-e346cbda-800.webp",
+   "1200": "article-insight-le-meridien-e346cbda-1200.webp",
+   "1600": "article-insight-le-meridien-e346cbda-1600.webp",
+   "2000": "article-insight-le-meridien-e346cbda-2000.webp",
+   "2600": "article-insight-le-meridien-e346cbda-2600.webp"
+  },
+  "share": "article-insight-le-meridien-e346cbda-share.jpg",
+  "credit": {
+   "photographer": "Cosmic Timetraveler",
+   "profile": "https://unsplash.com/@cosmictimetraveler",
+   "photo": "https://unsplash.com/photos/hXxgCOocQos",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-insight-torque": {
+  "width": 3800,
+  "height": 2138,
+  "alt": "Two women read a sheet together beside a wall pinned with fabric swatches and notes",
+  "focal": "55% 45%",
+  "files": {
+   "480": "article-insight-torque-291741b2-480.webp",
+   "800": "article-insight-torque-291741b2-800.webp",
+   "1200": "article-insight-torque-291741b2-1200.webp",
+   "1600": "article-insight-torque-291741b2-1600.webp",
+   "2000": "article-insight-torque-291741b2-2000.webp",
+   "2600": "article-insight-torque-291741b2-2600.webp"
+  },
+  "share": "article-insight-torque-291741b2-share.jpg",
+  "credit": {
+   "photographer": "Vitaly Gariev",
+   "profile": "https://unsplash.com/@silverkblack",
+   "photo": "https://unsplash.com/photos/Pqa0-ucJLZA",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-press-empco-eu": {
+  "width": 4640,
+  "height": 6960,
+  "alt": "An unlabelled amber glass dropper bottle stands in dappled palm-leaf shadow",
+  "focal": "50% 55%",
+  "files": {
+   "480": "article-press-empco-eu-0aa57207-480.webp",
+   "800": "article-press-empco-eu-0aa57207-800.webp",
+   "1200": "article-press-empco-eu-0aa57207-1200.webp",
+   "1600": "article-press-empco-eu-0aa57207-1600.webp",
+   "2000": "article-press-empco-eu-0aa57207-2000.webp",
+   "2600": "article-press-empco-eu-0aa57207-2600.webp"
+  },
+  "share": "article-press-empco-eu-0aa57207-share.jpg",
+  "credit": {
+   "photographer": "Kadarius Seegars",
+   "profile": "https://unsplash.com/@kseegars",
+   "photo": "https://unsplash.com/photos/b9KAwJRBXgw",
+   "licence": "Unsplash License"
+  }
+ },
+ "article-press-aijek": {
+  "width": 5472,
+  "height": 3648,
+  "alt": "Open cotton bolls on dry stems in a cotton field under a blue sky",
+  "focal": "40% 50%",
+  "files": {
+   "480": "article-press-aijek-c9a8a6ad-480.webp",
+   "800": "article-press-aijek-c9a8a6ad-800.webp",
+   "1200": "article-press-aijek-c9a8a6ad-1200.webp",
+   "1600": "article-press-aijek-c9a8a6ad-1600.webp",
+   "2000": "article-press-aijek-c9a8a6ad-2000.webp",
+   "2600": "article-press-aijek-c9a8a6ad-2600.webp"
+  },
+  "share": "article-press-aijek-c9a8a6ad-share.jpg",
+  "credit": {
+   "photographer": "Trisha Downing",
+   "profile": "https://unsplash.com/@tgdwinos",
+   "photo": "https://unsplash.com/photos/pyud8ZaVq4I",
+   "licence": "Unsplash License"
+  }
+ },
+ "og-share": {
+  "width": 1200,
+  "height": 630,
+  "alt": "QuintaEarth: the valley illustration from the home page, with the sun, turbines, a river and reeds, under the wordmark",
+  "focal": "50% 50%",
+  "files": {
+   "480": "og-share-1c2cec7d-480.webp",
+   "800": "og-share-1c2cec7d-800.webp",
+   "1200": "og-share-1c2cec7d-1200.webp"
+  },
+  "share": "og-share-1c2cec7d-share.jpg",
+  "credit": {
+   "photographer": "QuintaEarth",
+   "profile": null,
+   "photo": null,
+   "licence": "Drawn for this site (scripts/media/render-og-share.mjs)"
+  }
+ }
+}

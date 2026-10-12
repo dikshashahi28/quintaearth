@@ -64,7 +64,7 @@ const title = byLink ? 'Email me a link' : 'Sign in';
 // on the way to a team invitation: say so, naming the company
 const invite = await invitationFromNext(formNext);
 ---
-<Account title={title} description="Sign in to QuintaEarth." scene="weaver-woman" sceneAlt="A weaver working threads at a wooden loom" scenePos="50% 40%"
+<Account title={title} description="Sign in to QuintaEarth." scene="scene-signin"
   say="Where sustainability is made, not performed.">
   {!byLink && <p class="aside" slot="top"><span class="lead">New here?</span> <a href={withNext('/join')}>Create an account</a></p>}
   {byLink && sentTo ? (
@@ -117,7 +117,7 @@ const invite = await invitationFromNext(formNext);
         {googleSignIn && <>
           <div class="qe-rail" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
           <div class="qe-step tight">
-            <GoogleButton next={formNext} />
+            <GoogleButton />
             <p class="or" aria-hidden="true">or with your email</p>
           </div>
         </>}

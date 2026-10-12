@@ -121,7 +121,7 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
           <Avatar name={org.name} imageKey={org.logoKey} kind="company" />
           {!isOwner ? <p class="hint">Only an owner can change the logo.</p> : <div class="upload-acts co-logo">
             <FileDrop id="c-logo" name="logo" maxMB={2} required action={post(actions.company.setLogo)} icon="upload" accept="image/jpeg,image/png,image/webp"
-              label={org.logoKey ? 'Replace logo' : 'Add a logo'} hint="JPG, PNG or WebP, up to 2 MB" button="Upload logo" error={logoMessage}>
+              label={org.logoKey ? 'Replace logo' : 'Add a logo'} hint={org.logoKey ? 'JPG, PNG or WebP, up to 2 MB' : 'JPG, PNG or WebP, up to 2 MB. Needed before the page can be shown publicly.'} button="Upload logo" error={logoMessage}>
               <input type="hidden" name="organizationId" value={org.id} />
               <label class="btn btn-line co-choose" for="c-logo">Choose a logo</label>
             </FileDrop>
@@ -192,7 +192,7 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
             {/* a disabled box posts nothing, so a member's form carries the stored value; the action refuses a change */}
             {!isOwner && v.published && <input type="hidden" name="published" value="on" />}
             <label class="check"><input type="checkbox" name="published" checked={v.published} disabled={!isOwner} aria-describedby="c-url" /><span>Show the company page publicly</span></label>
-            <p class="hint" id="c-url">{pageUrl}{!isOwner && <><br />{ownerOnly}</>}</p>
+            <p class="hint" id="c-url">{pageUrl}{!isOwner && <><br />{ownerOnly}</>}{isOwner && !org.logoKey && <><br />Add a logo above first: a public page always shows one.</>}</p>
           </div>
         </section>
 

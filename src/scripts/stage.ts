@@ -8,6 +8,8 @@ export interface StageIndustry {
   href: string;
   image: string;
   imageAlt: string;
+  /** the photo's focal point, as object-position */
+  focal: string;
   /** stories + insights + press filed under this industry */
   filed: number;
   subs: { name: string; href: string; count: number }[];
@@ -30,11 +32,11 @@ function countUp(el: HTMLElement, to: number, reduce: boolean) {
 }
 
 /** Preload, retry once, then cross-fade, so the alt text never paints inside the frame. */
-function swapImage(img: HTMLImageElement, src: string, alt: string) {
+function swapImage(img: HTMLImageElement, src: string, alt: string, focal: string) {
   let tries = 0;
   const pre = new Image();
   img.classList.add('fade');
-  const show = () => { img.src = src; img.alt = alt; img.classList.remove('fade'); };
+  const show = () => { img.src = src; img.alt = alt; img.style.objectPosition = focal; img.classList.remove('fade'); };
   pre.onload = show;
   pre.onerror = () => { if (tries++ < 1) pre.src = `${src}?r=${Date.now()}`; else show(); };
   pre.src = src;
@@ -62,7 +64,7 @@ export function initStage(): void {
     const o = slides[cur]!;
     // the chips and the list are re-rendered below; if focus was in them, hand it to the current pebble
     const hadFocus = slide.contains(document.activeElement);
-    swapImage($<HTMLImageElement>('sImg'), o.image, o.imageAlt);
+    swapImage($<HTMLImageElement>('sImg'), o.image, o.imageAlt, o.focal);
     $<SVGUseElement>('sIco').setAttribute('href', `#hi-${o.icon}`);
     $<SVGUseElement>('sBadgeIco').setAttribute('href', `#hi-${o.icon}`);
     $('sBadgeTxt').textContent = `${o.subs.length} sub-categories`;

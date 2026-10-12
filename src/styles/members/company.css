@@ -51,9 +51,9 @@
 .qe-co .qe-body { padding: 8px 0 0 0; }
 .qe-co .qe-spine { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; }
 .qe-co .qe-rail { position: relative; width: 24px; }
-.qe-co .qe-rail .track { position: absolute; left: 11px; top: 27px; bottom: -11px; width: 3px; border-radius: 2px; background: var(--water); overflow: hidden; }
+.qe-co .qe-rail .track { position: absolute; left: 10.5px; top: 27px; bottom: -11px; width: 3px; border-radius: 2px; background: var(--water); overflow: hidden; }
 .qe-co .qe-rail .fill { display: none; }
-.qe-co .qe-rail .bead { position: absolute; left: 5px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
+.qe-co .qe-rail .bead { position: absolute; left: 6px; top: 11px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
 .qe-co .qe-rail.first .bead { top: 9px; }
 .qe-co .qe-rail.first .track { top: 25px; }
 .qe-co .qe-rail.last { height: 40px; }

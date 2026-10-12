@@ -2,9 +2,8 @@
 import Page from '../layouts/Page.astro';
 import PageHead from '../components/page/PageHead.astro';
 import { industries } from '../data/industries';
-import { Image } from 'astro:assets';
+import Media from '../components/Media.astro';
 import { getStream, streamBySub } from '../lib/content';
-import { photo } from '../lib/images';
 import { page } from '../lib/url';
 
 const [stream, bySub] = await Promise.all([getStream(), streamBySub()]);
@@ -26,7 +25,7 @@ const filedIn = (slug: string) => bySub.get(slug)?.length ?? 0;
           return (
             <li class="ind-card rv">
               <a class={`ind-photo ${ind.motion}`} href={page(`industries-${ind.slug}`)} tabindex="-1" aria-hidden="true">
-                <Image src={photo(ind.image)} alt="" widths={[480, 720, 960]} sizes="(max-width: 900px) calc(100vw - 32px), 520px" loading="lazy" />
+                <Media name={ind.image} alt="" sizes="(max-width: 900px) calc(100vw - 32px), 520px" />
                 <span class="badge"><svg class="hi"><use href={`#hi-${ind.icon}`} /></svg>{total} filed</span>
               </a>
               <h2><a href={page(`industries-${ind.slug}`)}>{ind.name}</a></h2>

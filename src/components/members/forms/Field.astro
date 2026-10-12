@@ -51,4 +51,13 @@ const attrs = {
     field.addEventListener('input', sync);
     sync();
   }
+  // a textarea grows with its text so nothing is hidden behind a scrollbar: CSS field-sizing where the browser
+  // has it, otherwise measured here on load and as the member types
+  if (!CSS.supports('field-sizing', 'content')) {
+    for (const area of document.querySelectorAll<HTMLTextAreaElement>('textarea.area, textarea.eq-area')) {
+      const grow = () => { area.style.height = 'auto'; area.style.height = `${area.scrollHeight + area.offsetHeight - area.clientHeight}px`; };
+      area.addEventListener('input', grow);
+      grow();
+    }
+  }
 </script>

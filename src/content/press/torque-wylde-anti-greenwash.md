@@ -4,9 +4,9 @@ description: "A UK automotive comms shop pairs with a sustainability consultancy
 date: 2026-09-23
 topic: "Press"
 sdgs: [12, 13, 17]
-image: "../../assets/articles/torque-wylde-anti-greenwash.jpg"
-imageAlt: "Professionals reviewing documents together, suggesting evidence-led communications"
-imageCredit: { label: "Amy Hirschi / Unsplash (not agency branding)", href: "https://unsplash.com/photos/gMsnXqILymA" }
+image: "article-press-torque"
+imageAlt: "A hand writes with a fountain pen in a lined notebook under a desk lamp"
+imageCredit: { label: "Infralist.com / Unsplash", href: "https://unsplash.com/photos/UOiNcIb6IWQ" }
 subs: []
 companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true

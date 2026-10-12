@@ -1,0 +1,56 @@
+---
+// The paid offers, as stops on the river (design: "the spring", layouts/Spring.astro). Six offers from
+// data/services.ts, no prices; each ends in a door into the contact form with the offer named, the free listing
+// in the sign-up. Then the dates that set a buyer's clock.
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
+import Media from '../components/Media.astro';
+import { services } from '../data/services';
+import { site } from '../data/site';
+import { page } from '../lib/url';
+
+export const prerender = true;
+
+// dates already passed are phrased as state and set in Moss Grey, so the two live deadlines carry the green
+const dates = [
+  { when: '1 Jan 2026', what: 'CBAM definitive regime in force', past: true },
+  { when: '27 Sep 2026', what: 'EmpCo in force', past: true },
+  { when: '1 Feb 2027', what: 'CBAM certificates go on sale', past: false },
+  { when: '30 Sep 2027', what: 'First CBAM declaration due', past: false },
+];
+---
+<Spring title="Services" description="Proof-backed stories, press releases, a green-claims audit, CBAM data packs, CSR narrative, sponsored Insights and a free evidence-linked listing. Ask for a proposal."
+  scene="scene-services"
+  say="We help you say what you can prove and prove what you say." sub="Every claim linked to its evidence">
+  <RiverRail>
+    {services.map((s, i) => (
+      <Bead />
+      <section class="sp-stop offer" id={s.slug} aria-labelledby={`${s.slug}-h`}>
+        <figure class="ophoto">
+          <Media name={s.photo} sizes="(max-width: 640px) calc(100vw - 70px), (max-width: 1179px) 36vw, 380px" loading={i < 2 ? 'eager' : 'lazy'} />
+        </figure>
+        <div class="otext">
+          <h2 id={`${s.slug}-h`}>{s.name}</h2>
+          <p>{s.line}</p>
+          {s.action === 'join'
+            ? <a class="sp-door" href="/join"><span class="stone" aria-hidden="true"><svg><use href="#i-arrow-right" /></svg></span>Join free</a>
+            : <a class="sp-door" href={page('contact', 'partner', { offer: s.slug })}><span class="stone" aria-hidden="true"><svg><use href="#i-arrow-right" /></svg></span>Ask for a proposal</a>}
+        </div>
+      </section>
+    ))}
+
+    <Bead last />
+    <section class="sp-stop end" aria-labelledby="dates-h">
+      <h2 id="dates-h">Dates</h2>
+      <dl class="clock">
+        {dates.map((d) => <div class:list={{ past: d.past }}><dt>{d.when}</dt><dd>{d.what}</dd></div>)}
+      </dl>
+      <p class="clock-note">CSRD, after Omnibus I, covers only companies with more than 1,000 staff and €450M turnover.</p>
+      <div class="sp-acts">
+        <a class="qe-btn" href={page('contact', 'partner', { offer: 'any' })}>Ask for a proposal<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a>
+        <a class="tlink" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+    </section>
+  </RiverRail>
+</Spring>

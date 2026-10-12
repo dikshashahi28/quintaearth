@@ -1,6 +1,7 @@
 /* Member pages: dashboard, profiles, company pages, directory, enquiries, identity checks, admin.
    Ported from the approved "QuintaEarth member pages" design (10 Oct 2026); tokens from tokens.css.
    Loaded only by member pages, after pages.css, so shared names (.btn, .chip, .field ...) resolve to these. */
+@import './fields.css';
 
 /* icons: Material Symbols Rounded (filled) from the sprite; size follows font-size like the icon font did */
 svg.ms { width: 1em; height: 1em; font-size: 22px; flex: none; fill: currentColor; vertical-align: middle; }
@@ -77,29 +78,6 @@ svg.ms { width: 1em; height: 1em; font-size: 22px; flex: none; fill: currentColo
 
 /* ---------- forms ---------- */
 .form { display: grid; gap: 20px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-.field { display: grid; gap: 6px; align-content: start; }
-.field > label, .field > legend, .field .lab { font-weight: 500; font-size: 15px; color: var(--deep); padding: 0; }
-.field .opt { font-weight: 400; color: var(--muted); }
-.field .labrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.field .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.inp, .sel, .area {
-  width: 100%; min-height: 48px; padding: 10px 20px; border-radius: 999px; border: 1.5px solid var(--field-line); background: var(--page);
-  font: 400 16px/1.4 var(--font-body); color: var(--text); caret-color: var(--river); margin: 0;
-}
-.inp::placeholder, .area::placeholder { color: var(--placeholder); }
-.sel { appearance: none; -webkit-appearance: none; padding-right: 48px; cursor: pointer; }
-.selwrap { position: relative; display: block; }
-.selwrap .ms { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--river); pointer-events: none; font-size: 22px; }
-.area { border-radius: 12px; min-height: 128px; padding: 12px 16px; resize: vertical; line-height: 1.55; display: block; }
-.inwrap { position: relative; display: block; }
-.inwrap > .ms { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--river); pointer-events: none; }
-.inwrap .inp { padding-left: 50px; }
-.hint { font-size: 13.5px; color: var(--muted); }
-.area.short { min-height: 104px; }
-.area.tall { min-height: 168px; }
-.form-status:empty { display: none; }
 .notice.flash, .formw > .notice, .formw > .form-status { margin-bottom: 24px; }
 
 /* chip pickers (ChipPicker): label.chip around a visually hidden checkbox; a checked chip takes the Shallow fill */
@@ -124,8 +102,6 @@ fieldset.pick { border: 0; margin: 0; padding: 0; min-width: 0; }
 .chips + .picks { margin-top: 10px; }
 fieldset.subs { margin-top: 28px; }
 @media (prefers-reduced-motion: reduce) { .picks summary .ms { transition: none; } }
-.check { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; min-height: 44px; padding-top: 10px; font-size: 15px; cursor: pointer; }
-.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--river); }
 .form-send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
 .form-note { font-size: 14px; color: var(--muted); }
 .choices { display: grid; gap: 10px; margin-top: 4px; }
@@ -148,6 +124,8 @@ fieldset.subs { margin-top: 28px; }
 .drop .drop-t { flex: 1 1 220px; min-width: 0; }
 .drop .drop-t label { font-weight: 500; color: var(--deep); }
 .drop-in { min-width: 0; width: 100%; max-width: 100%; font: 400 15px/1.4 var(--font-body); color: var(--text); }
+/* inside a .field (the listing editor) pages.css would draw the file input as a second pill inside the dashed box */
+.field .drop .drop-in { min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; }
 @media (max-width: 400px) { .drop { padding: 18px 16px; } .drop .drop-t { flex-basis: 100%; } }
 .drop-in::file-selector-button { margin-right: 12px; min-height: 44px; padding: 0 18px; border-radius: 100px; border: 1.5px solid var(--river); background: var(--page); color: var(--river); font: 500 15px/1 var(--font-body); cursor: pointer; }
 .dropw { display: grid; gap: 8px; min-width: 0; }
@@ -365,7 +343,6 @@ details.fbtn[open] > summary { background: var(--shallow); }
   .mark { width: 96px; height: 96px; }
   .mark .ms { font-size: 42px; }
   .body { padding: 40px 0 72px; }
-  .row2, .row3 { grid-template-columns: 1fr; }
   .lgrid { grid-template-columns: 1fr; gap: 36px; }
   .two { gap: 36px; }
   .sec > h2, .sec-t h2 { font-size: 24px; }
@@ -404,7 +381,9 @@ details.fbtn[open] > summary { background: var(--shallow); }
 
 /* password field: a Show button sits inside the input's right end */
 .pwwrap { position: relative; display: block; }
-.pwwrap .inp { padding-right: 56px; }
+/* .field in the selector: pages.css pads every .field input at 20px with a stronger selector, which let typed text run
+   under the Show button */
+.pwwrap .inp, .field .pwwrap .inp { padding-right: 56px; }
 .pwshow {
   position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; border-radius: 50%;
   background: transparent; color: var(--river); display: grid; place-items: center; cursor: pointer; padding: 0;
@@ -486,5 +465,8 @@ button.tlink { font: inherit; font-weight: 500; }
   /* links in an error summary and the first breadcrumb are 44px targets on touch */
   .err-sum a { min-height: 44px; }
   .tbl td a { display: inline-flex; align-items: center; min-height: 44px; }
-  :is(.dcrumbs, .qe-crumbs, .pp-crumbs, .qd-crumbs) li:first-child a { min-width: 44px; }
+  /* the 44px is an invisible box centred on "Home", so the link does not grow and push the first › further away than
+     the others */
+  :is(.dcrumbs, .qe-crumbs, .pp-crumbs, .qd-crumbs) li:first-child a { position: relative; }
+  :is(.dcrumbs, .qe-crumbs, .pp-crumbs, .qd-crumbs) li:first-child a::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 44px; transform: translateX(-50%); }
 }

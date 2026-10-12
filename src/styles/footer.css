@@ -24,7 +24,35 @@
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)); }
 }
 
-.site-foot .grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; padding-top: 64px; }
+/* new Insights by email: one line, a pill field and the gold button of the deep band; the answer appears under it.
+   The river's last bead sits before the line, pale as the river is on deep; it lights Lantern Gold and sends one
+   ring out when a subscription is saved (newsletter.ts adds .lit), the spring's arrival moment. */
+.site-foot .news { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 8px 48px; align-items: center; padding: 56px 0 36px; border-bottom: 1px solid rgba(255, 255, 255, .14); }
+.site-foot .news > label { grid-row: 1; display: flex; align-items: center; gap: 16px; font: 400 clamp(24px, 2.2vw, 30px)/1.2 var(--font-display); letter-spacing: -.01em; color: #fff; text-wrap: balance; }
+.news-bead { position: relative; flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--mist); background: transparent; box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
+/* the bead's river: a 3px track from the band's top (the meadow's base) down to the bead, so it is the end of a line
+   as it is everywhere else (56px of padding plus half the line above the bead's centre, less the bead and a gap) */
+.news-bead::before { content: ""; position: absolute; left: 50%; bottom: calc(100% + 3px); width: 3px; height: calc(47px + .6em); margin-left: -1.5px; border-radius: 2px; background: rgba(255, 255, 255, .14); }
+.news-bead::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold-light); opacity: 0; }
+.site-foot .news.lit .news-bead { background: var(--gold-light); border-color: var(--gold-light); transform: scale(1.15); }
+.site-foot .news.lit .news-bead::after { animation: news-ring 1.2s ease-out 1 forwards; }
+@keyframes news-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+.news-row { grid-row: 1; display: flex; gap: 10px; }
+.news-row input {
+  flex: 1; min-width: 0; min-height: 48px; padding: 0 20px; border-radius: 100px; border: 1.5px solid transparent;
+  background: #fff; color: var(--text); font: 400 16px/1.4 var(--font-body); transition: border-color .2s;
+}
+.news-row input::placeholder { color: var(--placeholder); }
+.news-row input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; border-color: var(--gold-light); }
+.news-row input[aria-invalid='true'] { border-color: var(--gold-light); }
+.news-row .btn { flex: none; }
+.site-foot .news .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.news-status { grid-column: 2; min-height: 0; font-size: 14.5px; line-height: 1.5; color: var(--gold-light); }
+.news-status:empty { display: none; }
+.news-status.bad { color: var(--on-deep); }
+.news-status.wait { color: var(--on-deep-muted); }
+
+.site-foot .grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; padding-top: 48px; }
 .site-foot .wm { font: 400 34px/1 var(--font-display); color: #fff; }
 .site-foot .tag { margin-top: 14px; font-family: var(--font-display); font-size: 19px; color: #fff; }
 .site-foot a { color: #d9e6d6; text-decoration: none; transition: color .2s; }
@@ -39,10 +67,21 @@
 @media (max-width: 900px) {
   .site-foot .grid { grid-template-columns: 1fr 1fr; }
   .site-foot .brand { grid-column: 1 / -1; }
+  .site-foot .news { grid-template-columns: 1fr; gap: 16px; padding: 44px 0 32px; }
+  .news-bead::before { height: calc(35px + .6em); }
+  .site-foot .news > label, .news-row { grid-row: auto; }
+  .news-status { grid-column: 1; }
 }
 @media (max-width: 640px) {
   .reeds { height: 96px; }
+  .news-row { flex-direction: column; }
+  .news-row .btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .reeds .sway, .reeds .wing, .reeds .dw, .reeds .seed { animation: none; }
+  .news-bead { transition: none; }
+  .site-foot .news.lit .news-bead::after { animation: none; }
+}
+@media (forced-colors: active) {
+  .site-foot .news.lit .news-bead { background: CanvasText; border-color: CanvasText; }
 }

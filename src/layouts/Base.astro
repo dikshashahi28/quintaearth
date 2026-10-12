@@ -4,6 +4,7 @@ import IconSprite from '../components/IconSprite.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site, type NavKey } from '../data/site';
+import { mediaShareUrl } from '../lib/media';
 import { absolute, asset } from '../lib/url';
 import { initialsOf } from '../lib/member-hint';
 
@@ -11,9 +12,9 @@ interface Props {
   /** page title without the site name; omit on the home page */
   title?: string;
   description?: string;
-  /** path under /public for the share image */
+  /** the share image, a site photograph by name (src/data/media.json); the site's own when unset */
   image?: string;
-  /** an already-resolved share image URL (e.g. from getImage), used instead of `image` */
+  /** an already-resolved share image URL (absolute or site-relative), used instead of `image` */
   imageUrl?: string;
   type?: 'website' | 'article';
   /** structured data objects, emitted as JSON-LD */
@@ -42,7 +43,7 @@ const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · One hub 
 const canonical = absolute(Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, ''), Astro.site);
 // on-demand pages know who is signed in; prerendered pages read the hint cookie in the head script below
 const member = Astro.locals.user ? initialsOf(Astro.locals.user.name) : undefined;
-const ogImage = absolute(imageUrl ?? asset(image), Astro.site);
+const ogImage = absolute(imageUrl ?? mediaShareUrl(image), Astro.site);
 ---
 <!doctype html>
 <html lang="en" data-member={member}>

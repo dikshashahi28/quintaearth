@@ -1,0 +1,14 @@
+{
+ "solar-school-roof": 3, "solar-pump-field": 3, "battery-rack": 1, "solar-maintenance": 4,
+ "denim-yarn": 2, "workwear-sorting": 2, "hemp-fabric": 3,
+ "mangrove-planting": 7, "mangrove-survey": 2, "mangrove-nursery": 7,
+ "hempcrete-wall": 7, "timber-frame": 9, "building-audit": "timber-frame:2",
+ "electric-van": 2, "route-planning": 11,
+ "feed-pellets": 1, "cold-storage": 2,
+ "heat-network-pipes": 0, "heat-pump-unit": 3,
+ "flood-map": 0, "town-river": 2,
+ "plastic-flakes": 5, "collectors-sorting": 7, "recycled-bench": 3,
+ "small-wind-turbine": 0, "wind-blade-repair": 0,
+ "tea-harvest": 0, "tea-shade-trees": 7,
+ "bamboo-building": 10, "bamboo-beams": 0
+}

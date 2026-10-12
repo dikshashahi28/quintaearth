@@ -80,7 +80,9 @@ export const company = {
       const { membership } = await requireMember(ctx, input.organizationId);
       const id = input.organizationId;
       const before = (await db.query.organizations.findFirst({ where: eq(schema.organizations.id, id),
-        columns: { name: true, website: true, published: true, identityCheckedAt: true } }))!;
+        columns: { name: true, website: true, published: true, identityCheckedAt: true, logoKey: true } }))!;
+      // a public page always carries a logo: the directory card, the head stone and the enquiry form all show it
+      if (input.published && !before.logoKey) throw new ActionError({ code: 'BAD_REQUEST', message: 'Add a logo before showing the company page publicly.' });
       // what "Identity checked" vouches for (the name and the website people land on) and whether the page is
       // public are the owners' to change; the rest of the page is the whole team's
       if (membership.role !== 'owner' && (before.name !== input.name || (before.website ?? null) !== input.website || before.published !== input.published)) {
@@ -126,7 +128,8 @@ export const company = {
     input: z.object({ organizationId: orgId }),
     handler: async ({ organizationId }, ctx) => {
       await requireMember(ctx, organizationId, { owner: true });
-      const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId), columns: { logoKey: true } });
+      const org = await db.query.organizations.findFirst({ where: eq(schema.organizations.id, organizationId), columns: { logoKey: true, published: true } });
+      if (org?.published) throw new ActionError({ code: 'BAD_REQUEST', message: 'The page is public and needs a logo. Upload another one to replace it, or hide the page first.' });
       await db.update(schema.organizations).set({ logoKey: null, updatedAt: new Date() }).where(eq(schema.organizations.id, organizationId));
       await deleteFile(org?.logoKey);
       return { removed: true };

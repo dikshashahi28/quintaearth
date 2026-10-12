@@ -1,6 +1,7 @@
 ---
 import '../../styles/cards.css';
 import { Picture } from 'astro:assets';
+import Media from '../Media.astro';
 import GoalTags from './GoalTags.astro';
 import type { Insight } from '../../lib/content';
 import { formatDate, isoDate } from '../../lib/content';
@@ -25,7 +26,9 @@ const hasWhere = item.label === 'Press' || where || item.date || named.length > 
 <article class="card">
   {item.image && (
     <figure class="card-img">
-      <Picture src={item.image.src} alt="" formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800]} sizes="(max-width: 700px) calc(100vw - 32px), 360px" loading="lazy" decoding="async" />
+      {'name' in item.image
+        ? <Media name={item.image.name} alt="" sizes="(max-width: 700px) calc(100vw - 32px), 360px" />
+        : <Picture src={item.image.src} alt="" formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800]} sizes="(max-width: 700px) calc(100vw - 32px), 360px" loading="lazy" decoding="async" />}
     </figure>
   )}
   <div class="card-body">
