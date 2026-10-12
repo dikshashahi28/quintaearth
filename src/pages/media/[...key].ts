@@ -23,6 +23,6 @@ export const GET: APIRoute = async ({ params, request }) => {
       'X-Content-Type-Options': 'nosniff',
     },
   });
-  if (edge) await edge.put(request, res.clone());
+  if (edge && request.method === 'GET') await edge.put(request, res.clone());
   return res;
 };
