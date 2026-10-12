@@ -1,0 +1,61 @@
+---
+// The dashboard's own navigation: a slim left list on desktop, a sideways-scrolling strip of pills on phone.
+// Sign out is the last item in both, so it stays reachable on phone. On phone the strip opens scrolled to the
+// current item, and fades at an edge while more pills sit past it. Company items appear only for members of a
+// company; admins also get the identity-check queue.
+import Icon from './Icon.astro';
+
+export type DashKey = 'overview' | 'profile' | 'company' | 'listings' | 'enquiries' | 'identity' | 'messages' | 'admin' | 'password';
+interface Props { current: DashKey; company: boolean; newEnquiries?: number; newReplies?: number; orgQuery?: string }
+const { current, company, newEnquiries = 0, newReplies = 0, orgQuery = '' } = Astro.props;
+const admin = Astro.locals.user?.role === 'admin';
+
+const items = [
+  { key: 'overview', label: 'Overview', icon: 'space_dashboard', href: '/dashboard' },
+  { key: 'profile', label: 'Your profile', icon: 'person', href: '/dashboard/profile' },
+  ...(company ? [
+    { key: 'company', label: 'Company page', icon: 'storefront', href: `/dashboard/company${orgQuery}` },
+    { key: 'listings', label: 'Listings', icon: 'inventory_2', href: `/dashboard/listings${orgQuery}` },
+    { key: 'enquiries', label: 'Enquiries', icon: 'mail', href: `/dashboard/enquiries${orgQuery}`, n: newEnquiries },
+    { key: 'identity', label: 'Identity check', icon: 'badge', href: `/dashboard/identity${orgQuery}` },
+  ] : []),
+  { key: 'messages', label: 'Sent enquiries', icon: 'send', href: '/dashboard/messages', n: newReplies },
+  ...(admin ? [{ key: 'admin', label: 'Identity checks', icon: 'badge', href: '/admin' }] : []),
+  { key: 'password', label: 'Password', icon: 'lock', href: '/dashboard/password' },
+] as { key: DashKey; label: string; icon: string; href: string; n?: number }[];
+---
+<div class="dnav">
+  <nav aria-label="Dashboard">
+    <ul>
+      {items.map((it) => (
+        <li>
+          <a href={it.href} class:list={{ on: it.key === current }} aria-current={it.key === current ? 'page' : undefined}>
+            <Icon name={it.icon} />{it.label}{!!it.n && <span class="n">{it.n}<span class="sr"> new</span></span>}
+          </a>
+        </li>
+      ))}
+      <li class="out">
+        <form method="POST" action="/signout"><button type="submit"><Icon name="logout" />Sign out</button></form>
+      </li>
+    </ul>
+  </nav>
+</div>
+<script is:inline>
+  // phone strip: bring the current pill into view (instantly, no motion), and mark which edges hide more pills
+  (() => {
+    const ul = document.currentScript?.previousElementSibling?.querySelector('ul');
+    if (!ul) return;
+    const mark = () => {
+      ul.toggleAttribute('data-l', ul.scrollLeft > 2);
+      ul.toggleAttribute('data-r', ul.scrollLeft + ul.clientWidth < ul.scrollWidth - 2);
+    };
+    const on = ul.querySelector('[aria-current="page"]');
+    if (on && ul.scrollWidth > ul.clientWidth) {
+      const a = on.getBoundingClientRect(), u = ul.getBoundingClientRect();
+      ul.scrollLeft += a.left + a.width / 2 - (u.left + u.width / 2);
+    }
+    mark();
+    ul.addEventListener('scroll', mark, { passive: true });
+    addEventListener('resize', mark, { passive: true });
+  })();
+</script>

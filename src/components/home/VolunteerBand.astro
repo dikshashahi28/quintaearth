@@ -1,7 +1,6 @@
 ---
 import '../../styles/volunteer.css';
-import { Image } from 'astro:assets';
-import { photo } from '../../lib/images';
+import Media from '../Media.astro';
 import { page } from '../../lib/url';
 
 // The five promises from the pre-revamp volunteer section, laid as stepping stones across a stream.
@@ -16,16 +15,16 @@ const stones = [
 <section class="vol" id="volunteer" data-river="wide" aria-labelledby="vol-title">
   <div class="in wide">
     <div class="vol-head">
-      <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">08</span>Volunteer</p>
+      <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">07</span>Volunteer</p>
       <h2 class="rv" id="vol-title" data-dot>Join hands with us for a better life and beautiful future.</h2>
     </div>
 
     <figure class="vol-pics rv">
       <div class="vol-arch">
-        <Image src={photo('planting')} alt="Hands planting seedlings in soil" widths={[480, 760, 1000]} sizes="(max-width: 900px) 92vw, 440px" loading="lazy" />
+        <Media name="vol-arch" sizes="(max-width: 900px) 92vw, 440px" />
       </div>
       <div class="vol-stone">
-        <Image src={photo('weaver-woman')} alt="A weaver working at a carpet loom" width={176} height={176} densities={[1, 2]} loading="lazy" />
+        <Media name="vol-stone" sizes="(max-width: 640px) 80px, (max-width: 900px) 94px, 166px" />
       </div>
     </figure>
 

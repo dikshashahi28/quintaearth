@@ -1,0 +1,10 @@
+---
+// The line on sign-in and sign-up for someone who followed a team invitation while signed out.
+interface Props { company: string; join?: boolean }
+const { company, join = false } = Astro.props;
+---
+<p class="notice qe-invite">You were invited to join <b>{company}</b>. {join ? 'Create an account to accept.' : 'Sign in or create an account to accept.'}</p>
+<style>
+  .qe-invite { margin: 0 0 28px; max-width: 46ch; }
+  .qe-invite b { font-weight: 600; }
+</style>

@@ -1,0 +1,128 @@
+---
+// The listing editor, shared by /dashboard/listings/new and /dashboard/listings/[id].
+// The main form holds the details; slot "photo" sits after the name, slot "evidence" after the description.
+// Upload controls in those slots belong to their own forms elsewhere on the page (`form` attribute) and carry
+// the `data-autosave` mark: with script, a dirty listing is saved first so an upload never drops unsaved edits.
+// The buttons belong to the main form through the `form` attribute.
+import ChipPicker from '../forms/ChipPicker.astro';
+import { industries } from '../../../data/industries';
+import { countries } from '../../../data/countries';
+
+export interface ListingValues {
+  id?: string;
+  name: string;
+  kind: 'product' | 'service';
+  description: string | null;
+  link: string | null;
+  status: 'draft' | 'published';
+}
+interface Props {
+  /** form action URL (e.g. "?_action=listings.save") */
+  action: string;
+  organizationId: string;
+  values: ListingValues;
+  subs: string[];
+  serves: string[];
+  errors?: Record<string, string[] | undefined>;
+  /** a non-field error from the last save */
+  failure?: string;
+}
+const { action, organizationId, values, subs, serves, errors = {}, failure } = Astro.props;
+const isNew = !values.id;
+const live = values.status === 'published';
+const servesSet = new Set(serves);
+// chosen countries show as chips; the rest fold under "Add countries"
+const chosen = countries.filter((c) => servesSet.has(c.iso));
+const rest = countries.filter((c) => !servesSet.has(c.iso)).sort((a, b) => a.name.localeCompare(b.name));
+const err = (k: string) => errors[k]?.join(' ') ?? '';
+---
+<div class="formw">
+  <form id="listing-form" class="sec" method="POST" action={action} data-status={values.status} novalidate>
+    <h2>Listing</h2>
+    {failure && <p class="form-status bad" role="alert">{failure}</p>}
+    <input type="hidden" name="organizationId" value={organizationId}>
+    <input type="hidden" name="listingId" value={values.id ?? ''}>
+    <div class="form">
+      <fieldset class="field">
+        <legend>Type</legend>
+        <div class="seg">
+          <label><input type="radio" name="kind" value="product" checked={values.kind === 'product'}>Product</label>
+          <label><input type="radio" name="kind" value="service" checked={values.kind === 'service'}>Service</label>
+        </div>
+      </fieldset>
+      <div class="field">
+        <label for="l-name">Name</label>
+        <input class="inp" id="l-name" name="name" type="text" maxlength="120" required value={values.name}
+          aria-invalid={err('name') ? 'true' : undefined} aria-describedby="l-name-err">
+        <p class="err" id="l-name-err">{err('name')}</p>
+      </div>
+      <slot name="photo" />
+      <div class="field">
+        <label for="l-desc">Short description</label>
+        <textarea class="area short" id="l-desc" name="description" maxlength="2000"
+          aria-invalid={err('description') ? 'true' : undefined} aria-describedby="l-desc-err">{values.description ?? ''}</textarea>
+        <p class="err" id="l-desc-err">{err('description')}</p>
+      </div>
+      <slot name="evidence" />
+      <ChipPicker name="subs" legend="Sub-categories" selected={subs} errorId="l-subs-err" error={errors.subs}
+        groups={industries.map((ind) => ({ label: ind.name, options: ind.subs.map((s) => ({ value: s.slug, label: s.name })) }))} />
+      <ChipPicker name="serves" legend="Countries served" selected={serves} errorId="l-serves-err" error={errors.serves}
+        options={chosen.map((c) => ({ value: c.iso, label: c.name }))}
+        groups={[{ label: 'Add countries', options: rest.map((c) => ({ value: c.iso, label: c.name })) }]} />
+      <div class="field">
+        <label for="l-link">Link <span class="opt">(optional)</span></label>
+        <input class="inp" id="l-link" name="link" type="text" inputmode="url" maxlength="300" value={values.link ?? ''}
+          aria-invalid={err('link') ? 'true' : undefined} aria-describedby="l-link-err">
+        <p class="err" id="l-link-err">{err('link')}</p>
+      </div>
+    </div>
+  </form>
+
+  <section class="sec">
+    <div class="form-send">
+      {live ? (<>
+        <button class="btn btn-fill" type="submit" form="listing-form" name="status" value="published">Save changes</button>
+        <button class="btn btn-line" type="submit" form="listing-form" name="status" value="draft" aria-describedby="l-unpub">Unpublish</button>
+        <p class="hint" id="l-unpub">It leaves your company page.</p>
+      </>) : (<>
+        <button class="btn btn-line" type="submit" form="listing-form" name="status" value="draft">Save draft</button>
+        <button class="btn btn-fill" type="submit" form="listing-form" name="status" value="published">Publish</button>
+      </>)}
+      {!isNew && <slot name="send" />}
+    </div>
+  </section>
+</div>
+
+<script>
+  // Save a changed listing before an upload or a file removal reloads the page, so those edits are kept.
+  // (forms/save-first.ts drops the clicked button, which carries `status` here and the file key on removal.)
+  import { snapshot } from '../forms/save-first';
+  const main = document.getElementById('listing-form') as HTMLFormElement | null;
+  if (main) {
+    let base = snapshot(new FormData(main));
+    let busy = false;
+    for (const f of document.querySelectorAll<HTMLFormElement>('form[data-autosave]')) {
+      f.addEventListener('submit', async (e) => {
+        if (f.dataset.saved) return;
+        if (busy) { e.preventDefault(); return; }
+        if (snapshot(new FormData(main)) === base) return;
+        e.preventDefault();
+        busy = true;
+        const status = main.dataset.status ?? 'draft';
+        const fd = new FormData(main);
+        fd.set('status', status);
+        // a good save redirects to ?saved=1; a failed one renders the page again
+        const ok = await fetch(main.action, { method: 'POST', body: fd }).then((r) => new URL(r.url).searchParams.has('saved'), () => false);
+        busy = false;
+        if (ok) {
+          base = snapshot(new FormData(main));
+          f.dataset.saved = '1';
+          f.requestSubmit(e.submitter as HTMLElement | null);
+        } else {
+          // post the edits the normal way so the errors show next to the fields
+          main.requestSubmit(document.querySelector<HTMLButtonElement>(`button[form="listing-form"][value="${status}"]`));
+        }
+      });
+    }
+  }
+</script>

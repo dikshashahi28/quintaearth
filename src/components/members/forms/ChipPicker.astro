@@ -1,0 +1,62 @@
+---
+// The one multi-select: checkbox chips (a label around a visually hidden checkbox), so it posts with no JS.
+// A checked chip takes the Shallow fill (members.css .pickchip). Long lists fold into `groups`: native <details>
+// with a caret and an "n chosen" count, open when asked or when one of their chips is checked.
+import Icon from '../Icon.astro';
+
+export interface ChipOption { value: string; label: string; goal?: number }
+export interface ChipGroup { label: string; options: ChipOption[]; open?: boolean }
+interface Props {
+  name: string;
+  legend: string;
+  /** chips shown flat, above any groups */
+  options?: ChipOption[];
+  groups?: ChipGroup[];
+  selected: string[];
+  /** id for the error line, linked with aria-describedby */
+  errorId: string;
+  error?: string[] | string;
+  /** hide the legend visually (the section heading already names the group) */
+  quietLegend?: boolean;
+  class?: string;
+}
+const { name, legend, options = [], groups = [], selected, errorId, error, quietLegend = false, class: cls } = Astro.props;
+const on = new Set(selected);
+const errText = Array.isArray(error) ? error.join(' ') : error ?? '';
+---
+<fieldset class:list={['pick field', cls]} aria-describedby={errText ? errorId : undefined}>
+  <legend class:list={[quietLegend ? 'sr' : 'lab']}>{legend}</legend>
+  {options.length > 0 && (
+    <div class="chips">
+      {options.map((o) => (
+        <label class="chip pickchip">
+          <input class="sr" type="checkbox" name={name} value={o.value} checked={on.has(o.value)} />
+          <Icon name="check" class="tick" />
+          {o.goal !== undefined && <span class="goal">{o.goal}</span>}
+          {o.label}
+        </label>
+      ))}
+    </div>
+  )}
+  {groups.length > 0 && (
+    <div class="picks">
+      {groups.map((g) => {
+        const n = g.options.filter((o) => on.has(o.value)).length;
+        return (
+          <details open={g.open || n > 0}>
+            <summary>{g.label}{n > 0 && <small>{n} chosen</small>}<Icon name="expand_more" /></summary>
+            <div class="chips" role="group" aria-label={g.label}>
+              {g.options.map((o) => (
+                <label class="chip pickchip">
+                  <input class="sr" type="checkbox" name={name} value={o.value} checked={on.has(o.value)} />
+                  <Icon name="check" class="tick" />{o.label}
+                </label>
+              ))}
+            </div>
+          </details>
+        );
+      })}
+    </div>
+  )}
+  <p class="err" id={errorId}>{errText}</p>
+</fieldset>

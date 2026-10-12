@@ -1,0 +1,60 @@
+---
+// One listing on a public company page (design: Company, 10 Oct "spring" board). Every card carries a photo:
+// a listing without one, or whose photo fails to load, shows a tinted placeholder stone instead. Its evidence files
+// are always in view under it, by name; opening one is a click (a new tab).
+import Icon from '../Icon.astro';
+import { fileUrl } from '../../../lib/storage-url';
+import { hostOf } from '../../../lib/labels';
+
+interface Evidence { key: string; name: string; contentType: string; size: number }
+interface Props {
+  id: string;
+  slug: string;
+  name: string;
+  kind: string;
+  description?: string | null;
+  photoKey?: string | null;
+  link?: string | null;
+  subs: string[];
+  serves: string[];
+  evidence: Evidence[];
+  enquire: string;
+}
+const { id, slug, name, kind, description, photoKey, link, subs, serves, evidence, enquire } = Astro.props;
+const service = kind === 'service';
+const fileSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`);
+const fileType = (ct: string, fname: string) => {
+  if (ct === 'application/pdf') return 'PDF';
+  if (ct.startsWith('image/')) return `${ct.slice(6).toUpperCase()} image`;
+  const ext = fname.split('.').pop();
+  return ext && ext !== fname ? ext.toUpperCase() : 'File';
+};
+---
+<li class="qe-card" id={`listing-${slug}`}>
+  <span class="qe-ph">
+    <span class="qe-ph-stone" aria-hidden="true"><Icon name={service ? 'group' : 'inventory_2'} /></span>
+    {photoKey && <img src={fileUrl(photoKey)} alt="" width="400" height="300" loading="lazy" onerror="this.remove()" />}
+  </span>
+  <h3>{name}</h3>
+  {description && <p class="qe-desc">{description}</p>}
+  <div class="qe-small-meta">
+    <span class="kind">{service ? 'Service' : 'Product'}</span>
+    {subs.length > 0 && <span>{subs.join(', ')}</span>}
+    {serves.length > 0 && <span><Icon name="public" />Serves {serves.join(', ')}</span>}
+  </div>
+  <div class="qe-acts">
+    <a class="qe-tlink" href={`${enquire}?listing=${encodeURIComponent(id)}`}><Icon name="mail" />Ask about this<span class="sr">: {name}</span></a>
+    {link && <a class="qe-tlink" href={link} target="_blank" rel="noopener nofollow ugc"><Icon name="open_in_new" />{hostOf(link)}<span class="sr"> (opens in a new tab)</span></a>}
+  </div>
+  {evidence.length > 0 && (
+    <div class="qe-files" id={`evidence-${slug}`}>
+      <h4 class="qe-files-h"><Icon name="attach_file" />{evidence.length} evidence {evidence.length === 1 ? 'file' : 'files'}<span class="sr"> for {name}</span></h4>
+      <p class="qe-files-note">Anyone can open these files.</p>
+      <ul aria-label={`Evidence for ${name}`}>
+        {evidence.map((e) => (
+          <li><a href={fileUrl(e.key)} target="_blank" rel="noopener"><Icon name={e.contentType.startsWith('image/') ? 'image' : 'description'} /><span><b>{e.name}</b><small>{fileType(e.contentType, e.name)} · {fileSize(e.size)}</small></span><span class="sr"> (opens in a new tab)</span></a></li>
+        ))}
+      </ul>
+    </div>
+  )}
+</li>

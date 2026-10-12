@@ -1,0 +1,252 @@
+---
+// The directory (design: Directory, option A "chips on top": filters as chips over the results, companies as photo
+// cards across the full width, people as a plainer list). Filters are plain GET parameters so every result page has a shareable URL.
+// Only known slugs and codes reach searchDirectory; empty or unknown parameters are dropped by a redirect.
+import Member from '../layouts/Member.astro';
+import Icon from '../components/members/Icon.astro';
+import IdentityMark from '../components/members/IdentityMark.astro';
+import FilterForm, { type DirectoryState } from '../components/members/public/FilterForm.astro';
+import { and, desc, inArray, eq } from 'drizzle-orm';
+import { db, schema } from '../db/client';
+import { inChunks } from '../db/chunks';
+import { searchDirectory, PAGE_SIZE } from '../db/queries/directory';
+import { countryCodes, industrySlugs, sdgNumbers, subSlugs } from '../lib/taxonomy';
+import { goalTitle, place, subName } from '../lib/labels';
+import { fileUrl } from '../lib/storage-url';
+import { page as pageUrl } from '../lib/url';
+import '../styles/members/directory.css';
+
+export const prerender = false;
+
+const params = Astro.url.searchParams;
+const pick = (key: string, allowed: Set<string>) => { const v = params.get(key) ?? ''; return allowed.has(v) ? v : ''; };
+const rawType = params.get('type');
+const state: DirectoryState = {
+  q: (params.get('q') ?? '').trim().slice(0, 100),
+  type: rawType === 'person' || rawType === 'company' ? rawType : '',
+  industry: pick('industry', industrySlugs),
+  sub: pick('sub', subSlugs),
+  country: pick('country', countryCodes),
+  sdg: pick('sdg', sdgNumbers),
+  checked: params.get('checked') === '1',
+};
+const rawPage = Number(params.get('page'));
+const pageNo = Number.isInteger(rawPage) && rawPage >= 1 ? Math.min(rawPage, 100) : 1;
+
+// the canonical query for a state: known values only, in a fixed order
+const ORDER = ['q', 'type', 'industry', 'sub', 'country', 'sdg', 'checked'] as const;
+function hrefFor(s: DirectoryState, p = 1) {
+  const out = new URLSearchParams();
+  for (const k of ORDER) {
+    const v = k === 'checked' ? (s.checked ? '1' : '') : s[k];
+    if (v) out.set(k, v);
+  }
+  if (p > 1) out.set('page', String(p));
+  const qs = out.toString();
+  return `${pageUrl('directory')}${qs ? `?${qs}` : ''}`;
+}
+
+// the filter form submits every field, empty or not: when any parameter is empty, unknown or repeated,
+// send the browser to the clean, shareable URL (parameter order alone is no reason to redirect)
+const clean = hrefFor(state, pageNo);
+const cleanParams = new URLSearchParams(clean.split('?')[1] ?? '');
+const given = [...params.entries()];
+if (given.length !== [...cleanParams.keys()].length || given.some(([k, v]) => cleanParams.get(k) !== v)) return Astro.redirect(clean, 302);
+
+const { rows, more, counts } = await searchDirectory({
+  q: state.q || undefined,
+  type: state.type || undefined,
+  industry: state.industry || undefined,
+  sub: state.sub || undefined,
+  sdg: state.sdg || undefined,
+  country: state.country || undefined,
+  checked: state.checked,
+  page: pageNo,
+});
+
+const without = (patch: Partial<DirectoryState>) => hrefFor({ ...state, ...patch });
+// "Clear" keeps the search text and the People/Companies choice, as on the board
+const clearHref = without({ industry: '', sub: '', country: '', sdg: '', checked: false });
+const hasFilters = !!(state.industry || state.sub || state.country || state.sdg || state.checked);
+const goalLabel = state.sdg ? `Goal ${state.sdg}: ${goalTitle(state.sdg)}` : '';
+const filtered = hasFilters || !!state.q;
+
+const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+// the count names what it counts: "4 companies · 9 people" with no type chosen, else only the chosen one.
+// "Identity checked" only applies to companies, so people are left out of the line when it is on.
+const first = (pageNo - 1) * PAGE_SIZE + 1;
+const countParts = [
+  ...(state.type !== 'person' ? [{ n: counts.company, w: plural(counts.company, 'company', 'companies') }] : []),
+  ...(state.type !== 'company' && !state.checked ? [{ n: counts.person, w: plural(counts.person, 'person', 'people') }] : []),
+];
+const range = pageNo > 1 || more ? `showing ${first}–${first + rows.length - 1}` : '';
+const showCount = rows.length > 0;
+
+const short = (text: string | null) => {
+  if (!text) return null;
+  const t = text.replace(/\s+/g, ' ').trim();
+  return t.length > 180 ? `${t.slice(0, 177).replace(/\s+\S*$/, '')}…` : t;
+};
+// up to three sub-category names per result, in the taxonomy's order
+const subRows = await inChunks(rows.map((r) => r.id), (slice) => db.select({ entityId: schema.tags.entityId, value: schema.tags.value }).from(schema.tags)
+  .where(and(inArray(schema.tags.entityType, ['profile', 'organization']), eq(schema.tags.kind, 'sub'), inArray(schema.tags.entityId, slice))));
+const subsOf = new Map<string, string[]>();
+for (const t of subRows) subsOf.set(t.entityId, [...(subsOf.get(t.entityId) ?? []), t.value]);
+const subOrder = new Map([...subSlugs].map((s, i) => [s, i]));
+const subsFor = (id: string) => (subsOf.get(id) ?? []).filter((s) => subOrder.has(s)).sort((a, b) => subOrder.get(a)! - subOrder.get(b)!).slice(0, 3).map((s) => subName(s)!);
+
+// for the company cards: published listings (newest first, as the company page lists them), the first one with a
+// photo gives the card its photo, and the public evidence files on them are its "evidence"
+const coIds = rows.filter((r) => r.type === 'company').map((r) => r.id);
+const listingRows = await inChunks(coIds, (slice) => db.select({ id: schema.listings.id, org: schema.listings.organizationId, photoKey: schema.listings.photoKey })
+  .from(schema.listings).where(and(inArray(schema.listings.organizationId, slice), eq(schema.listings.status, 'published')))
+  .orderBy(desc(schema.listings.updatedAt)));
+const docRows = await inChunks(listingRows.map((l) => l.id), (slice) => db.select({ listingId: schema.files.listingId }).from(schema.files)
+  .where(and(inArray(schema.files.listingId, slice), eq(schema.files.purpose, 'evidence'), eq(schema.files.public, true))));
+const orgOfListing = new Map(listingRows.map((l) => [l.id, l.org]));
+const cardData = new Map<string, { photo: string | null; listings: number; docs: number }>();
+for (const id of coIds) cardData.set(id, { photo: null, listings: 0, docs: 0 });
+for (const l of listingRows) { const c = cardData.get(l.org)!; c.listings++; if (!c.photo && l.photoKey) c.photo = l.photoKey; }
+for (const d of docRows) { const org = d.listingId ? orgOfListing.get(d.listingId) : undefined; if (org) cardData.get(org)!.docs++; }
+
+const companies = rows.filter((r) => r.type === 'company').map((r) => {
+  const c = cardData.get(r.id)!;
+  return {
+    name: r.name, slug: r.slug, checked: !!r.identityChecked, logo: r.imageKey,
+    // the card photo: its first listing photo, else its logo, else a tinted placeholder
+    photo: c.photo ? { url: fileUrl(c.photo), logo: false } : r.imageKey ? { url: fileUrl(r.imageKey), logo: true } : null,
+    href: pageUrl(`companies/${r.slug}`), enquire: pageUrl(`companies/${r.slug}/enquire`),
+    where: place(r.city, r.country), line: short(r.line), subs: subsFor(r.id), docs: c.docs, listings: c.listings,
+  };
+});
+const people = rows.filter((r) => r.type === 'person').map((r) => ({
+  name: r.name, photo: r.imageKey ? fileUrl(r.imageKey) : null,
+  initials: r.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join(''),
+  href: pageUrl(`people/${r.slug}`), where: place(r.city, r.country), line: short(r.line),
+}));
+// a search or filters that match no one: a plain way back from each
+const clearSearchHref = state.q ? without({ q: '' }) : '';
+---
+<Member
+  title={state.q ? `“${state.q}” in the directory` : 'Directory'}
+  description="Greentech and cleantech people and companies on QuintaEarth."
+  noindex={filtered || !!state.type || pageNo > 1}
+  current="directory"
+>
+  <div class="qd">
+    <div class="wide qd-head">
+      <nav class="qd-crumbs" aria-label="Breadcrumb">
+        <ol><li><a href={pageUrl('index')}>Home</a></li><li><span aria-hidden="true" class="sep">›</span><span aria-current="page">Directory</span></li></ol>
+      </nav>
+      <h1>Directory</h1>
+      <FilterForm state={state} clearHref={clearHref} anyIndustryHref={without({ industry: '', sub: '' })} noGoalHref={without({ sdg: '' })} goalLabel={goalLabel} hasFilters={hasFilters} />
+    </div>
+
+    <section class="qd-results" aria-label="Results">
+      <div class="wide">
+        <div class="qd-res-top">
+          <p class="qd-count" role="status">{showCount && <>{countParts.map((c, i) => <>{i > 0 && <span class="sep" aria-hidden="true"> · </span>}<span class="n">{c.n}</span> {c.w}</>)}{range && <span class="range"> · {range}</span>}</>}</p>
+        </div>
+
+        {rows.length === 0
+          ? (
+            <div class="qd-empty">
+              <p>{pageNo > 1 ? 'No more results.' : 'No one matches yet.'}</p>
+              {pageNo === 1 && (clearSearchHref || hasFilters) && (
+                <p class="qd-empty-acts">
+                  {clearSearchHref && <a class="qd-fclear" href={clearSearchHref}>Clear search</a>}
+                  {hasFilters && <a class="qd-fclear" href={clearHref}>Clear filters</a>}
+                </p>
+              )}
+            </div>
+          )
+          : (
+            <>
+              {companies.length > 0 && (
+                <div class="qd-block">
+                  <h2 class="sr">Companies</h2>
+                  <ul class="qd-cgrid">
+                    {companies.map((c) => (
+                      <li>
+                        <article class:list={['qd-card', { noph: !c.photo }]}>
+                          <div class="qd-ph">
+                            {c.photo
+                              ? <img class:list={{ logo: c.photo.logo }} src={c.photo.url} alt="" width="640" height="400" loading="lazy" decoding="async" data-qd-img />
+                              : <span class="qd-blank" aria-hidden="true"><Icon name="storefront" /></span>}
+                            <span class="qd-mark" aria-hidden="true">{c.logo ? <img src={fileUrl(c.logo)} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span><Icon name="storefront" /></span>}</span>
+                          </div>
+                          <div class="qd-ctext">
+                            <h3><a href={c.href}>{c.name}</a></h3>
+                            {(c.where || c.checked) && (
+                              <div class="qd-meta">
+                                {c.where && <span><Icon name="location_on" />{c.where}</span>}
+                                {c.checked && <IdentityMark small />}
+                              </div>
+                            )}
+                            {c.line && <p class="qd-line">{c.line}</p>}
+                            {c.subs.length > 0 && <div class="qd-chips">{c.subs.map((t) => <span class="qd-chip">{t}</span>)}</div>}
+                            <div class="qd-cfoot">
+                              {(c.docs > 0 || c.listings > 0) && (
+                                <p class="qd-proof">
+                                  {c.docs > 0 && <span><span class="n">{c.docs}</span> evidence</span>}
+                                  {c.docs > 0 && c.listings > 0 && <span class="sep" aria-hidden="true">·</span>}
+                                  {c.listings > 0 && <span><span class="n">{c.listings}</span> {plural(c.listings, 'listing', 'listings')}</span>}
+                                </p>
+                              )}
+                              <a class="qd-tlink" href={c.enquire}><Icon name="mail" />Send an enquiry<span class="sr"> to {c.name}</span></a>
+                            </div>
+                          </div>
+                        </article>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {people.length > 0 && (
+                <div class="qd-block">
+                  <h2 class="qd-ph2">People</h2>
+                  <ul class="qd-pgrid">
+                    {people.map((p) => (
+                      <li class="qd-person">
+                        <span class="qd-stone" aria-hidden="true">{p.photo ? <img src={p.photo} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span>{p.initials}</span>}</span>
+                        <div class="qd-pb">
+                          <h3><a href={p.href}>{p.name}</a></h3>
+                          {p.where && <p class="where">{p.where}</p>}
+                          {p.line && <p class="l">{p.line}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
+
+        {(pageNo > 1 || more) && (
+          <nav class="qd-pager" aria-label="More results">
+            {pageNo > 1 && <a class="qd-btn line" href={hrefFor(state, pageNo - 1)} rel="prev"><Icon name="arrow_forward" class="back" />Previous</a>}
+            {more && <a class="qd-btn line" href={hrefFor(state, pageNo + 1)} rel="next">More<Icon name="arrow_forward" /></a>}
+          </nav>
+        )}
+      </div>
+    </section>
+    <div class="wide qd-end"></div>
+  </div>
+</Member>
+
+<script>
+  // a photo or logo that fails to load becomes the tinted placeholder
+  const fail = (img: HTMLImageElement) => {
+    const blank = document.createElement('span');
+    const main = !!img.closest('.qd-ph') && !img.closest('.qd-mark');
+    blank.className = main ? 'qd-blank' : 'qd-noimg';
+    // with no photo the card takes its photo-less layout (on a phone: no photo band, the mark beside the name)
+    if (main) img.closest('.qd-card')?.classList.add('noph');
+    blank.setAttribute('aria-hidden', 'true');
+    img.replaceWith(blank);
+  };
+  for (const img of document.querySelectorAll<HTMLImageElement>('img[data-qd-img]')) {
+    if (img.complete && img.naturalWidth === 0) fail(img);
+    else img.addEventListener('error', () => fail(img), { once: true });
+  }
+</script>

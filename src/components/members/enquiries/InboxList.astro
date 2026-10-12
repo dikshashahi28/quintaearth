@@ -1,0 +1,40 @@
+---
+// The left pane of the inbox: one row per enquiry on a river rail. A new enquiry's bead lights gold, and the
+// rail fills from the top down to the last new one, so the eye runs straight to what needs a reply.
+import { initialsOf } from '../../../lib/member-hint';
+import type { ListDate, Pager } from './data';
+import LocalTime from './LocalTime.astro';
+
+export interface InboxItem { id: string; href: string; source: string; date: ListDate; name: string; subject: string; isNew: boolean }
+interface Props { items: InboxItem[]; currentId?: string; label: string; class?: string; pager?: Pager }
+const { items, currentId, label, class: cls, pager } = Astro.props;
+
+const lastNew = items.reduce((at, it, i) => (it.isNew ? i : at), -1);
+// each segment starts filling when the one above it is done: .2s for the first, .26s for each after
+const delay = (i: number) => (i === 0 ? 0 : 0.2 + (i - 1) * 0.26);
+---
+<nav class:list={['eq-ilist', cls]} aria-label={label}>
+  {items.map((it, i) => (
+    <a href={it.href} class:list={['eq-item', { new: it.isNew, on: it.id === currentId }]} aria-current={it.id === currentId ? 'true' : undefined}
+      style={`--d:${delay(i)}s`}>
+      <span class="rc" aria-hidden="true">
+        <span class="seg"><span class:list={{ half: i === lastNew, none: i > lastNew, end: i === lastNew }}></span></span>
+        <span class:list={['bead', { lit: it.isNew }]}></span>
+      </span>
+      <span class="stone xs" aria-hidden="true"><span>{initialsOf(it.name)}</span></span>
+      <span class="tx">
+        <span class="top"><span>{it.source}</span><span><time datetime={it.date.iso} data-local="day">{it.date.text}</time></span></span>
+        <b>{it.name}</b>
+        <span class="s">{it.subject}</span>
+        {it.isNew && <span class="sr">, new</span>}
+      </span>
+    </a>
+  ))}
+  {(pager?.newer || pager?.older) && (
+    <p class="eq-pager" style="display: flex; gap: 24px; margin: 0; padding: 8px 18px;">
+      {pager.newer && <a class="tlink" href={pager.newer}>Newer</a>}
+      {pager.older && <a class="tlink" href={pager.older}>Older</a>}
+    </p>
+  )}
+</nav>
+<LocalTime />

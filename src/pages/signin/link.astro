@@ -1,0 +1,72 @@
+---
+// Where an emailed sign-in link lands. Opening it (a GET) changes nothing: mail scanners and link previews fetch
+// links before the person does, and the token works once. The page shows one button; its POST spends the token
+// through the library's verify call, copies the session cookies onto this response and goes on to where the link
+// was headed (the welcome page for a new address, the password page for a known one, or an invitation).
+import Account from '../../layouts/Account.astro';
+import GoButton from '../../components/members/forms/GoButton.astro';
+import { safeNext } from '../../lib/next';
+
+export const prerender = false;
+
+// the token is in this page's address: never send it on to another site
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
+
+const LINK_ERROR = '/signin?error=link';
+const local = (v: FormDataEntryValue | string | null) => (v ? safeNext(String(v), '') : '');
+
+if (Astro.request.method === 'POST') {
+  let form: FormData | null = null;
+  try { form = await Astro.request.formData(); } catch { form = null; }
+  const token = String(form?.get('token') ?? '');
+  if (!/^[\w-]{8,200}$/.test(token)) return Astro.redirect(LINK_ERROR, 303);
+  const callbackURL = local(form!.get('callbackURL')) || '/dashboard';
+  const newUserCallbackURL = local(form!.get('newUserCallbackURL')) || '/welcome';
+  const { auth, applyAuthCookies } = await import('../../lib/auth');
+  let res: Response;
+  try {
+    res = await auth.api.magicLinkVerify({
+      query: { token, callbackURL, newUserCallbackURL, errorCallbackURL: LINK_ERROR },
+      headers: Astro.request.headers,
+      asResponse: true,
+    });
+  } catch {
+    return Astro.redirect(LINK_ERROR, 303);
+  }
+  // the library answers with a redirect: to the error address (the library replaces its "error" value with its
+  // own code, so the sign-in page is sent our fixed one), or to the callback with the new session's cookies
+  const to = new URL(res.headers.get('location') ?? LINK_ERROR, Astro.url);
+  if (to.origin !== Astro.url.origin || to.searchParams.has('error') || to.pathname === '/signin') return Astro.redirect(LINK_ERROR, 303);
+  applyAuthCookies(Astro.cookies, res.headers);
+  return Astro.redirect(safeNext(`${to.pathname}${to.search}`), 303);
+}
+
+const q = Astro.url.searchParams;
+const token = q.get('token') ?? '';
+const usable = /^[\w-]{8,200}$/.test(token);
+---
+{/* the same door as /signin (the visitor asked for the link there and lands here to finish signing in), so the same photo */}
+<Account title="Sign in" description="Sign in to QuintaEarth." scene="scene-signin"
+  say="Where sustainability is made, not performed.">
+  {usable ? (
+    <form class="qe-form" method="POST" action="/signin/link">
+      <h1 class="tight">Sign in</h1>
+      <p class="lede">Your link is ready. It works once.</p>
+      <input type="hidden" name="token" value={token}>
+      <input type="hidden" name="callbackURL" value={local(q.get('callbackURL'))}>
+      <input type="hidden" name="newUserCallbackURL" value={local(q.get('newUserCallbackURL'))}>
+      <div class="qe-grid">
+        <div class="qe-rail last lit" aria-hidden="true"><span class="bead"></span></div>
+        <div class="qe-step end">
+          <div class="acts"><GoButton label="Continue" /></div>
+        </div>
+      </div>
+    </form>
+  ) : (
+    <div class="qe-form">
+      <h1 class="tight">Sign in</h1>
+      <p class="form-status bad" role="alert">That link has expired or was already used. Ask for a new one.</p>
+      <p><a class="tlink" href="/signin?by=link">Email me a new link</a></p>
+    </div>
+  )}
+</Account>

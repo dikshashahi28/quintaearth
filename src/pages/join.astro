@@ -1,0 +1,118 @@
+---
+// Sign up (design: Sign up, "the spring"). Account type, name and email; we email a link that confirms the
+// address, and the welcome page then asks for a password (and the company name). "Continue with Google" skips
+// the email. Already a member: /signin.
+import { actions, isInputError } from 'astro:actions';
+import Account from '../layouts/Account.astro';
+import Doors from '../components/members/forms/Doors.astro';
+import GoButton from '../components/members/forms/GoButton.astro';
+import GoogleButton from '../components/members/forms/GoogleButton.astro';
+import { actionErrorMessage } from '../components/members/forms/errors';
+import InviteNote from '../components/members/forms/InviteNote.astro';
+import { invitationFromNext } from '../components/members/forms/invitation';
+import { googleSignIn } from '../lib/auth';
+import { page } from '../lib/url';
+
+export const prerender = false;
+
+if (Astro.locals.user) return Astro.redirect('/dashboard');
+
+const params = Astro.url.searchParams;
+const next = params.get('next') ?? '';
+const google = Astro.getActionResult(actions.account.signInWithGoogle);
+if (google?.data) return Astro.redirect(google.data.url, 303);
+const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
+// after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
+// short-lived cookie, never the URL
+const SENT = 'qe.sent';
+if (sendLink?.data) {
+  Astro.cookies.set(SENT, sendLink.data.email, { path: '/', maxAge: 600, httpOnly: true, sameSite: 'lax', secure: Astro.url.protocol === 'https:' });
+  let back = '';
+  try { back = String((await Astro.request.formData()).get('next') ?? ''); } catch { back = ''; }
+  const q = new URLSearchParams({ sent: '1' });
+  if (back) q.set('next', back);
+  return Astro.redirect(`/join?${q}`, 303);
+}
+const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
+const result = google ?? sendLink;
+const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+
+// the post goes to ?_action=…, so what was typed comes from the form rather than the address
+let formNext = next;
+let typed = { name: '', email: '', type: '' };
+if (result && Astro.request.method === 'POST') {
+  try {
+    const sent = await Astro.request.formData();
+    formNext = String(sent.get('next') ?? '');
+    typed = { name: String(sent.get('name') ?? '').slice(0, 80), email: String(sent.get('email') ?? '').slice(0, 100), type: String(sent.get('type') ?? '') };
+  } catch { formNext = next; }
+}
+const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '/signin';
+// on the way to a team invitation: name the company and skip the type doors (joining a team makes the account a
+// company account at setup, so no type is sent)
+const invite = await invitationFromNext(formNext);
+---
+<Account title="Join QuintaEarth" description="Create your QuintaEarth account." scene="scene-join"
+  say="Where sustainability is made, not performed." sub="Joining is totally free">
+  <p class="aside" slot="top"><span class="lead">Already a member?</span> <a href={signinHref}>Sign in</a></p>
+  {sentTo ? (
+    <div class="qe-form">
+      <h1>Join QuintaEarth</h1>
+      <div class="qe-grid">
+        <div class="qe-rail sent lit" aria-hidden="true"><span class="bead"></span></div>
+        <div class="qe-sent" role="status">
+          <h2>Check your email</h2>
+          <p>We sent a link to <b>{sentTo}</b>. It works once and expires in 10 minutes. Then you choose a password.</p>
+          <a class="tlink" href={formNext ? `/join?next=${encodeURIComponent(formNext)}` : '/join'}>Use another address</a>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <form class="qe-form" method="POST" action={actions.account.sendSignInLink}>
+      <h1>Join QuintaEarth</h1>
+      {invite && <InviteNote company={invite.company} join />}
+      {failed && <p class="form-status bad" role="alert">{failed}</p>}
+      <input type="hidden" name="next" value={formNext}>
+      <div class="qe-grid">
+        {googleSignIn && <>
+          <div class="qe-rail" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+          <div class="qe-step tight">
+            <GoogleButton label="Join with Google" />
+            <p class="or" aria-hidden="true">or with your email</p>
+          </div>
+        </>}
+
+        {!invite && <>
+          <div class="qe-rail" data-for="type" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+          <div class="qe-step">
+            <Doors value={typed.type} error={fieldErrors.type} />
+          </div>
+        </>}
+
+        <div class="qe-rail" data-for="join-name join-email" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+        <div class="qe-step">
+          <div class="field">
+            <label for="join-name">Your name</label>
+            <input class="inp" id="join-name" name="name" type="text" autocomplete="name" minlength="2" maxlength="80" required value={typed.name}
+              aria-invalid={fieldErrors.name ? 'true' : undefined} aria-describedby="join-name-error">
+            <p class="err" id="join-name-error">{fieldErrors.name?.join(' ')}</p>
+          </div>
+          <div class="field">
+            <label for="join-email">Email</label>
+            <input class="inp" id="join-email" name="email" type="email" autocomplete="email" maxlength="100" required spellcheck="false" value={typed.email}
+              aria-invalid={fieldErrors.email ? 'true' : undefined} aria-describedby="join-email-error">
+            <p class="err" id="join-email-error">{fieldErrors.email?.join(' ')}</p>
+          </div>
+        </div>
+
+        <div class="qe-rail last" data-for="*" aria-hidden="true"><span class="bead"></span></div>
+        <div class="qe-step end">
+          <div class="acts"><GoButton label="Create account" /></div>
+          <p class="note">We email you a link to confirm your address. Then you choose a password.</p>
+          <p class="small">By joining you agree to our <a href={page('terms')}>terms of use</a> and <a href={page('privacy')}>privacy notice</a>.</p>
+        </div>
+      </div>
+    </form>
+  )}
+</Account>

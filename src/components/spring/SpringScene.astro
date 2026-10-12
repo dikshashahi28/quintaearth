@@ -1,0 +1,44 @@
+---
+// The spring's scene: a photo of people doing the work under a Forest Deep wash, a mist river that draws itself
+// down to a gold spring, and the brand line in Literata with a gold line under it. The account doors use it as
+// the left half of their split (layouts/Account.astro); public pages as the band under the site header
+// (layouts/Spring.astro). Styles: styles/spring-core.css.
+import { media, mediaSrcset, mediaUrl } from '../../lib/media';
+
+interface Props {
+  /** a site photograph by name (src/data/media.json, from scripts/media/sources.json), of people doing the work */
+  scene: string;
+  /** the photo's own alt when unset */
+  sceneAlt?: string;
+  /** object-position for the photo; the photo's own focal point when unset */
+  scenePos?: string;
+  /** object-position for the short band at 1100px and below; scenePos when unset */
+  scenePosSm?: string;
+  /** how wide the scene shows, so the browser picks a file: the band is the full width, a door half of it */
+  sizes?: string;
+  /** the line on the photo */
+  say: string;
+  /** a gold line under it */
+  sub?: string;
+  class?: string;
+}
+const { scene, sceneAlt, scenePos, scenePosSm, sizes = '100vw', say, sub, class: cls } = Astro.props;
+const shot = media(scene);
+const pos = scenePos ?? shot.focal;
+const vars = `--pos: ${pos}; --pos-sm: ${scenePosSm ?? pos}`;
+---
+<aside class:list={['qe-scene', cls]} style={vars}>
+  <img src={mediaUrl(scene, 2000)} srcset={mediaSrcset(scene)} sizes={sizes} width={shot.width} height={shot.height}
+    alt={sceneAlt ?? shot.alt} loading="eager" fetchpriority="high" decoding="async" />
+  <div class="qe-wash"></div>
+  <svg class="qe-river" viewBox="0 0 140 1000" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
+    <path class="w" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
+    <path class="m" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
+    <circle class="halo" cx="92" cy="933" r="7"></circle>
+    <circle class="spring" cx="92" cy="933" r="7"></circle>
+  </svg>
+  <div class="qe-foot">
+    <p class="say">{say}</p>
+    {sub && <p class="sub">{sub}</p>}
+  </div>
+</aside>

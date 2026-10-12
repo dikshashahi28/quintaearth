@@ -8,15 +8,17 @@ const sdg = z.number().int().min(1).max(17);
 const link = z.object({ label: z.string(), href: z.url() });
 
 /** Insights essays and Press desk notes share one shape. */
-const article = ({ image }: SchemaContext) => z.object({
+const article = (_ctx: SchemaContext) => z.object({
   title: z.string(),
   description: z.string(),
   date: z.coerce.date(),
   /** "Greentech", "Cleantech", "Sustainable development" or "Press" */
   topic: z.string(),
   sdgs: z.array(sdg).default([]),
-  image: image(),
+  /** the hero: a site photograph by name (src/data/media.json, from scripts/media/sources.json) */
+  image: z.string(),
   imageAlt: z.string(),
+  /** the photographer and the photo's page; recorded for the credits, not shown on the page */
   imageCredit: z.object({ label: z.string(), href: z.url().nullable() }).optional(),
   /** sub-categories this piece is filed under */
   subs: z.array(z.enum(subSlugs)).default([]),

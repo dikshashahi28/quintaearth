@@ -1,0 +1,7 @@
+---
+// "Identity checked": a plain neutral label (grey outline, no green, no seal). It says we checked who a company is.
+import Icon from './Icon.astro';
+interface Props { small?: boolean }
+const { small = false } = Astro.props;
+---
+<span class:list={['idc', { sm: small }]}><Icon name="badge" />Identity checked</span>

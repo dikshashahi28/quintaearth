@@ -13,7 +13,6 @@ export const redirects = {
   '/our-work-4': '/our-work',
   '/our-work-5': '/our-work',
   // placeholder rooms with no content yet
-  '/services': '/our-work',
   '/careers': '/volunteer',
   '/datalabs': '/industries',
   '/discussion': '/#community',

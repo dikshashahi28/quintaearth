@@ -1,0 +1,84 @@
+---
+// Terms of use (design: "the spring", layouts/Spring.astro): a quiet scene, then the sections as stops on the
+// river, a bead per section.
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
+import { site } from '../data/site';
+import { page } from '../lib/url';
+
+export const prerender = true;
+
+const mail = `mailto:${site.email}`;
+---
+<Spring title="Terms of use" description="The terms for reading quintaearth.com, holding a member account, and what members may publish."
+  scene="scene-terms"
+  say="Where sustainability is made, not performed." sub="Last updated 12 October 2026">
+  <RiverRail class="legal">
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-who">
+      <h2 id="t-who">Who runs the site</h2>
+      <p>QuintaEarth runs quintaearth.com. Write to us at <a href={mail}>{site.email}</a>.</p>
+      <p>By using the site you accept these terms. If you do not accept them, please do not use the site.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-read">
+      <h2 id="t-read">Reading is free</h2>
+      <p>Anyone may read the site without an account. You may quote short passages with a link back. Please do not copy whole pages, stories or Insights, or republish them as your own.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-accounts">
+      <h2 id="t-accounts">Member accounts</h2>
+      <p>Joining is free. Give a real name and a working email address, and keep your password to yourself. You are responsible for what happens under your account. We may close an account that breaks these terms.</p>
+      <p>You can delete your account at any time by emailing us from the address you sign in with.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-publish">
+      <h2 id="t-publish">What members may publish</h2>
+      <p>Profiles, company pages, listings and evidence files are public once published. Publish only what you have the right to share, and only claims you can prove. Every claim should rest on evidence you upload beside it, and that evidence is public by design: anyone can open it and check.</p>
+      <p>Do not publish anything misleading, unlawful, or that belongs to someone else. We may take down anything that breaks this rule, and we will tell you when we do.</p>
+      <p>You keep the rights to what you publish. You give us permission to show it on the site, in our newsletter and on our social channels, with your name, for as long as it stays published.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-identity">
+      <h2 id="t-identity">Identity checked is not a label</h2>
+      <p>“Identity checked” means we looked at a company’s registration details and they matched. It says who a company is. It says nothing about the company’s products, its claims or its effect on the environment. It is not a certification, a seal or an environmental label of any kind, and it must not be described as one.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-sponsored">
+      <h2 id="t-sponsored">Sponsored content</h2>
+      <p>When a company pays for an Insight or a story, it is labelled as sponsored. The company does not decide what the piece says beyond the facts it provides.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-services">
+      <h2 id="t-services">Our services</h2>
+      <p>The services on <a href={page('services')}>our services page</a> are agreed separately, in a written proposal that sets out the work, the price and the terms. Nothing on the site is an offer to do work until that proposal is signed.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-liability">
+      <h2 id="t-liability">Liability</h2>
+      <p>We publish what members and companies tell us and link to the evidence they give. We check what we can, but we cannot promise that every claim on the site is complete, correct or current. Read the evidence before you rely on a claim.</p>
+      <p>The site is provided as it is. As far as the law allows, we are not liable for loss that comes from using the site or from relying on what it shows, including loss caused by something a member published. Nothing in these terms limits liability that the law does not let us limit.</p>
+    </section>
+
+    <Bead />
+    <section class="sp-stop sp-prose" aria-labelledby="t-changes">
+      <h2 id="t-changes">Changes</h2>
+      <p>When we change these terms, we update the date at the top.</p>
+    </section>
+
+    <Bead last />
+    <section class="sp-stop sp-prose end" aria-labelledby="t-law">
+      <h2 id="t-law">Governing law</h2>
+      <p><strong>TODO for the owners:</strong> state which country’s law governs these terms and which courts hear disputes. This is deliberately left open until the owners decide.</p>
+    </section>
+  </RiverRail>
+  <p class="sp-after">See also our <a href={page('privacy')}>privacy notice</a>.</p>
+</Spring>

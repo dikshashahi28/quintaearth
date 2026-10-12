@@ -1,0 +1,119 @@
+---
+// Dashboard home: one row per part of the member's presence, each with its real status, on a river rail.
+// Design: "the spring" Dashboard board (styles/members/dashboard.css, loaded by the Dashboard layout).
+import { and, desc, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client';
+import { myProfile } from '../../db/queries/dashboard';
+import { dashContext } from '../../lib/dash-context';
+import Dashboard from '../../layouts/Dashboard.astro';
+import Icon from '../../components/members/Icon.astro';
+import StatusPill from '../../components/members/StatusPill.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
+import EmptyState from '../../components/members/EmptyState.astro';
+
+export const prerender = false;
+
+// the middleware guards this page; the check is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fdashboard');
+
+const ctx = await dashContext(user, Astro.url);
+const { company, orgQuery } = ctx;
+const profile = await myProfile(user.id);
+// members from before passwords, or whose password row is missing, still sign in by email link until they set one
+const hasPassword = !!(await db.query.account.findFirst({
+  where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'credential')), columns: { password: true },
+}))?.password;
+// a member who came in with Google signs in that way; a password is an extra, not a gap
+const viaGoogle = hasPassword ? false : !!(await db.query.account.findFirst({
+  where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'google')), columns: { id: true },
+}));
+const host = new URL(Astro.site ?? Astro.url).host;
+const firstName = user.name.trim().split(/\s+/)[0] || user.name;
+const thisYear = new Date().getFullYear();
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', ...(d.getFullYear() === thisYear ? {} : { year: 'numeric' }) });
+
+let listings = { live: 0, draft: 0 };
+let anyEnquiries = false;
+let totalEnquiries = 0;
+let identity: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string; text: string; done: boolean; next?: string } | null = null;
+if (company) {
+  const rows = await db.select({ status: schema.listings.status }).from(schema.listings).where(eq(schema.listings.organizationId, company.id));
+  listings = { live: rows.filter((r) => r.status === 'published').length, draft: rows.filter((r) => r.status === 'draft').length };
+  totalEnquiries = await db.$count(schema.enquiries, eq(schema.enquiries.organizationId, company.id));
+  anyEnquiries = ctx.newEnquiries > 0 || totalEnquiries > 0;
+
+  const latest = await db.query.identityChecks.findFirst({
+    where: eq(schema.identityChecks.organizationId, company.id), orderBy: desc(schema.identityChecks.createdAt),
+    columns: { status: true, createdAt: true, reviewedAt: true },
+  });
+  if (company.identityCheckedAt) identity = { status: 'plain', label: 'Identity checked', text: `Since ${day(company.identityCheckedAt)}`, done: true };
+  else if (latest?.status === 'pending') identity = { status: 'wait', label: 'Waiting', text: `Requested ${day(latest.createdAt)}`, done: false };
+  else if (latest?.status === 'rejected') identity = { status: 'wait', label: 'Needs more info', text: latest.reviewedAt ? `Asked on ${day(latest.reviewedAt)}` : 'Asked for more information', done: false, next: 'Send the information the identity check asks for' };
+  else identity = { status: 'draft', label: 'Not requested', text: 'Ask for the "Identity checked" mark', done: false, next: 'Ask for the "Identity checked" mark' };
+}
+const listingCount = listings.live + listings.draft;
+
+// one row per part of the member's presence; a part that is out in the world lights its bead on the river rail,
+// and the track fills between two lit beads in a row, one after the other
+// `next`: what to do when the row is not live yet; a row the member cannot move (enquiries, a pending check) has none
+type Row = { title: string; href: string; text?: string; lit: boolean; pill?: { status: 'live' | 'draft' | 'wait' | 'plain'; label: string }; idc?: boolean; count?: number; next?: string };
+const rows: Row[] = [];
+if (profile) rows.push({ title: 'Your profile', href: '/dashboard/profile', text: `${host}/people/${profile.handle}`, lit: profile.published, pill: profile.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your profile' });
+if (!company) rows.push({ title: 'Start a company page', href: '/dashboard/company', lit: false, next: 'Start a company page' });
+if (company) {
+  rows.push({ title: 'Company page', href: `/dashboard/company${orgQuery}`, text: `${host}/companies/${company.slug}`, lit: company.published, pill: company.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your company page' });
+  rows.push({ title: 'Listings', href: `/dashboard/listings${orgQuery}`, lit: listings.live > 0,
+    pill: listings.live > 0 ? { status: 'live', label: 'Live' } : listings.draft > 0 ? { status: 'draft', label: 'Draft' } : undefined,
+    next: listings.draft > 0 ? 'Publish a listing' : 'Add your first listing' });
+  rows.push({ title: 'Enquiries', href: `/dashboard/enquiries${orgQuery}`, lit: anyEnquiries, count: ctx.newEnquiries });
+  // checked: the neutral grey "Identity checked" mark (never green or gold, DESIGN.md), the words visible
+  if (identity) rows.push({ title: 'Identity check', href: `/dashboard/identity${orgQuery}`, text: identity.text, lit: identity.done, pill: identity.done ? undefined : identity, idc: identity.done, next: identity.next });
+}
+const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
+// the one next step: the first part that is not live and that the member can move (with no profile, the
+// "Start your profile" box below is that step already)
+const nextRow = profile ? rows.find((r) => !r.lit && r.next) : undefined;
+// gold = that part is live, set statically; a track fills when the bead below it is lit too; only the rings
+// around lit beads move, one after another
+let lit = 0;
+const marks = rows.map((r, i) => ({ order: r.lit ? lit++ : -1, fills: r.lit && !!rows[i + 1]?.lit }));
+const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
+---
+<Dashboard ctx={ctx} current="overview" title="Dashboard" heading={`Hello, ${firstName}`} avatar={{ name: user.name, imageKey: profile?.photoKey }}
+  lede={`Signed in as ${user.email} · ${user.accountType === 'company' ? 'Company account' : 'Individual account'}`}>
+  {!hasPassword && (
+    <p class="notice dhome-pw">{viaGoogle ? 'You sign in with Google. A password works too.' : 'Set a password to sign in without an email link.'} <a class="tlink" href="/dashboard/password">Set a password</a></p>
+  )}
+  {nextRow && <p class="dhome-next">Next step: <a class="tlink" href={nextRow.href}>{nextRow.next}</a>.</p>}
+  {!profile && <EmptyState id="dhome-profile" title="Your profile" note="Nothing here yet." action={{ href: '/dashboard/profile', label: 'Start your profile' }} />}
+  <ul class="dhome-rows">
+    {rows.map((r, i) => (
+      <li class="dhome-row">
+        <div class="dhome-rail" aria-hidden="true">
+          <span class:list={['bead', { lit: r.lit }]} style={r.lit ? delay(marks[i]!.order) : undefined}></span>
+          <span class="track"><span class:list={['fill', { draw: marks[i]!.fills }]}></span></span>
+        </div>
+        <div class="dhome-card">
+          <div class="txt">
+            <h2><a href={r.href}>{r.title}</a></h2>
+            {r.title === 'Listings' ? (
+              <p>{listingCount === 0 ? 'No listings yet.' : <><span class="num">{listingCount}</span> {plural(listingCount, 'listing', 'listings')}, <span class="num">{listings.live}</span> live</>}</p>
+            ) : r.title === 'Enquiries' ? (
+              <p>{ctx.newEnquiries === 0 ? (totalEnquiries === 0 ? 'No enquiries yet.' : <>Nothing new. <span class="num">{totalEnquiries}</span> {plural(totalEnquiries, 'enquiry', 'enquiries')} so far.</>) : <><span class="num">{ctx.newEnquiries}</span> new {plural(ctx.newEnquiries, 'enquiry', 'enquiries')}</>}</p>
+            ) : r.text && <p>{r.text}</p>}
+          </div>
+          <div class="end">
+            {r.pill && <StatusPill status={r.pill.status} label={r.pill.label} />}
+            {r.idc && <IdentityMark small />}
+            {!!r.count && <span class="cnt"><b>{r.count}</b> new</span>}
+          </div>
+          <Icon name="arrow_forward" class="go" />
+        </div>
+      </li>
+    ))}
+  </ul>
+  {company?.published && (
+    <p class="dhome-more"><a class="tlink" href={`/companies/${company.slug}`}>View your company page<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a></p>
+  )}
+</Dashboard>

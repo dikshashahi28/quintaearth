@@ -1,0 +1,13 @@
+---
+// Public member pages (people, companies, directory, enquiry form) and sign-in pages: the inner-page shell plus member styles.
+import type { ComponentProps } from 'astro/types';
+import Page from './Page.astro';
+import '../styles/members.css';
+import FormFocus from '../components/members/forms/FormFocus.astro';
+type Props = ComponentProps<typeof Page>;
+---
+<Page {...Astro.props}>
+  <slot name="head" slot="head" />
+  <slot />
+  <FormFocus />
+</Page>

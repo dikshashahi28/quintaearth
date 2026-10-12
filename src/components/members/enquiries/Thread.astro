@@ -1,0 +1,139 @@
+---
+// One enquiry: subject, what it is about, the messages on a river rail, then the reply form (and close/reopen
+// for the company). The newest message's bead is lit; typing a reply lights the form's bead and fills the track
+// between the two (the rail contract: green only between two lit beads). Below 640px the rail shrinks to a 3px edge.
+// Forms post to the thread's own URL so the result lands on the thread page, whichever page shows it.
+import { actions } from 'astro:actions';
+import Icon from '../Icon.astro';
+import { initialsOf } from '../../../lib/member-hint';
+import { msgDate, paragraphs } from './data';
+import LocalTime from './LocalTime.astro';
+
+interface Message { id: string; side: 'buyer' | 'company'; authorUserId: string | null; body: string; createdAt: Date }
+interface Props {
+  enquiry: { id: string; subject: string; status: 'new' | 'open' | 'closed'; fromName: string; fromCompany: string | null };
+  messages: Message[];
+  side: 'buyer' | 'company';
+  viewerId: string;
+  companyName: string;
+  listing: string | null;
+  names: Map<string, string>;
+  /** the thread's own page, e.g. /dashboard/enquiries/<id> */
+  base: string;
+  error?: { body?: string; form?: string };
+  class?: string;
+  /** the viewer has not read it yet: once shown, the page posts enquiries.markRead (the GET itself changes nothing) */
+  unread?: boolean;
+}
+const { enquiry, messages, side, viewerId, companyName, listing, names, base, error = {}, class: cls, unread = false } = Astro.props;
+const closed = enquiry.status === 'closed';
+const reply = `${base}${String(actions.enquiries.reply)}`;
+const setStatus = `${base}${String(actions.enquiries.setStatus)}`;
+const me = Astro.locals.user?.name ?? '';
+
+function from(m: Message) {
+  if (m.side === side) {
+    const own = m.authorUserId === viewerId;
+    const name = own ? 'You' : names.get(m.authorUserId ?? '') ?? (side === 'company' ? companyName : enquiry.fromName);
+    return { name, initials: initialsOf(own ? me : name), org: own ? null : side === 'company' ? companyName : enquiry.fromCompany };
+  }
+  if (m.side === 'buyer') return { name: enquiry.fromName, initials: initialsOf(enquiry.fromName), org: enquiry.fromCompany || 'Individual' };
+  const name = names.get(m.authorUserId ?? '') ?? companyName;
+  return { name, initials: initialsOf(name), org: companyName };
+}
+const last = messages.length - 1;
+const field = `reply-${enquiry.id}`;
+---
+<article class:list={['eq-thread', cls]} aria-labelledby={`t-${enquiry.id}`} data-eq-thread data-eq-unread={unread ? enquiry.id : undefined}>
+  <h2 id={`t-${enquiry.id}`}>{enquiry.subject}</h2>
+  <div class="eq-meta">
+    {side === 'buyer' && <span><Icon name="storefront" />To: {companyName}</span>}
+    {listing && <span><Icon name="inventory_2" />About: {listing}</span>}
+    {closed && <span><Icon name="check_circle" />Closed</span>}
+  </div>
+  {messages.map((m, i) => {
+    const f = from(m);
+    return (
+      <div class="eq-row">
+        <div class="rc" aria-hidden="true">
+          <span class:list={['bead', { lit: i === last }]}></span>
+          <span class="track"><span class="fill" data-eq-last={i === last ? '' : undefined}></span></span>
+        </div>
+        <div class:list={['eq-msg', { mine: m.side === side }]}>
+          <div class="from">
+            <span class="stone xs" aria-hidden="true"><span>{f.initials}</span></span>
+            <div class="who"><b>{f.name}</b>{f.org && <span>{f.org}</span>}<span><time datetime={m.createdAt.toISOString()} data-local="msg">{msgDate(m.createdAt)}</time></span></div>
+          </div>
+          {paragraphs(m.body).map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    );
+  })}
+  <div class="eq-row">
+    <div class="rc" aria-hidden="true"><span class="bead" data-eq-bead></span></div>
+    <div class="eq-end">
+      {error.form && <p class="form-status bad" role="alert">{error.form}</p>}
+      {closed ? (
+        <div class="eq-closed">
+          <p class="notice">This enquiry is closed.</p>
+          {side === 'company' && (
+            <form method="POST" action={setStatus}>
+              <input type="hidden" name="enquiryId" value={enquiry.id}>
+              <input type="hidden" name="status" value="open">
+              <button class="tlink" type="submit">Reopen</button>
+            </form>
+          )}
+        </div>
+      ) : (
+        <form class="eq-reply" method="POST" action={reply}>
+          <input type="hidden" name="enquiryId" value={enquiry.id}>
+          <div class="eq-field">
+            <label for={field}>Reply</label>
+            <textarea class="eq-area" id={field} name="body" placeholder="Write a reply" required maxlength="4000"
+              aria-invalid={error.body ? 'true' : undefined} aria-describedby={`${field}-error`} data-eq-body></textarea>
+            <p class="eq-err" id={`${field}-error`}>{error.body}</p>
+          </div>
+          <div class="eq-send">
+            <button class="eq-btn" type="submit">Send reply<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button>
+          </div>
+          {side === 'company' && (
+            <div class="eq-closeline">
+              <button class="tlink eq-close" type="submit" formaction={setStatus} formnovalidate name="status" value="closed" data-eq-close>Mark as closed</button>
+            </div>
+          )}
+        </form>
+      )}
+    </div>
+  </div>
+</article>
+<LocalTime />
+
+<script>
+  // the thread is on screen: mark it read. A POST, so link prefetchers (mail scanners) that only GET the page never
+  // do; without JavaScript, replying marks it read instead
+  for (const t of document.querySelectorAll<HTMLElement>('[data-eq-unread]')) {
+    const body = new FormData();
+    body.set('enquiryId', t.dataset.eqUnread ?? '');
+    fetch('/_actions/enquiries.markRead', { method: 'POST', body, headers: { Accept: 'application/json' }, credentials: 'same-origin', keepalive: true }).catch(() => {});
+  }
+  // typing a reply runs the rail from the newest message down to the form, whose bead lights gold
+  for (const t of document.querySelectorAll<HTMLElement>('[data-eq-thread]')) {
+    const body = t.querySelector<HTMLTextAreaElement>('[data-eq-body]');
+    if (!body) continue;
+    const fill = t.querySelector('[data-eq-last]');
+    const bead = t.querySelector('[data-eq-bead]');
+    const sync = () => {
+      const typing = body.value.trim().length > 0;
+      fill?.classList.toggle('on', typing);
+      bead?.classList.toggle('lit', typing);
+    };
+    body.addEventListener('input', sync);
+    sync();
+  }
+  // closing is a step away from replying, so it asks first (without JS the button posts straight away)
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-eq-close]')) {
+    b.addEventListener('click', (e) => {
+      if (!confirm('Close this enquiry? You can reopen it later from the Closed tab.')) e.preventDefault();
+    });
+  }
+</script>

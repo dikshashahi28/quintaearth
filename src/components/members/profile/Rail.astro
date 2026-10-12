@@ -1,0 +1,22 @@
+---
+// One bead on the profile editor's river rail: a 24px column beside its section. The bead lights gold when the
+// section is filled in; the track below it fills green when a later section is lit too (the page script keeps
+// both in step as the member types). `--d` staggers the first paint, top to bottom.
+interface Props {
+  /** which section: the page script reads it */
+  step: string;
+  lit: boolean;
+  /** the track to the next bead is filled */
+  on: boolean;
+  delay: number;
+  /** the save row: a short rail with no track */
+  end?: boolean;
+  /** the track runs on to the save button */
+  toEnd?: boolean;
+}
+const { step, lit, on, delay, end = false, toEnd = false } = Astro.props;
+---
+<div class:list={['pe-rail', { end }]} aria-hidden="true" data-step={step}>
+  <span class:list={['bead', { lit }]} style={`--d: ${delay}s`}></span>
+  {!end && <span class:list={['track', { 'to-end': toEnd }]}><span class:list={['fill', { on }]} style={`--d: ${Math.max(0, delay - 0.06).toFixed(2)}s`}></span></span>}
+</div>

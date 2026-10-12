@@ -1,0 +1,105 @@
+/* /dashboard/profile in "the spring" design (Profile board). Loaded after members.css and editors.css; every rule is
+   scoped under .pe, the page body, so the shared form components keep their look on the other editors.
+   A river rail runs beside the sections: a 24px column holding a bead per section that lights gold when the section
+   is filled in, and a track that fills green only between two lit beads (scaleY, so layout never moves). */
+
+.pe { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; max-width: 724px; }
+.pe > form.secs { display: contents; }
+
+/* sections: the rail carries the rhythm, so no rules or top margins between them */
+.pe .sec { min-width: 0; margin: 0; padding: 0 0 44px; border: 0; }
+.pe .sec > h2 { margin: 0 0 20px; font-size: 28px; line-height: 1.15; letter-spacing: -.005em; }
+.pe .sec > h2 + * { margin-top: 0; }
+
+/* the river rail */
+.pe-rail { position: relative; width: 24px; }
+.pe-rail .track { position: absolute; left: 10.5px; top: 28px; bottom: -10px; width: 3px; border-radius: 2px; background: var(--water); }
+.pe-rail .track.to-end { bottom: -20px; }
+.pe-rail .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; transition: transform .6s var(--ease); }
+.pe-rail .fill.on { transform: scaleY(1); animation: pe-grow .34s var(--ease) both; animation-delay: var(--d, 0s); }
+.pe-rail .bead { position: absolute; z-index: 1; left: 6px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
+.pe-rail .bead.lit { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
+.pe-rail .bead.lit::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: pe-ring 1.2s ease-out 1 both; animation-delay: var(--d, 0s); }
+.pe-rail.end { height: 52px; }
+.pe-rail.end .bead { top: 20px; }
+@keyframes pe-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pe-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+
+/* fields */
+.pe .form { gap: 20px; }
+.pe .field { gap: 8px; }
+.pe .field > label, .pe .field > legend, .pe .field .lab, .pe .field .labrow label { font-size: 16px; line-height: 1.4; font-weight: 500; color: var(--deep); }
+.pe .field .count { font: 500 13px/1.4 var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; }
+.pe .hint { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.pe .inp, .pe .sel, .pe .area { min-height: 50px; padding: 10px 22px; transition: border-color .2s, box-shadow .2s; }
+.pe .sel { padding-right: 48px; }
+/* pages.css pads every .field input at 20px with a stronger selector; without this the inputs sat 2px left of the
+   selects beside them */
+.pe .field .inp { padding-inline: 22px; }
+.pe .area { padding: 12px 18px; }
+.pe .inp:hover, .pe .sel:hover, .pe .area:hover { border-color: var(--reed-ink); }
+.pe .inp:focus, .pe .sel:focus, .pe .area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+
+/* chips and sub-category groups */
+.pe .pickchip { transition: border-color .2s, background .2s; }
+.pe fieldset.subs { margin-top: 22px; }
+.pe fieldset.subs > legend { margin: 0 0 8px; }
+.pe .chips + .err:empty, .pe .picks + .err:empty { display: none; }
+
+/* the photo: a stone beside the dashed upload box */
+.pe .drop { transition: border-color .2s, transform .35s var(--ease), box-shadow .35s var(--ease); }
+.pe .drop:hover { border-color: var(--reed-ink); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.pe .drop .drop-t { display: flex; flex-direction: column; gap: 2px; }
+.pe .drop .drop-t label { font-size: 16px; line-height: 1.4; }
+.pe .pe-choose { order: 1; cursor: pointer; transition: background .2s; }
+.pe .pe-choose:hover { background: var(--shallow); }
+/* with JS the file input hides behind "Choose a photo" and choosing a file uploads it; without, the native input and
+   its "Upload photo" button stay */
+.pe:not(.js) .pe-choose { display: none; }
+.pe.js .drop-in { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.pe.js .drop > button[type="submit"] { display: none; }
+.pe .drop:has(.drop-in:focus-visible) .pe-choose { outline: 2px solid var(--river); outline-offset: 3px; }
+.pe .upload-acts form:not(.drop) { margin: 0; }
+
+/* your page */
+.pe .pe-page { display: grid; gap: 6px; }
+.pe .check { font-size: 16px; color: var(--text); }
+
+/* save row */
+.pe .pe-send { gap: 12px 24px; min-width: 0; }
+.pe .pe-send .btn-fill { min-height: 52px; padding: 0 28px; transition: background .2s, transform .35s var(--ease), box-shadow .35s var(--ease); }
+.pe .pe-send .btn-fill:hover { background: var(--river-deep); transform: translateY(-1px); box-shadow: var(--shadow-lift); }
+/* unsaved edits: the save row sticks to the bottom of the window while the form scrolls, and settles in place at the
+   end. Padding and margin cancel out, so switching it on moves nothing. */
+.pe .pe-send.dirty { position: sticky; bottom: 0; z-index: 3; margin: -12px 0; padding: 12px 0; border-top: 1px solid var(--hair); background: var(--page); }
+.pe .tlink:hover { color: var(--river-deep); }
+
+/* outcomes: a plain line where it happened (FormFocus moves focus to it after the reload) */
+.pe .notice { margin: 0; padding: 0; border-radius: 0; background: none; color: var(--live-ink); font-size: 15px; font-weight: 500; }
+.pe .pe-send > .notice, .pe .pe-send > .form-status { flex-basis: 100%; }
+/* a summary over the main form sits in the content column beside the rail; one over the photo box stays inside the
+   box's own one-column stack, full width above it, with the error line under it */
+.pe > .err-sum { grid-column: 2; }
+
+@media (max-width: 640px) {
+  .pe { column-gap: 14px; }
+  .pe .sec > h2 { font-size: 24px; }
+  .pe .drop { padding: 18px 16px; }
+  .pe .pe-send .btn-fill { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pe-rail .fill, .pe-rail .bead, .pe .drop, .pe .pe-send .btn-fill, .pe .picks summary .ms { transition: none; }
+  .pe-rail .fill.on { animation: none; }
+  .pe-rail .bead.lit::after { animation: none; }
+  .pe .drop:hover, .pe .pe-send .btn-fill:hover { transform: none; }
+}
+
+/* phone pass: hints and counters at 14px; no hover lift left stuck on a tapped box or button */
+@media (max-width: 640px) {
+  .pe .hint, .pe .field .count { font-size: 14px; }
+}
+@media (hover: none) {
+  .pe .drop:hover { transform: none; box-shadow: none; border-color: var(--field-line); }
+  .pe .pe-send .btn-fill:hover { transform: none; box-shadow: none; background: var(--river); }
+}

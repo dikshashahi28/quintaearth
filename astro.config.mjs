@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
 import { readdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { redirects } from './src/data/redirects.mjs';
@@ -18,6 +19,13 @@ const baseRedirects = Object.fromEntries(Object.entries(redirects).map(([from, t
 export default defineConfig({
   site,
   base,
+  // Pages stay prerendered by default; account pages opt out with `export const prerender = false`
+  // and run on the Worker. Images are still optimised with sharp at build time, in Node.
+  adapter: cloudflare({ imageService: 'compile', prerenderEnvironment: 'node' }),
+  // login uses its own cookie; Astro sessions (and the KV namespace they need) stay off
+  session: false,
+  // uploads go through actions; the largest allowed file is 10 MB (evidence), plus room for the other form fields
+  security: { actionBodySizeLimit: 11 * 1024 * 1024 },
   // "file" keeps every URL the old site published: /about.html, /energy-solar.html, ...
   build: { format: 'file', inlineStylesheets: 'auto' },
   trailingSlash: 'never',

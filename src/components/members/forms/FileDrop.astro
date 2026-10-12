@@ -1,0 +1,60 @@
+---
+// The one upload pattern: a dashed box with an icon, the accepted types, a pill file button and (optionally) its own submit button.
+// With `action` it is its own multipart form (default slot: hidden inputs); without, its input belongs to a surrounding form
+// or, through `form`, to a form elsewhere on the page. Uploaded files are listed below it with .files rows by the page.
+import Icon from '../Icon.astro';
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  /** accepted types and size, shown under the label */
+  hint: string;
+  accept: string;
+  icon?: string;
+  required?: boolean;
+  /** post to this URL as its own form */
+  action?: string;
+  /** or belong to the form with this id */
+  form?: string;
+  /** a submit button inside the box */
+  button?: string;
+  buttonIcon?: string;
+  error?: string | null;
+  class?: string;
+  /** largest file the server takes, checked in the browser first so a big file never posts (default 10 MB) */
+  maxMB?: number;
+}
+const { id, name, label, hint, accept, icon = 'upload_file', required = false, action, form, button, buttonIcon, error, class: cls, maxMB = 10 } = Astro.props;
+const errId = `${id}-error`;
+const Tag = action ? 'form' : 'div';
+const formAttrs = action ? { method: 'POST', action, enctype: 'multipart/form-data' } : {};
+---
+<div class:list={['dropw', cls]}>
+  <Tag class="drop" {...formAttrs}>
+    <slot />
+    <Icon name={icon} />
+    <p class="drop-t">
+      <label for={id}>{label}</label>
+      <span class="hint" id={`${id}-hint`}>{hint}</span>
+    </p>
+    <input class="drop-in" id={id} name={name} type="file" accept={accept} required={required} form={form} data-max-mb={maxMB}
+      aria-describedby={`${id}-hint ${errId}`} aria-invalid={error ? 'true' : undefined} />
+    {button && <button class="btn btn-line" type="submit" form={form}>{buttonIcon && <Icon name={buttonIcon} />}{button}</button>}
+  </Tag>
+  <p class="form-status bad" id={errId} role={error ? 'alert' : undefined}>{error}</p>
+</div>
+<script>
+  // a file over the limit would be refused by the server with a bare error page; stop it here with a clear message
+  for (const input of document.querySelectorAll<HTMLInputElement>('.drop-in[data-max-mb]')) {
+    const max = Number(input.dataset.maxMb) * 1024 * 1024;
+    const status = document.getElementById(`${input.id}-error`);
+    input.addEventListener('change', () => {
+      const big = [...(input.files ?? [])].find((f) => f.size > max);
+      const msg = big ? `${big.name} is ${(big.size / 1048576).toFixed(1)} MB. The limit is ${input.dataset.maxMb} MB.` : '';
+      input.setCustomValidity(msg);
+      if (status) { status.textContent = msg; status.setAttribute('role', msg ? 'alert' : ''); }
+      if (big) input.value = '';
+    });
+  }
+</script>

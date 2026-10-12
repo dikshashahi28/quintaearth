@@ -1,0 +1,9 @@
+---
+// A Material Symbols Rounded icon from the member sprite, a static file (public/icons/members.svg) the browser
+// fetches once and caches, instead of 20 KB of symbols inlined in every page. Decorative unless `label` is set.
+import { asset } from '../../lib/url';
+interface Props { name: string; label?: string; class?: string }
+const { name, label, class: cls } = Astro.props;
+const sprite = asset('icons/members.svg');
+---
+<svg class:list={['ms', cls]} aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label}><use href={`${sprite}#ms-${name.replace(/_/g, '-')}`} /></svg>

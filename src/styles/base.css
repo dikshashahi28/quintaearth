@@ -29,7 +29,10 @@ p { text-wrap: pretty; }
 input, textarea, select { caret-color: var(--river); }
 [id] { scroll-margin-top: 88px; }
 :is(a, button, input, select, textarea, summary) { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-:is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--river); outline-offset: 3px; border-radius: 6px; }
+:is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--river); outline-offset: 3px; }
+/* the 6px corner is for plain links and bare controls; at zero specificity it never squares off a pill, circle or
+   field that sets its own radius */
+:where(a, button, input, select, textarea, summary):focus-visible { border-radius: 6px; }
 
 .skip {
   position: absolute; left: 12px; top: -64px; z-index: 50;
@@ -52,7 +55,7 @@ input, textarea, select { caret-color: var(--river); }
 .kicker .hi { color: var(--gold); width: 1.7em; height: 1.7em; }
 .kicker .num { color: var(--gold-ink); font-variant-numeric: tabular-nums; }
 
-/* buttons */
+/* buttons: one line, except on the narrowest phones, where a long label wraps rather than widening the page */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   min-height: 48px; padding: 0 24px; border-radius: 100px;
@@ -104,4 +107,23 @@ a.chip:is(:hover, :focus-visible) { border-color: var(--river); color: var(--riv
 @media (prefers-reduced-motion: reduce) {
   .anim .rv { opacity: 1; transform: none; transition: none; }
   .btn { transition: none; }
+}
+
+@media (max-width: 400px) {
+  .btn { white-space: normal; text-align: center; line-height: 1.25; padding-block: 10px; max-width: 100%; }
+}
+
+/* phones and touch screens (mobile pass): a quicker reveal, 14px labels, 44px chips, no sticky hover lifts */
+@media (max-width: 640px) {
+  /* no fade on phones: a fling can outrun any observer margin, and faded content read as a blank page */
+  .anim .rv { opacity: 1; transform: translateY(12px); transition: transform .5s var(--ease); }
+  .kicker { font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .chip { min-height: 44px; }
+}
+@media (hover: none) {
+  .btn:hover { transform: none; box-shadow: none; }
+  a.chip:hover:not(:focus-visible) { transform: none; }
+  .tlink:hover .ic, .btn:hover .ic.arr { transform: none; }
 }

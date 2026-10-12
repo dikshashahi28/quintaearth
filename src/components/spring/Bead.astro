@@ -1,0 +1,17 @@
+---
+// One stop on the river rail: the 24px rail cell with its bead and, unless it is the last stop, the track down to
+// the next bead. Place it directly before the section it marks inside a <RiverRail>. The lit state is set here
+// in the markup, so it is right without JavaScript; the rail's script only lights beads on arrival and adds the
+// ring.
+interface Props {
+  /** no track below: the river ends here */
+  last?: boolean;
+  /** rendered already lit (and its track filled) */
+  lit?: boolean;
+}
+const { last = false, lit = false } = Astro.props;
+---
+<div class:list={['qe-rail', { last, lit, on: lit }]} aria-hidden="true">
+  <span class="bead"></span>
+  {!last && <span class="track"><span class="fill"></span></span>}
+</div>

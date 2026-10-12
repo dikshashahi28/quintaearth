@@ -1,0 +1,124 @@
+/* "The spring", the shared core (12 Oct 2026): the pieces every spring page is built from, account doors and
+   public pages alike. A photo of people doing the work under a Forest Deep wash with a mist river that draws
+   itself down to a gold spring (the scene), and a river rail beside the content with a 12px bead per step or
+   section that lights gold and a 3px Water track that fills River Green (the rail). Tokens from tokens.css.
+   The form step beside a bead (.qe-step: the 50px pill field, the go button at the last bead, the sent stone) is
+   here too, used by the doors and the contact form. Account-only sizing (the full-height split) lives in
+   members/spring.css; public-page sizing (the band under the site header, offers, legal sections, the contact
+   form) in spring-page.css. Both import this file first. */
+
+/* ---------- the scene ---------- */
+.qe-scene { position: relative; overflow: hidden; background: var(--deep); }
+.qe-scene img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, 50% 40%); transform: scale(1.04); animation: qe-settle 2.4s var(--ease) forwards; }
+.qe-wash { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,48,28,.12) 0%, rgba(20,48,28,0) 28%, rgba(20,48,28,.38) 58%, rgba(20,48,28,.9) 100%); }
+.qe-river { position: absolute; left: 0; bottom: 0; width: 140px; height: 100%; overflow: visible; }
+.qe-river .w { fill: none; stroke: var(--water); stroke-opacity: .2; stroke-width: 12; stroke-linecap: round; }
+.qe-river .m { fill: none; stroke: var(--mist); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: qe-draw 2.6s var(--ease) .3s forwards; }
+.qe-river .spring { fill: var(--gold-light); opacity: 0; animation: qe-spring .6s ease-out 2.5s forwards; }
+.qe-river .halo { fill: none; stroke: var(--gold-light); stroke-width: 2; opacity: 0; transform-origin: center; transform-box: fill-box; animation: qe-halo 1.4s ease-out 2.6s 1; }
+.qe-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 56px 56px 112px; display: flex; flex-direction: column; gap: 18px; }
+.qe-foot .say { margin: 0; font: 400 clamp(30px, 3.1vw, 44px)/1.12 var(--font-display); letter-spacing: -0.012em; color: var(--on-deep); max-width: 14ch; text-wrap: balance; }
+.qe-foot .sub { margin: 0; font-size: 15px; line-height: 1.5; color: var(--gold-light); font-weight: 500; }
+
+/* ---------- the river rail: a 24px column beside each step or section ---------- */
+.qe-grid { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; row-gap: 0; }
+.qe-rail { position: relative; width: 24px; }
+.qe-rail .track { position: absolute; left: 10.5px; top: 28px; bottom: -15px; width: 3px; border-radius: 2px; background: var(--water); }
+.qe-rail .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; transition: transform .9s var(--ease); }
+.qe-rail.on .fill { transform: scaleY(1); }
+.qe-rail .bead { position: absolute; left: 6px; top: 9px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
+.qe-rail.lit .bead { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
+.qe-rail.lit .bead::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); animation: qe-ring 1.2s ease-out 1 forwards; }
+.qe-rail.last { height: 52px; }
+
+/* ---------- the go button: a pill with an arrow that nudges on hover ---------- */
+.qe-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 28px; border-radius: 100px; border: 0; background: var(--river); color: var(--page); font: 500 16px/1 var(--font-body); text-decoration: none; cursor: pointer; transition: background .2s, transform .35s var(--ease), box-shadow .35s; }
+.qe-btn:hover { color: var(--page); background: var(--river-deep); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(20,48,28,.18); }
+.qe-btn svg { width: 18px; height: 18px; fill: currentColor; transition: transform .35s var(--ease); }
+.qe-btn:hover svg { transform: translateX(3px); }
+.qe-btn:active { transform: scale(.98); box-shadow: none; }
+
+/* ---------- the form: a step beside each bead (the account doors, the contact page) ---------- */
+/* .qe-form holds the steps; a .qe-step is the fields of one bead; the fields themselves (.field, .inp, .sel,
+   .area, .check) come from fields.css, which the page's own stylesheet loads */
+/* errors: the field's border and its line in Danger, the status line under the button */
+.qe-form .form-status.bad { color: var(--danger); font-weight: 500; }
+.qe-form .field .err { font-size: 14px; line-height: 1.45; color: var(--danger); }
+.qe-form .qe-step [aria-invalid="true"], .qe-form .qe-step [aria-invalid="true"]:hover { border-color: var(--danger); }
+/* a focused field is scrolled clear of the on-screen keyboard with its hint or error line */
+.qe-form :is(.inp, .sel, .area) { scroll-margin-bottom: 96px; }
+/* the closing bead sits level with the 52px go button beside it (centre 26px), and the track above reaches down to it */
+.qe-form .qe-rail.last .bead { top: 20px; }
+.qe-form .qe-rail:has(+ .qe-step + .qe-rail.last) .track { bottom: -26px; }
+.qe-step { margin: 0 0 36px 0; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.qe-step.tight { margin-bottom: 28px; }
+.qe-step.end { margin: 0; gap: 18px; }
+.qe-step .field > label, .qe-step legend { font-size: 16px; }
+.qe-step :is(.inp, .sel) { min-height: 50px; padding: 10px 22px; }
+.qe-step .sel { padding-right: 48px; }
+/* the doors' Show button sits in the password field's right end: keep typed text clear of it (the rule above
+   outranks members.css's .pwwrap padding) */
+.qe-step .pwwrap .inp { padding-right: 56px; }
+.qe-step :is(.inp, .sel, .area):hover { border-color: var(--reed-ink); }
+.qe-step :is(.inp, .sel, .area):focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+.qe-step .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.qe-step .note { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); max-width: 44ch; }
+.qe-step .small { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.qe-step .tlink { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 5px; box-shadow: none; }
+/* the "check your email" stone */
+.qe-sent { padding: 28px; border-radius: 16px; background: var(--sky); border: 1px solid var(--shallow); overflow-wrap: anywhere; }
+.qe-sent h2 { margin: 0; font: 400 28px/1.2 var(--font-display); color: var(--deep); }
+.qe-sent p { margin: 8px 0 0 0; font-size: 16px; line-height: 1.55; color: var(--muted); }
+.qe-sent b { font-weight: 500; color: var(--text); }
+.qe-sent .tlink { margin-top: 16px; }
+.qe-rail.sent { padding: 22px 0 0 0; border: 0; border-radius: 0; background: none; }
+.qe-rail.sent .bead { top: 31px; }
+
+@keyframes qe-draw { to { stroke-dashoffset: 0; } }
+@keyframes qe-spring { to { opacity: 1; } }
+@keyframes qe-halo { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(3.4); } }
+@keyframes qe-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+@keyframes qe-settle { to { transform: scale(1); } }
+
+@media (max-width: 1100px) {
+  /* the short band shows a different slice of the photo: a page can set it with scenePosSm (--pos-sm) */
+  .qe-scene img { object-position: var(--pos-sm, 50% 55%); }
+  .qe-river { left: -48px; }
+  .qe-foot { padding: 0 24px 36px 64px; }
+}
+@media (max-width: 640px) {
+  /* a short band: the brand line and the gold line stay readable on a deeper wash, the river shows only its last
+     bend and the spring, which sits clear of the photo line */
+  .qe-wash { background: linear-gradient(180deg, rgba(20,48,28,.5) 0%, rgba(20,48,28,.78) 55%, rgba(20,48,28,.92) 100%); }
+  .qe-river { left: -66px; }
+  .qe-foot { padding: 0 20px 18px 48px; gap: 6px; }
+  .qe-foot .say { font-size: 22px; line-height: 1.18; max-width: 22ch; }
+  .qe-foot .sub { font-size: 14px; }
+  .qe-grid { column-gap: 14px; }
+  .qe-step { margin-bottom: 28px; }
+  .qe-step.tight { margin-bottom: 22px; }
+  /* the go button is a full-width thumb target */
+  .qe-step .acts .qe-btn { flex: 1 1 100%; }
+  /* phone text floor: 16px for reading text, 14px for fine print */
+  .qe-step .note { font-size: 16px; }
+  .qe-step .hint { font-size: 14px; }
+  .qe-step .small .tlink { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qe-river .m { animation: none; stroke-dashoffset: 0; }
+  .qe-river .spring { animation: none; opacity: 1; }
+  .qe-river .halo { animation: none; }
+  .qe-scene img { animation: none; transform: none; }
+  .qe-rail .fill, .qe-rail .bead, .qe-btn { transition: none; }
+  .qe-rail.lit .bead::after { animation: none; opacity: 0; }
+}
+@media (hover: none) {
+  /* no hover lift left stuck on a tapped button */
+  .qe-btn:hover { transform: none; box-shadow: none; background: var(--river); }
+  .qe-btn:hover svg { transform: none; }
+  .qe-step :is(.inp, .sel, .area):hover:not(:focus):not([aria-invalid="true"]) { border-color: var(--field-line); }
+}
+@media (forced-colors: active) {
+  .qe-rail.lit .bead { background: CanvasText; border-color: CanvasText; }
+  .qe-rail .fill { background: CanvasText; }
+}

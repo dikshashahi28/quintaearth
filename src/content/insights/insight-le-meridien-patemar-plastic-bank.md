@@ -4,9 +4,9 @@ description: "A Maldives resort collaboration with Bali-made Patémar puts recyc
 date: 2026-09-23
 topic: "Sustainable development"
 sdgs: [12, 13, 14]
-image: "../../assets/articles/insight-le-meridien-patemar-plastic-bank.jpg"
-imageAlt: "Turquoise atoll lagoon suggesting ocean-conscious travel context"
-imageCredit: { label: "Ishan @seefromthesky / Unsplash (not Marriott/Patémar campaign)", href: "https://unsplash.com/photos/tGGtvZHBpEI" }
+image: "article-insight-le-meridien"
+imageAlt: "Small coral islands and ring reefs of a Maldives atoll seen from the air"
+imageCredit: { label: "Cosmic Timetraveler / Unsplash", href: "https://unsplash.com/photos/hXxgCOocQos" }
 subs: ["materials-recyclable-products"]
 companies: ["Le Méridien Maldives Resort & Spa", "Patémar", "Plastic Bank"]
 sources:

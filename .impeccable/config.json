@@ -14,6 +14,12 @@
         "value": "wobble",
         "createdAt": "2026-10-08T19:22:02.379Z",
         "reason": "Paras asked on 8 Oct for interactive, animated icons (artifact comment); wobble is one of the per-icon hover motions on the approved Riverline page, ported unchanged"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "qe-spring",
+        "createdAt": "2026-10-12T10:58:39.807Z",
+        "reason": "Claude: false positive; qe-spring is an ease-out opacity fade of the gold 'spring' dot (keyframe: to {opacity:1}), moved verbatim from the approved members/spring.css"
       }
     ]
   }

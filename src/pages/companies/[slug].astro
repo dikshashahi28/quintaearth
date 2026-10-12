@@ -1,0 +1,220 @@
+---
+// Public company page (design: Company, the 10 Oct "spring" board). Only published companies and their published
+// listings show here. A white head (breadcrumb, logo stone, name, meta with the evidence count, actions), then a
+// river rail down the left of the About, Products and services and Team sections. The rail only marks the sections:
+// its beads stay at rest (white, green ring) and its track unfilled, since nothing on a public page is "completed".
+import Member from '../../layouts/Member.astro';
+import CompanyListingCard from '../../components/members/public/CompanyListingCard.astro';
+import Icon from '../../components/members/Icon.astro';
+import { and, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client';
+import { getPublicCompany } from '../../db/queries/public';
+import { fileUrl } from '../../lib/storage-url';
+import { absolute, page } from '../../lib/url';
+import { countryName, goalLinks, industryLinks, ldJson, place, sizeLabel, subLinks, subName } from '../../lib/labels';
+import '../../styles/members/company.css';
+
+export const prerender = false;
+
+const slug = Astro.params.slug ?? '';
+const viewer = Astro.locals.user ?? null;
+let org = await getPublicCompany(slug);
+// a hidden company: its team (and admins) get a preview; everyone else the same 404 as a missing page
+let preview = false;
+if (!org && viewer) {
+  const hidden = await getPublicCompany(slug, { hidden: true });
+  const onTeam = hidden && (viewer.role === 'admin' || !!(await db.query.members.findFirst({
+    where: and(eq(schema.members.organizationId, hidden.id), eq(schema.members.userId, viewer.id)), columns: { role: true } })));
+  if (hidden && onTeam) { org = hidden; preview = true; }
+}
+if (!org) return new Response(null, { status: 404 });
+if (preview) {
+  Astro.response.headers.set('Cache-Control', 'private, no-store');
+  Astro.response.headers.set('X-Robots-Tag', 'noindex');
+}
+
+const where = place(org.city, org.country);
+const size = sizeLabel(org.size);
+const enquire = page(`companies/${org.slug}/enquire`);
+const url = absolute(Astro.url.pathname, Astro.site);
+const description = (org.description ?? `${org.name} on QuintaEarth`).replace(/\s+/g, ' ').slice(0, 160);
+const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join('');
+
+const industries = industryLinks(org.tags.industry);
+const subs = subLinks(org.tags.sub);
+const goals = goalLinks(org.tags.sdg);
+const hasAbout = !!org.description || industries.length + subs.length + goals.length > 0;
+const hasTeam = org.team.length > 0;
+const rel = 'noopener nofollow ugc';
+
+const listings = org.listings.map((l) => ({
+  ...l,
+  subs: l.tags.sub.map(subName).filter((s): s is string => !!s),
+  serves: l.tags.serves.map(countryName).filter((s): s is string => !!s),
+}));
+// the proof up front: how many evidence files the listings carry, linking to the first listing that has any
+const evidenceCount = listings.reduce((n, l) => n + l.evidence.length, 0);
+const firstEvidence = listings.find((l) => l.evidence.length > 0);
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: absolute(page('index'), Astro.site) },
+    { '@type': 'ListItem', position: 2, name: 'Directory', item: absolute(page('directory'), Astro.site) },
+    { '@type': 'ListItem', position: 3, name: org.name, item: url },
+  ],
+};
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: org.name,
+  url,
+  ...(org.description && { description: org.description }),
+  ...(org.logoKey && { logo: absolute(fileUrl(org.logoKey), Astro.site) }),
+  ...(org.foundedYear && { foundingDate: String(org.foundedYear) }),
+  ...(where && { address: { '@type': 'PostalAddress', ...(org.city && { addressLocality: org.city }), ...(org.country && { addressCountry: org.country }) } }),
+  ...((org.website || org.linkedin) && { sameAs: [org.website, org.linkedin].filter(Boolean) }),
+  ...(org.team.length && { member: org.team.map((t) => ({ '@type': 'Person', name: t.name, url: absolute(page(`people/${t.handle}`), Astro.site) })) }),
+  ...(listings.length && {
+    makesOffer: listings.map((l) => ({
+      '@type': 'Offer',
+      itemOffered: { '@type': l.kind === 'service' ? 'Service' : 'Product', name: l.name, ...(l.description && { description: l.description }) },
+    })),
+  }),
+};
+
+---
+<Member title={org.name} description={description} current="directory" noindex={preview}>
+  <script slot="head" type="application/ld+json" set:html={ldJson(orgLd)} />
+  <script slot="head" type="application/ld+json" set:html={ldJson(breadcrumbLd)} />
+  <div class="qe-co">
+    <section class="qe-frame qe-head">
+      <nav class="qe-crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={page('index')}>Home</a></li>
+          <li><span class="sep" aria-hidden="true">›</span><a href={page('directory')}>Directory</a></li>
+          <li><span class="sep" aria-hidden="true">›</span><span aria-current="page">{org.name}</span></li>
+        </ol>
+      </nav>
+      {preview && <p class="notice qe-preview" role="status">Only your team can see this page until you publish it.</p>}
+      <div class="qe-who">
+        {org.logoKey
+          ? <span class="qe-mark"><img src={fileUrl(org.logoKey)} alt={org.name} width="118" height="118" /></span>
+          : <span class="qe-mark" role="img" aria-label={org.name}><Icon name="storefront" /></span>}
+        <div class="qe-who-t">
+          <h1>{org.name}</h1>
+          {(where || size || org.foundedYear || org.identityChecked || evidenceCount > 0) && (
+            <div class="qe-meta">
+              {where && <span><Icon name="location_on" />{where}</span>}
+              {size && <span><Icon name="group" />{size}</span>}
+              {org.foundedYear && <span><Icon name="calendar_today" />Founded {org.foundedYear}</span>}
+              {org.identityChecked && <span class="qe-idc"><Icon name="badge" />Identity checked</span>}
+              {firstEvidence && <a class="qe-idc qe-evc" href={`#evidence-${firstEvidence.slug}`}><Icon name="attach_file" />{evidenceCount} evidence {evidenceCount === 1 ? 'file' : 'files'}</a>}
+            </div>
+          )}
+        </div>
+      </div>
+      <div class="qe-head-acts">
+        {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
+        {org.website && <a class="qe-tlink" href={org.website} target="_blank" rel={rel}><Icon name="language" />Website<span class="sr"> (opens in a new tab)</span></a>}
+        {org.linkedin && (
+          <a class="qe-tlink" href={org.linkedin} target="_blank" rel={rel}>
+            <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z" /></svg>LinkedIn<span class="sr"> (opens in a new tab)</span>
+          </a>
+        )}
+      </div>
+    </section>
+
+    <div class="qe-frame qe-body">
+      <div class="qe-spine">
+        {hasAbout && (
+          <>
+            <div class="qe-rail first" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+            <section class="qe-sec" aria-labelledby="about-h" data-step>
+              <h2 id="about-h" class="sr">About</h2>
+              {org.description && <p class="qe-lead">{org.description}</p>}
+              {industries.length + subs.length + goals.length > 0 && (
+                <div class="qe-tags">
+                  {industries.length > 0 && (
+                    <div>
+                      <h3 class="qe-tagh">Industries</h3>
+                      <div class="qe-chips">{industries.map((f) => <a class="qe-chip has" href={f.href}>{f.label}</a>)}</div>
+                    </div>
+                  )}
+                  {subs.length > 0 && (
+                    <div>
+                      <h3 class="qe-tagh">Sub-categories</h3>
+                      <div class="qe-chips">{subs.map((f) => <a class="qe-chip has" href={f.href}>{f.label}</a>)}</div>
+                    </div>
+                  )}
+                  {goals.length > 0 && (
+                    <div>
+                      <h3 class="qe-tagh">UN goals</h3>
+                      <div class="qe-chips">{goals.map((g) => <a class="qe-chip goal" href={g.href}><span class="qe-goal">{g.n}</span>{g.title}</a>)}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        <div class:list={['qe-rail', { last: !hasTeam }]} aria-hidden="true"><span class="bead"></span>{hasTeam && <span class="track"><span class="fill"></span></span>}</div>
+        <section class="qe-sec" aria-labelledby="offer-h" data-step>
+          <h2 id="offer-h" class="qe-h2">Products and services</h2>
+          {listings.length === 0
+            ? <p class="qe-empty">No listings yet.</p>
+            : (
+              <ul class="qe-lgrid">
+                {listings.map((l) => (
+                  <CompanyListingCard id={l.id} slug={l.slug} name={l.name} kind={l.kind} description={l.description} photoKey={l.photoKey} link={l.link}
+                    subs={l.subs} serves={l.serves} evidence={l.evidence} enquire={enquire} />
+                ))}
+              </ul>
+            )}
+          {!hasTeam && (
+            <div class="qe-end">
+              <div class="qe-end-who">
+                <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
+                <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
+              </div>
+              {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
+            </div>
+          )}
+        </section>
+
+        {hasTeam && (
+          <>
+            <div class="qe-rail last" aria-hidden="true"><span class="bead"></span></div>
+            <section class="qe-sec" aria-labelledby="team-h" data-step>
+              <h2 id="team-h" class="qe-h2">Team</h2>
+              <ul class="qe-people">
+                {org.team.map((t) => (
+                  <li>
+                    <a href={page(`people/${t.handle}`)}>
+                      <span class="qe-stone">{t.photoKey ? <img src={fileUrl(t.photoKey)} alt="" width="64" height="64" loading="lazy" /> : <span aria-hidden="true">{initials(t.name)}</span>}</span>
+                      <span><b>{t.name}</b>{t.headline && <small>{t.headline}</small>}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div class="qe-end">
+                <div class="qe-end-who">
+                  <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
+                  <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
+                </div>
+                {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
+              </div>
+            </section>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</Member>
+
+<style>
+  /* the hidden company's preview line (scoped here while the member CSS files are reworked for phones) */
+  .qe-preview { margin: 0 0 20px; max-width: 60ch; }
+</style>

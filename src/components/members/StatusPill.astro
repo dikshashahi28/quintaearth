@@ -1,0 +1,6 @@
+---
+// Status pills: live (gold dot), draft, waiting (outlined), plain.
+interface Props { status: 'live' | 'draft' | 'wait' | 'plain'; label: string }
+const { status, label } = Astro.props;
+---
+<span class:list={['pill', { live: status === 'live', draft: status === 'draft', wait: status === 'wait' }]}>{label}</span>

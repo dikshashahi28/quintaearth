@@ -1,0 +1,95 @@
+/* "The spring" account pages (sign up, sign in, welcome), from the approved comp of 10 Oct 2026:
+   a photo of people doing the work on the left under a Forest Deep wash, a mist river drawing itself down to a
+   gold spring; the form on white on the right with its own river rail, a bead per step that lights gold and a
+   track that fills green as the step completes. The scene, the rail, the form step (.qe-step, the 50px field,
+   the sent stone) and their keyframes are the shared core (styles/spring-core.css, also under the public spring
+   pages and the contact form); this file sizes them into the full-height split and styles the doors' own parts
+   (the top line, the type doors, Google). Tokens from tokens.css; fields from fields.css via members.css. */
+@import '../spring-core.css';
+
+.qe-root { min-height: 100vh; min-height: 100dvh; display: flex; flex-wrap: wrap; font-family: var(--font-body); color: var(--text); }
+.qe-scene { flex: 1 1 520px; min-height: 100vh; min-height: 100dvh; }
+.qe-pane { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; background: var(--page); }
+
+.qe-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px 56px 0 56px; }
+.qe-top .logo { display: inline-flex; align-items: center; min-height: 44px; }
+.qe-top .logo img { height: 34px; width: auto; display: block; }
+.qe-top .aside { margin: 0; font-size: 15px; color: var(--muted); display: inline-flex; align-items: center; min-height: 44px; gap: 6px; }
+.qe-top .aside a { color: var(--river); font-weight: 500; text-decoration: none; box-shadow: inset 0 -1.5px currentColor; }
+/* members.css's page .lead (19px) must not reach the top line: both words sit at the line's 15px */
+.qe-top .aside .lead { font-size: inherit; line-height: inherit; max-width: none; }
+.qe-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; padding: 48px 56px 56px 56px; }
+.qe-form { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; }
+.qe-form h1 { margin: 0 0 36px 0; font: 400 clamp(38px, 3.6vw, 52px)/1.06 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; }
+.qe-form h1.tight { margin-bottom: 14px; }
+.qe-form .lede { margin: 0 0 36px 0; font-size: 17px; line-height: 1.55; color: var(--muted); max-width: 46ch; }
+.qe-form .signed { margin: 0 0 36px 0; font-size: 15px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.qe-form .notice { margin: 0 0 28px 0; }
+.qe-form .form-status.bad { margin: 0 0 24px 0; }
+.qe-form .err-sum { margin-bottom: 24px; }
+
+.qe-step .gform { display: block; }
+.qe-step .btn-google { min-height: 52px; }
+.qe-step .or { margin: 0; }
+.qe-after { margin: 36px 0 0 0; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 15px; line-height: 1.5; color: var(--text); }
+.qe-after a { color: var(--river); font-weight: 500; }
+
+/* two "door" stones: individual or company */
+.qe-doors { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+.qe-door { display: flex; align-items: center; gap: 16px; padding: 14px 18px 14px 14px; border: 1.5px solid var(--hair); border-radius: 100px; background: var(--page); cursor: pointer; transition: border-color .25s, background .25s, transform .35s var(--ease), box-shadow .35s; position: relative; min-height: 88px; box-sizing: border-box; flex: 1 1 220px; text-align: left; }
+.qe-door:hover { border-color: var(--reed); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.qe-door:has(input:checked) { border-color: var(--river); background: var(--shallow); }
+.qe-door .stone { width: 58px; height: 58px; padding: 4px; }
+.qe-door .stone > span { color: var(--river); transition: background .35s, color .35s; }
+.qe-door .stone .ms { font-size: 26px; }
+.qe-door:has(input:checked) .stone { border-color: var(--gold); }
+.qe-door:has(input:checked) .stone > span { background: var(--river); color: var(--page); }
+.qe-door input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border-radius: inherit; opacity: 0; pointer-events: none; } /* full-size, so the browser's "choose one" bubble points at the door */
+.qe-door:has(input:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
+.qe-door .txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.qe-door b { font-weight: 500; font-size: 16px; color: var(--deep); }
+.qe-door small { font-size: 13.5px; line-height: 1.4; color: var(--muted); }
+
+@media (max-width: 1100px) {
+  /* stacked: the photo keeps its band height and the form takes the rest, even on a short form */
+  .qe-root { flex-direction: column; flex-wrap: nowrap; }
+  .qe-scene { min-height: 340px; flex: none; }
+  .qe-pane { flex: 1 0 auto; }
+}
+@media (max-width: 640px) {
+  /* a short band, so the first field is on the first screen */
+  .qe-scene { min-height: 136px; }
+  .qe-top { padding: 12px 20px 0 20px; }
+  .qe-body { padding: 16px 20px 40px 20px; }
+  .qe-form h1 { margin-bottom: 24px; }
+  .qe-form h1.tight { margin-bottom: 10px; }
+  .qe-form .lede, .qe-form .signed { margin-bottom: 24px; }
+  .qe-top .aside .lead { display: none; }
+  /* the form starts under the logo instead of floating mid-screen on a short form */
+  .qe-body { justify-content: flex-start; }
+  /* door stones: smaller, so both doors and the next field fit the first screen and the text keeps two lines at 320 */
+  .qe-doors { gap: 10px; margin-top: 12px; }
+  .qe-door { min-height: 72px; padding: 10px 16px 10px 10px; gap: 12px; }
+  .qe-door .stone { width: 48px; height: 48px; padding: 3px; }
+  .qe-door .stone .ms { font-size: 22px; }
+  .qe-door small { font-size: 14px; }
+}
+@media (max-width: 360px) {
+  /* logo and the top link share one line at 320 */
+  .qe-top { gap: 12px; }
+  .qe-top .logo img { height: 28px; }
+  .qe-top .aside { white-space: nowrap; }
+}
+@media (pointer: coarse) {
+  /* text links keep their look; the touch area grows to 44px around them */
+  .qe-top .aside a, .qe-after a, .qe-step .small a:not(.tlink) { position: relative; }
+  .qe-top .aside a::after, .qe-after a::after, .qe-step .small a:not(.tlink)::after { content: ""; position: absolute; inset: -12px -6px; }
+  .qe-body .err-sum a { min-height: 44px; }
+}
+@media (hover: none) {
+  /* no hover lift left stuck on a tapped door or button */
+  .qe-door:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qe-door { transition: none; }
+}

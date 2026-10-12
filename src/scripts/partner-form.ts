@@ -1,5 +1,8 @@
 // Partner form on the contact page. Fields, rules, messages and the JSON body are ported unchanged
 // from the old js/partner.js, which posted to the Apps Script behind the partner (or collaborators) sheet.
+// The page carries the form on the spring's river rail: a bead per step (`.qe-rail[data-for="id id"]`) that
+// lights when every field it names passes these same rules, the send bead (`data-for="*"`) when all of them do.
+import { serviceNames } from '../data/services';
 import { formEndpoints } from '../data/site';
 import { collapse, hasLetter, isEmail, isMeaningfulText, isPersonName, postToSheet } from '../lib/forms';
 
@@ -18,20 +21,22 @@ export interface PartnerFields {
 type Key = keyof PartnerFields;
 export type PartnerErrors = Partial<Record<Key, string>>;
 
-// field -> element id, in the order the old form checked them; the first invalid one gets focus
+// field -> element id, in the order the fields sit on the page; the first invalid one gets focus (the JSON body
+// keeps the old key order in partnerPayload)
 const IDS: Record<Key, string> = {
   company: 'partner-company',
   company_type: 'partner-type',
   website: 'partner-website',
-  phone: 'partner-phone',
   place: 'partner-place',
-  email: 'partner-email',
   contact_name: 'partner-contact',
   designation: 'partner-designation',
+  email: 'partner-email',
+  phone: 'partner-phone',
   purpose: 'partner-purpose',
   consent: 'partner-consent',
 };
 const ORDER = Object.keys(IDS) as Key[];
+const KEY_OF = Object.fromEntries(ORDER.map((k) => [IDS[k], k])) as Record<string, Key>;
 
 
 function normalizeWebsite(raw: string): string {
@@ -67,8 +72,11 @@ export function normalizePartner(raw: PartnerFields): PartnerFields {
   };
 }
 
-/** Errors for normalised values; an empty object means the form can be sent. */
-export function validatePartner(v: PartnerFields): PartnerErrors {
+/**
+ * Errors for normalised values; an empty object means the form can be sent. `purposePrefix` is the text the page
+ * put in Purpose itself ("Proposal for: …"), which does not count towards the 20 characters the sender must write.
+ */
+export function validatePartner(v: PartnerFields, purposePrefix = '', proposal = false): PartnerErrors {
   const e: PartnerErrors = {};
   const text = (k: 'company' | 'place' | 'designation', empty: string, junk: string, min: number, max: number) => {
     if (!v[k]) e[k] = empty;
@@ -95,13 +103,14 @@ export function validatePartner(v: PartnerFields): PartnerErrors {
   text('designation', 'Enter your designation.', 'Enter a real designation.', 2, 80);
 
   const p = v.purpose;
-  if (!p) e.purpose = 'Tell us the purpose of this partnership.';
+  if (!p) e.purpose = proposal ? 'Tell us what you need a proposal for.' : 'Tell us the purpose of this partnership.';
   else if (p.length < 20) e.purpose = 'Please write at least 20 characters.';
   else if (p.length > 400) e.purpose = 'Keep this to 400 characters.';
   else if (!hasLetter(p)) e.purpose = 'Please write a short purpose.';
   else if (!isMeaningfulText(p, 20, 400)) e.purpose = 'Please write a real purpose.';
+  else if (purposePrefix && p.startsWith(purposePrefix) && p.slice(purposePrefix.length).trim().length < 20) e.purpose = 'Please write at least 20 characters.';
 
-  if (!v.consent) e.consent = 'Please agree to be contacted about this partnership.';
+  if (!v.consent) e.consent = proposal ? 'Please agree to be contacted about this proposal.' : 'Please agree to be contacted about this partnership.';
   return e;
 }
 
@@ -121,9 +130,50 @@ export function partnerPayload(v: PartnerFields): PartnerFields {
   };
 }
 
+/**
+ * /services links here with ?offer=<slug>: the form head reads "Ask for a proposal", names the offer, and the
+ * purpose starts with it (?offer=any names no offer). Returns the text put into Purpose, tidied the way the
+ * values are, so the submit check can leave it out of the 20-character count.
+ */
+export function nameOffer(search: string): { proposal: boolean; prefix: string } {
+  const offer = new URLSearchParams(search).get('offer') ?? '';
+  const name = serviceNames[offer];
+  if (!name && offer !== 'any') return { proposal: false, prefix: '' };
+  const title = document.getElementById('partner-title');
+  const sub = document.getElementById('partner-sub');
+  const consent = document.getElementById('partner-consent-text');
+  const purpose = document.getElementById('partner-purpose');
+  if (title) title.textContent = 'Ask for a proposal';
+  if (sub) sub.textContent = `${name ? `${name}. ` : ''}Tell us about your company and what you make, and we will send a written proposal.`;
+  if (consent) consent.textContent = 'I agree to be contacted about this proposal.';
+  if (!name) return { proposal: true, prefix: '' };
+  const prefix = `Proposal for: ${name}.`;
+  if (purpose instanceof HTMLTextAreaElement && !purpose.value) purpose.value = `${prefix} `;
+  return { proposal: true, prefix };
+}
+
 /** The old dialog wrote to the collaborators sheet when opened from the collaborators band; links now say so with ?source=collaborators. */
 export function partnerEndpoint(search: string): string {
   return new URLSearchParams(search).get('source') === 'collaborators' ? formEndpoints.collaborators : formEndpoints.partner;
+}
+
+/**
+ * The river rail beside the form: each rail names the fields of its step (data-for="id id"); its bead lights
+ * (and its track fills) when they all pass the form's rules, so a bead never lights beside a value the form would
+ * reject. "data-for='*'" is the send step, lit when the whole form is. Nothing is lit without the script.
+ */
+function lightBeads(form: HTMLFormElement, read: () => PartnerFields, purposePrefix: string, proposal: boolean): () => void {
+  const rails = [...form.querySelectorAll<HTMLElement>('.qe-rail[data-for]')];
+  if (!rails.length) return () => {};
+  return () => {
+    const errors = validatePartner(normalizePartner(read()), purposePrefix, proposal);
+    for (const rail of rails) {
+      const ids = rail.dataset.for!.split(/\s+/).filter(Boolean);
+      const ok = ids[0] === '*' ? Object.keys(errors).length === 0 : ids.every((id) => KEY_OF[id] !== undefined && !errors[KEY_OF[id]!]);
+      rail.classList.toggle('lit', ok);
+      rail.classList.toggle('on', ok);
+    }
+  };
 }
 
 function setError(id: string, message: string): void {
@@ -153,9 +203,26 @@ export function initPartnerForm(): void {
   if (!(form instanceof HTMLFormElement) || !thanks || !status) return;
   const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
   const endpoint = partnerEndpoint(location.search);
+  const { proposal, prefix: purposePrefix } = nameOffer(location.search);
   const el = (k: Key) => form.elements.namedItem(k) as HTMLInputElement;
+  const read = (): PartnerFields => ({
+    company: el('company').value,
+    company_type: el('company_type').value,
+    website: el('website').value,
+    phone: el('phone').value,
+    place: el('place').value,
+    email: el('email').value,
+    contact_name: el('contact_name').value,
+    designation: el('designation').value,
+    purpose: el('purpose').value,
+    consent: el('consent').checked,
+  });
 
   digitsOnly(el('phone'));
+  const light = lightBeads(form, read, purposePrefix, proposal);
+  form.addEventListener('input', light);
+  form.addEventListener('change', light);
+  light();
   // an edited field drops its error at once; the full check runs again on submit
   form.addEventListener('input', (e) => {
     const t = e.target as HTMLElement;
@@ -169,22 +236,11 @@ export function initPartnerForm(): void {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const values = normalizePartner({
-      company: el('company').value,
-      company_type: el('company_type').value,
-      website: el('website').value,
-      phone: el('phone').value,
-      place: el('place').value,
-      email: el('email').value,
-      contact_name: el('contact_name').value,
-      designation: el('designation').value,
-      purpose: el('purpose').value,
-      consent: el('consent').checked,
-    });
+    const values = normalizePartner(read());
     // show the tidied values, as the old form did
     for (const k of ORDER) if (k !== 'consent' && k !== 'company_type') el(k).value = values[k];
 
-    const errors = validatePartner(values);
+    const errors = validatePartner(values, purposePrefix, proposal);
     for (const k of ORDER) setError(IDS[k], errors[k] ?? '');
     const first = ORDER.find((k) => errors[k]);
     if (first) {

@@ -1,20 +1,17 @@
 ---
 // The valley: sun, clouds, birds, turbines, a river and reeds, in five depth layers. Decorative only.
+// Two SVGs share one 1440x860 drawing: the sky is pinned to the top of the hero and the land to the
+// bottom. The desktop sun is its own SVG placed by CSS, so it keeps the same spot (right of the headline,
+// under the header) whatever the window's shape.
 ---
 <div class="scene" id="scene" aria-hidden="true">
-      <svg viewBox="0 0 1440 860" preserveAspectRatio="xMidYMax slice">
+      <svg class="sky" viewBox="0 0 1440 860" preserveAspectRatio="xMidYMin slice">
         <defs>
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7faf2"/><stop offset="1" stop-color="#e3eedd"/></linearGradient>
-          <path id="canopy" d="M-38 -26 C -46 -40, -32 -56, -16 -52 C -10 -64, 14 -66, 20 -54 C 36 -58, 46 -42, 38 -30 C 44 -18, 30 -10, 16 -14 C 6 -8, -10 -8, -18 -14 C -32 -10, -44 -16, -38 -26 Z"/>
-          <path id="trunk" d="M-3.5 0 C -2.5 -6, -2 -12, -2.5 -18 L 2.5 -18 C 2 -12, 2.5 -6, 3.5 0 Z"/>
-          <path id="blade" d="M0 2 C 4 -6, 4.5 -26, 0 -42 C -1.5 -26, -2.5 -8, 0 2 Z"/>
-          <linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8e7d4"/><stop offset="1" stop-color="#c2d7be"/></linearGradient>
           <radialGradient id="halo"><stop offset="0" stop-color="#d9b85a" stop-opacity=".5"/><stop offset="1" stop-color="#d9b85a" stop-opacity="0"/></radialGradient>
         </defs>
         <rect width="1440" height="860" fill="url(#sky)"/>
         <g class="layer" data-depth="0.12">
-          <circle cx="1130" cy="200" r="150" fill="url(#halo)"/>
-          <circle class="sun" cx="1130" cy="200" r="42" fill="#d9b85a"/>
           <g class="sun-m"><circle cx="872" cy="96" r="110" fill="url(#halo)"/><circle class="sun" cx="872" cy="96" r="30" fill="#d9b85a"/></g>
           <g class="cloud c1" fill="#fff" opacity=".85"><ellipse cx="0" cy="190" rx="92" ry="20"/><ellipse cx="38" cy="176" rx="52" ry="26"/><ellipse cx="-34" cy="180" rx="40" ry="20"/></g>
           <g class="cloud c2" fill="#fff" opacity=".7"><ellipse cx="0" cy="120" rx="70" ry="15"/><ellipse cx="26" cy="108" rx="40" ry="20"/></g>
@@ -23,6 +20,15 @@
           <g class="fly f2" fill="none" stroke="#4d6e3d" stroke-width="2" stroke-linecap="round"><path d="M1330 90 q6 -6 12 0 q6 -6 12 0"/><path d="M1358 102 q5 -5 10 0 q5 -5 10 0"/></g>
           <g class="fly f3 phone-only" fill="none" stroke="#4d6e3d" stroke-width="2" stroke-linecap="round"><path d="M892 120 q6 -6 12 0 q6 -6 12 0"/><path d="M904 134 q5 -5 10 0 q5 -5 10 0"/></g>
         </g>
+      </svg>
+      <svg class="sun-d" viewBox="-150 -150 300 300"><circle r="150" fill="url(#halo)"/><circle class="sun" r="42" fill="#d9b85a"/></svg>
+      <svg class="land" viewBox="0 0 1440 860" preserveAspectRatio="xMidYMax slice">
+        <defs>
+          <path id="canopy" d="M-38 -26 C -46 -40, -32 -56, -16 -52 C -10 -64, 14 -66, 20 -54 C 36 -58, 46 -42, 38 -30 C 44 -18, 30 -10, 16 -14 C 6 -8, -10 -8, -18 -14 C -32 -10, -44 -16, -38 -26 Z"/>
+          <path id="trunk" d="M-3.5 0 C -2.5 -6, -2 -12, -2.5 -18 L 2.5 -18 C 2 -12, 2.5 -6, 3.5 0 Z"/>
+          <path id="blade" d="M0 2 C 4 -6, 4.5 -26, 0 -42 C -1.5 -26, -2.5 -8, 0 2 Z"/>
+          <linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8e7d4"/><stop offset="1" stop-color="#c2d7be"/></linearGradient>
+        </defs>
         <g class="layer" data-depth="0.25">
           <path fill="url(#far)" d="M0 590 C 170 540, 330 520, 500 548 S 790 600, 980 560 S 1260 500, 1440 548 L1440 860 L0 860 Z"/><path fill="none" stroke="#e3eedd" stroke-width="2" d="M0 590 C 170 540, 330 520, 500 548 S 790 600, 980 560 S 1260 500, 1440 548"/>
           <g transform="translate(290 528)"><path d="M-1.2 0 L 1.2 0 L 2.6 92 L -2.6 92 Z" fill="#7fa26b"/><g class="spin s2" fill="#7fa26b"><circle r="44" fill="none"/><g transform="scale(1)"><use href="#blade"/><use href="#blade" transform="rotate(120)"/><use href="#blade" transform="rotate(240)"/></g></g><circle r="4.5" fill="#7fa26b"/></g>

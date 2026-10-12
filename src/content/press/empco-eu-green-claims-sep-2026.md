@@ -4,9 +4,9 @@ description: "From ~27 Sep 2026, EU B2C environmental claims face harder substan
 date: 2026-09-23
 topic: "Press"
 sdgs: [12, 13, 16]
-image: "../../assets/articles/empco-eu-green-claims-sep-2026.jpg"
-imageAlt: "Close-up of a product label in soft natural light, suggesting claim substantiation"
-imageCredit: { label: "Laura Chouette / Unsplash (not a cited brand’s image)", href: "https://unsplash.com/photos/koy6FlCCy5s" }
+image: "article-press-empco-eu"
+imageAlt: "An unlabelled amber glass dropper bottle stands in dappled palm-leaf shadow"
+imageCredit: { label: "Kadarius Seegars / Unsplash", href: "https://unsplash.com/photos/b9KAwJRBXgw" }
 subs: []
 euRules: true
 sources:

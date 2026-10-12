@@ -15,3 +15,15 @@ redirects.csv
 
 # wrangler local dev state
 .wrangler/
+
+# local secrets
+.dev.vars
+
+# demo seed: generated files, contact sheets and the demo password stay local
+scripts/seed-demo/build/
+scripts/seed-demo/sheets/
+scripts/seed-demo/candidates.json
+scripts/seed-demo/.credentials.txt
+
+# photos downloaded and resized by scripts/media/build-media.mjs
+.media-cache/

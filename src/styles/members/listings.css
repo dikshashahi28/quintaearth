@@ -1,0 +1,43 @@
+/* Listings list and editor: the few rules members.css does not cover. */
+
+/* photo: the current one beside the upload box */
+.lst-photo { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.lst-photo img, .lst-photo .ph0 { width: 240px; max-width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; background: var(--shallow); }
+.lst-photo .ph0 { display: grid; place-items: center; color: var(--reed); }
+.lst-photo .ph0 .ms { font-size: 36px; }
+.lst-photo .dropw { flex: 1 1 300px; }
+
+/* evidence: no visibility select, so three columns */
+.files.ev li { grid-template-columns: 40px minmax(0, 1fr) 44px; }
+.files.ev b a { color: inherit; text-decoration: none; }
+.files.ev b a:hover { text-decoration: underline; }
+.files.ev form { display: contents; }
+
+/* delete with a confirm step, no script */
+.del { margin-left: auto; }
+.del summary { list-style: none; display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; }
+.del summary::-webkit-details-marker { display: none; }
+.del[open] { flex-basis: 100%; margin-left: 0; }
+.del .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 8px; padding: 16px 18px; border: 1px solid var(--danger-line); border-radius: 12px; }
+.del .confirm p { flex: 1 1 240px; font-size: 15px; }
+
+/* the heading's gap (hidden inputs sit between it and the fields) */
+#listing-form > .form { margin-top: 18px; }
+
+/* Type: a fieldset that looks like the other fields (no browser groove, padding or margin) */
+fieldset.field { border: 0; margin: 0; padding: 0; min-width: 0; }
+
+/* evidence sits in the form, after the description */
+.ev-field .files { margin-top: 10px; }
+
+/* remove a file with a confirm step, no script: the bin opens a row below the file */
+.files.ev .rm { grid-column: 3; grid-row: 1; }
+.rm summary { list-style: none; }
+.rm summary::-webkit-details-marker { display: none; }
+.rm .cx { display: none; }
+.files.ev .rm[open] { grid-column: 1 / -1; grid-row: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding: 12px 16px; border: 1px solid var(--danger-line); border-radius: 12px; }
+.rm[open] summary { order: 2; display: inline-flex; align-items: center; width: auto; height: auto; min-height: 44px; border: 0; border-radius: 0; background: none; color: var(--river); font-weight: 500; font-size: 15px; }
+.rm[open] summary .ms, .rm[open] summary .sr { display: none; }
+.rm[open] .cx { display: inline; }
+.rm .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.rm .confirm p { font-size: 15px; color: var(--text); overflow-wrap: anywhere; }

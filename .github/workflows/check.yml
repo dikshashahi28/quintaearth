@@ -1,9 +1,10 @@
-# Type-checks, builds and link-checks every push and pull request. Cloudflare Workers Builds deploys main.
+# Type-checks, builds and link-checks every push to main and dev, and every pull request.
+# Cloudflare Workers Builds deploys: main -> Worker quintaearth (quintaearth.com), dev -> Worker quintaearth-dev (dev.quintaearth.com).
 name: Check
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
   workflow_dispatch:
 

@@ -1,13 +1,14 @@
 ---
-import { Picture, getImage } from 'astro:assets';
 import { render } from 'astro:content';
 import Page from '../../layouts/Page.astro';
+import Media from '../Media.astro';
 import PageHead from '../page/PageHead.astro';
 import ArticleMeta from '../page/ArticleMeta.astro';
 import InsightCard from '../page/InsightCard.astro';
 import { getSub } from '../../data/industries';
 import { site } from '../../data/site';
 import { type Article, articleToInsight, getStream, isoDate, readMinutes } from '../../lib/content';
+import { mediaShareUrl } from '../../lib/media';
 import { absolute, asset, page } from '../../lib/url';
 
 interface Props { article: Article }
@@ -24,20 +25,21 @@ const score = (it: (typeof stream)[number]) =>
   (it.subs.some((s) => data.subs.includes(s)) ? 6 : 0) + it.sdgs.filter((n) => data.sdgs.includes(n)).length + (it.date ? 1 : 0);
 const related = stream.map((it, i) => ({ it, s: score(it), i })).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, 3).map((x) => x.it);
 
-const share = await getImage({ src: data.image, width: 1200, format: 'jpg' });
+// the share image: the hero at 1200px, as an absolute URL for Open Graph and the structured data
+const share = absolute(mediaShareUrl(data.image), Astro.site);
 const ld = {
   '@context': 'https://schema.org',
   '@type': essay ? 'Article' : 'NewsArticle',
   headline: data.title,
   description: data.description,
   datePublished: isoDate(data.date),
-  image: absolute(share.src, Astro.site),
+  image: share,
   timeRequired: `PT${readMinutes(article.body)}M`,
   publisher: { '@type': 'Organization', name: site.name, logo: { '@type': 'ImageObject', url: absolute(asset('assets/logo.png'), Astro.site) } },
   mainEntityOfPage: absolute(page(article.id), Astro.site),
 };
 ---
-<Page title={data.title} description={data.description} imageUrl={share.src} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}>
+<Page title={data.title} description={data.description} imageUrl={share} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}>
   <PageHead title={data.title} crumbs={[list, { label: essay ? 'Insight' : 'Desk note' }]} width="col">
     <ArticleMeta minutes={self.minutes} date={data.date} sdgs={data.sdgs} />
   </PageHead>
@@ -45,7 +47,7 @@ const ld = {
   <article class="page-body article-body">
     <div class="col">
       <figure class="lead-figure">
-        <Picture src={data.image} alt={data.imageAlt} formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800, 1200]} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
+        <Media name={data.image} alt={data.imageAlt} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
       </figure>
       <div class="prose"><Content /></div>
 

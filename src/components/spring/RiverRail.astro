@@ -1,0 +1,15 @@
+---
+// The river rail of a public spring page: a two-column grid, a <Bead> then its section, repeated. With `arrive`
+// (the default) each bead lights gold as its section is reached and the track above it fills down from the
+// bead before, the way the river reaches each section on the home page; without JavaScript, or under reduced
+// motion, spring-page.css shows the rail fully lit, so nothing depends on the script.
+interface Props { arrive?: boolean; class?: string }
+const { arrive = true, class: cls } = Astro.props;
+---
+<div class:list={['qe-grid', 'sp-rail', cls]} data-arrive={arrive ? '' : undefined}>
+  <slot />
+</div>
+{arrive && <script>
+  import { initSpringRail } from '../../scripts/spring-rail';
+  initSpringRail();
+</script>}

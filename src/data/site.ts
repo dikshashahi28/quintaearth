@@ -13,11 +13,12 @@ export const site = {
   ],
   description:
     'QuintaEarth is one hub for everyone who works in, studies or cares about sustainability, green tech and clean tech.',
-  ogImage: 'assets/youtube-banner-2560.jpg',
+  /** the default share image, a site photograph by name (src/data/media.json): the hero valley with the wordmark */
+  ogImage: 'og-share',
 } as const;
 
 /** Header links that can be marked as the current section. */
-export type NavKey = 'about' | 'industries' | 'insights' | 'press' | 'volunteer' | 'contact';
+export type NavKey = 'about' | 'industries' | 'directory' | 'insights' | 'press' | 'volunteer' | 'contact';
 
 // Google Apps Script web apps that store form submissions in Diksha's sheets.
 // They are the same endpoints the pre-revamp site posted to.

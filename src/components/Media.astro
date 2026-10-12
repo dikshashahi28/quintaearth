@@ -1,0 +1,20 @@
+---
+// A site photograph from R2 (see src/lib/media.ts). `sizes` says how wide it shows, so the browser picks a file.
+import { media, mediaSrcset, mediaUrl } from '../lib/media';
+
+interface Props {
+  name: string;
+  alt?: string;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  focal?: string;
+  class?: string;
+  [attr: string]: unknown;
+}
+const { name, alt, sizes = '100vw', loading = 'lazy', fetchpriority, focal, class: cls, ...rest } = Astro.props;
+const m = media(name);
+---
+<img src={mediaUrl(name)} srcset={mediaSrcset(name)} sizes={sizes} width={m.width} height={m.height}
+  alt={alt ?? m.alt} loading={loading} decoding="async" fetchpriority={fetchpriority} class={cls}
+  style={`object-position: ${focal ?? m.focal}`} {...rest} />

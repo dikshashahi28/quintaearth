@@ -3,6 +3,7 @@ import '../styles/header.css';
 import { industries } from '../data/industries';
 import { site } from '../data/site';
 import { asset, page } from '../lib/url';
+import { initialsOf } from '../lib/member-hint';
 
 import type { NavKey } from '../data/site';
 
@@ -11,11 +12,16 @@ const { current } = Astro.props;
 
 // Industries sits between About and Insights and carries the mega menu, so it is written out below
 const after = [
+  { key: 'directory', label: 'Directory', href: '/directory' },
   { key: 'insights', label: 'Insights', href: page('insights') },
   { key: 'press', label: 'Press', href: page('press') },
   { key: 'volunteer', label: 'Volunteer', href: page('volunteer') },
   { key: 'contact', label: 'Contact', href: page('contact') },
 ] as const;
+// Signed in, the profile icon replaces "Sign in" and the Join button. On-demand pages know the member here;
+// prerendered pages learn it from the hint cookie before first paint (the script in Base.astro, lib/member-hint).
+const user = Astro.locals.user;
+const initials = user ? initialsOf(user.name) : '';
 const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.pathname.endsWith('/index.html');
 ---
 <header class="hdr" id="top">
@@ -25,7 +31,7 @@ const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.path
     </a>
     <nav class="nav" id="nav" aria-label="Main">
       <a href={page('about')} class:list={{ active: current === 'about' }} aria-current={current === 'about' ? 'page' : undefined}>About</a>
-      <a href={page('industries')} id="indLink" class:list={{ active: current === 'industries' }} aria-expanded="false" aria-controls="mega">
+      <a href={page('industries')} id="indLink" role="button" class:list={{ active: current === 'industries' }} aria-expanded="false" aria-controls="mega">
         Industries<svg class="ic" aria-hidden="true"><use href="#i-caret-down" /></svg>
       </a>
       <div class="mega" id="mega">
@@ -48,9 +54,13 @@ const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.path
       {after.map((l) => (
         <a href={l.href} class:list={{ active: current === l.key }} aria-current={current === l.key ? 'page' : undefined}>{l.label}</a>
       ))}
+      <a class="nav-signin" href="/signin">Sign in</a>
     </nav>
     <div class="acts">
-      <a class="btn btn-fill" href={site.whatsapp} target="_blank" rel="noopener">
+      <a class="me" href="/dashboard" aria-label="Your dashboard"><span class="me-i" aria-hidden="true">{initials}</span></a>
+      <script is:inline>(function(){var v=document.documentElement.dataset.member,e=document.querySelector('.hdr .me-i');if(v&&e&&!e.textContent)e.textContent=v})()</script>
+      <a class="signin" href="/signin">Sign in</a>
+      <a class="btn btn-fill join" href={site.whatsapp} target="_blank" rel="noopener">
         <svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg><span>Join<span class="full"> the community</span></span>
       </a>
       <button class="menu" id="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">
