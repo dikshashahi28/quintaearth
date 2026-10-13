@@ -3,11 +3,14 @@
 // down to a gold spring, and the brand line in Literata with a gold line under it. The account doors use it as
 // the left half of their split (layouts/Account.astro); public pages as the band under the site header
 // (layouts/Spring.astro). Styles: styles/spring-core.css.
+import { getImage } from 'astro:assets';
 import { media, mediaSrcset, mediaUrl } from '../../lib/media';
 
 interface Props {
   /** a site photograph by name (src/data/media.json, from scripts/media/sources.json), of people doing the work */
-  scene: string;
+  scene?: string;
+  /** a story's own picture (src/assets/stories) instead of a site photograph; prerendered pages only, resized at build */
+  sceneImage?: ImageMetadata;
   /** the photo's own alt when unset */
   sceneAlt?: string;
   /** object-position for the photo; the photo's own focal point when unset */
@@ -22,13 +25,15 @@ interface Props {
   sub?: string;
   class?: string;
 }
-const { scene, sceneAlt, scenePos, scenePosSm, sizes = '100vw', say, sub, class: cls } = Astro.props;
-const shot = media(scene);
+const { scene, sceneImage, sceneAlt, scenePos, scenePosSm, sizes = '100vw', say, sub, class: cls } = Astro.props;
+const shot = sceneImage
+  ? await getImage({ src: sceneImage, width: 1600, format: 'webp' }).then((i) => ({ src: i.src, srcset: undefined, width: i.attributes.width ?? 1600, height: i.attributes.height, alt: sceneAlt ?? '', focal: '50% 50%' }))
+  : (() => { const m = media(scene!); return { src: mediaUrl(scene!, 2000), srcset: mediaSrcset(scene!), width: m.width, height: m.height, alt: m.alt, focal: m.focal }; })();
 const pos = scenePos ?? shot.focal;
 const vars = `--pos: ${pos}; --pos-sm: ${scenePosSm ?? pos}`;
 ---
 <aside class:list={['qe-scene', cls]} style={vars}>
-  <img src={mediaUrl(scene, 2000)} srcset={mediaSrcset(scene)} sizes={sizes} width={shot.width} height={shot.height}
+  <img src={shot.src} srcset={shot.srcset} sizes={shot.srcset ? sizes : undefined} width={shot.width} height={shot.height}
     alt={sceneAlt ?? shot.alt} loading="eager" fetchpriority="high" decoding="async" />
   <div class="qe-wash"></div>
   <svg class="qe-river" viewBox="0 0 140 1000" preserveAspectRatio="xMinYMax slice" aria-hidden="true">

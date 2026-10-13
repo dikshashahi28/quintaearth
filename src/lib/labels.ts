@@ -49,10 +49,30 @@ export function goalLinks(values: string[]): GoalLink[] {
 
 export const goalTitle = (n: string) => goalByNumber.get(Number(n))?.title ?? null;
 
-const sizes: Record<string, string> = {
-  '1-10': '1–10 people', '11-50': '11–50 people', '51-200': '51–200 people', '201-1000': '201–1,000 people', '1000+': '1,000+ people',
+// company size as ranges (12 Oct): stored values in src/db/schema/accounts.ts COMPANY_SIZES
+export const SIZE_OPTIONS = [
+  { value: '1-10', label: '1–10' }, { value: '11-50', label: '11–50' }, { value: '51-200', label: '51–200' },
+  { value: '201-500', label: '201–500' }, { value: '501-1000', label: '501–1,000' }, { value: '1000+', label: '1,000+' },
+] as const;
+export const sizeLabel = (size: string | null | undefined) => {
+  const o = SIZE_OPTIONS.find((x) => x.value === size);
+  return o ? `${o.label} people` : null;
 };
-export const sizeLabel = (size: string | null | undefined) => (size ? sizes[size] ?? null : null);
+
+/** how a listing is priced (prices themselves are never shown) */
+export const PRICING_OPTIONS = [
+  { value: 'quote', label: 'On quote' }, { value: 'fixed', label: 'Fixed price' }, { value: 'subscription', label: 'Subscription' },
+] as const;
+export const pricingLabel = (v: string | null | undefined) => PRICING_OPTIONS.find((o) => o.value === v)?.label ?? null;
+
+/** what a person is open to */
+export const OPEN_TO_LABELS: Record<string, string> = {
+  partnerships: 'Partnerships', advisory: 'Advisory', hiring: 'Hiring', work: 'Work', volunteer: 'Volunteering',
+};
+export const openToLabel = (v: string) => OPEN_TO_LABELS[v] ?? null;
+
+/** the heading for UN goals on people and companies: self-declared, never a badge */
+export const GOALS_HEADING = 'Works on (self-declared)';
 
 /** "example.com" for showing a URL. */
 export function hostOf(url: string) {

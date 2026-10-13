@@ -296,7 +296,9 @@
   .stones li:nth-child(odd){padding-top:0}
 }
 @media (max-width:640px){
-  .flow > section:not(.hero) > .in{padding-left:22px}
+  /* on a phone the river would hug the screen edge and stop short of the page's end: the sections stand on their own */
+  .flow > .river,.hero .source{display:none}
+  .flow > section:not(.hero) > .in{padding-left:0}
   .scene .sun-m,.scene .phone-only{display:block}
   .scene svg.sun-d{display:none}
   .scene .fly.f3{animation:fly-m 30s linear infinite;animation-delay:-8s}

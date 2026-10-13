@@ -51,6 +51,8 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   else if (isAdminArea(path) && found?.user.role !== 'admin') res = new Response(null, { status: 404 });
   else if (isAdminArea(path) && !found!.user.accountType) res = ctx.redirect('/welcome');
   else res = await next();
+  // some responses come back with immutable headers (the dev server's /_image, fetched assets): copy them first
+  res = withMutableHeaders(res);
 
   // the page may have set or cleared a login cookie itself (e.g. dropping the cached session after setup);
   // the copy read at the start of the request is older, so it must not win
@@ -65,8 +67,17 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   }
   // member pages are personal, and any page rendered for a signed-in member carries their initials: never cache them
   if (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user) {
-    // the dev server's /_image responses have immutable headers; in production images are static files
-    try { res.headers.set('Cache-Control', 'private, no-store'); } catch { /* leave the response as it is */ }
+    res.headers.set('Cache-Control', 'private, no-store');
   }
   return res;
 });
+
+function withMutableHeaders(res: Response): Response {
+  try {
+    res.headers.set('X-Qe-Probe', '1');
+    res.headers.delete('X-Qe-Probe');
+    return res;
+  } catch {
+    return new Response(res.body, res);
+  }
+}

@@ -15,7 +15,14 @@ import EmptyState from '../../components/members/EmptyState.astro';
 import { actionErrorMessage } from '../../components/members/forms/errors';
 import { dashContext } from '../../lib/dash-context';
 import { companyForEditor } from '../../db/queries/dashboard';
+import ChipPicker from '../../components/members/forms/ChipPicker.astro';
+import { countries } from '../../data/countries';
+import { SIZE_OPTIONS } from '../../lib/labels';
+import { companyGreenTexts, findGreenTerms, greenWarnings } from '../../lib/green-words';
+import { certStatus, dayValue } from '../../lib/certifications';
+import { fileUrl } from '../../lib/storage-url';
 import '../../styles/members/editors.css';
+import '../../styles/members/trust.css';
 
 export const prerender = false;
 
@@ -36,6 +43,16 @@ const logoRemoved = Astro.getActionResult(actions.company.removeLogo);
 const invited = Astro.getActionResult(actions.company.invite);
 const removed = Astro.getActionResult(actions.company.removeMember);
 const revoked = Astro.getActionResult(actions.company.revokeInvite);
+const galleryAdded = Astro.getActionResult(actions.company.addGalleryImage);
+const galleryRemoved = Astro.getActionResult(actions.company.removeGalleryImage);
+const certAdded = Astro.getActionResult(actions.company.addCertification);
+const certRemoved = Astro.getActionResult(actions.company.removeCertification);
+const certPublic = Astro.getActionResult(actions.listings.setEvidencePublic);
+if (galleryAdded?.data) return Astro.redirect(here('picture'), 303);
+if (galleryRemoved?.data) return Astro.redirect(here('nopicture'), 303);
+if (certAdded?.data) return Astro.redirect(here('cert'), 303);
+if (certRemoved?.data) return Astro.redirect(here('nocert'), 303);
+if (certPublic?.data) return Astro.redirect(here(certPublic.data.public ? 'certpublic' : 'certprivate'), 303);
 if (updated?.data) return Astro.redirect(here('details'), 303);
 if (logoSet?.data) return Astro.redirect(here('logo'), 303);
 if (logoRemoved?.data) return Astro.redirect(here('nologo'), 303);
@@ -53,12 +70,15 @@ const logoMessage = logoSet?.error && isInputError(logoSet.error) ? 'Choose a lo
 const inviteErrors: Record<string, string[] | undefined> = invited?.error && isInputError(invited.error) ? invited.error.fields : {};
 const inviteMessage = invited?.error && !isInputError(invited.error) ? msg(invited.error) : null;
 const teamMessage = msg(removed?.error ?? revoked?.error);
+const galleryMessage = galleryAdded?.error && isInputError(galleryAdded.error) ? (galleryAdded.error.fields.caption?.join(' ') ?? 'Choose a picture first.') : msg(galleryAdded?.error ?? galleryRemoved?.error);
+const certErrors: Record<string, string[] | undefined> = certAdded?.error && isInputError(certAdded.error) ? certAdded.error.fields : {};
+const certMessage = certAdded?.error && !isInputError(certAdded.error) ? msg(certAdded.error) : msg(certRemoved?.error ?? certPublic?.error);
 const createErrors: Record<string, string[] | undefined> = created?.error && isInputError(created.error) ? created.error.fields : {};
 const createMessage = created?.error && !isInputError(created.error) ? msg(created.error) : null;
 
 // after a rejected save, show what was typed rather than what is stored
 let sent: FormData | null = null;
-if ((updated?.error || invited?.error) && Astro.request.method === 'POST') {
+if ((updated?.error || invited?.error || certAdded?.error) && Astro.request.method === 'POST') {
   try { sent = await Astro.request.formData(); } catch { sent = null; }
 }
 const fromForm = !!updated?.error && !!sent;
@@ -68,6 +88,16 @@ const list = (k: string, stored: string[]) => (fromForm ? sent!.getAll(k).map(St
 const v = org && data ? {
   name: text('name', org.name),
   description: text('description', org.description),
+  legalName: text('legalName', org.legalName),
+  research: text('research', org.research),
+  youtube: text('youtube', org.youtube),
+  x: text('x', org.xUrl),
+  instagram: text('instagram', org.instagram),
+  facebook: text('facebook', org.facebook),
+  operates: list('operates', data.tags.operates),
+  cases: fromForm
+    ? sent!.getAll('caseTitle').map((t, i) => ({ title: String(t ?? ''), client: String(sent!.getAll('caseClient')[i] ?? ''), summary: String(sent!.getAll('caseSummary')[i] ?? '') }))
+    : (org.caseStudies ?? []).map((c) => ({ title: c.title, client: c.client ?? '', summary: c.summary ?? '' })),
   city: text('city', org.city),
   country: text('country', org.country),
   size: text('size', org.size),
@@ -80,12 +110,22 @@ const v = org && data ? {
   published: fromForm ? sent!.get('published') === 'on' : org.published,
 } : null;
 
-const sizes = [
-  { value: '1-10', label: '1–10' }, { value: '11-50', label: '11–50' }, { value: '51-200', label: '51–200' },
-  { value: '201-1000', label: '201–999' }, { value: '1000+', label: '1,000+' },
-];
+// sizes as ranges (12 Oct)
+const sizes = SIZE_OPTIONS;
+// the case-study rows: what is saved plus empty ones, up to six
+const caseRows = v ? [...v.cases, ...Array.from({ length: Math.max(0, Math.min(6, v.cases.length + 2) - v.cases.length) }, () => ({ title: '', client: '', summary: '' }))].slice(0, 6) : [];
+// green wording: what the owner is told about the description (held for review; carbon neutral claims)
+// (the description, the research section and the case studies are read together)
+const greenTexts = v ? companyGreenTexts({ description: v.description, research: v.research, caseStudies: v.cases }) : [];
+const greenTerms = findGreenTerms(...greenTexts);
+const warnings = greenWarnings(...greenTexts);
+const certV = { name: sent && certAdded?.error ? String(sent.get('name') ?? '') : '', issuer: sent && certAdded?.error ? String(sent.get('issuer') ?? '') : '',
+  registryUrl: sent && certAdded?.error ? String(sent.get('registryUrl') ?? '') : '', issuedOn: sent && certAdded?.error ? String(sent.get('issuedOn') ?? '') : '',
+  expiresOn: sent && certAdded?.error ? String(sent.get('expiresOn') ?? '') : '' };
 const savedFlag = Astro.url.searchParams.get('saved');
-const saved = ({ details: ctx.company?.published ? 'Saved. Your company page is live.' : 'Saved. Your company page is hidden from the public.', logo: 'Logo saved.', nologo: 'Logo removed.', invite: 'Invitation sent.', uninvite: 'Invitation cancelled.', removed: 'Removed from the team.' } as Record<string, string>)[savedFlag ?? ''] ?? null;
+const held = ctx.company?.greenReview === 'pending' || ctx.company?.greenReview === 'rejected';
+const saved = ({ details: held ? 'Saved. The description, research and case studies wait for a wording review; your page is public without them until then.' : ctx.company?.published ? 'Saved. Your company page is live.' : 'Saved. Your company page is hidden from the public.', logo: 'Logo saved.', nologo: 'Logo removed.', invite: 'Invitation sent.', uninvite: 'Invitation cancelled.', removed: 'Removed from the team.',
+  picture: 'Picture added.', nopicture: 'Picture removed.', cert: 'Certification added.', nocert: 'Certification removed.', certpublic: 'That certificate is public now.', certprivate: 'That certificate is private again.' } as Record<string, string>)[savedFlag ?? ''] ?? null;
 
 const isOwner = data?.role === 'owner';
 const ownerOnly = 'Only an owner can change this.';
@@ -114,6 +154,18 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
   ) : (
     <div class="formw">
       <FormStatus saved={saved} error={detailsError} />
+      {org.greenReview === 'pending' && (
+        <div class="gw gw-wait" role="status" data-green="pending">
+          <Icon name="hourglass_top" />
+          <div><b>Description in wording review</b><p>It uses “{org.greenTerms}”. Your page stays public; the description, research and case studies are left off it, the directory and search until we approve them. Evidence on your listings helps.</p></div>
+        </div>
+      )}
+      {org.greenReview === 'rejected' && (
+        <div class="gw gw-back" role="status" data-green="rejected">
+          <Icon name="edit" />
+          <div><b>Description sent back by the wording review</b><p>{org.greenReason} The description, research and case studies stay off your public page until they change. Edit them to send them again.</p></div>
+        </div>
+      )}
 
       <section class="sec" aria-labelledby="logo-h" data-save-first>
         <h2 id="logo-h">Logo</h2>
@@ -148,10 +200,18 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
                   <input class="inp" type="text" id="c-name" name="name" value={v.name} readonly aria-describedby="c-name-hint" />
                   <p class="hint" id="c-name-hint">{ownerOnly}</p>
                 </div>}
+            {isOwner
+              ? <Field id="c-legal" name="legalName" label="Legal name" value={v.legalName} error={errors.legalName} maxlength={160} optional
+                  hint="Only if it differs from the name above. Changing it removes “Identity checked” until it is checked again." />
+              : v.legalName && <div class="field"><label for="c-legal">Legal name</label><input class="inp" type="text" id="c-legal" name="legalName" value={v.legalName} readonly /></div>}
+            {!isOwner && !v.legalName && <input type="hidden" name="legalName" value="" />}
             <div class="row2">
-              <Field id="c-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} />
-              <CountrySelect id="c-country" name="country" label="Country" value={v.country} error={errors.country} />
+              <Field id="c-city" name="city" label="Head office city" value={v.city} error={errors.city} maxlength={80} />
+              <CountrySelect id="c-country" name="country" label="Head office country" value={v.country} error={errors.country} />
             </div>
+            <ChipPicker name="operates" legend="Countries operated in" selected={v.operates} errorId="c-operates-error" error={errors.operates}
+              options={countries.filter((c) => v.operates.includes(c.iso)).map((c) => ({ value: c.iso, label: c.name }))}
+              groups={[{ label: 'Add countries', options: countries.filter((c) => !v.operates.includes(c.iso)).sort((a, b) => a.name.localeCompare(b.name)).map((c) => ({ value: c.iso, label: c.name })) }]} />
             <div class="row2">
               <div class="field">
                 <label for="c-size">Size</label>
@@ -167,7 +227,27 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
               <Field id="c-year" name="foundedYear" label="Founded" value={v.foundedYear} error={errors.foundedYear} maxlength={4} inputmode="numeric" />
             </div>
             <Field id="c-desc" name="description" label="Short description" value={v.description} error={errors.description} maxlength={1500} count textarea />
+            {greenTerms.length > 0 && <p class="hint" data-green-hint>Words like “{greenTerms.join('”, “')}” send the description, research and case studies to a short wording review before they show publicly.</p>}
+            {warnings.map((w) => <p class="gw-warn" role="note" data-green-warning><Icon name="info" />{w.message}</p>)}
+            <Field id="c-research" name="research" label="Research, data and technology" value={v.research} error={errors.research} maxlength={3000} count textarea optional
+              hint="The research, data and technology behind your products." />
           </div>
+        </section>
+
+        <section class="sec" data-cases>
+          <h2>Case studies and clients</h2>
+          <p class="hint">Optional. Name a client only with the client’s permission.</p>
+          {caseRows.map((c, i) => (
+            <div class="form case-row" role="group" aria-label={`Case study ${i + 1}`}>
+              <p class="case-n" aria-hidden="true"><span>{i + 1}</span>Case study</p>
+              <div class="row2">
+                <Field id={`c-case-t-${i}`} name="caseTitle" label="Title" value={c.title} maxlength={120} optional />
+                <Field id={`c-case-c-${i}`} name="caseClient" label="Client" value={c.client} maxlength={120} optional />
+              </div>
+              <Field id={`c-case-s-${i}`} name="caseSummary" label="Summary" value={c.summary} maxlength={600} textarea optional />
+            </div>
+          ))}
+          <p class="err">{[errors.caseTitle, errors.caseClient, errors.caseSummary].flat().filter(Boolean).join(' ')}</p>
         </section>
 
         <TagFields prefix="c" industries={v.industries} subs={v.subs} sdgs={v.sdgs} errors={errors} />
@@ -182,7 +262,17 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
                   <input class="inp" type="text" id="c-web" name="website" value={v.website} readonly aria-describedby="c-web-hint" />
                   <p class="hint" id="c-web-hint">{ownerOnly}</p>
                 </div>}
-            <Field id="c-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
+            <div class="row2">
+              <Field id="c-li" name="linkedin" label="LinkedIn" value={v.linkedin} error={errors.linkedin} maxlength={300} optional inputmode="url" />
+              <Field id="c-yt" name="youtube" label="YouTube" value={v.youtube} error={errors.youtube} maxlength={300} optional inputmode="url" />
+            </div>
+            <div class="row2">
+              <Field id="c-x" name="x" label="X" value={v.x} error={errors.x} maxlength={300} optional inputmode="url" />
+              <Field id="c-ig" name="instagram" label="Instagram" value={v.instagram} error={errors.instagram} maxlength={300} optional inputmode="url" />
+            </div>
+            <div class="row2">
+              <Field id="c-fb" name="facebook" label="Facebook" value={v.facebook} error={errors.facebook} maxlength={300} optional inputmode="url" />
+            </div>
           </div>
         </section>
 
@@ -203,6 +293,98 @@ const pending = (data?.invites ?? []).filter((i) => i.expiresAt.getTime() > now)
           </div>
         </section>
       </form>
+
+      <section class="sec" aria-labelledby="certs-h" data-save-first data-certifications>
+        <h2 id="certs-h">Certifications</h2>
+        <p class="hint">One list for the company: your listings link to these. An expired certification shows as expired.</p>
+        <FormStatus error={certMessage} />
+        {data.certifications.length > 0 && (
+          <ul class="files certs-ed">
+            {data.certifications.map((c) => {
+              const st = certStatus(c);
+              return (
+                <li data-cert={st.expired ? 'expired' : 'current'}>
+                  <span class="ft"><Icon name="description" /></span>
+                  <div class="fname">
+                    <b>{c.name}</b>
+                    <small>{c.issuer}{c.registryUrl && <> · <a href={c.registryUrl} target="_blank" rel="noopener nofollow">Registry<span class="sr"> (opens in a new tab)</span></a></>}{c.file && <> · <a href={fileUrl(c.file.key)}>{c.file.name}</a></>}</small>
+                    <span class="cert-tags">
+                      {st.expired ? <span class="vis exp">Expired</span> : <span class="vis cur"><Icon name="calendar_today" />{st.text}</span>}
+                      {c.file && <span class:list={['vis', { pub: c.file.public }]}><Icon name={c.file.public ? 'public' : 'lock'} />File {c.file.public ? 'public' : 'private'}</span>}
+                    </span>
+                  </div>
+                  {c.file && isOwner && (
+                    <form method="POST" action={post(actions.listings.setEvidencePublic)}>
+                      <input type="hidden" name="key" value={c.file.key} />
+                      {!c.file.public && <input type="hidden" name="public" value="on" />}
+                      <button class="tlink ev-vis" type="submit">{c.file.public ? 'Make private' : 'Make public'}<span class="sr">: {c.file.name}</span></button>
+                    </form>
+                  )}
+                  <form method="POST" action={post(actions.company.removeCertification)}>
+                    <input type="hidden" name="certificationId" value={c.id} />
+                    <button class="iconbtn" type="submit" aria-label={`Remove ${c.name}`}><Icon name="delete" /></button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <h3 class="add-h">Add a certification</h3>
+        <form class="form" method="POST" action={post(actions.company.addCertification)} enctype="multipart/form-data">
+          <input type="hidden" name="organizationId" value={org.id} />
+          <div class="row2">
+            <Field id="cert-name" name="name" label="Certification" value={certV.name} error={certErrors.name} maxlength={120} required />
+            <Field id="cert-issuer" name="issuer" label="Issued by" value={certV.issuer} error={certErrors.issuer} maxlength={120} required />
+          </div>
+          <div class="row2">
+            <div class="field"><label for="cert-issued">Issued on <span class="opt">(optional)</span></label><input class="inp" type="date" id="cert-issued" name="issuedOn" value={certV.issuedOn} /><p class="err">{certErrors.issuedOn?.join(' ')}</p></div>
+            <div class="field"><label for="cert-expires">Expires on</label><input class="inp" type="date" id="cert-expires" name="expiresOn" value={certV.expiresOn} required aria-describedby="cert-expires-error" /><p class="err" id="cert-expires-error">{certErrors.expiresOn?.join(' ')}</p></div>
+          </div>
+          <Field id="cert-url" name="registryUrl" label="Registry link" value={certV.registryUrl} error={certErrors.registryUrl} maxlength={300} optional inputmode="url" />
+          <FileDrop id="cert-file" name="file" accept="application/pdf,image/jpeg,image/png,image/webp" label="Certificate file" hint="PDF, JPG, PNG or WebP, up to 10 MB. A file or a registry link is needed." error={certErrors.file?.join(' ')} />
+          {isOwner && <label class="check"><input type="checkbox" name="filePublic" /><span>Make the file public (otherwise only your team and our reviewers can open it)</span></label>}
+          <div class="form-send"><button class="btn btn-line" type="submit">Add certification</button></div>
+        </form>
+      </section>
+
+      <section class="sec" aria-labelledby="gallery-h" data-save-first data-gallery>
+        <h2 id="gallery-h">Pictures</h2>
+        <FormStatus error={galleryMessage} />
+        {data.gallery.length > 0 && (
+          <ul class="gal-ed">
+            {data.gallery.map((g) => (
+              <li>
+                <span class="gal-ph"><img src={fileUrl(g.key)} alt={g.caption ?? ''} width="240" height="180" loading="lazy" /></span>
+                <div class="fname"><b>{g.caption || g.name}</b><small>{g.listingId ? data.listings.find((l) => l.id === g.listingId)?.name : 'The company'}</small></div>
+                <form method="POST" action={post(actions.company.removeGalleryImage)}>
+                  <input type="hidden" name="key" value={g.key} />
+                  <button class="iconbtn" type="submit" aria-label={`Remove ${g.caption || g.name}`}><Icon name="delete" /></button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+        {data.gallery.length < 12 && (
+          <form class="form" method="POST" action={post(actions.company.addGalleryImage)} enctype="multipart/form-data">
+            <input type="hidden" name="organizationId" value={org.id} />
+            <FileDrop id="g-image" name="image" maxMB={5} required accept="image/jpeg,image/png,image/webp" label="Add a picture" hint="Of the company or its products. JPG, PNG or WebP, up to 5 MB. Up to 12." />
+            <Field id="g-caption" name="caption" label="Caption" maxlength={140} optional />
+            {data.listings.length > 0 && (
+              <div class="field">
+                <label for="g-listing">About a listing <span class="opt">(optional)</span></label>
+                <span class="selwrap">
+                  <select class="sel" id="g-listing" name="listingId">
+                    <option value="">The company</option>
+                    {data.listings.map((l) => <option value={l.id}>{l.name}</option>)}
+                  </select>
+                  <Icon name="expand_more" />
+                </span>
+              </div>
+            )}
+            <div class="form-send"><button class="btn btn-line" type="submit">Add picture</button></div>
+          </form>
+        )}
+      </section>
 
       <section class="sec">
         <div class="sec-t"><h2>Products and services</h2><a class="tlink" href={`/dashboard/listings${ctx.orgQuery}`}>Manage listings<Icon name="arrow_forward" /></a></div>

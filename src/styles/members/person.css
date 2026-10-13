@@ -1,6 +1,7 @@
 /* Public person page, "the spring" (approved comp of 10 Oct 2026, board "Person"): a white head with the
-   portrait stone, then two columns. On the left a river rail runs beside the bio and the skills, a bead per part,
-   every bead at rest (a public page completes nothing, so nothing lights gold); on the right "Works at" and the industries. Tokens from tokens.css; .stone, .mark,
+   portrait stone, then one column with a river rail down its left, as on the company page: a bead per part that is
+   there (bio, skills, works at, industries, services, open to, languages, self-declared goals), every bead at rest (a
+   public page completes nothing, so nothing lights gold). Tokens from tokens.css; .stone, .mark,
    .chip, .tlink, .idc from members.css. Classes are pp- so the shared page-head and crumb rules stay out. */
 
 /* head */
@@ -17,24 +18,34 @@
 .pp-who h1 { margin: 0; font: 400 clamp(34px, 3.6vw, 48px)/1.1 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; overflow-wrap: anywhere; }
 .pp-line { margin: 8px 0 0; font-size: 19px; line-height: 1.5; color: var(--text); }
 .pp-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 12px; font-size: 15px; color: var(--muted); }
-.pp-meta span { display: inline-flex; align-items: center; gap: 6px; }
-.pp-meta .ms { font-size: 18px; color: var(--reed-ink); }
+.pp-meta { align-items: center; }
+.pp-meta > span:not(.idt) { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
+.pp-meta > span > .ms { font-size: 18px; color: var(--reed-ink); }
+/* role at company: the company is a link only when its page is on the site */
+.pp-role { color: var(--ink-2); }
+.pp-role a { color: var(--river); font-weight: 500; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--river) 45%, transparent); }
+.pp-role a:hover { color: var(--river-deep); text-decoration-color: currentColor; }
+.pp-links .pp-enq { gap: 10px; margin-right: 4px; }
+.pp-links .pp-enq .ms { font-size: 18px; }
+.pp-links .pp-enq:hover .ms { transform: translateX(3px); }
 .pp-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; margin-top: 24px; }
 .pp-links .tlink { font-size: 16px; }
 .pp-links .tlink .ms { font-size: 20px; transition: transform .35s var(--ease); }
 .pp-links .tlink:hover { color: var(--river-deep); }
 .pp-links .tlink:hover .ms { transform: translateY(-2px); }
 
-/* body: two columns */
+/* body: one column on the rail */
 .pp-body { padding: 56px 0 96px; }
-.pp-two { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 56px; }
 .pp-sec > h2 { margin: 0; font: 400 28px/1.15 var(--font-display); letter-spacing: -0.01em; color: var(--deep); }
 .pp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+/* self-declared UN goals: a plain chip with the goal's number set in Literata, never a badge */
+.pp-chips .chip.pp-goal { gap: 8px; min-height: 44px; white-space: normal; text-align: left; line-height: 1.35; transition: border-color .2s; }
+.pp-chips .chip.pp-goal:hover { border-color: var(--river); color: var(--deep); }
 .pp-chips .chip.has { transition: border-color .25s, transform .35s var(--ease), box-shadow .35s; }
 .pp-chips .chip.has:hover { color: var(--river-deep); border-color: var(--river); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(20, 48, 28, .12); }
 
 /* the river rail: a 24px column beside each part, bead on the heading line, track down to the next bead */
-.pp-spine { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; row-gap: 0; }
+.pp-spine { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; row-gap: 0; max-width: 960px; }
 .pp-part { margin: 0 0 48px; min-width: 0; }
 .pp-part.last { margin-bottom: 0; }
 .pp-bio { margin: 0; max-width: 60ch; font-size: 19px; line-height: 1.6; color: var(--text); white-space: pre-line; overflow-wrap: anywhere; }
@@ -43,10 +54,8 @@
 .pp-rail .track.tail { bottom: 0; }
 .pp-rail .bead { position: absolute; left: 6px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
 
-/* right column: works at, industries */
-.pp-side { min-width: 0; }
-.pp-side > .pp-sec + .pp-sec { margin-top: 40px; }
-.pp-workats { display: grid; gap: 12px; margin-top: 18px; }
+/* works at: company cards, two across where there is room */
+.pp-workats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; margin-top: 18px; }
 .pp-workat { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border: 1px solid var(--hair); border-radius: 16px; text-decoration: none; color: var(--text); transition: border-color .25s, transform .35s var(--ease), box-shadow .35s; }
 .pp-workat:hover { color: var(--text); border-color: var(--reed); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
 .pp-workat .txt { min-width: 0; }
@@ -57,16 +66,14 @@
 
 .pp-end { border-top: 1px solid var(--hair); }
 
-@media (max-width: 900px) {
-  .pp-two { grid-template-columns: 1fr; gap: 48px; }
-  /* stacked under the rail, the side sections start on the rail's content line (24px rail + 20px gap) instead of
-     jutting out to the page edge */
-  .pp-two:has(.pp-spine) .pp-side { padding-left: 44px; }
-}
 @media (max-width: 640px) {
   .pp-who { flex-direction: column; align-items: flex-start; gap: 18px; }
   .pp-line { font-size: 17px; }
+  .pp-meta { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .pp-links .pp-enq { flex: 1 1 100%; margin-right: 0; }
   .pp-sec > h2 { font-size: 24px; }
+  .pp-spine { column-gap: 14px; }
+  .pp-part { margin-bottom: 40px; }
   .pp-rail .bead { top: 8px; }
   .pp-bio { font-size: 17px; }
 }

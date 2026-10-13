@@ -1,5 +1,6 @@
 ---
 // Edit one listing: details, photo, evidence files, delete. Uploads and file removal post their own forms (below the editor). Only the listing's company team gets past the 404.
+import { isEntityId } from '../../../lib/validate';
 import { actions, isInputError } from 'astro:actions';
 import { and, asc, eq } from 'drizzle-orm';
 import { db, schema } from '../../../db/client';
@@ -12,6 +13,7 @@ import { actionErrorMessage } from '../../../components/members/forms/errors';
 import { dashContext } from '../../../lib/dash-context';
 import { fileUrl } from '../../../lib/storage-url';
 import { tagsOf } from '../../../lib/tags';
+import { companyCertifications, listingCertificationIds } from '../../../db/queries/dashboard';
 import '../../../styles/members/listings.css';
 
 export const prerender = false;
@@ -31,6 +33,8 @@ const photo = Astro.getActionResult(actions.listings.setPhoto);
 const unphoto = Astro.getActionResult(actions.listings.removePhoto);
 const added = Astro.getActionResult(actions.listings.addEvidence);
 const dropped = Astro.getActionResult(actions.listings.removeEvidence);
+const visibility = Astro.getActionResult(actions.listings.setEvidencePublic);
+if (visibility?.data) return Astro.redirect(`${self}?${visibility.data.public ? 'shared' : 'unshared'}=1`, 303);
 if (saved?.data) return Astro.redirect(`${self}?saved=1`, 303);
 if (photo?.data) return Astro.redirect(`${self}?photo=1`, 303);
 if (unphoto?.data) return Astro.redirect(`${self}?nophoto=1`, 303);
@@ -41,10 +45,10 @@ if (dropped?.data) return Astro.redirect(`${self}?dropped=1`, 303);
 if (removed?.data) {
   const q = new URLSearchParams({ removed: '1' });
   const org = Astro.url.searchParams.get('org');
-  if (org && /^[0-9a-f-]{36}$/i.test(org)) q.set('org', org);
+  if (org && isEntityId(org)) q.set('org', org);
   return Astro.redirect(`/dashboard/listings?${q}`, 303);
 }
-const listing = /^[0-9a-f-]{36}$/i.test(id) ? await db.query.listings.findFirst({ where: eq(schema.listings.id, id) }) : undefined;
+const listing = isEntityId(id) ? await db.query.listings.findFirst({ where: eq(schema.listings.id, id) }) : undefined;
 if (!listing) return new Response(null, { status: 404 });
 
 // open the listing's own company in the nav; anyone off its team gets a 404
@@ -57,11 +61,14 @@ const errors = saved?.error && isInputError(saved.error) ? saved.error.fields : 
 const failMsg = (r: typeof saved | typeof photo) => (r?.error ? (isInputError(r.error) ? 'Choose a file.' : actionErrorMessage(r.error) ?? undefined) : undefined);
 const saveFailure = saved?.error && !isInputError(saved.error) ? failMsg(saved) : undefined;
 const photoFailure = failMsg(photo) ?? failMsg(unphoto);
-const evidenceFailure = failMsg(added) ?? failMsg(dropped);
+const evidenceFailure = failMsg(added) ?? failMsg(dropped) ?? failMsg(visibility);
 const removeFailure = failMsg(removed);
 
 const tags = await tagsOf('listing', listing.id);
-let values: ListingValues = { id: listing.id, name: listing.name, kind: listing.kind, description: listing.description, link: listing.link, status: listing.status };
+let values: ListingValues = { id: listing.id, name: listing.name, kind: listing.kind, description: listing.description, link: listing.link, status: listing.status,
+  pricingModel: listing.pricingModel, leadTime: listing.leadTime, specs: listing.specs, tags: tags.tag.join(', '), certifications: await listingCertificationIds(listing.id),
+  greenReview: listing.greenReview, greenReason: listing.greenReason };
+const certOptions = (await companyCertifications(listing.organizationId)).map((c) => ({ id: c.id, name: c.name, expired: c.expired }));
 let subs = tags.sub;
 let serves = tags.serves;
 // after a failed save, show what was sent
@@ -69,7 +76,8 @@ if (saved?.error && Astro.request.method === 'POST') {
   try {
     const f = await Astro.request.formData();
     const s = (k: string) => (typeof f.get(k) === 'string' ? (f.get(k) as string) : '');
-    values = { ...values, name: s('name'), kind: s('kind') === 'service' ? 'service' : 'product', description: s('description'), link: s('link') };
+    values = { ...values, name: s('name'), kind: s('kind') === 'service' ? 'service' : 'product', description: s('description'), link: s('link'),
+      pricingModel: s('pricingModel'), leadTime: s('leadTime'), specs: s('specs'), tags: s('tags'), certifications: f.getAll('certifications').map(String) };
     subs = f.getAll('subs').filter((v): v is string => typeof v === 'string');
     serves = f.getAll('serves').filter((v): v is string => typeof v === 'string');
   } catch { /* body already read: show the stored listing */ }
@@ -79,21 +87,24 @@ const evidence = await db.select().from(schema.files)
   .where(and(eq(schema.files.listingId, listing.id), eq(schema.files.purpose, 'evidence'))).orderBy(asc(schema.files.createdAt));
 
 const q = Astro.url.searchParams;
-const flash = q.has('saved') ? (listing.status === 'published' ? 'Saved. The listing is live on your company page.' : 'Saved as a draft. Only your team can see it.') : q.has('photo') ? 'Photo updated.' : q.has('nophoto') ? 'Photo removed.' : q.has('added') ? 'File added.' : q.has('dropped') ? 'File removed.' : '';
+const held = listing.greenReview === 'pending' || listing.greenReview === 'rejected';
+const flash = q.has('saved') ? (listing.status === 'published' ? (held ? 'Saved. It goes live once the wording review approves it.' : 'Saved. The listing is live on your company page.') : 'Saved as a draft. Only your team can see it.')
+  : q.has('shared') ? 'Anyone can now open that file.' : q.has('unshared') ? 'That file is private again.' : q.has('photo') ? 'Photo updated.' : q.has('nophoto') ? 'Photo removed.' : q.has('added') ? 'File added.' : q.has('dropped') ? 'File removed.' : '';
 const size = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
 const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-const companyPage = ctx.company.published && listing.status === 'published' ? `/companies/${ctx.company.slug}` : null;
+const companyPage = ctx.company.published && listing.status === 'published' && !held ? `/companies/${ctx.company.slug}` : null;
+const isOwner = ctx.company.role === 'owner';
 const listUrl = `/dashboard/listings${ctx.orgQuery}`;
 ---
 <Dashboard ctx={ctx} current="listings" title={listing.name} crumbs={[{ label: 'Listings', href: listUrl }, { label: listing.name }]}>
   <div class="head-acts" slot="head">
-    <StatusPill status={listing.status === 'published' ? 'live' : 'draft'} label={listing.status === 'published' ? 'Live' : 'Draft'} />
+    <StatusPill status={listing.status === 'published' && !held ? 'live' : listing.status === 'published' ? 'wait' : 'draft'} label={listing.status === 'published' ? (held ? (listing.greenReview === 'rejected' ? 'Change needed' : 'In review') : 'Live') : 'Draft'} />
     {companyPage && <a class="tlink" href={companyPage}>View on company page<Icon name="arrow_forward" /></a>}
   </div>
 
   {flash && <p class="notice flash" role="status">{flash}</p>}
 
-  <ListingForm action={actions.listings.save.queryString} organizationId={listing.organizationId} values={values} subs={subs} serves={serves} errors={errors} failure={saveFailure}>
+  <ListingForm action={actions.listings.save.queryString} organizationId={listing.organizationId} values={values} subs={subs} serves={serves} errors={errors} failure={saveFailure} certOptions={certOptions}>
     <div class="field" slot="photo">
       <span class="lab">Photo</span>
       <div class="lst-photo">
@@ -116,13 +127,14 @@ const listUrl = `/dashboard/listings${ctx.orgQuery}`;
       ) : (
         <p class="hint">{MAX_EVIDENCE} of {MAX_EVIDENCE} files</p>
       )}
-      <p class="hint">Anyone can open these files.</p>
+      <p class="hint ev-rule"><Icon name="lock" />Files are private to your team and our reviewers. An owner can make a file public; public files show on the listing.</p>
       {evidence.length > 0 && (
         <ul class="files ev">
           {evidence.map((f) => (
             <li>
               <span class="ft"><Icon name={f.contentType === 'application/pdf' ? 'description' : 'image'} /></span>
-              <div class="fname"><b><a href={fileUrl(f.key)}>{f.name}</a></b><small>{size(f.size)} · Added {day(f.createdAt)}</small></div>
+              <div class="fname"><b><a href={fileUrl(f.key)}>{f.name}</a></b><small>{size(f.size)} · Added {day(f.createdAt)}</small><span class:list={['vis', { pub: f.public }]} data-file-visibility><Icon name={f.public ? 'public' : 'lock'} />{f.public ? 'Public' : 'Private'}</span></div>
+              {isOwner ? <button class="tlink ev-vis" type="submit" form={`ev-public-${f.key.replace(/[^a-z0-9]/gi, '')}`}>{f.public ? 'Make private' : 'Make public'}<span class="sr">: {f.name}</span></button> : <span></span>}
               <details class="rm">
                 <summary class="iconbtn"><Icon name="delete" /><span class="sr">Remove {f.name}</span><span class="cx">Cancel</span></summary>
                 <div class="confirm">
@@ -156,6 +168,13 @@ const listUrl = `/dashboard/listings${ctx.orgQuery}`;
     <input type="hidden" name="listingId" value={listing.id}>
   </form>
   <form id="ev-remove-form" method="POST" action={actions.listings.removeEvidence.queryString} data-autosave></form>
+  {/* one small form per file: its key, and "public" when the file is private now (an absent box means private) */}
+  {evidence.map((f) => (
+    <form id={`ev-public-${f.key.replace(/[^a-z0-9]/gi, '')}`} method="POST" action={actions.listings.setEvidencePublic.queryString} data-autosave>
+      <input type="hidden" name="key" value={f.key}>
+      {!f.public && <input type="hidden" name="public" value="on">}
+    </form>
+  ))}
   <form id="remove-form" method="POST" action={`?org=${listing.organizationId}&${actions.listings.remove.queryString.slice(1)}`}>
     <input type="hidden" name="listingId" value={listing.id}>
   </form>

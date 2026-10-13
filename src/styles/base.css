@@ -127,3 +127,10 @@ a.chip:is(:hover, :focus-visible) { border-color: var(--river); color: var(--riv
   a.chip:hover:not(:focus-visible) { transform: none; }
   .tlink:hover .ic, .btn:hover .ic.arr { transform: none; }
 }
+
+/* phones (13 Oct, Paras): no river anywhere. Every rail (spring pages, forms, member pages, dashboard, enquiries,
+   the scene line) is hidden and its grid closes up to one column. */
+@media (max-width: 640px) {
+  .qe-rail, .pp-rail, .pe-rail, .dhome-rail, .eq-row > .rc, .eq-item > .rc, .qe-scene .qe-river, .flow > .river, .hero .source { display: none !important; }
+  :is(.qe-grid, .dhome-row, .eq-row, .eq-item):has(> :is(.qe-rail, .dhome-rail, .rc)), :has(> .pp-rail), .pe { grid-template-columns: minmax(0, 1fr) !important; column-gap: 0 !important; }
+}

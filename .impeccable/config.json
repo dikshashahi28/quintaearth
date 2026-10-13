@@ -20,6 +20,15 @@
         "value": "qe-spring",
         "createdAt": "2026-10-12T10:58:39.807Z",
         "reason": "Claude: false positive; qe-spring is an ease-out opacity fade of the gold 'spring' dot (keyframe: to {opacity:1}), moved verbatim from the approved members/spring.css"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/styles/members/enquiries.css"
+        ],
+        "createdAt": "2026-10-12T16:49:08.719Z",
+        "reason": "Claude triage: pre-existing (commit 418bef8, approved spring enquiries thread); 2px pale water rule marks the member's own message in a thread, not a card accent"
       }
     ]
   }

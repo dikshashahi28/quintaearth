@@ -2,7 +2,7 @@
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { and, eq, isNull, like, ne, or } from 'drizzle-orm';
-import { newPassword, optionalNewPassword, optText, reqText } from '../lib/validate';
+import { newPassword, optionalNewPassword, publicName, publicText } from '../lib/validate';
 import { safeNext } from '../lib/next';
 import type { BatchItem } from 'drizzle-orm/batch';
 
@@ -29,10 +29,36 @@ async function savePassword(userId: string, password: string) {
     .onConflictDoUpdate({ target: schema.account.id, set: { password: hash, updatedAt: now } });
 }
 
-/** whether the member has a Google account linked (then a password is optional) */
+/** whether the member has a Google or LinkedIn account linked (then a password is optional) */
 export async function signsInWithGoogle(userId: string): Promise<boolean> {
   const { db, schema } = await import('../db/client');
-  return !!(await db.query.account.findFirst({ where: and(eq(schema.account.userId, userId), eq(schema.account.providerId, 'google')), columns: { id: true } }));
+  const { inArray } = await import('drizzle-orm');
+  return !!(await db.query.account.findFirst({ where: and(eq(schema.account.userId, userId), inArray(schema.account.providerId, ['google', 'linkedin'])), columns: { id: true } }));
+}
+
+/**
+ * Starts sign-in with a social provider: answers with the provider's address, which the page redirects to. The
+ * provider sends the member back to /api/auth/callback/<provider>; a new address gets an account and goes on to
+ * /welcome (or the invitation it came from), a known one to `next`, which is /dashboard unless a safe one was given.
+ */
+async function startSocial(provider: 'google' | 'linkedin', next: string | null | undefined, ctx: { request: Request; cookies: import('astro').AstroCookies }) {
+  const { auth, applyAuthCookies } = await import('../lib/auth');
+  const target = safeNext(next);
+  const { headers, response } = await auth.api.signInSocial({
+    body: {
+      provider,
+      callbackURL: target,
+      newUserCallbackURL: target.startsWith('/invite?') ? target : '/welcome',
+      errorCallbackURL: `/signin?error=${provider}`,
+      disableRedirect: true,
+    },
+    headers: ctx.request.headers,
+    returnHeaders: true,
+  });
+  if (!response.url) throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'Sign-in did not start.' });
+  // the signed state cookie must reach the browser, or the callback refuses the answer
+  applyAuthCookies(ctx.cookies, headers);
+  return { url: response.url };
 }
 
 export const account = {
@@ -46,7 +72,7 @@ export const account = {
       email: z.email({ error: 'Enter a valid email address.' }).max(100),
       next: z.string().max(200).nullish(),
       // the sign-up form asks these first; the welcome page then skips them
-      name: optText(80),
+      name: publicText(80),
       type: z.enum(['individual', 'company']).nullish(),
     }),
     handler: async ({ email, next, name, type }, ctx) => {
@@ -83,22 +109,39 @@ export const account = {
     accept: 'form',
     input: z.object({ next: z.string().max(200).nullish() }),
     handler: async ({ next }, ctx) => {
-      const { auth, applyAuthCookies, googleSignIn } = await import('../lib/auth');
+      const { googleSignIn } = await import('../lib/auth');
       if (!googleSignIn) throw new ActionError({ code: 'NOT_FOUND', message: 'Google sign-in is not available.' });
-      const target = safeNext(next);
-      const { headers, response } = await auth.api.signInSocial({
-        body: {
-          provider: 'google',
-          callbackURL: target,
-          newUserCallbackURL: target.startsWith('/invite?') ? target : '/welcome',
-          errorCallbackURL: '/signin?error=google',
-          disableRedirect: true,
-        },
+      return startSocial('google', next, ctx);
+    },
+  }),
+
+  /** "Continue with LinkedIn", exactly like Google; shown only when the LinkedIn client is configured */
+  signInWithLinkedIn: defineAction({
+    accept: 'form',
+    input: z.object({ next: z.string().max(200).nullish() }),
+    handler: async ({ next }, ctx) => {
+      const { linkedinSignIn } = await import('../lib/auth');
+      if (!linkedinSignIn) throw new ActionError({ code: 'NOT_FOUND', message: 'LinkedIn sign-in is not available.' });
+      return startSocial('linkedin', next, ctx);
+    },
+  }),
+
+  /**
+   * A signed-in member links their LinkedIn account (the person "Identity checked" badge). Answers with LinkedIn's
+   * address; LinkedIn sends them back to the profile editor.
+   */
+  linkLinkedIn: defineAction({
+    accept: 'form',
+    handler: async (_, ctx) => {
+      if (!ctx.locals.user) throw new ActionError({ code: 'UNAUTHORIZED', message: 'Sign in first.' });
+      const { auth, applyAuthCookies, linkedinSignIn } = await import('../lib/auth');
+      if (!linkedinSignIn) throw new ActionError({ code: 'NOT_FOUND', message: 'LinkedIn is not available.' });
+      const { headers, response } = await auth.api.linkSocialAccount({
+        body: { provider: 'linkedin', callbackURL: '/dashboard/profile?saved=linkedin', errorCallbackURL: '/dashboard/profile?error=linkedin', disableRedirect: true },
         headers: ctx.request.headers,
         returnHeaders: true,
       });
-      if (!response.url) throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'Google sign-in did not start.' });
-      // the signed state cookie must reach the browser, or the callback refuses the answer
+      if (!response.url) throw new ActionError({ code: 'INTERNAL_SERVER_ERROR', message: 'LinkedIn did not start.' });
       applyAuthCookies(ctx.cookies, headers);
       return { url: response.url };
     },
@@ -197,9 +240,9 @@ export const account = {
   chooseAccountType: defineAction({
     accept: 'form',
     input: z.object({
-      name: reqText(2, 80, 'Enter your name.'),
+      name: publicName(2, 80, 'Enter your name.'),
       type: z.enum(['individual', 'company']).nullish(),
-      company: optText(120),
+      company: publicText(120),
       password: optionalNewPassword,
     }),
     handler: async ({ name, type, company, password }, ctx) => {
@@ -207,13 +250,14 @@ export const account = {
       if (!me) throw new ActionError({ code: 'UNAUTHORIZED' });
       const { db, schema } = await import('../db/client');
       // read from the database, not the session cookie, which caches the user for a few minutes
-      const fresh = await db.query.user.findFirst({ where: eq(schema.user.id, me.id), columns: { accountType: true } });
+      const fresh = await db.query.user.findFirst({ where: eq(schema.user.id, me.id), columns: { accountType: true, emailVerified: true } });
       if (fresh?.accountType) return { type: fresh.accountType };
       if (!password && !(await signsInWithGoogle(me.id))) throw new ActionError({ code: 'BAD_REQUEST', message: 'Choose a password.' });
 
       let joined = !!(await db.query.members.findFirst({ where: eq(schema.members.userId, me.id), columns: { role: true } }));
-      // invited but never opened the invitation page: the email link proved this address, so join those teams now
-      if (!joined) {
+      // invited but never opened the invitation page: join those teams now, but only when the address is proved (an
+      // email link, or a provider that verified it); an unverified address from a social login joins nothing
+      if (!joined && fresh?.emailVerified) {
         const { pendingInvites } = await import('../db/queries/dashboard');
         const invites = await pendingInvites(me.email);
         if (invites.length) {

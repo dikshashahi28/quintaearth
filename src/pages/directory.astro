@@ -6,10 +6,11 @@ import Member from '../layouts/Member.astro';
 import Icon from '../components/members/Icon.astro';
 import IdentityMark from '../components/members/IdentityMark.astro';
 import FilterForm, { type DirectoryState } from '../components/members/public/FilterForm.astro';
-import { and, desc, inArray, eq } from 'drizzle-orm';
+import { and, desc, inArray, eq, notInArray } from 'drizzle-orm';
 import { db, schema } from '../db/client';
 import { inChunks } from '../db/chunks';
-import { searchDirectory, PAGE_SIZE } from '../db/queries/directory';
+import { directoryFacets, searchDirectory, PAGE_SIZE } from '../db/queries/directory';
+import { SIZE_OPTIONS } from '../lib/labels';
 import { countryCodes, industrySlugs, sdgNumbers, subSlugs } from '../lib/taxonomy';
 import { goalTitle, place, subName } from '../lib/labels';
 import { fileUrl } from '../lib/storage-url';
@@ -29,16 +30,22 @@ const state: DirectoryState = {
   country: pick('country', countryCodes),
   sdg: pick('sdg', sdgNumbers),
   checked: params.get('checked') === '1',
+  // new on 12 Oct: certification, size, countries served, product or service, recently joined
+  cert: (params.get('cert') ?? '').trim().slice(0, 120),
+  size: pick('size', new Set(SIZE_OPTIONS.map((o) => o.value))),
+  serves: pick('serves', countryCodes),
+  offer: pick('offer', new Set(['product', 'service'])) as DirectoryState['offer'],
+  recent: params.get('recent') === '1',
 };
 const rawPage = Number(params.get('page'));
 const pageNo = Number.isInteger(rawPage) && rawPage >= 1 ? Math.min(rawPage, 100) : 1;
 
 // the canonical query for a state: known values only, in a fixed order
-const ORDER = ['q', 'type', 'industry', 'sub', 'country', 'sdg', 'checked'] as const;
+const ORDER = ['q', 'type', 'industry', 'sub', 'country', 'sdg', 'cert', 'size', 'serves', 'offer', 'checked', 'recent'] as const;
 function hrefFor(s: DirectoryState, p = 1) {
   const out = new URLSearchParams();
   for (const k of ORDER) {
-    const v = k === 'checked' ? (s.checked ? '1' : '') : s[k];
+    const v = k === 'checked' || k === 'recent' ? (s[k] ? '1' : '') : s[k];
     if (v) out.set(k, v);
   }
   if (p > 1) out.set('page', String(p));
@@ -53,7 +60,7 @@ const cleanParams = new URLSearchParams(clean.split('?')[1] ?? '');
 const given = [...params.entries()];
 if (given.length !== [...cleanParams.keys()].length || given.some(([k, v]) => cleanParams.get(k) !== v)) return Astro.redirect(clean, 302);
 
-const { rows, more, counts } = await searchDirectory({
+const filters = {
   q: state.q || undefined,
   type: state.type || undefined,
   industry: state.industry || undefined,
@@ -61,23 +68,29 @@ const { rows, more, counts } = await searchDirectory({
   sdg: state.sdg || undefined,
   country: state.country || undefined,
   checked: state.checked,
-  page: pageNo,
-});
+  cert: state.cert || undefined,
+  size: state.size || undefined,
+  serves: state.serves || undefined,
+  offer: state.offer || undefined,
+  recent: state.recent,
+};
+const [{ rows, more, counts }, facets] = await Promise.all([searchDirectory({ ...filters, page: pageNo }), directoryFacets(filters)]);
 
 const without = (patch: Partial<DirectoryState>) => hrefFor({ ...state, ...patch });
 // "Clear" keeps the search text and the People/Companies choice, as on the board
-const clearHref = without({ industry: '', sub: '', country: '', sdg: '', checked: false });
-const hasFilters = !!(state.industry || state.sub || state.country || state.sdg || state.checked);
+const clearHref = without({ industry: '', sub: '', country: '', sdg: '', checked: false, cert: '', size: '', serves: '', offer: '', recent: false });
+const hasFilters = !!(state.industry || state.sub || state.country || state.sdg || state.checked || state.cert || state.size || state.serves || state.offer || state.recent);
 const goalLabel = state.sdg ? `Goal ${state.sdg}: ${goalTitle(state.sdg)}` : '';
 const filtered = hasFilters || !!state.q;
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 // the count names what it counts: "4 companies · 9 people" with no type chosen, else only the chosen one.
-// "Identity checked" only applies to companies, so people are left out of the line when it is on.
+// Company-only filters (certification, size, countries served, product or service) leave people out of the line.
 const first = (pageNo - 1) * PAGE_SIZE + 1;
+const companyOnly = !!(state.cert || state.size || state.serves || state.offer);
 const countParts = [
   ...(state.type !== 'person' ? [{ n: counts.company, w: plural(counts.company, 'company', 'companies') }] : []),
-  ...(state.type !== 'company' && !state.checked ? [{ n: counts.person, w: plural(counts.person, 'person', 'people') }] : []),
+  ...(state.type !== 'company' && !companyOnly ? [{ n: counts.person, w: plural(counts.person, 'person', 'people') }] : []),
 ];
 const range = pageNo > 1 || more ? `showing ${first}–${first + rows.length - 1}` : '';
 const showCount = rows.length > 0;
@@ -99,7 +112,7 @@ const subsFor = (id: string) => (subsOf.get(id) ?? []).filter((s) => subOrder.ha
 // photo gives the card its photo, and the public evidence files on them are its "evidence"
 const coIds = rows.filter((r) => r.type === 'company').map((r) => r.id);
 const listingRows = await inChunks(coIds, (slice) => db.select({ id: schema.listings.id, org: schema.listings.organizationId, photoKey: schema.listings.photoKey })
-  .from(schema.listings).where(and(inArray(schema.listings.organizationId, slice), eq(schema.listings.status, 'published')))
+  .from(schema.listings).where(and(inArray(schema.listings.organizationId, slice), eq(schema.listings.status, 'published'), notInArray(schema.listings.greenReview, ['pending', 'rejected'])))
   .orderBy(desc(schema.listings.updatedAt)));
 const docRows = await inChunks(listingRows.map((l) => l.id), (slice) => db.select({ listingId: schema.files.listingId }).from(schema.files)
   .where(and(inArray(schema.files.listingId, slice), eq(schema.files.purpose, 'evidence'), eq(schema.files.public, true))));
@@ -120,7 +133,7 @@ const companies = rows.filter((r) => r.type === 'company').map((r) => {
   };
 });
 const people = rows.filter((r) => r.type === 'person').map((r) => ({
-  name: r.name, photo: r.imageKey ? fileUrl(r.imageKey) : null,
+  name: r.name, photo: r.imageKey ? fileUrl(r.imageKey) : null, checked: !!r.identityChecked,
   initials: r.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join(''),
   href: pageUrl(`people/${r.slug}`), where: place(r.city, r.country), line: short(r.line),
 }));
@@ -139,7 +152,7 @@ const clearSearchHref = state.q ? without({ q: '' }) : '';
         <ol><li><a href={pageUrl('index')}>Home</a></li><li><span aria-hidden="true" class="sep">›</span><span aria-current="page">Directory</span></li></ol>
       </nav>
       <h1>Directory</h1>
-      <FilterForm state={state} clearHref={clearHref} anyIndustryHref={without({ industry: '', sub: '' })} noGoalHref={without({ sdg: '' })} goalLabel={goalLabel} hasFilters={hasFilters} />
+      <FilterForm state={state} facets={facets} clearHref={clearHref} anyIndustryHref={without({ industry: '', sub: '' })} noGoalHref={without({ sdg: '' })} goalLabel={goalLabel} hasFilters={hasFilters} />
     </div>
 
     <section class="qd-results" aria-label="Results">
@@ -211,6 +224,7 @@ const clearSearchHref = state.q ? without({ q: '' }) : '';
                         <span class="qd-stone" aria-hidden="true">{p.photo ? <img src={p.photo} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span>{p.initials}</span>}</span>
                         <div class="qd-pb">
                           <h3><a href={p.href}>{p.name}</a></h3>
+                          {p.checked && <IdentityMark small />}
                           {p.where && <p class="where">{p.where}</p>}
                           {p.line && <p class="l">{p.line}</p>}
                         </div>

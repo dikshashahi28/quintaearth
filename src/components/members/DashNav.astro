@@ -5,7 +5,7 @@
 // company; admins also get the identity-check queue.
 import Icon from './Icon.astro';
 
-export type DashKey = 'overview' | 'profile' | 'company' | 'listings' | 'enquiries' | 'identity' | 'messages' | 'admin' | 'password';
+export type DashKey = 'overview' | 'profile' | 'company' | 'listings' | 'enquiries' | 'identity' | 'messages' | 'admin' | 'review' | 'audit' | 'password';
 interface Props { current: DashKey; company: boolean; newEnquiries?: number; newReplies?: number; orgQuery?: string }
 const { current, company, newEnquiries = 0, newReplies = 0, orgQuery = '' } = Astro.props;
 const admin = Astro.locals.user?.role === 'admin';
@@ -18,9 +18,16 @@ const items = [
     { key: 'listings', label: 'Listings', icon: 'inventory_2', href: `/dashboard/listings${orgQuery}` },
     { key: 'enquiries', label: 'Enquiries', icon: 'mail', href: `/dashboard/enquiries${orgQuery}`, n: newEnquiries },
     { key: 'identity', label: 'Identity check', icon: 'badge', href: `/dashboard/identity${orgQuery}` },
-  ] : []),
+  ] : [
+    // people take enquiries too: their own inbox
+    { key: 'enquiries', label: 'Enquiries', icon: 'mail', href: '/dashboard/enquiries', n: newEnquiries },
+  ]),
   { key: 'messages', label: 'Sent enquiries', icon: 'send', href: '/dashboard/messages', n: newReplies },
-  ...(admin ? [{ key: 'admin', label: 'Identity checks', icon: 'badge', href: '/admin' }] : []),
+  ...(admin ? [
+    { key: 'admin', label: 'Identity checks', icon: 'badge', href: '/admin' },
+    { key: 'review', label: 'Wording review', icon: 'check_circle', href: '/admin/review' },
+    { key: 'audit', label: 'Audit log', icon: 'description', href: '/admin/audit' },
+  ] : []),
   { key: 'password', label: 'Password', icon: 'lock', href: '/dashboard/password' },
 ] as { key: DashKey; label: string; icon: string; href: string; n?: number }[];
 ---

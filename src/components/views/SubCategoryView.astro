@@ -1,6 +1,11 @@
 ---
-import Page from '../../layouts/Page.astro';
-import PageHead from '../page/PageHead.astro';
+// One sub-category on the spring (layouts/Spring.astro): its industry's photo as the scene, then two stops on
+// the river: the Insights filed here, and the rest of the industry (its sub-categories as chips, the way to the
+// whole industry, the previous/next pager). Rendered by pages/[slug].astro for the 46 pre-revamp URLs.
+import '../../styles/spring-industries.css';
+import Spring from '../../layouts/Spring.astro';
+import RiverRail from '../spring/RiverRail.astro';
+import Bead from '../spring/Bead.astro';
 import InsightCard from '../page/InsightCard.astro';
 import { allSubs, getSub } from '../../data/industries';
 import { streamBySub } from '../../lib/content';
@@ -20,26 +25,22 @@ const description = items.length
   ? `${sub.name} in ${ind.name}: ${items.length} evidence-linked Insights, from ${items.slice(0, 3).map((it) => it.title.split(':')[0]).join(', ')}.`
   : `${sub.name}, part of ${ind.name} on QuintaEarth.`;
 ---
-<Page title={`${sub.name} · ${ind.name}`} description={description} current="industries">
-  <PageHead
-    title={sub.name}
-    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name }]}
-    facts={[{ value: items.length, label: items.length === 1 ? 'Insight' : 'Insights' }, { value: goals.size, label: 'UN goals' }]}
-  />
-
-  <section class="page-body" aria-labelledby="insights-h">
-    <div class="wide">
-      <div class="section-title"><h2 id="insights-h">Insights</h2></div>
+<Spring title={sub.name} titleTag={`${sub.name} · ${ind.name}`} description={description} current="industries"
+  crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }]}
+  scene={ind.image}
+  say="Where sustainability is made, not performed." sub={`${items.length} ${items.length === 1 ? 'Insight' : 'Insights'} · ${goals.size} UN goals`}>
+  <RiverRail>
+    <Bead />
+    <section class="sp-stop" aria-labelledby="insights-h">
+      <h2 id="insights-h">Insights</h2>
       {items.length
         ? <div class="cards">{items.map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
         : <p class="empty-note">Nothing filed here yet.</p>}
-    </div>
-  </section>
+    </section>
 
-  <section class="page-body" aria-labelledby="more-h">
-    <div class="wide">
-      <hr class="rule">
-      <div class="section-title"><h2 id="more-h">More in {ind.name}</h2></div>
+    <Bead last />
+    <section class="sp-stop end" aria-labelledby="more-h">
+      <h2 id="more-h">More in {ind.name}</h2>
       <ul class="chips">
         {ind.subs.map((s) => {
           const n = bySub.get(s.slug)?.length ?? 0;
@@ -52,6 +53,6 @@ const description = items.length
         {prev && <a class="prev" href={page(prev.slug)}><span class="dir"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left" /></svg>Previous</span><span class="t">{prev.name}</span></a>}
         {next && <a class="next" href={page(next.slug)}><span class="dir">Next<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></span><span class="t">{next.name}</span></a>}
       </nav>
-    </div>
-  </section>
-</Page>
+    </section>
+  </RiverRail>
+</Spring>

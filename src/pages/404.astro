@@ -1,23 +1,32 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// Not found (design: "the spring", layouts/Spring.astro): the direct ways back under the h1, then every industry
+// as a chip beside one bead.
+import '../styles/spring-goals.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import { industries } from '../data/industries';
 import { page } from '../lib/url';
 ---
-<Page title="Page not found" noindex>
-  <PageHead title="This stretch of the river is dry." crumbs={[{ label: 'Not found' }]} lede="The page you followed has moved or never existed. These will take you somewhere real." />
-  <section class="page-body">
-    <div class="wide">
+<Spring title="Page not found" noindex
+  scene="who-stone-3"
+  say="This stretch of the river is dry." sub="The page you followed has moved or never existed">
+  <div class="sp-ways">
+    <a class="tlink" href={page('index')}>Home<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+    <a class="tlink" href={page('insights')}>Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+    <a class="tlink" href={page('press')}>Press<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
+  </div>
+
+  <RiverRail>
+    <Bead last />
+    <section class="sp-stop end" aria-labelledby="industries-h">
+      <h2 id="industries-h"><a href={page('industries')}>All industries</a></h2>
       <ul class="chips">
-        <li><a class="chip has" href={page('index')}>Home</a></li>
-        <li><a class="chip has" href={page('industries')}>All industries</a></li>
-        <li><a class="chip has" href={page('insights')}>Insights</a></li>
-        <li><a class="chip has" href={page('press')}>Press</a></li>
         {industries.map((i) => <li><a class="chip" href={page(`industries-${i.slug}`)}>{i.name}</a></li>)}
       </ul>
-    </div>
-  </section>
-</Page>
+    </section>
+  </RiverRail>
+</Spring>
 
 <script>
   // links copied from a chat or email often pick up the punctuation after them: /energy-solar. or /about)

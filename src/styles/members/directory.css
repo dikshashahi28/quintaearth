@@ -84,6 +84,9 @@
 .qd-pop.ind { width: 680px; max-width: 100%; max-height: min(70vh, 640px); overflow: auto; padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 16px; }
 .qd-pop.cty { width: 360px; max-width: calc(100vw - 32px); padding: 12px 8px 8px; display: flex; flex-direction: column; gap: 8px; }
 .qd-pop.cty .qd-inwrap { margin: 0 4px 4px; }
+/* the short single-choice panels (certification, company size): wide enough that a long name wraps by word */
+.qd-pop:not(.ind, .cty) { width: max-content; min-width: 240px; max-width: min(360px, calc(100vw - 32px)); padding: 8px; }
+.qd-pop:not(.ind, .cty) .qd-opt { overflow-wrap: normal; word-break: normal; }
 .qd-pop .qd-inp { min-height: 46px; font-size: 15px; }
 .qd-igrps { display: flex; flex-direction: column; gap: 14px; border: 0; margin: 0; padding: 0; min-width: 0; }
 .qd-igrp { border: 0; margin: 0; padding: 0; min-width: 0; }

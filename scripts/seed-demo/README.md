@@ -15,6 +15,11 @@ same lines). After seeding, sign in as `asha-rao@example.com` (owner of Sunward 
 first run and reused after that.
 
 - `data.mjs`: the content. Edit it, run `check-data.mjs`, re-seed.
+- `phase2.mjs`: the Phase 2 fields (12 Oct): roles, languages, "open to", services and goals on people (three with
+  LinkedIn linked), legal names, countries operated in, research, case studies, social links and certifications on
+  companies (ISO 9001 at Sunward is expired on purpose), listing pricing models, lead times, specs, tags and linked
+  certifications, which evidence files are public (the rest are private), "Eco bamboo decking" waiting in the
+  wording-review queue (/admin/review), the identity checklist and its audit log, and one enquiry written to a person.
 - `media.mjs`: how the listing photos were found (Openverse and Wikimedia Commons), picked (`picks.json`) and
   resized into `media/`. Credits in `CREDITS.json`. People use the initials stone on purpose.
 - Logos are drawn at seed time from the site's icon sprite (`logo` in `data.mjs`: icon, colours, ring or ground line).

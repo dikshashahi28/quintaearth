@@ -1,7 +1,7 @@
 ---
 // Dashboard home: one row per part of the member's presence, each with its real status, on a river rail.
 // Design: "the spring" Dashboard board (styles/members/dashboard.css, loaded by the Dashboard layout).
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '../../db/client';
 import { myProfile } from '../../db/queries/dashboard';
 import { dashContext } from '../../lib/dash-context';
@@ -10,6 +10,11 @@ import Icon from '../../components/members/Icon.astro';
 import StatusPill from '../../components/members/StatusPill.astro';
 import IdentityMark from '../../components/members/IdentityMark.astro';
 import EmptyState from '../../components/members/EmptyState.astro';
+import { completeness, companySteps, profileSteps } from '../../lib/completeness';
+import { identityState } from '../../lib/identity';
+import { personChecked } from '../../lib/person-identity';
+import { linkedinSignIn } from '../../lib/auth';
+import { tagsOf } from '../../lib/tags';
 
 export const prerender = false;
 
@@ -25,9 +30,10 @@ const hasPassword = !!(await db.query.account.findFirst({
   where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'credential')), columns: { password: true },
 }))?.password;
 // a member who came in with Google signs in that way; a password is an extra, not a gap
-const viaGoogle = hasPassword ? false : !!(await db.query.account.findFirst({
-  where: and(eq(schema.account.userId, user.id), eq(schema.account.providerId, 'google')), columns: { id: true },
-}));
+const social = hasPassword ? null : (await db.query.account.findFirst({
+  where: and(eq(schema.account.userId, user.id), inArray(schema.account.providerId, ['google', 'linkedin'])), columns: { providerId: true },
+}))?.providerId ?? null;
+const viaGoogle = !!social;
 const host = new URL(Astro.site ?? Astro.url).host;
 const firstName = user.name.trim().split(/\s+/)[0] || user.name;
 const thisYear = new Date().getFullYear();
@@ -47,12 +53,30 @@ if (company) {
     where: eq(schema.identityChecks.organizationId, company.id), orderBy: desc(schema.identityChecks.createdAt),
     columns: { status: true, createdAt: true, reviewedAt: true },
   });
-  if (company.identityCheckedAt) identity = { status: 'plain', label: 'Identity checked', text: `Since ${day(company.identityCheckedAt)}`, done: true };
+  const idState = identityState(company);
+  if (idState === 'checked') identity = { status: 'plain', label: 'Identity checked', text: `Since ${day(company.identityCheckedAt!)}`, done: true };
   else if (latest?.status === 'pending') identity = { status: 'wait', label: 'Waiting', text: `Requested ${day(latest.createdAt)}`, done: false };
+  // a year passed, or the name, legal name or website domain changed: not shown publicly until checked again
+  else if (idState === 'recheck') identity = { status: 'wait', label: 'Re-check needed', text: 'Not shown publicly until it is checked again', done: false, next: 'Renew the "Identity checked" mark' };
   else if (latest?.status === 'rejected') identity = { status: 'wait', label: 'Needs more info', text: latest.reviewedAt ? `Asked on ${day(latest.reviewedAt)}` : 'Asked for more information', done: false, next: 'Send the information the identity check asks for' };
   else identity = { status: 'draft', label: 'Not requested', text: 'Ask for the "Identity checked" mark', done: false, next: 'Ask for the "Identity checked" mark' };
 }
 const listingCount = listings.live + listings.draft;
+
+// profile completeness first (12 Oct), with the single next step to complete
+const linkedinLinked = await personChecked(user.id);
+const steps = [
+  ...profileSteps(profile, { linkedinLinked, linkedinOffered: linkedinSignIn }),
+  ...(company ? await (async () => {
+    const org = (await db.query.organizations.findFirst({ where: eq(schema.organizations.id, company.id) }))!;
+    const certs = await db.$count(schema.certifications, eq(schema.certifications.organizationId, company.id));
+    const idState = identityState(company);
+    const pendingCheck = await db.query.identityChecks.findFirst({ where: and(eq(schema.identityChecks.organizationId, company.id), eq(schema.identityChecks.status, 'pending')), columns: { id: true } });
+    return companySteps({ ...org, tags: await tagsOf('organization', company.id) }, { liveListings: listings.live, certifications: certs,
+      identity: idState === 'checked' ? 'checked' : pendingCheck ? 'pending' : idState }, orgQuery);
+  })() : []),
+];
+const complete = completeness(steps);
 
 // one row per part of the member's presence; a part that is out in the world lights its bead on the river rail,
 // and the track fills between two lit beads in a row, one after the other
@@ -62,7 +86,11 @@ const rows: Row[] = [];
 if (profile) rows.push({ title: 'Your profile', href: '/dashboard/profile', text: `${host}/people/${profile.handle}`, lit: profile.published, pill: profile.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your profile' });
 if (!company) rows.push({ title: 'Start a company page', href: '/dashboard/company', lit: false, next: 'Start a company page' });
 if (company) {
-  rows.push({ title: 'Company page', href: `/dashboard/company${orgQuery}`, text: `${host}/companies/${company.slug}`, lit: company.published, pill: company.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your company page' });
+  // a description held for the wording review: the page is live, only the description waits (owner decision, 12 Oct)
+  const held = company.greenReview === 'pending' || company.greenReview === 'rejected';
+  rows.push({ title: 'Company page', href: `/dashboard/company${orgQuery}`,
+    text: held && company.published ? (company.greenReview === 'rejected' ? 'Description sent back by the wording review' : 'Description in wording review') : `${host}/companies/${company.slug}`,
+    lit: company.published, pill: company.published ? { status: 'live', label: 'Live' } : { status: 'draft', label: 'Draft' }, next: 'Publish your company page' });
   rows.push({ title: 'Listings', href: `/dashboard/listings${orgQuery}`, lit: listings.live > 0,
     pill: listings.live > 0 ? { status: 'live', label: 'Live' } : listings.draft > 0 ? { status: 'draft', label: 'Draft' } : undefined,
     next: listings.draft > 0 ? 'Publish a listing' : 'Add your first listing' });
@@ -83,9 +111,21 @@ const delay = (n: number) => `--d: ${(0.05 + 0.3 * n).toFixed(2)}s`;
 <Dashboard ctx={ctx} current="overview" title="Dashboard" heading={`Hello, ${firstName}`} avatar={{ name: user.name, imageKey: profile?.photoKey }}
   lede={`Signed in as ${user.email} · ${user.accountType === 'company' ? 'Company account' : 'Individual account'}`}>
   {!hasPassword && (
-    <p class="notice dhome-pw">{viaGoogle ? 'You sign in with Google. A password works too.' : 'Set a password to sign in without an email link.'} <a class="tlink" href="/dashboard/password">Set a password</a></p>
+    <p class="notice dhome-pw">{viaGoogle ? `You sign in with ${social === 'linkedin' ? 'LinkedIn' : 'Google'}. A password works too.` : 'Set a password to sign in without an email link.'} <a class="tlink" href="/dashboard/password">Set a password</a></p>
   )}
-  {nextRow && <p class="dhome-next">Next step: <a class="tlink" href={nextRow.href}>{nextRow.next}</a>.</p>}
+  <section class="dhome-complete" aria-label="Profile completeness" data-completeness={complete.percent}>
+    <p class="dc-num"><b>{complete.percent}</b><span>%</span><span class="sr"> complete</span></p>
+    <div class="dc-txt">
+      <p class="dc-h" aria-hidden="true">{complete.next ? 'Complete' : 'All done'}</p>
+      <span class="dc-bar" aria-hidden="true"><span style={`transform: scaleX(${complete.percent / 100})`}></span></span>
+      {complete.next && (
+        <a class="dc-next" href={complete.next.href} data-next-step={complete.next.key}>
+          <span class="dc-lab">Next step</span><span class="dc-go">{complete.next.label}<Icon name="arrow_forward" /></span>
+        </a>
+      )}
+    </div>
+  </section>
+  {!complete.next && nextRow && <p class="dhome-next">Next step: <a class="tlink" href={nextRow.href}>{nextRow.next}</a>.</p>}
   {!profile && <EmptyState id="dhome-profile" title="Your profile" note="Nothing here yet." action={{ href: '/dashboard/profile', label: 'Start your profile' }} />}
   <ul class="dhome-rows">
     {rows.map((r, i) => (

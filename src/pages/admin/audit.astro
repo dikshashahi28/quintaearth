@@ -1,0 +1,46 @@
+---
+// The audit log, newest first: every identity-check step (request, email code, website check, registry and call
+// ticks, decisions, lapses) and every wording-review decision: who, what, result, when. ?org=<id> for one company.
+import Dashboard from '../../layouts/Dashboard.astro';
+import { dashContext } from '../../lib/dash-context';
+import EmptyState from '../../components/members/EmptyState.astro';
+import { auditEntries } from '../../db/queries/dashboard';
+import '../../styles/members/account.css';
+
+export const prerender = false;
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fadmin%2Faudit');
+if (user.role !== 'admin') return new Response(null, { status: 404 });
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+const ctx = await dashContext(user, Astro.url);
+
+const org = Astro.url.searchParams.get('org');
+const rows = await auditEntries(org && /^[\w-]{1,60}$/.test(org) ? org : null);
+const when = (d: Date) => `${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}, ${d.toISOString().slice(11, 16)} UTC`;
+---
+<Dashboard ctx={ctx} current="audit" title="Audit log" crumbs={[{ label: 'Audit log' }]}>
+  <div class="adm">
+      {org && <p class="adm-all"><a class="tlink" href="/admin/audit">All companies</a></p>}
+      {rows.length === 0 ? <EmptyState note="Nothing logged yet." /> : (
+        <div class="tablebox">
+          <table class="tbl adm-audit" data-audit>
+            <caption class="sr">Audit log, newest first</caption>
+            <thead><tr><th scope="col">When</th><th scope="col">Company</th><th scope="col">Who</th><th scope="col">What</th><th scope="col">Result</th><th scope="col">Detail</th></tr></thead>
+            <tbody>
+              {rows.map(({ entry: e, actor, company }) => (
+                <tr data-action={e.action} data-result={e.result}>
+                  <td data-label="When" class="num nw"><time datetime={e.createdAt.toISOString()}>{when(e.createdAt)}</time></td>
+                  <td data-label="Company">{company && e.organizationId ? <a href={`/admin/audit?org=${e.organizationId}`}>{company}</a> : '—'}</td>
+                  <td data-label="Who">{actor ?? '—'}</td>
+                  <td data-label="What" class="nw"><code class="adm-act">{e.action}</code></td>
+                  <td data-label="Result" class="nw"><span class:list={['adm-res', e.result]}>{e.result}</span></td>
+                  <td data-label="Detail">{e.detail ?? ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+  </div>
+</Dashboard>

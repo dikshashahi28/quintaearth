@@ -1,11 +1,13 @@
 ---
-// The company's inbox: Open/Closed tabs and the list, a page at a time. No thread opens here: opening one (its own
-// page) marks it read, and a thread shown beside the list while still marked new would say two things at once.
+// The inbox: Open/Closed tabs and the list, a page at a time. A company's team reads its company's enquiries;
+// ?inbox=me (or a member without a company) reads the enquiries written to them in person (people take enquiries
+// too). No thread opens here: opening one (its own page) marks it read.
 import Dashboard from '../../../layouts/Dashboard.astro';
 import Inbox from '../../../components/members/enquiries/Inbox.astro';
+import Icon from '../../../components/members/Icon.astro';
 import EmptyState from '../../../components/members/EmptyState.astro';
 import { dashContext } from '../../../lib/dash-context';
-import { inbox } from '../../../db/queries/dashboard';
+import { inbox, myProfile } from '../../../db/queries/dashboard';
 import { listDate, pageLinks, showOf, withQuery } from '../../../components/members/enquiries/data';
 
 export const prerender = false;
@@ -13,27 +15,38 @@ export const prerender = false;
 const user = Astro.locals.user;
 if (!user) return Astro.redirect(`/signin?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`);
 const ctx = await dashContext(user, Astro.url);
-if (!ctx.company) return Astro.redirect('/dashboard');
 const company = ctx.company;
+const personal = !company || Astro.url.searchParams.get('inbox') === 'me';
 
 const show = showOf(Astro.url);
-const org = ctx.companies.length > 1 ? company.id : null;
-const { rows, more, page, counts } = await inbox(company.id, show, Number(Astro.url.searchParams.get('page')));
+const org = !personal && company && ctx.companies.length > 1 ? company.id : null;
+const inboxParam = personal && company ? 'me' : null;
+const { rows, more, page, counts } = await inbox(personal ? { userId: user.id } : { organizationId: company!.id }, show, Number(Astro.url.searchParams.get('page')));
 const items = rows.map((e) => ({
   id: e.id, href: `/dashboard/enquiries/${e.id}`, source: e.fromCompany || 'Individual', date: listDate(e.updatedAt),
   name: e.fromName, subject: e.subject, isNew: e.companyUnread,
 }));
 
-const companyLink = company.published ? `/companies/${company.slug}` : `/dashboard/company${ctx.orgQuery}`;
+const profile = personal ? await myProfile(user.id) : null;
+const emptyAction = personal
+  ? (profile?.published ? { href: `/people/${profile.handle}`, label: 'View your profile' } : { href: '/dashboard/profile', label: 'Finish your profile' })
+  : company!.published ? { href: `/companies/${company!.slug}`, label: 'View your company page' } : { href: `/dashboard/company${ctx.orgQuery}`, label: 'Finish your company page' };
+const base = (extra: Record<string, string | null>) => withQuery('/dashboard/enquiries', { org, inbox: inboxParam, ...extra });
 ---
 <Dashboard ctx={ctx} current="enquiries" title="Enquiries" crumbs={[{ label: 'Enquiries' }]}>
+  {company && (
+    <nav class="eq-switch" slot="head" aria-label="Inbox">
+      <a href={`/dashboard/enquiries${ctx.orgQuery}`} aria-current={!personal ? 'page' : undefined}><Icon name="storefront" />{company.name}</a>
+      <a href="/dashboard/enquiries?inbox=me" aria-current={personal ? 'page' : undefined}><Icon name="person" />Written to you{ctx.newPersonal > 0 && <span class="n">{ctx.newPersonal}<span class="sr"> new</span></span>}</a>
+    </nav>
+  )}
   <Inbox show={show} openCount={counts.open} pager={pageLinks('/dashboard/enquiries', { org, show }, page, more)}
-    tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
+    tabs={{ open: base({}), closed: base({ show: 'closed' }) }}
     items={items} label="Enquiries" mode="list">
     <p class="eq-pick">Choose an enquiry to read it and reply.</p>
     <Fragment slot="empty">
       {counts.open + counts.closed === 0
-        ? <EmptyState note="No enquiries yet." action={{ href: companyLink, label: company.published ? 'View your company page' : 'Finish your company page', quiet: true }} />
+        ? <EmptyState note="No enquiries yet." action={{ ...emptyAction, quiet: true }} />
         : <EmptyState note={show === 'closed' ? 'No closed enquiries.' : 'No open enquiries.'} />}
     </Fragment>
   </Inbox>

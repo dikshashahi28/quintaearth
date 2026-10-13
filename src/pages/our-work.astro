@@ -1,6 +1,10 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// Our work (design: "the spring", layouts/Spring.astro): a stop on the river per company project, its name,
+// its sub-category chips and the essays and press notes behind it, then the way to show your own work.
+import '../styles/spring-org.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import InsightCard from '../components/page/InsightCard.astro';
 import { getSub } from '../data/industries';
 import { site } from '../data/site';
@@ -14,33 +18,27 @@ for (const a of await getArticles()) {
   projects.set(a.data.project, [...(projects.get(a.data.project) ?? []), a]);
 }
 ---
-<Page title="Our work" description="Company projects QuintaEarth has filed, each with the essays and press notes behind it.">
-  <PageHead
-    title="Our work"
-    crumbs={[{ label: 'Our work' }]}
-    lede="Green work by companies, startups and NGOs, each claim linked to its proof."
-    facts={[{ value: projects.size, label: 'company projects' }]}
-  />
-  {[...projects].map(([name, items], i) => (
-    <section class="page-body project" aria-labelledby={`project-${i}`}>
-      <div class="wide">
-        {i > 0 && <hr class="rule">}
-        <div class="section-title">
-          <h2 id={`project-${i}`}>{name}</h2>
-          <ul class="chips">{[...new Set(items.flatMap((a) => a.data.subs))].map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}</ul>
-        </div>
+<Spring title="Our work" description="Company projects QuintaEarth has filed, each with the essays and press notes behind it."
+  scene="offer-csr"
+  say="Green work by companies, startups and NGOs, each claim linked to its proof." sub={`${projects.size} company projects`}>
+  <RiverRail>
+    {[...projects].map(([name, items], i) => (
+      <Bead />
+      <section class="sp-stop org-project" aria-labelledby={`project-${i}`}>
+        <h2 id={`project-${i}`}>{name}</h2>
+        <ul class="chips">{[...new Set(items.flatMap((a) => a.data.subs))].map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}</ul>
         <div class="cards">{items.map((a) => <InsightCard item={articleToInsight(a)} showCompany={false} />)}</div>
+      </section>
+    ))}
+
+    <Bead last />
+    <section class="sp-stop end" aria-labelledby="show-h">
+      <h2 id="show-h">Show your green work</h2>
+      <p class="org-text">Companies, exporters and NGOs: tell us what you have made and the evidence behind it.</p>
+      <div class="sp-acts">
+        <a class="qe-btn" href={page('contact', 'partner')}>Partner with us<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a>
+        <p class="org-mail">Startups and professionals in the same field: <a href={page('contact', 'partner', { source: 'collaborators' })}>join as a collaborator</a>, or write to <a href={`mailto:${site.email}`}>{site.email}</a></p>
       </div>
     </section>
-  ))}
-  <section class="page-body">
-    <div class="col">
-      <div class="callout">
-        <h2>Show your green work</h2>
-        <p>Companies, exporters and NGOs: tell us what you have made and the evidence behind it.</p>
-        <a class="btn btn-fill" href={page('contact', 'partner')}>Partner with us<svg class="ic arr" aria-hidden="true"><use href="#i-arrow-right" /></svg></a>
-        <p class="mail">Startups and professionals in the same field: <a href={page('contact', 'partner', { source: 'collaborators' })}>join as a collaborator</a>, or write to <a href={`mailto:${site.email}`}>{site.email}</a></p>
-      </div>
-    </div>
-  </section>
-</Page>
+  </RiverRail>
+</Spring>

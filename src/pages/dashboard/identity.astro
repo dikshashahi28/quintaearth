@@ -13,6 +13,7 @@ import { actionErrorMessage } from '../../components/members/forms/errors';
 import { dashContext } from '../../lib/dash-context';
 import { companyChecks } from '../../db/queries/dashboard';
 import { countryName } from '../../lib/labels';
+import { checklist, domainOf, identityState, recheckDue, siteProof } from '../../lib/identity';
 import '../../styles/members/editors.css';
 
 export const prerender = false;
@@ -25,14 +26,29 @@ const ctx = await dashContext(user, Astro.url);
 if (!ctx.company) return Astro.redirect('/dashboard/company');
 
 const requested = Astro.getActionResult(actions.identity.request);
-if (requested?.data) return Astro.redirect(`/dashboard/identity${ctx.orgQuery ? `${ctx.orgQuery}&` : '?'}flash=identity`, 303);
+const self = (flag: string) => `/dashboard/identity${ctx.orgQuery ? `${ctx.orgQuery}&` : '?'}flash=${flag}`;
+if (requested?.data) return Astro.redirect(self('identity'), 303);
+// the company's own proofs: a code sent to the work email, and the website's TXT record or meta tag
+const codeSent = Astro.getActionResult(actions.identity.sendEmailCode);
+const codeChecked = Astro.getActionResult(actions.identity.verifyEmailCode);
+const siteChecked = Astro.getActionResult(actions.identity.checkWebsite);
+if (codeSent?.data) return Astro.redirect(self('code-sent'), 303);
+if (codeChecked?.data) return Astro.redirect(self('email-ok'), 303);
+if (siteChecked?.data) return Astro.redirect(self('site-ok'), 303);
+const proofError = actionErrorMessage(codeSent?.error ?? codeChecked?.error ?? siteChecked?.error);
 
 const data = await companyChecks(user.id, ctx.company.id);
 if (!data) return Astro.redirect('/dashboard');
 const { org, checks } = data;
 const isOwner = data.role === 'owner';
 const latest = checks[0] ?? null;
-const state = org.identityCheckedAt ? 'approved' : latest?.status === 'pending' ? 'pending' : latest?.status === 'rejected' ? 'rejected' : 'none';
+const idState = identityState(org);
+// a lapsed check (a year passed, or the name, legal name or website domain changed) asks for a re-check
+const state = idState === 'checked' ? 'approved' : latest?.status === 'pending' ? 'pending' : idState === 'recheck' ? 'recheck' : latest?.status === 'rejected' ? 'rejected' : 'none';
+const list = latest && state === 'pending' ? checklist(latest, org.website) : null;
+const flashText = ({ 'code-sent': 'Code sent. Check that inbox.', 'email-ok': 'Business email confirmed.', 'site-ok': 'Website ownership confirmed.' } as Record<string, string>)[Astro.url.searchParams.get('flash') ?? ''] ?? null;
+const lapsedWhy = org.identityLapsed === 'name' ? 'the company name changed' : org.identityLapsed === 'legal-name' ? 'the legal name changed' : org.identityLapsed === 'domain' ? 'the website domain changed' : 'a year has passed';
+const post = (a: { queryString: string }) => (ctx.orgQuery ? `${ctx.orgQuery}&${a.queryString.slice(1)}` : a.queryString);
 
 const errors: Record<string, string[] | undefined> = requested?.error && isInputError(requested.error) ? requested.error.fields : {};
 const formError = requested?.error && !isInputError(requested.error) ? actionErrorMessage(requested.error) : null;
@@ -50,17 +66,18 @@ const v = {
 };
 const action = ctx.orgQuery ? `${ctx.orgQuery}&${actions.identity.request.queryString.slice(1)}` : actions.identity.request.queryString;
 const date = (d: Date | null | undefined) => (d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-const showForm = isOwner && (state === 'none' || state === 'rejected');
+const showForm = isOwner && (state === 'none' || state === 'rejected' || state === 'recheck');
 ---
 <Dashboard ctx={ctx} current="identity" title="Identity check" crumbs={[{ label: 'Identity check' }]}>
   <div class="formw">
-    <FormStatus error={formError} />
+    <FormStatus error={formError ?? proofError} saved={flashText} />
+    {state === 'recheck' && <p class="notice" role="status" data-identity="recheck">Re-check needed: {lapsedWhy}. “Identity checked” is not shown until it is checked again.</p>}
 
     <section class="sec">
       {state === 'approved' ? (
         <div class="idhead">
           <IdentityMark />
-          <p class="sub">Checked on {date(org.identityCheckedAt)}.</p>
+          <p class="sub">Checked on {date(org.identityCheckedAt)}. Due for a re-check on {org.identityCheckedAt && date(recheckDue(org.identityCheckedAt))}.</p>
         </div>
       ) : (
         <p class="sub">We confirm who you are. It is not a rating of your products.</p>
@@ -119,6 +136,63 @@ const showForm = isOwner && (state === 'none' || state === 'rejected');
             label="Registration document (optional)" hint="PDF, JPG, PNG or WebP, up to 10 MB. Seen only by our reviewers." error={errors.document?.join(' ')} />
           <Field id="i-note" name="note" label="Note" value={v.note} error={errors.note} maxlength={1000} optional textarea rows={4} />
           <div class="form-send"><button class="btn btn-fill" type="submit">Send for review</button></div>
+        </form>
+      </section>
+    )}
+
+    {list && latest && (
+      <section class="sec" data-checklist>
+        <h2>Checklist</h2>
+        <ul class="need">
+          {list.items.map((i) => <li data-item={i.key} data-done={i.done ? '1' : '0'}><Icon name={i.done ? 'check_circle' : 'hourglass_top'} class={i.done ? 'ok' : undefined} /><div><b>{i.label}</b><small>{i.note}</small></div><span></span></li>)}
+        </ul>
+      </section>
+    )}
+
+    {isOwner && list && latest && !latest.emailVerifiedAt && (
+      <section class="sec idproof" data-email-proof>
+        <h2>Business email</h2>
+        <p class="idproof-say">We send a 6-digit code to <b>{latest.workEmail}</b>. It must be an address on {domainOf(org.website) ?? 'your website’s domain'}.</p>
+        <ol class="idproof-steps">
+          <li>
+            <span class="idproof-n" aria-hidden="true">1</span>
+            <form method="POST" action={post(actions.identity.sendEmailCode)}>
+              <input type="hidden" name="organizationId" value={org.id} />
+              <button class="btn btn-line" type="submit"><Icon name="send" />Send the code</button>
+            </form>
+          </li>
+          <li>
+            <span class="idproof-n" aria-hidden="true">2</span>
+            <form class="idproof-code" method="POST" action={post(actions.identity.verifyEmailCode)}>
+              <input type="hidden" name="organizationId" value={org.id} />
+              <Field id="i-code" name="code" label="Code from the email" maxlength={6} inputmode="numeric" autocomplete="one-time-code" />
+              <button class="btn btn-fill" type="submit">Confirm</button>
+            </form>
+          </li>
+        </ol>
+      </section>
+    )}
+
+    {isOwner && list && latest && !latest.siteVerifiedAt && latest.siteToken && (
+      <section class="sec idproof" data-site-proof>
+        <h2>Website ownership</h2>
+        <p class="idproof-say">Publish one of these on {domainOf(org.website) ?? 'your domain'}, then check.</p>
+        <div class="idproof-ways">
+          <div class="idproof-way">
+            <p class="idproof-h"><Icon name="language" />A DNS TXT record</p>
+            <p class="idproof-sub">Name <code>@</code> (the domain itself). Value:</p>
+            <code class="idproof-code-v" data-site-token>{siteProof(latest.siteToken)}</code>
+          </div>
+          <div class="idproof-way">
+            <p class="idproof-h"><Icon name="description" />Or a tag in your home page’s &lt;head&gt;</p>
+            <p class="idproof-sub">Paste it as it is:</p>
+            <code class="idproof-code-v">&lt;meta name="quintaearth-verify" content="{latest.siteToken}"&gt;</code>
+          </div>
+        </div>
+        <p class="idproof-wait">DNS changes can take a few hours to show.</p>
+        <form method="POST" action={post(actions.identity.checkWebsite)}>
+          <input type="hidden" name="organizationId" value={org.id} />
+          <button class="btn btn-line" type="submit"><Icon name="search" />Check now</button>
         </form>
       </section>
     )}

@@ -191,7 +191,7 @@ export const companies = [
         description: 'An inventory of what a building is made of and what can be recovered from it, in a format compatible with Madaster. For owners planning a renovation or demolition.', evidence: [], created: daysAgo(30) },
     ] },
 
-  { id: 'rio-verde-logistica', slug: 'rio-verde-logistica', name: 'Rio Verde Logística', city: 'Curitiba', country: 'BR', size: '201-1000', founded: 2016,
+  { id: 'rio-verde-logistica', slug: 'rio-verde-logistica', name: 'Rio Verde Logística', city: 'Curitiba', country: 'BR', size: '201-500', founded: 2016,
     website: 'https://rioverde.example.com', linkedin: 'https://www.linkedin.com/company/rio-verde-demo', logo: { icon: 'hi-transport', bg: '#2e7d32', fg: '#eaf5ea', ring: true },
     description: 'Electric last-mile delivery in southern Brazil. 180 electric vans and cargo bikes, three depots with our own solar and storage, 2.1 million parcels a year for retailers, pharmacies and food brands. Diesel-free since 2023.',
     industries: ['transportation'], subs: ['transport-evs', 'transport-clean-mobility', 'transport-logistics-software'], sdgs: ['11', '13', '8'], team: ['mariana-costa'], check: 'approved', created: daysAgo(40),
@@ -268,7 +268,7 @@ export const companies = [
         description: 'Leading-edge repair, structural patching and recoating of blades up to 45 m, in our workshop or on site. About a third of the cost of a new blade.', evidence: [], created: daysAgo(7) },
     ] },
 
-  { id: 'ceylon-tea-regen', slug: 'ceylon-tea-regen', name: 'Ceylon Tea Regen', city: 'Kandy', country: 'LK', size: '201-1000', founded: 2005,
+  { id: 'ceylon-tea-regen', slug: 'ceylon-tea-regen', name: 'Ceylon Tea Regen', city: 'Kandy', country: 'LK', size: '501-1000', founded: 2005,
     website: 'https://ceylontearegen.example.com', linkedin: 'https://www.linkedin.com/company/ceylon-tea-regen-demo', logo: { icon: 'hi-leaf', bg: '#4f6b1f', fg: '#f1f6e4', ring: true },
     description: 'Three tea estates near Kandy farmed regeneratively since 2015: shade trees, compost, no synthetic fertiliser, pickers on year-round contracts. We sell bulk black and green tea to blenders who want the soil data as well as the leaf.',
     industries: ['technology', 'eco-restoration'], subs: ['tech-agriculture', 'eco-sustainable-forestry'], sdgs: ['2', '15', '8', '13'], team: ['nimal-perera'], check: 'approved', created: daysAgo(75),

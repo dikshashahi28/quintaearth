@@ -100,6 +100,9 @@ def png(w=2, h=2):
 PDF = b'%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n'
 FAKE = b'<html><script>alert(1)</script></html>'
 
+# the local server sees every request from 127.0.0.1: a run sends about 20 sign-in links, so a second run within the
+# hour would meet the per-address link limit; start each run with that local counter empty
+sql("delete from sign_in_failures where key in ('link-ip:127.0.0.1', 'ip:127.0.0.1') or key like '%198.51.100.%'")
 A, Bu, C, D = User('owner'), User('buyer'), User('admin'), User('teammate')
 check('login owner (company)', login(A, 'company', f'Sun Grid Labs {RUN}'))
 check('login buyer (individual)', login(Bu, 'individual'))
@@ -124,9 +127,10 @@ st, j = Bu.action('profile.update', {'name': 'Asha Rao', 'headline': 'Solar engi
 check('profile.update valid', st == 200 and j['published'] is True, f'{st} {j}')
 handle = j['handle'] if st == 200 else ''
 n = sql(f"select count(*) n from tags t join profiles p on t.entity_id=p.id where p.handle='{handle}' and t.kind='sdg'")[0]['n']
-check('profile.update stores no UN goals, even if sent', n == 0, f'{n}')
+# changed 12 Oct (Phase 2 brief): people carry UN goals again, self-declared (was: "stores no UN goals, even if sent")
+check('profile.update stores the self-declared UN goals sent', n == 2, f'{n}')
 st, _, b = Bu.req('GET', '/dashboard/profile')
-check('profile editor has no UN goals picker', st == 200 and b'name="sdgs"' not in b and b'name="industries"' in b, f'{st}')
+check('profile editor offers UN goals as "Works on (self-declared)"', st == 200 and b'name="sdgs"' in b and b'Works on (self-declared)' in b and b'name="industries"' in b, f'{st}')
 st, j = Bu.action('profile.update', {'name': 'Asha Rao', 'industries': ['not-an-industry']})
 check('profile.update rejects unknown industry', st == 400, f'{st}')
 st, j = Bu.action('profile.update', {'name': 'Asha Rao', 'website': 'javascript:alert(1)'})
@@ -207,6 +211,10 @@ check('listings.removeEvidence by outsider -> 404 (same as a missing key)', st =
 
 # public pages + directory
 anon = User('anon')
+# 12 Oct (Phase 2 brief): evidence is private until the owner makes it public, so the file is made public first
+st, _, b = anon.req('GET', f'/companies/{OSLUG}')
+check('Phase 2: new evidence is private: not on the public page, 404 for strangers', st == 200 and b'test-report.pdf' not in b and anon.req('GET', f'/files/{EVID}')[0] == 404, f'{st}')
+st, j = A.action('listings.setEvidencePublic', {'key': EVID, 'public': 'on'})
 st, _, b = anon.req('GET', f'/companies/{OSLUG}')
 check('company page public', st == 200 and b'Village solar microgrid' in b and b'test-report.pdf' in b, f'{st}')
 st, _, b = anon.req('GET', f'/people/{handle}')
@@ -218,7 +226,8 @@ check('directory finds person by bio text', handle.encode() in b, '')
 st, _, b = anon.req('GET', '/directory?country=IN&industry=energy')
 check('directory tag filters', OSLUG.encode() in b and handle.encode() in b, '')
 st, _, b = anon.req('GET', '/directory?sdg=7&country=IN&industry=energy')
-check('directory UN goal filter finds companies, not people', OSLUG.encode() in b and handle.encode() not in b, '')
+# changed 12 Oct (Phase 2 brief): people declare UN goals too, so the goal filter finds both (was: "companies, not people")
+check('directory UN goal filter finds companies and people who declared it', OSLUG.encode() in b and handle.encode() in b, '')
 st, _, b = anon.req('GET', '/directory?q=%22%29%20OR%20*')
 check('directory survives hostile search text', st == 200, f'{st}')
 st, _, b = anon.req('GET', '/directory?checked=1')
@@ -408,9 +417,13 @@ C2.form('/signin?_action=account.sendSignInLink', {'email': C2.email}); follow_l
 check('admin can open identity doc', C2.req('GET', f'/files/{idkey}')[0] == 200, '')
 st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'rejected'})
 check('reject without reason -> 400', st == 400, f'{st}')
+# Phase 2: the admin works from a fixed checklist; approval needs it complete (registration + business email + website,
+# or a short call for what is missing). This request's email is not on the website's domain, so the call stands in.
 st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'approved'})
+check('Phase 2: approval with the checklist incomplete -> 400', st == 400 and 'checklist' in json.dumps(j), f'{st} {j}')
+st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'approved', 'registration': 'on', 'call': 'on'})
 check('admin approves', st == 200, f'{st} {j}')
-st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'approved'})
+st, j = C2.action('identity.review', {'checkId': CID, 'decision': 'approved', 'registration': 'on', 'call': 'on'})
 check('decided twice -> 409', st == 409, f'{st}')
 st, _, b = anon.req('GET', '/directory?checked=1')
 check('checked filter now includes company', OSLUG.encode() in b, '')
@@ -534,7 +547,7 @@ n_pending = sql(f"select count(*) n from identity_checks where organization_id='
 check('5 parallel identity requests: one pending, the rest 409', n_pending == 1 and ic.count(200) == 1 and ic.count(409) == 4, f'{sorted(ic)} pending={n_pending}')
 CID2 = sql(f"select id from identity_checks where organization_id='{OID}' and status='pending'")[0]['id']
 rc = []
-ts = [threading.Thread(target=lambda d=d: rc.append((d, C2.action('identity.review', {'checkId': CID2, 'decision': d, 'reason': 'Need the certificate.'})[0]))) for d in ('approved', 'rejected') * 3]
+ts = [threading.Thread(target=lambda d=d: rc.append((d, C2.action('identity.review', {'checkId': CID2, 'decision': d, 'reason': 'Need the certificate.', 'registration': 'on', 'call': 'on'})[0]))) for d in ('approved', 'rejected') * 3]
 [t.start() for t in ts]; [t.join() for t in ts]
 won = [d for d, st in rc if st == 200]
 row = sql(f"select c.status, o.identity_checked_at from identity_checks c join organizations o on o.id=c.organization_id where c.id='{CID2}'")[0]
@@ -576,6 +589,13 @@ st, h, _ = D.req('GET', f'/files/{DEV}')
 # the route answers editors "private, max-age=60"; middleware makes any signed-in response "private, no-store"
 check('draft listing files: the team (and admins) get them, never from a shared cache', st == 200 and cache(h).startswith('private,') and C2.req('GET', f'/files/{DPH}')[0] == 200, f'{st} {cache(h)}')
 A.action('listings.save', {'organizationId': OID, 'listingId': L2, 'name': f'Photo test {RUN}', 'kind': 'product', 'status': 'published'})
+# Phase 2: evidence stays private on a published listing until its owner makes it public
+check('Phase 2: published listing, private evidence: 404 for the public, photo public', anon.req('GET', f'/files/{DEV}')[0] == 404 and anon.req('GET', f'/files/{DPH}')[0] == 200, '')
+st, j = D.action('listings.setEvidencePublic', {'key': DEV, 'public': 'on'})
+check('Phase 2: a member (not owner) cannot make evidence public -> 403', st == 403, f'{st} {j}')
+st, j = Bu.action('listings.setEvidencePublic', {'key': DEV, 'public': 'on'})
+check('Phase 2: an outsider making evidence public -> 404', st == 404, f'{st} {j}')
+A.action('listings.setEvidencePublic', {'key': DEV, 'public': 'on'})
 st, h, _ = anon.req('GET', f'/files/{DEV}')
 check('published listing of a published company: files public, cached 5 minutes (not a year)', st == 200 and cache(h) == 'public, max-age=300' and anon.req('GET', f'/files/{DPH}')[0] == 200, f'{st} {cache(h)}')
 A.action('company.update', {k: v for k, v in CO.items() if k != 'published'})
@@ -721,9 +741,9 @@ check('QA 5: sign-in link error shows the real reason', st == 429 and b'Too many
 st, j = Q.action('profile.update', {'name': 'Quinn Test', 'skills': 'PV design, ESG , pv  design, esg'})
 qskills = sorted(r['value'] for r in sql(f"select t.value from tags t join profiles p on p.id=t.entity_id join user u on u.id=p.user_id where u.email='{Q.email}' and t.kind='skill'"))
 check('QA 6: skills keep their capitals, deduped case-insensitively', st == 200 and qskills == ['ESG', 'PV design'], f'{st} {qskills}')
-# 9: company size options do not overlap
+# 9: company size options do not overlap; changed 12 Oct (Phase 2 brief): ranges 201–500, 501–1,000, 1,000+ (was 201–999)
 st, _, b = A.req('GET', '/dashboard/company')
-check('QA 9: size options 201–999 and 1,000+', st == 200 and '201–999'.encode() in b and '201–1,000'.encode() not in b and b'value="201-1000"' in b, f'{st}')
+check('QA 9: size options are ranges: 201–500, 501–1,000 and 1,000+', st == 200 and '201–500'.encode() in b and '501–1,000'.encode() in b and b'value="501-1000"' in b and b'value="201-1000"' not in b, f'{st}')
 # 10: a signed-out invitee keeps the invitation on sign-in and sign-up; sign-up skips the type doors
 V = User('invitee')
 A.action('company.invite', {'organizationId': OID, 'email': V.email})
@@ -761,6 +781,385 @@ st2 = A.req('GET', f'/people/{qhandle}')[0]
 st3 = User('anon').req('GET', f'/people/{qhandle}')[0]
 check('QA 14: hidden profile: owner preview with notice, no-store, noindex; others 404', st1 == 200 and b'Only you can see this page until you publish it.' in b1 and 'no-store' in h1.get('Cache-Control', '')
       and b'noindex' in b1 and st2 == 404 and st3 == 404, f'{st1} {st2} {st3}')
+
+# --- Phase 2 (Diksha's answers, 12 Oct): one check per new rule ---
+import html as _h2
+anon = User('anon-p2')
+CO = {**CO, 'country': 'IN'}
+A.action('company.update', {**CO, 'name': CO_NAME})
+ahandle = sql(f"select p.handle from profiles p join user u on u.id=p.user_id where u.email='{A.email}'")[0]['handle']
+
+# privacy: phone numbers and email addresses are never public
+st1, j1 = Bu.action('profile.update', {'name': 'Asha R. Rao', 'bio': 'Write to me at asha.rao@example.com any time.'})
+st2, j2 = Bu.action('profile.update', {'name': 'Asha R. Rao', 'headline': 'Call +91 98765 43210'})
+st3, j3 = A.action('company.update', {**CO, 'name': CO_NAME, 'description': 'Call us on 020 7946 0958 for a quote.'})
+st4, j4 = A.action('listings.save', {'organizationId': OID, 'listingId': L2, 'name': f'Photo test {RUN}', 'kind': 'product', 'description': 'Orders: sales@sungrid.example', 'status': 'published'})
+check('privacy: emails and phone numbers refused in bio, headline, company description and listing text', [st1, st2, st3, st4] == [400] * 4 and 'enquiries' in json.dumps(j1), f'{[st1, st2, st3, st4]}')
+st, j = Bu.action('profile.update', {'name': 'Asha R. Rao', 'bio': 'Founded in 2019; 46 schools; ISO 9001 and 14001; lot 2026-09.'})
+check('privacy: years, counts, standards and lot numbers are not taken for phone numbers', st == 200, f'{st} {j}')
+# text saved before the rule (written straight to the database) is blanked wherever it is public
+Bu.action('profile.update', {'name': 'Asha R. Rao', 'published': 'on', 'headline': 'Solar engineer'})
+sql(f"update profiles set bio='Old bio: legacy.{RUN}@example.com or +44 20 7946 0958' where handle='{handle}'")
+st, _, b = anon.req('GET', f'/people/{handle}')
+check('privacy: an email or phone saved before the rule is hidden on the public page', st == 200 and f'legacy.{RUN}@example.com'.encode() not in b and b'7946 0958' not in b and b'[contact hidden]' in b, f'{st}')
+member_emails = [A.email, Bu.email, D.email, C.email]
+pages = [f'/people/{handle}', f'/people/{ahandle}', f'/companies/{OSLUG}', '/directory', f'/directory?q={RUN}', '/sitemap.xml', f'/companies/{OSLUG}/enquire', f'/people/{handle}/enquire']
+leaks = [(path, e) for path in pages for e in member_emails if e.encode() in anon.req('GET', path)[2]]
+check('privacy: no member email on public pages, the directory, enquiry forms (signed out) or the sitemap', not leaks, str(leaks))
+rows = sql("select entity_type, entity_id, body from search")
+bad = [r['entity_id'] for r in rows if re.search(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}', r['body'])]
+check('privacy: the search index holds no email address', not bad, str(bad[:5]))
+Bu.action('profile.update', {'name': 'Asha R. Rao', 'published': 'on', 'headline': 'Solar engineer', 'bio': 'I design rooftop solar for schools.'})
+
+# person profile: role and company (linked only for a company the member is on), languages, open to, services,
+# self-declared goals, member since; LinkedIn earns the person "Identity checked"
+st, j = A.action('profile.update', {'name': 'Owner Test', 'roleTitle': 'Co-founder', 'companyOrgId': OID, 'languages': 'English, Hindi', 'openTo': ['partnerships', 'advisory'],
+    'services': 'Solar design reviews', 'sdgs': ['7'], 'published': 'on'})
+st2, _, b = anon.req('GET', f'/people/{ahandle}')
+check('person page: role linked to the company page, languages, open to, services, goals as "Works on (self-declared)", member since',
+      st == 200 and st2 == 200 and f'href="/companies/{OSLUG}"'.encode() in b and b'Co-founder' in b and b'Hindi' in b and b'Advisory' in b and b'Solar design reviews' in b
+      and b'Works on (self-declared)' in b and b'Member since' in b, f'{st} {st2} {j}')
+st, j = Bu.action('profile.update', {'name': 'Asha R. Rao', 'roleTitle': 'Engineer', 'companyName': CO_NAME, 'companyOrgId': OID, 'published': 'on'})
+row = sql(f"select company_org_id o, company_name n from profiles where handle='{handle}'")[0]
+check('person page: a company the member is not on stays plain text (no link to its page)', st == 200 and row['o'] is None and row['n'] == CO_NAME
+      and f'href="/companies/{OSLUG}"'.encode() not in anon.req('GET', f'/people/{handle}')[2], f'{st} {row}')
+st, j = Bu.action('profile.update', {'name': 'Asha R. Rao', 'openTo': ['nonsense']})
+check('person page: unknown "open to" value -> 400', st == 400, f'{st}')
+check('person page: no Identity checked without LinkedIn', b'data-identity-checked' not in anon.req('GET', f'/people/{handle}')[2], '')
+buid = sql(f"select id from user where email='{Bu.email}'")[0]['id']
+sql(f"insert into account (id, user_id, account_id, provider_id, created_at, updated_at) values ('li-{RUN}', '{buid}', 'li-{RUN}', 'linkedin', 1, 1)")
+st, _, b = anon.req('GET', f'/people/{handle}')
+st2, _, b2 = anon.req('GET', '/directory?checked=1&type=person')
+check('person Identity checked: shown once LinkedIn is linked, with what it means; the checked filter finds the person', b'data-identity-checked' in b and b'Signed in with LinkedIn' in b and f'/people/{handle}'.encode() in b2, f'{st} {st2}')
+st, _, b = anon.req('GET', '/signin')
+st2, j2 = anon.action('account.signInWithLinkedIn', {'next': '/dashboard'})
+check('LinkedIn sign-in hidden and refused without LINKEDIN_CLIENT_ID/SECRET', b'Continue with LinkedIn' not in b and st2 == 404, f'{st2}')
+
+# people take enquiries too
+st, j = Bu.action('enquiries.send', {'toHandle': ahandle, 'subject': 'A question for you', 'message': 'Could we talk about your rooftop school projects next week?'})
+PEQ = j.get('id') if st == 200 and isinstance(j, dict) else ''
+st2, j2 = A.action('enquiries.send', {'toHandle': ahandle, 'subject': 'Me', 'message': 'Writing to my own page should not work at all.'})
+st3, j3 = Bu.action('enquiries.send', {'toHandle': ahandle, 'organizationId': OID, 'subject': 'Both', 'message': 'Naming a person and a company at once is refused.'})
+check('person enquiry: sent; not to oneself (400); not to a person and a company at once (400)', st == 200 and st2 == 400 and st3 == 400, f'{st} {st2} {st3}')
+st, _, b = A.req('GET', '/dashboard/enquiries?inbox=me')
+check('person enquiry: the person sees it in their own inbox, not the company inbox', st == 200 and PEQ.encode() in b and PEQ.encode() not in A.req('GET', f'/dashboard/enquiries?org={OID}')[2], f'{st}')
+st, j = A.action('enquiries.reply', {'enquiryId': PEQ, 'body': 'Happy to talk. Tuesday?'})
+check('person enquiry: the person replies; the sender is told; strangers get 404', st == 200 and 'replied' in (outbox(Bu.email) or {}).get('subject', '')
+      and D.action('enquiries.reply', {'enquiryId': PEQ, 'body': 'Nosy'})[0] == 404 and D.action('enquiries.markRead', {'enquiryId': PEQ})[0] == 404, f'{st} {j}')
+check('person enquiry: the person\'s address never reaches the form', A.email.encode() not in Bu.req('GET', f'/people/{ahandle}/enquire')[2], '')
+
+# company: legal name, countries operated in, research, case studies, social links, sizes, last updated
+st, j = A.action('company.update', {**CO, 'name': CO_NAME, 'legalName': f'Sun Grid Labs {RUN} Private Limited', 'operates': ['KE', 'TZ'], 'size': '201-500',
+    'research': 'We log every inverter every 15 minutes.', 'caseTitle': ['School rooftops', ''], 'caseClient': ['Satara schools', ''], 'caseSummary': ['46 systems.', ''],
+    'youtube': 'youtube.com/@sungrid', 'x': 'x.com/sungrid'})
+st2, _, b = anon.req('GET', f'/companies/{OSLUG}')
+check('company page: legal name, operates in, research, case study, social links, last updated', st == 200 and f'Sun Grid Labs {RUN} Private Limited'.encode() in b and b'Kenya' in b
+      and b'We log every inverter' in b and b'School rooftops' in b and b'Satara schools' in b and b'youtube.com/@sungrid' in b and b'Last updated' in b, f'{st} {j}')
+st, j = A.action('company.update', {**CO, 'name': CO_NAME, 'youtube': 'vimeo.com/sungrid'})
+st2, j2 = A.action('company.update', {**CO, 'name': CO_NAME, 'size': '201-1000'})
+check('company: a YouTube link must be on YouTube; the old 201-1000 size is refused', st == 400 and st2 == 400, f'{st} {st2}')
+st, j = D.action('company.update', {**CO, 'name': CO_NAME, 'legalName': 'Hijack Ltd'})
+check('company: only owners change the legal name -> 403', st == 403, f'{st}')
+A.action('company.update', {**CO, 'name': CO_NAME, 'legalName': f'Sun Grid Labs {RUN} Private Limited', 'operates': ['KE', 'TZ'], 'size': '201-500'})
+
+# certifications: evidence (file or registry link) and expiry required; expired shown as expired at read time
+st1, j1 = A.action('company.addCertification', {'organizationId': OID, 'name': 'No Expiry Cert', 'issuer': 'Someone', 'registryUrl': 'registry.example/x'})
+st2, j2 = A.action('company.addCertification', {'organizationId': OID, 'name': 'No Evidence Cert', 'issuer': 'Someone', 'expiresOn': '2031-01-01'})
+check('certification: expiry required (400); evidence file or registry link required (400)', st1 == 400 and st2 == 400 and 'expiry' in json.dumps(j1) and 'registry' in json.dumps(j2), f'{st1} {st2}')
+st, j = A.action('company.addCertification', {'organizationId': OID, 'name': f'Old Cert {RUN}', 'issuer': 'Demo Body', 'registryUrl': 'registry.example/old', 'issuedOn': '2018-01-01', 'expiresOn': '2020-12-31'})
+OLDC = j.get('id') if st == 200 else ''
+st2, j2 = A.action('company.addCertification', {'organizationId': OID, 'name': f'Live Cert {RUN}', 'issuer': 'Demo Body', 'expiresOn': '2031-12-31'}, {'file': ('cert.pdf', 'application/pdf', PDF)})
+LIVEC = j2.get('id') if st2 == 200 else ''
+st, _, b = anon.req('GET', f'/companies/{OSLUG}')
+blk = b.split(b'data-certifications')[1] if b'data-certifications' in b else b''
+check('certification: the expired one shows "Expired", the current one "Valid until"', re.search(rb'data-cert="expired"[^>]*>\s*<b[^>]*>Old Cert ' + RUN.encode() + rb'</b>.*?Expired', blk, re.S) is not None
+      and re.search(rb'data-cert="current"[^>]*>\s*<b[^>]*>Live Cert ' + RUN.encode() + rb'</b>.*?Valid until', blk, re.S) is not None, f'{st}')
+ckey = sql(f"select evidence_key k from certifications where id='{LIVEC}'")[0]['k']
+c1 = anon.req('GET', f'/files/{ckey}')[0]
+A.action('listings.setEvidencePublic', {'key': ckey, 'public': 'on'})
+check('certification file: private until the owner makes it public', c1 == 404 and anon.req('GET', f'/files/{ckey}')[0] == 200, f'{c1}')
+st, j = A.action('listings.save', {'organizationId': OID, 'listingId': L2, 'name': f'Photo test {RUN}', 'kind': 'product', 'status': 'published', 'certifications': [OLDC, LIVEC],
+    'pricingModel': 'quote', 'leadTime': '4 to 6 weeks', 'specs': f'Zincbromide{RUN} flow cell, 20 kWh', 'tags': f'Quokka{RUN}, flow battery'})
+# a certification of another company (the buyer's Race Co)
+other = Bu.action('company.addCertification', {'organizationId': race, 'name': f'Race Cert {RUN}', 'issuer': 'Demo Body', 'registryUrl': 'registry.example/race', 'expiresOn': '2031-01-01'})[1]
+st2, j2 = A.action('listings.save', {'organizationId': OID, 'listingId': L2, 'name': f'Photo test {RUN}', 'kind': 'product', 'status': 'published', 'certifications': [(other or {}).get('id', str(uuid.uuid4()))]})
+st3, _, b = anon.req('GET', f'/companies/{OSLUG}')
+card = b.split(f'listing-photo-test-{RUN}'.lower().encode())[1].split(b'</li>')[0] if f'listing-photo-test-{RUN}'.lower().encode() in b else b''
+check('listing: links company certifications (expired marked), pricing model (no price), lead time, specs, tags', st == 200 and f'Live Cert {RUN}'.encode() in card and b'(expired)' in card
+      and b'On quote' in card and b'4 to 6 weeks' in card and f'Zincbromide{RUN}'.encode() in card and f'Quokka{RUN}'.encode() in card, f'{st} {j}')
+check('listing: another company\'s certification cannot be linked -> 400', st2 == 400 and 'your company' in json.dumps(j2), f'{st2} {j2}')
+st, _, b = anon.req('GET', f'/directory?q=quokka{RUN}')
+st2, _, b2 = anon.req('GET', f'/directory?q=zincbromide{RUN}')
+check('search: listing specs and tags are searchable', OSLUG.encode() in b and OSLUG.encode() in b2, f'{st} {st2}')
+
+# directory filters: certification (current only), size, countries served, product or service, recently joined; empty options hidden
+q = urllib.parse.quote
+def has(path): return OSLUG.encode() in anon.req('GET', path)[2]
+check('filter: current certification finds the company; an expired one is not offered and finds nothing',
+      has(f'/directory?cert={q(f"Live Cert {RUN}")}') and not has(f'/directory?cert={q(f"Old Cert {RUN}")}')
+      and f'value="Live Cert {RUN}"'.encode() in anon.req('GET', '/directory')[2] and f'value="Old Cert {RUN}"'.encode() not in anon.req('GET', '/directory')[2], '')
+check('filter: company size', has('/directory?size=201-500') and not has('/directory?size=1-10'), '')
+check('filter: countries served (operates in, or a listing serves) apart from the head office country', has('/directory?serves=KE') and not has('/directory?serves=FR'), '')
+check('filter: product vs service', has('/directory?offer=product') and not has('/directory?offer=service'), '')
+check('filter: recently joined', has('/directory?recent=1'), '')
+st, _, b = anon.req('GET', f'/directory?serves=KE&type=person')
+check('filter: company-only filters leave people out', st == 200 and b'class="qd-person"' not in b, f'{st}')
+st, _, b = anon.req('GET', f'/directory?q=quokka{RUN}')
+offered = set(re.findall(rb'name="country" value="([A-Z]{2})"', b))
+check('filter: options with no results are hidden (countries offered match the results)', offered == {b'IN'}, str(offered))
+
+# green wording: saved, held from the public, reviewed by an admin; the owner sees why; EmpCo warning
+st, j = A.action('listings.save', {'organizationId': OID, 'name': f'Eco lamp {RUN}', 'kind': 'product', 'status': 'published',
+    'description': 'A carbon neutral solar lamp, eco-friendly and sustainable, carbon neutral through offsets.'})
+GL = j.get('id') if st == 200 else ''
+row = sql(f"select green_review r, green_terms t, green_hash h from listings where id='{GL}'")[0]
+check('green words: the listing saves, but waits for review', st == 200 and j.get('review') == 'pending' and row['r'] == 'pending' and 'carbon neutral' in row['t'], f'{st} {j} {row}')
+st, _, b = anon.req('GET', f'/companies/{OSLUG}')
+st2, j2 = Bu.action('enquiries.send', {'organizationId': OID, 'listingId': GL, 'subject': 'Lamp', 'message': 'Asking about the lamp that waits for review.'})
+check('green words: the held listing is not public: not on the page, not in search, no enquiry about it', f'Eco lamp {RUN}'.encode() not in b
+      and sql(f"select count(*) n from search where entity_id='{GL}'")[0]['n'] == 0 and st2 == 404, f'{st2}')
+st, _, b = A.req('GET', f'/dashboard/listings/{GL}')
+check('green words: the owner sees why it is held and the EmpCo warning on offsetting', st == 200 and b'data-green="pending"' in b and b'Empowering Consumers' in b, f'{st}')
+check('green words: the review queue is admin-only (404), the decision admin-only (403)', Bu.req('GET', '/admin/review')[0] == 404
+      and A.action('moderation.review', {'type': 'listing', 'id': GL, 'hash': row['h'], 'decision': 'approved'})[0] == 403, '')
+st, _, b = C2.req('GET', '/admin/review')
+check('green words: the admin queue lists it with the words found', st == 200 and f'Eco lamp {RUN}'.encode() in b and b'carbon neutral' in b, f'{st}')
+st, j = C2.action('moderation.review', {'type': 'listing', 'id': GL, 'hash': 'stale', 'decision': 'approved'})
+check('green words: a decision on text that changed since -> 409', st == 409, f'{st}')
+st, j = C2.action('moderation.review', {'type': 'listing', 'id': GL, 'hash': row['h'], 'decision': 'approved'})
+st2, _, b = anon.req('GET', f'/companies/{OSLUG}')
+check('green words: approved -> public and searchable; audit row written', st == 200 and f'Eco lamp {RUN}'.encode() in b and sql(f"select count(*) n from search where entity_id='{GL}'")[0]['n'] == 1
+      and sql(f"select count(*) n from audit_log where subject_id='{GL}' and action='green-approved'")[0]['n'] == 1, f'{st} {j}')
+st, j = A.action('listings.save', {'organizationId': OID, 'listingId': GL, 'name': f'Eco lamp {RUN}', 'kind': 'product', 'status': 'published', 'description': 'Now an eco lamp with a new claim.'})
+check('green words: editing the approved text sends it back to the queue and off the page', j.get('review') == 'pending' and f'Eco lamp {RUN}'.encode() not in anon.req('GET', f'/companies/{OSLUG}')[2], f'{st} {j}')
+# a held company description (owner decision, 12 Oct): the page stays public; only the description is held back, from the
+# page, the directory card and the search index, until an admin approves it
+NZ = f'Net zero solar microgrids {RUN}.'
+st, j = A.action('company.update', {**CO, 'name': CO_NAME, 'description': NZ})
+st2, _, b2 = anon.req('GET', f'/companies/{OSLUG}')
+bd = anon.req('GET', f'/directory?q={RUN}')[2]
+idx = sql(f"select body from search where entity_type='organization' and entity_id='{OID}'")
+h = sql(f"select green_hash h from organizations where id='{OID}'")[0]['h']
+st3, j3 = C2.action('moderation.review', {'type': 'organization', 'id': OID, 'hash': h, 'decision': 'approved'})
+st4, _, b4 = anon.req('GET', f'/companies/{OSLUG}')
+idx2 = sql(f"select body from search where entity_type='organization' and entity_id='{OID}'")
+check('green words in a company description: the page stays public, the held description is not on it, the directory card or in search; shown once approved',
+      j.get('review') == 'pending' and st2 == 200 and NZ.encode() not in b2 and NZ.encode() not in bd and len(idx) == 1 and 'Net zero' not in (idx[0]['body'] or '')
+      and st3 == 200 and st4 == 200 and NZ.encode() in b4 and 'Net zero' in (idx2[0]['body'] or ''), f'{st2} {st3} {st4} {j} {idx}')
+CN = f'Carbon neutral microgrids {RUN}.'
+st, j = A.action('company.update', {**CO, 'name': CO_NAME, 'description': CN})
+h = sql(f"select green_hash h from organizations where id='{OID}'")[0]['h']
+st3, j3 = C2.action('moderation.review', {'type': 'organization', 'id': OID, 'hash': h, 'decision': 'rejected', 'reason': 'Say how carbon neutral is reached.'})
+st4, _, b4 = anon.req('GET', f'/companies/{OSLUG}')
+st5, j5 = A.action('company.update', {**CO, 'name': CO_NAME, 'description': 'Solar microgrids for villages.'})
+st6, _, b6 = anon.req('GET', f'/companies/{OSLUG}')
+check('green words in a company description: a refused one stays off the public page (page still public); plain text shows again',
+      j.get('review') == 'pending' and st3 == 200 and st4 == 200 and CN.encode() not in b4 and j5.get('review') == 'none' and st6 == 200 and b'Solar microgrids for villages.' in b6,
+      f'{st3} {st4} {j5} {st6}')
+
+# identity checks: business email code, website ownership, fixed checklist, audit log, lapse on change, yearly re-check
+NC = sql(f"select o.id, o.slug from organizations o where o.name='Race Co {RUN}'")[0]
+NCID = NC['id']
+Bu.action('company.update', {'organizationId': NCID, 'name': f'Race Co {RUN}', 'website': f'race{RUN}.example'})
+WORK = f'ops@race{RUN}.example'
+st, j = Bu.action('identity.request', {'organizationId': NCID, 'registrationNumber': f'RC{RUN}', 'registrationCountry': 'IN', 'workEmail': WORK})
+st2, j2 = Bu.action('identity.sendEmailCode', {'organizationId': NCID})
+mail = outbox(WORK) or {}
+code = (re.search(r'(\d{6})', mail.get('subject', '')) or [None, ''])[1]
+st3, j3 = Bu.action('identity.verifyEmailCode', {'organizationId': NCID, 'code': '000000' if code != '000000' else '111111'})
+st4, j4 = Bu.action('identity.verifyEmailCode', {'organizationId': NCID, 'code': code})
+check('identity: a code goes to the business email; a wrong code 400; the right one confirms it', st == 200 and st2 == 200 and len(code) == 6 and st3 == 400 and st4 == 200, f'{st} {st2} {st3} {st4}')
+check('identity: only the owners prove the email (others 403)', D.action('identity.sendEmailCode', {'organizationId': NCID})[0] == 403, '')
+st, j = Bu.action('identity.checkWebsite', {'organizationId': NCID})
+check('identity: website check with no TXT record or meta tag -> 400, logged as a fail', st == 400 and sql(f"select count(*) n from audit_log where organization_id='{NCID}' and action='website' and result='fail'")[0]['n'] >= 1, f'{st} {j}')
+st, _, b = Bu.req('GET', f'/dashboard/identity?org={NCID}')
+check('identity: the owner sees the checklist and the TXT/meta value to publish', st == 200 and b'data-checklist' in b and b'quintaearth-verify=' in b, f'{st}')
+NCHK = sql(f"select id from identity_checks where organization_id='{NCID}' and status='pending'")[0]['id']
+st, j = C2.action('identity.tick', {'checkId': NCHK, 'item': 'registration', 'done': 'on', 'note': 'Matched on the MCA register'})
+st2, j2 = C2.action('identity.review', {'checkId': NCHK, 'decision': 'approved'})
+st3, j3 = C2.action('identity.review', {'checkId': NCHK, 'decision': 'approved', 'call': 'on'})
+check('identity: registration ticked + email confirmed is not enough without website or call (400); with the call, approved', st == 200 and st2 == 400 and st3 == 200, f'{st} {st2} {st3} {j3}')
+acts = [r['action'] for r in sql(f"select action from audit_log where subject_id='{NCHK}' order by created_at")]
+check('identity: every step is in the audit log (who, what, result)', all(a in acts for a in ['requested', 'email-code-sent', 'email', 'website', 'registration', 'call', 'approved']), str(acts))
+st, _, b = C2.req('GET', f'/admin/audit?org={NCID}')
+check('identity: the admin reads the audit log; others get 404', st == 200 and b'data-audit' in b and b'email-code-sent' in b and Bu.req('GET', '/admin/audit')[0] == 404, f'{st}')
+Bu.action('company.update', {'organizationId': NCID, 'name': f'Race Co {RUN}', 'website': f'race{RUN}.example', 'legalName': f'Race Co {RUN} Pvt Ltd'})
+row = sql(f"select identity_checked_at c, identity_lapsed l from organizations where id='{NCID}'")[0]
+st, _, b = Bu.req('GET', f'/dashboard/identity?org={NCID}')
+check('identity: a new legal name withdraws the check (re-check needed), logged', row == {'c': None, 'l': 'legal-name'} and b'Re-check needed' in b
+      and sql(f"select count(*) n from audit_log where organization_id='{NCID}' and action='lapsed'")[0]['n'] == 1, f'{row}')
+st, j = Bu.action('company.update', {'organizationId': NCID, 'name': f'Race Co {RUN}', 'website': f'race{RUN}.example/about', 'legalName': f'Race Co {RUN} Pvt Ltd'})
+sql(f"update organizations set identity_checked_at = {int(__import__('time').time() * 1000) - 400 * 86400000}, identity_lapsed = null where id='{NCID}'")
+st, _, b = Bu.req('GET', f'/dashboard/identity?org={NCID}')
+st2, j2 = Bu.action('identity.request', {'organizationId': NCID, 'registrationNumber': f'RC{RUN}', 'registrationCountry': 'IN', 'workEmail': WORK})
+check('identity: after a year the mark lapses (re-check needed) and a new request is allowed', b'Re-check needed' in b and st2 == 200, f'{st2} {j2}')
+sql(f"update organizations set identity_checked_at = {int(__import__('time').time() * 1000) - 400 * 86400000} where id='{OID}'")
+st, _, b = anon.req('GET', f'/companies/{OSLUG}')
+st2, _, b2 = anon.req('GET', '/directory?checked=1')
+check('identity: a check older than a year is not shown publicly, nor found by the checked filter', b'data-identity-checked' not in b and OSLUG.encode() not in b2, '')
+sql(f"update organizations set identity_checked_at = {int(__import__('time').time() * 1000)} where id='{OID}'")
+st, _, b = anon.req('GET', f'/companies/{OSLUG}')
+check('identity: the public badge says exactly what was checked, and that it is no endorsement', b'data-identity-checked' in b and b'registration number, the business email domain and website ownership' in b
+      and b'Not an endorsement or a sustainability claim.' in b, '')
+
+# team opt-in: an invited person appears on the team only after accepting
+qhandle2 = sql(f"select p.handle from profiles p join user u on u.id=p.user_id where u.email='{Q.email}'")[0]['handle']
+Q.action('profile.update', {'name': 'Quinn Test', 'published': 'on'})
+A.action('company.invite', {'organizationId': OID, 'email': Q.email})
+before = f'/people/{qhandle2}'.encode() in anon.req('GET', f'/companies/{OSLUG}')[2]
+qtok = urllib.parse.parse_qs(urllib.parse.urlparse(link_in(outbox(Q.email))).query)['token'][0]
+Q.action('company.acceptInvite', {'token': qtok})
+after = f'/people/{qhandle2}'.encode() in anon.req('GET', f'/companies/{OSLUG}')[2]
+check('team opt-in: invited but not accepted is not on the team; after accepting, on it', not before and after, f'{before} {after}')
+
+# login lands on /dashboard unless a safe next is given
+L9 = User('land'); L9.email = A.email
+sql(f"delete from sign_in_failures where key like '%{A.email}%'")
+st, h, _ = L9.form('/signin?_action=account.signIn', {'email': A.email, 'password': PW, 'next': ''})
+st2, h2, _ = User('land2').form('/signin?_action=account.signIn', {'email': A.email, 'password': PW, 'next': '/dashboard/listings'})
+check('login: no next -> /dashboard; a safe next is kept', st == 303 and h['Location'] == '/dashboard' and st2 == 303 and h2['Location'] == '/dashboard/listings', f'{h.get("Location")} {h2.get("Location")}')
+
+# dashboard: completeness first, with one next step
+st, _, b = Q.req('GET', '/dashboard')
+check('dashboard: profile completeness and a single next step', st == 200 and re.search(rb'data-completeness="\d+"', b) is not None and b.count(b'data-next-step=') == 1, f'{st}')
+
+# private evidence of a listing: team and admins only
+st, j = A.action('listings.addEvidence', {'listingId': GL}, {'file': ('lamp-test.pdf', 'application/pdf', PDF)})
+k = j.get('key') if st == 200 else 'x'
+codes = [anon.req('GET', f'/files/{k}')[0], Bu.req('GET', f'/files/{k}')[0], D.req('GET', f'/files/{k}')[0], C2.req('GET', f'/files/{k}')[0]]
+check('private evidence: strangers and other members 404; the team and admins open it', codes == [404, 404, 200, 200], str(codes))
+
+# --- review fixes (12 Oct): one check per blocker and note ---
+import time as _t
+NOWMS = int(_t.time() * 1000)
+
+# 1: LinkedIn is not a trusted provider; an unverified address joins no team, by setup or by invitation
+src_auth = open(REPO + '/src/lib/auth.ts').read()
+tp = re.search(r"trustedProviders:\s*\[([^\]]*)\]", src_auth)
+check('fix 1: only Google is a trusted provider (a LinkedIn login with an unverified email cannot link to a member)',
+      tp is not None and 'linkedin' not in tp.group(1) and 'google' in tp.group(1), tp.group(0) if tp else 'missing')
+U1 = User('unverified')
+U1.form('/signin?_action=account.sendSignInLink', {'email': U1.email, 'next': '/dashboard'})
+follow_link(U1, link_in(outbox(U1.email)))
+A.action('company.invite', {'organizationId': OID, 'email': U1.email})
+utok = urllib.parse.parse_qs(urllib.parse.urlparse(link_in(outbox(U1.email))).query)['token'][0]
+sql(f"update user set email_verified=0 where email='{U1.email}'")
+st1, j1 = U1.action('company.acceptInvite', {'token': utok})
+st2, h2, _ = U1.form('/welcome?_action=account.chooseAccountType', {'name': 'Unverified Test', 'type': 'individual', 'password': PW})
+n_u1 = sql(f"select count(*) n from members m join user u on u.id=m.user_id where u.email='{U1.email}'")[0]['n']
+check('fix 1: an unverified address cannot accept an invitation (403) and setup joins no team for it', st1 == 403 and st2 == 303 and n_u1 == 0, f'{st1} {j1} {st2} {n_u1}')
+sql(f"update user set email_verified=1 where email='{U1.email}'")
+st3, j3 = U1.action('company.acceptInvite', {'token': utok})
+n_u1 = sql(f"select count(*) n from members m join user u on u.id=m.user_id where u.email='{U1.email}' and m.organization_id='{OID}'")[0]['n']
+check('fix 1: once the address is verified, the same invitation works', st3 == 200 and n_u1 == 1, f'{st3} {j3} {n_u1}')
+
+# 2: only owners make a certificate file public (the add form too); the checkbox is shown to owners only
+st1, j1 = D.action('company.addCertification', {'organizationId': OID, 'name': f'Member Cert {RUN}', 'issuer': 'Demo Body', 'expiresOn': '2031-12-31', 'filePublic': 'on'},
+                   {'file': ('m.pdf', 'application/pdf', PDF)})
+n_mc = sql(f"select count(*) n from certifications where name='Member Cert {RUN}'")[0]['n']
+st2, j2 = D.action('company.addCertification', {'organizationId': OID, 'name': f'Member Cert {RUN}', 'issuer': 'Demo Body', 'expiresOn': '2031-12-31'},
+                   {'file': ('m.pdf', 'application/pdf', PDF)})
+mrow = sql(f"select f.public p from certifications c join files f on f.key=c.evidence_key where c.name='Member Cert {RUN}'")
+check('fix 2: a member adding a certification with "make public" -> 403, nothing saved; without it, saved private', st1 == 403 and n_mc == 0 and st2 == 200 and mrow == [{'p': 0}], f'{st1} {n_mc} {st2} {mrow}')
+bd = D.req('GET', f'/dashboard/company?org={OID}')[2]
+ba = A.req('GET', f'/dashboard/company?org={OID}')[2]
+check('fix 2: the "make the file public" box is shown to owners only', b'name="filePublic"' not in bd and b'name="filePublic"' in ba, '')
+
+# 3: email and website ticks are bound to the domain they proved
+NCHK3 = sql(f"select id from identity_checks where organization_id='{NCID}' and status='pending'")[0]['id']
+RDOM = f'race{RUN}.example'
+sql(f"update identity_checks set email_verified_at={NOWMS}, email_domain='{RDOM}', site_verified_at={NOWMS}, site_method='dns', site_domain='elsewhere{RUN}.example' where id='{NCHK3}'")
+C2.action('identity.tick', {'checkId': NCHK3, 'item': 'registration', 'done': 'on'})
+st1, j1 = C2.action('identity.review', {'checkId': NCHK3, 'decision': 'approved'})
+check('fix 3: a website proof made on another domain does not count (approval 400)', st1 == 400, f'{st1} {j1}')
+sql(f"update identity_checks set site_domain='{RDOM}' where id='{NCHK3}'")
+_, _, bi = Bu.req('GET', f'/dashboard/identity?org={NCID}')
+st2, j2 = Bu.action('company.update', {'organizationId': NCID, 'name': f'Race Co {RUN}', 'website': f'moved{RUN}.example', 'legalName': f'Race Co {RUN} Pvt Ltd'})
+row = sql(f"select email_verified_at e, email_domain ed, site_verified_at s, site_domain sd from identity_checks where id='{NCHK3}'")[0]
+st3, j3 = C2.action('identity.review', {'checkId': NCHK3, 'decision': 'approved'})
+check('fix 3: a new website domain clears the email and website proofs of the pending request (logged); approval then 400',
+      st2 == 200 and row == {'e': None, 'ed': None, 's': None, 'sd': None} and st3 == 400
+      and sql(f"select count(*) n from audit_log where subject_id='{NCHK3}' and action='domain-changed'")[0]['n'] == 1, f'{st2} {row} {st3}')
+src_id = open(REPO + '/src/lib/identity.ts').read()
+check('fix 3: the checklist compares the proved domains with the website (source)', 'check.siteDomain' in src_id and 'check.emailDomain' in src_id, '')
+
+# 4: an admin cannot review their own company (identity tick/review, wording review)
+sql(f"insert into members (organization_id, user_id, role, created_at) select '{NCID}', id, 'member', {NOWMS} from user where email='{C.email}'")
+st1, _ = C2.action('identity.tick', {'checkId': NCHK3, 'item': 'call', 'done': 'on'})
+st2, _ = C2.action('identity.review', {'checkId': NCHK3, 'decision': 'rejected', 'reason': 'Own company.'})
+st, j = Bu.action('listings.save', {'organizationId': NCID, 'name': f'Eco pump {RUN}', 'kind': 'product', 'status': 'published', 'description': 'An eco pump.'})
+EP = j.get('id') if st == 200 else ''
+eph = sql(f"select green_hash h from listings where id='{EP}'")[0]['h']
+st3, _ = C2.action('moderation.review', {'type': 'listing', 'id': EP, 'hash': eph, 'decision': 'approved'})
+Bu.action('company.update', {'organizationId': NCID, 'name': f'Race Co {RUN}', 'website': f'moved{RUN}.example', 'legalName': f'Race Co {RUN} Pvt Ltd', 'description': 'Net zero pumps.'})
+noh = sql(f"select green_hash h from organizations where id='{NCID}'")[0]['h']
+st4, _ = C2.action('moderation.review', {'type': 'organization', 'id': NCID, 'hash': noh, 'decision': 'approved'})
+still = sql(f"select (select status from identity_checks where id='{NCHK3}') s, (select green_review from listings where id='{EP}') l, (select green_review from organizations where id='{NCID}') o")[0]
+check('fix 4: an admin on the company\'s team cannot tick, decide its identity check or its wording review (403 each, nothing changes)',
+      [st1, st2, st3, st4] == [403] * 4 and still == {'s': 'pending', 'l': 'pending', 'o': 'pending'}, f'{[st1, st2, st3, st4]} {still}')
+sql(f"delete from members where organization_id='{NCID}' and user_id=(select id from user where email='{C.email}')")
+st5, _ = C2.action('moderation.review', {'type': 'listing', 'id': EP, 'hash': eph, 'decision': 'approved'})
+check('fix 4: off the team, the same admin can decide it', st5 == 200, f'{st5}')
+C2.action('identity.review', {'checkId': NCHK3, 'decision': 'rejected', 'reason': 'Test done.'})
+
+# 5: the old 201-1000 size is cleared (not guessed); a public company with no size is asked to pick one first
+mig = open(REPO + '/migrations/0006_phase2_profiles.sql').read()
+check('fix 5: migration 0006 clears an old 201-1000 size instead of inventing 201-500',
+      "SET `size` = NULL WHERE `size` = '201-1000'" in mig and "SET `size` = '201-500'" not in mig, '')
+sql(f"update organizations set size=null where id='{OID}'")
+_, _, b = A.req('GET', '/dashboard')
+check('fix 5: a public company with no size: the dashboard\'s next step is "Choose your company size"', b'data-next-step="size"' in b and b'Choose your company size' in b, '')
+sql(f"update organizations set size='201-500' where id='{OID}'")
+
+# 6: the wording review also reads listing tags and lead time, and the company research and case studies
+st1, j1 = A.action('listings.save', {'organizationId': OID, 'name': f'Lead lamp {RUN}', 'kind': 'product', 'status': 'published', 'leadTime': 'Carbon neutral shipping in 2 weeks'})
+st2, j2 = A.action('listings.save', {'organizationId': OID, 'name': f'Tag lamp {RUN}', 'kind': 'product', 'status': 'published', 'tags': 'Solar, Eco'})
+b = anon.req('GET', f'/companies/{OSLUG}')[2]
+check('fix 6: green words in a listing\'s lead time or tags hold it for review (off the public page)', (j1 or {}).get('review') == 'pending' and (j2 or {}).get('review') == 'pending'
+      and f'Lead lamp {RUN}'.encode() not in b and f'Tag lamp {RUN}'.encode() not in b, f'{st1} {j1} {st2} {j2}')
+RS, CS = f'Sustainable inverter research {RUN}.', f'Green school roofs {RUN}'
+st, j = A.action('company.update', {**CO, 'name': CO_NAME, 'research': RS, 'caseTitle': [CS], 'caseClient': ['Satara'], 'caseSummary': ['46 systems.']})
+st2, _, b2 = anon.req('GET', f'/companies/{OSLUG}')
+idx = sql(f"select body from search where entity_type='organization' and entity_id='{OID}'")
+check('fix 6: green words in the research or a case study hold them (and the description) back; the page stays public; not in search',
+      (j or {}).get('review') == 'pending' and st2 == 200 and RS.encode() not in b2 and CS.encode() not in b2 and len(idx) == 1 and RUN not in (idx[0]['body'] or ''), f'{st} {j} {st2}')
+h6 = sql(f"select green_hash h from organizations where id='{OID}'")[0]['h']
+C2.action('moderation.review', {'type': 'organization', 'id': OID, 'hash': h6, 'decision': 'approved'})
+b3 = anon.req('GET', f'/companies/{OSLUG}')[2]
+check('fix 6: once approved, the research and case study show', RS.encode() in b3 and CS.encode() in b3, '')
+A.action('company.update', {**CO, 'name': CO_NAME, 'legalName': f'Sun Grid Labs {RUN} Private Limited', 'operates': ['KE', 'TZ'], 'size': '201-500'})
+
+# 7: names and the legal name refuse contact details like other public text; ones saved before are scrubbed
+r7 = [Bu.action('profile.update', {'name': 'Asha 020 7946 0958'})[0], A.action('company.update', {**CO, 'name': CO_NAME, 'legalName': 'Sun Grid sales@sungrid.example'})[0],
+      A.action('company.update', {**CO, 'name': 'Sun Grid +44 20 7946 0958'})[0], A.action('company.create', {'name': 'Mail me at x@y.example'})[0],
+      A.action('listings.save', {'organizationId': OID, 'name': 'Call 020 7946 0958', 'kind': 'product', 'status': 'draft'})[0]]
+check('fix 7: a phone or email in a person, company, legal or listing name -> 400', r7 == [400] * 5, str(r7))
+sql(f"update organizations set legal_name='Legacy {RUN} +44 20 7946 0958 Ltd' where id='{OID}'")
+sql(f"update user set name='Asha legacy.{RUN}@example.com' where email='{Bu.email}'")
+bc = anon.req('GET', f'/companies/{OSLUG}')[2]
+bp = anon.req('GET', f'/people/{handle}')[2]
+check('fix 7: a legal name or person name saved with contact details before the rule is scrubbed on public pages',
+      b'7946 0958' not in bc and f'Legacy {RUN}'.encode() in bc and f'legacy.{RUN}@example.com'.encode() not in bp and b'[contact hidden]' in bp, '')
+sql(f"update organizations set legal_name='Sun Grid Labs {RUN} Private Limited' where id='{OID}'")
+sql(f"update user set name='Asha R. Rao' where email='{Bu.email}'")
+
+# 8: an expired certification's file is not public; the team and admins still open it
+st, j = A.action('company.addCertification', {'organizationId': OID, 'name': f'Lapsing Cert {RUN}', 'issuer': 'Demo Body', 'expiresOn': '2031-12-31', 'filePublic': 'on'},
+                 {'file': ('lapsing.pdf', 'application/pdf', PDF)})
+lk = sql(f"select evidence_key k from certifications where name='Lapsing Cert {RUN}'")[0]['k'] if st == 200 else 'x'
+c_live = anon.req('GET', f'/files/{lk}')[0]
+sql(f"update certifications set expires_on={NOWMS - 86400000} where name='Lapsing Cert {RUN}'")
+codes8 = [anon.req('GET', f'/files/{lk}')[0], A.req('GET', f'/files/{lk}')[0], C2.req('GET', f'/files/{lk}')[0]]
+check('fix 8: a public certificate file is served while current; once expired the public gets 404, owner and admin 200, no link on the page',
+      c_live == 200 and codes8 == [404, 200, 200] and lk.encode() not in anon.req('GET', f'/companies/{OSLUG}')[2], f'{c_live} {codes8}')
+
+# 9: every section of the person page sits on the rail (one bead each), as on the company page
+b9 = anon.req('GET', f'/people/{ahandle}')[2]
+rails = len(re.findall(rb'class="pp-rail', b9))
+secs = len(re.findall(rb'<section class="pp-part pp-sec', b9))
+bio = 1 if b'class="pp-bio' in b9 else 0
+check('fix 9: person page: Works at, Industries, Services, Open to, Languages and Works on each have a bead on the rail',
+      secs >= 5 and rails == secs + bio and b'data-works-at' in b9 and b'data-languages' in b9 and b'data-goals' in b9 and b'pp-side' not in b9, f'rails={rails} secs={secs} bio={bio}')
 
 fails = [r for r in results if r[1] == 'FAIL']
 print(f'\n{len(results) - len(fails)}/{len(results)} passed')

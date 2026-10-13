@@ -103,3 +103,12 @@
   .pe .drop:hover { transform: none; box-shadow: none; border-color: var(--field-line); }
   .pe .pe-send .btn-fill:hover { transform: none; box-shadow: none; background: var(--river); }
 }
+
+/* the LinkedIn stop: the same outlined pill as "Continue with Google" on the doors; once linked, the neutral mark */
+.pe-li .pe-li-say { margin: 0 0 16px; font-size: 16px; line-height: 1.55; color: var(--ink-2); max-width: 52ch; }
+.pe-li .gform { display: block; }
+.pe-li .btn-google { gap: 12px; min-height: 50px; border-color: var(--field-line); color: var(--deep); }
+.pe-li .btn-google:hover { border-color: var(--river); }
+.pe-li .btn-google .glogo { flex: none; }
+.pe-li .pe-li-done { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0; font-size: 16px; color: var(--ink-2); }
+@media (max-width: 640px) { .pe > .err-sum { grid-column: 1; } }

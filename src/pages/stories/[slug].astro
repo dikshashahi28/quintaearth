@@ -1,10 +1,17 @@
 ---
+// A story (design: "the spring", layouts/Spring.astro): the scene, the title on white with its dek, dateline and
+// the line that says where it is filed (industry, sub-category, read time, UN goals), then the piece as the
+// first stop on the river (lead photo, at a glance, the text near 70 characters a line), the record, the links
+// and "More in <sub-category>" as the stops after it. Data, URL, SEO meta, structured data and every link are
+// unchanged.
+import '../../styles/spring-reading.css';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
-import { Picture, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import { render } from 'astro:content';
-import Page from '../../layouts/Page.astro';
-import PageHead from '../../components/page/PageHead.astro';
-import ArticleMeta from '../../components/page/ArticleMeta.astro';
+import Spring from '../../layouts/Spring.astro';
+import RiverRail from '../../components/spring/RiverRail.astro';
+import Bead from '../../components/spring/Bead.astro';
+import GoalTags from '../../components/page/GoalTags.astro';
 import InsightCard from '../../components/page/InsightCard.astro';
 import { getSub } from '../../data/industries';
 import { site } from '../../data/site';
@@ -54,56 +61,59 @@ const facts = [
   { label: 'Country', value: data.country },
   ...(data.launchDate ? [{ label: 'Milestones', value: data.launchDate }] : []),
 ];
----
-<Page title={data.title} description={description} imageUrl={share?.src} type="article" jsonLd={[ld]} current="industries">
-  <PageHead
-    title={data.title}
-    crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name, href: page(sub.slug) }, { label: 'Insight' }]}
-    width="col"
-  >
-    {data.dek.map((line) => <p class="dek">{line}</p>)}
-    {data.dateline && <p class="dateline">{data.dateline}</p>}
-    <ArticleMeta minutes={self.minutes} sdgs={data.sdgs} />
-  </PageHead>
 
-  <article class="page-body article-body">
-    <div class="col">
+// the stops after the piece, so the river's last bead falls on whichever comes last
+const stops = ['record', data.links.length > 0 && 'links', siblings.length > 0 && 'more'].filter(Boolean) as string[];
+const last = (stop: string) => stops[stops.length - 1] === stop;
+---
+<Spring title={data.title} description={description} imageUrl={share?.src} type="article" jsonLd={[ld]} current="industries"
+  crumbs={[{ label: 'Industries', href: page('industries') }, { label: ind.name, icon: ind.icon, href: page(`industries-${ind.slug}`) }, { label: sub.name, href: page(sub.slug) }]}
+  {...(photo && data.image ? { sceneImage: photo, sceneAlt: data.image.alt } : { scene: 'ins-ocean', sceneAlt: 'Fish swimming among drifting plastic under the surface of a blue sea' })} scenePos="50% 50%"
+  say="Where sustainability is made, not performed." sub={`${shortCompany(data.company)} · ${data.country}`}>
+  {data.dek.map((line) => <p class="rd-dek">{line}</p>)}
+  {data.dateline && <p class="rd-dateline">{data.dateline}</p>}
+  <div class="rd-meta">
+    <p class="byline"><span>{self.minutes} min read</span></p>
+    <GoalTags sdgs={data.sdgs} />
+  </div>
+
+  <RiverRail class="reading">
+    <Bead />
+    <article class="sp-stop rd-read" aria-label="Insight">
       {photo && data.image && (
-        <figure class="lead-figure">
-          <Picture src={photo} alt={data.image.alt} formats={['avif', 'webp']} fallbackFormat="webp" widths={[400, 800, 1200]} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
-          {data.image.caption && <figcaption set:html={data.image.caption} />}
-        </figure>
+        data.image.caption && <p class="rd-credit" set:html={data.image.caption} />
       )}
       {data.glance.length > 0 && (
-        <aside class="glance" aria-labelledby="glance-h">
+        <aside class="rd-glance" aria-labelledby="glance-h">
           <h2 id="glance-h"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg>At a glance</h2>
           <dl>{data.glance.map((g) => <><dt>{g.label}</dt><dd>{g.text}</dd></>)}</dl>
         </aside>
       )}
-      <div class="prose"><Content /></div>
+      <div class="rd-prose"><Content /></div>
+    </article>
 
-      <footer class="article-foot">
-        <div>
-          <h2>The record</h2>
-          <dl class="record">{facts.map((f) => <><dt>{f.label}</dt><dd>{f.value}</dd></>)}</dl>
-        </div>
-        {data.links.length > 0 && (
-          <div>
-            <h2>Links</h2>
-            <p class="links">{data.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg></a>)}</p>
-          </div>
-        )}
-      </footer>
-    </div>
-  </article>
-
-  {siblings.length > 0 && (
-    <section class="page-body" aria-labelledby="more-h">
-      <div class="wide">
-        <hr class="rule">
-        <div class="section-title"><h2 id="more-h">More in {sub.name}</h2><a class="tlink" href={page(sub.slug)}>All {siblings.length + 1} Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></div>
-        <div class="cards">{siblings.slice(0, 3).map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
+    <Bead last={last('record')} />
+    <section class:list={['sp-stop', { end: last('record') }]} aria-labelledby="record-h">
+      <h2 id="record-h">The record</h2>
+      <div class="rd-foot">
+        <dl class="record">{facts.map((f) => <><dt>{f.label}</dt><dd>{f.value}</dd></>)}</dl>
       </div>
     </section>
-  )}
-</Page>
+
+    {data.links.length > 0 && (
+      <Bead last={last('links')} />
+      <section class:list={['sp-stop', { end: last('links') }]} aria-labelledby="links-h">
+        <h2 id="links-h">Links</h2>
+        <p class="links">{data.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg></a>)}</p>
+      </section>
+    )}
+
+    {siblings.length > 0 && (
+      <Bead last />
+      <section class="sp-stop end" aria-labelledby="more-h">
+        <div class="rd-head"><h2 id="more-h">More in {sub.name}</h2><a class="tlink" href={page(sub.slug)}>All {siblings.length + 1} Insights<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></div>
+        <div class="cards">{siblings.slice(0, 3).map((it) => <InsightCard item={it} showWhere={it.kind !== 'story'} />)}</div>
+      </section>
+    )}
+  </RiverRail>
+</Spring>

@@ -202,6 +202,7 @@ export function initVolunteerForm(): void {
         setCountry(c);
         close();
         phone.focus();
+        form.dispatchEvent(new Event('change'));
       });
       li.append(b);
       list.append(li);
@@ -283,22 +284,43 @@ export function initVolunteerForm(): void {
     status.classList.toggle('bad', bad);
   };
 
+  const read = (): VolunteerFields => ({
+    name: el('name').value,
+    gender: el('gender').value,
+    phone: phone.value,
+    email: el('email').value,
+    designation: el('designation').value,
+    education: el('education').value,
+    city: el('city').value,
+    college: el('college').value,
+    why: el('why').value,
+    consent: el('consent').checked,
+  });
+
+  // ---- the river rail beside the form (the spring): each rail names the fields of its step (data-for="id id")
+  // and its bead lights when they all pass the rules above; data-for="*" is the send step, lit when the whole
+  // form is. Nothing is lit without the script. ----
+  const rails = [...form.querySelectorAll<HTMLElement>('.qe-rail[data-for]')];
+  const keyOf = Object.fromEntries(ORDER.map((k) => [IDS[k], k])) as Record<string, Key>;
+  const light = () => {
+    if (!rails.length) return;
+    const errors = validateVolunteer(normalizeVolunteer(read()), country.dial, resumeName());
+    for (const rail of rails) {
+      const ids = rail.dataset.for!.split(/\s+/).filter(Boolean);
+      const ok = ids[0] === '*' ? Object.keys(errors).length === 0 : ids.every((id) => keyOf[id] !== undefined && !errors[keyOf[id]!]);
+      rail.classList.toggle('lit', ok);
+      rail.classList.toggle('on', ok);
+    }
+  };
+  form.addEventListener('input', light);
+  form.addEventListener('change', light);
+  light();
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     close();
     setStatus('');
-    const values = normalizeVolunteer({
-      name: el('name').value,
-      gender: el('gender').value,
-      phone: phone.value,
-      email: el('email').value,
-      designation: el('designation').value,
-      education: el('education').value,
-      city: el('city').value,
-      college: el('college').value,
-      why: el('why').value,
-      consent: el('consent').checked,
-    });
+    const values = normalizeVolunteer(read());
     for (const k of ['name', 'phone', 'email', 'designation', 'education', 'city', 'college', 'why'] as const) el(k).value = values[k];
 
     const errors = validateVolunteer(values, country.dial, resumeName());

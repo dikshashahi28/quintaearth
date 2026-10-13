@@ -1,0 +1,51 @@
+/* The industries on the spring (12 Oct 2026): /industries (eight stops on the river, one per industry: its photo,
+   name, what is filed there and its sub-categories), /industries-<industry> (a stop per sub-category with its
+   latest three Insights, the river ending at the previous/next pager) and the 46 sub-category pages (the
+   Insights filed there, then the rest of the industry). The scene, rail, bead and stop come from spring-core.css
+   and spring-page.css; the Insight card from cards.css; chips and text links from base.css. This file only adds
+   what those pages need beside the rail. Tokens from tokens.css. */
+
+/* ---------- under the h1: the sub-categories to jump to ---------- */
+.sp-jump { margin: -18px 0 36px; }
+
+/* ---------- a stop's head: the name, and beside it the way to everything filed there ---------- */
+.sp-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 24px; }
+.sp-head .tlink { font-size: 15px; }
+.sp-stop h2 a { color: inherit; text-decoration: none; }
+.sp-stop h2 a:hover { color: var(--river); }
+.sp-stop .cards { margin-top: 22px; }
+.sp-stop .chips { margin-top: 22px; }
+.sp-stop .chips + .tlink { margin-top: 20px; }
+.empty-note { margin: 16px 0 0; font: italic 400 19px/1.5 var(--font-display); color: var(--muted); }
+
+/* ---------- an industry on /industries: the photo beside its name, count and sub-categories ---------- */
+.ind .otext { gap: 10px; }
+.ind .filed { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ind .filed .hi { width: 22px; height: 22px; color: var(--river); }
+.ind .otext .chips { margin-top: 6px; }
+
+/* ---------- previous / next: the river's last stop ---------- */
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sp-stop .pager { margin-top: 28px; }
+.sp-stop.end > .pager:first-child { margin-top: 0; }
+.pager a { display: flex; flex-direction: column; gap: 6px; min-height: 44px; padding: 18px 20px; border-radius: var(--r-lg); border: 1px solid var(--hair); text-decoration: none; color: var(--text); transition: border-color .2s, background-color .2s; }
+.pager a:hover { border-color: var(--river); background: var(--sky); }
+.pager .dir { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--river); }
+.pager .t { font-family: var(--font-display); font-size: 18px; line-height: 1.3; color: var(--deep); }
+.pager .next { text-align: right; align-items: flex-end; grid-column: 2; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 640px) {
+  .sp-jump { margin: -6px 0 28px; }
+  .sp-head { gap: 0 16px; }
+  .sp-stop .cards, .sp-stop .chips { margin-top: 18px; }
+  .ind .ophoto { aspect-ratio: 16 / 10; }
+  .pager { grid-template-columns: 1fr; }
+  .pager .next { grid-column: 1; }
+  /* phone text floor: 14px for fine print */
+  .pager .dir { font-size: 14px; }
+  .sp-head .tlink, .ind .filed { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pager a { transition: none; }
+}

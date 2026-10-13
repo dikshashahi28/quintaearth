@@ -1,27 +1,29 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// About (design: "the spring", layouts/Spring.astro): the valley, the page's own photo, as the scene under the
+// brand line, then one stop on the river: the lead, the two paragraphs, the founder line and the two ways on.
+import '../styles/spring-org.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import { site } from '../data/site';
-import Media from '../components/Media.astro';
 import { page } from '../lib/url';
 ---
-<Page title="About" description="QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made, not donated, not performed." current="about">
-  <PageHead title="Where sustainability is made, not performed." crumbs={[{ label: 'About' }]} />
-  <section class="page-body about-page">
-    <div class="wide spread">
-      <figure class="rv">
-        <Media name="about-spread" sizes="(max-width: 900px) calc(100vw - 32px), 400px" loading="eager" fetchpriority="high" />
-      </figure>
-      <div class="prose">
-        <p class="lead">QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
+<Spring title="About" description="QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made, not donated, not performed." current="about"
+  scene="about-spread"
+  say="Where sustainability is made, not performed.">
+  <RiverRail>
+    <Bead last />
+    <section class="sp-stop end" aria-label="About QuintaEarth">
+      <p class="org-lead">QuintaEarth is a home for work that treats the earth as something sacred, and sustainability as something made — not donated, not performed.</p>
+      <div class="org-prose">
         <p>It is a living commons — a place where greentech and cleantech work is gathered, shared, and made visible, with the same care you would bring to something sacred.</p>
         <p>Here we gather stories, news, and press from startups, companies, and people in greentech and cleantech. Clients, collaborators, startup owners, and entrepreneurs can be seen, reviewed, and heard.</p>
-        <p class="by"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Diksha, founder of QuintaEarth</p>
-        <div class="acts-row">
-          <a class="btn btn-fill" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the Green Tech Community</a>
-          <a class="btn btn-line" href={page('index', 'parts')}>The five parts of the hub</a>
-        </div>
       </div>
-    </div>
-  </section>
-</Page>
+      <p class="org-by"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Diksha, founder of QuintaEarth</p>
+      <div class="sp-acts">
+        <a class="qe-btn" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the Green Tech Community</a>
+        <a class="tlink" href={page('index', 'parts')}>The five parts of the hub</a>
+      </div>
+    </section>
+  </RiverRail>
+</Spring>

@@ -18,7 +18,69 @@
 /* a pending invitation's placeholder */
 .mark.invited { border-style: dashed; border-color: var(--reed); color: var(--muted); }
 
+/* company editor (12 Oct): certification rows with their state, a picture grid, numbered case studies */
+.certs-ed li > form:last-of-type { grid-column: 4; }
+/* links inside the line stay inline; the padding keeps a 44px hit area without breaking the line */
+.certs-ed .fname small a { display: inline; min-height: 0; padding-block: 12px; color: var(--river); font-weight: 500; }
+.add-h { margin: 8px 0 16px; font: 400 21px/1.25 var(--font-display); color: var(--deep); }
+.cert-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.cert-tags .vis, .gal-ed .vis { display: inline-flex; align-items: center; gap: 5px; min-height: 26px; padding: 1px 10px 1px 8px; border-radius: 100px; background: var(--quiet-wash); color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.cert-tags .vis .ms { font-size: 15px; color: var(--muted); }
+.cert-tags .vis.pub { background: var(--shallow); color: var(--river-deep); }
+.cert-tags .vis.pub .ms { color: var(--river); }
+.cert-tags .vis.cur { background: var(--page); border: 1px solid var(--hair); font-weight: 500; }
+.cert-tags .vis.exp { color: var(--muted); }
+.certs-ed .ev-vis { white-space: nowrap; font-size: 15px; }
+.certs-ed b { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .certs-ed li { grid-template-columns: 40px minmax(0, 1fr) 44px; }
+  .certs-ed li > form:not(:last-of-type) { grid-column: 2; grid-row: 2; }
+  .certs-ed li > form:last-of-type { grid-column: 3; grid-row: 1; }
+}
+.certs-ed { margin-bottom: 24px; }
+.gal-ed { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; margin: 4px 0 28px; padding: 0; list-style: none; }
+.gal-ed li { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.gal-ph { display: block; overflow: hidden; border-radius: var(--r); background: var(--shallow); aspect-ratio: 4 / 3; }
+.gal-ph img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gal-ed .fname b { display: block; font-weight: 500; font-size: 15px; color: var(--deep); overflow-wrap: anywhere; }
+.gal-ed .fname small { display: block; font-size: 13.5px; color: var(--muted); }
+.gal-ed form { position: absolute; top: 8px; right: 8px; }
+.gal-ed .iconbtn { background: var(--page); }
+.case-row { position: relative; padding: 20px 0 4px; border-top: 1px solid var(--hair); }
+.case-row:first-of-type { margin-top: 8px; }
+.case-n { display: flex; align-items: center; gap: 10px; margin: 0; font: 400 18px/1.2 var(--font-display); color: var(--deep); }
+.case-n span { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--river); font: 400 14px/1 var(--font-display); color: var(--river); font-variant-numeric: tabular-nums; }
+[data-cases] > .hint { margin-bottom: 4px; }
+[data-cases] .case-row + .case-row { margin-top: 20px; }
+
 /* identity check */
 .idhead { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
 .idform { margin-top: 24px; }
 .idsteps { margin-top: 36px; }
+
+/* proving the business email and the website: numbered steps, then the two ways to publish the token as quiet
+   panels with the value set in a mono box that selects in one click */
+.idproof h2 { margin-bottom: 8px; }
+.idproof-say { margin: 0 0 20px; font-size: 16px; line-height: 1.55; color: var(--ink-2); max-width: 60ch; }
+.idproof-say b { font-weight: 500; color: var(--deep); overflow-wrap: anywhere; }
+.idproof-steps { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.idproof-steps > li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px; align-items: start; }
+.idproof-n { display: grid; place-items: center; width: 32px; height: 32px; margin-top: 8px; border-radius: 50%; border: 2px solid var(--river); font: 400 15px/1 var(--font-display); color: var(--river); font-variant-numeric: tabular-nums; box-sizing: border-box; }
+.idproof-steps .btn .ms { font-size: 18px; }
+.idproof-steps .btn { gap: 8px; }
+.idproof-code { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; }
+.idproof-code .field { flex: 0 1 220px; min-width: 0; }
+.idproof-code .inp { font-family: var(--font-display); font-size: 20px; letter-spacing: .18em; font-variant-numeric: tabular-nums; }
+.idproof-ways { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.idproof-way { min-width: 0; padding: 18px; border-radius: var(--r-lg); background: var(--shallow); }
+.idproof-h { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 500; color: var(--deep); }
+.idproof-h .ms { font-size: 20px; color: var(--river); }
+.idproof-sub { margin: 6px 0 10px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.idproof-sub code { padding: 1px 6px; border-radius: 4px; background: var(--page); font-size: 13px; color: var(--deep); }
+.idproof-code-v { display: block; padding: 12px 14px; border-radius: var(--r-sm); border: 1px solid var(--hair); background: var(--page); font: 400 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--deep); overflow-wrap: anywhere; user-select: all; cursor: text; }
+.idproof-wait { margin: 14px 0 16px; font-size: 14px; color: var(--muted); }
+.idproof .btn-line .ms { font-size: 18px; }
+.idproof form > .btn-line { gap: 8px; }
+@media (max-width: 720px) {
+  .idproof-ways { grid-template-columns: 1fr; }
+}

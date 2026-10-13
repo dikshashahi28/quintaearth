@@ -4,11 +4,22 @@
 // URLs open in a new tab with no referrer trust and no follow.
 import Avatar from '../Avatar.astro';
 import Icon from '../Icon.astro';
+import IdentityTip from '../IdentityTip.astro';
 import { absolute, page } from '../../../lib/url';
 import { ldJson } from '../../../lib/labels';
 
-interface Props { name: string; line?: string | null; imageKey?: string | null; where?: string | null; website?: string | null; linkedin?: string | null }
-const { name, line, imageKey, where, website, linkedin } = Astro.props;
+interface Props {
+  name: string; line?: string | null; imageKey?: string | null; where?: string | null; website?: string | null; linkedin?: string | null;
+  /** "Member since August 2026" */
+  since?: string;
+  /** the "Identity checked" note, when the person has earned it (LinkedIn linked) */
+  checkedTip?: string | null;
+  /** the person's enquiry form; left out on the owner's preview */
+  enquire?: string | null;
+}
+const { name, line, imageKey, where, website, linkedin, since, checkedTip, enquire } = Astro.props;
+// the role line ("Co-founder at <company>") comes in as a slot: the company is a link only when it is on the site
+const hasRole = Astro.slots.has('role');
 const rel = 'noopener nofollow ugc';
 
 const breadcrumbLd = {
@@ -36,11 +47,19 @@ const breadcrumbLd = {
       <div class="txt">
         <h1>{name}</h1>
         {line && <p class="pp-line">{line}</p>}
-        {where && <div class="pp-meta"><span><Icon name="location_on" />{where}</span></div>}
+        {(hasRole || where || since || checkedTip) && (
+          <div class="pp-meta">
+            {hasRole && <span class="pp-role" data-role><Icon name="work" /><span><slot name="role" /></span></span>}
+            {where && <span><Icon name="location_on" />{where}</span>}
+            {since && <span data-member-since><Icon name="calendar_today" />Member since {since}</span>}
+            {checkedTip && <IdentityTip tip={checkedTip} small />}
+          </div>
+        )}
       </div>
     </div>
-    {(website || linkedin) && (
+    {(enquire || website || linkedin) && (
       <div class="pp-links">
+        {enquire && <a class="btn btn-fill pp-enq" href={enquire}><Icon name="mail" />Send an enquiry</a>}
         {website && <a class="tlink" href={website} target="_blank" rel={rel}><Icon name="language" />Website<span class="sr"> (opens in a new tab)</span></a>}
         {linkedin && (
           <a class="tlink" href={linkedin} target="_blank" rel={rel}>

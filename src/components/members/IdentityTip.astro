@@ -1,0 +1,26 @@
+---
+// "Identity checked" on a public profile, with what was checked. The same neutral grey pill as IdentityMark (never
+// green or gold, never a seal); it is a button so a keyboard or a tap can open the note, which says exactly what was
+// checked and that it is no endorsement. The note is in the markup (role="tooltip", linked by aria-describedby),
+// so a screen reader and a page without JavaScript have it too. Escape closes it.
+import Icon from './Icon.astro';
+import '../../styles/members/trust.css';
+interface Props { tip: string; small?: boolean; id?: string }
+const { tip, small = false, id = 'idc-tip' } = Astro.props;
+---
+<span class="idt" data-identity-checked>
+  <button type="button" class:list={['idc', 'idt-btn', { sm: small }]} aria-describedby={id}><Icon name="badge" />Identity checked<Icon name="info" class="idt-i" /></button>
+  <span class="idt-tip" role="tooltip" id={id}>{tip}</span>
+</span>
+<script is:inline>
+  (() => {
+    const box = document.currentScript?.previousElementSibling;
+    const btn = box?.querySelector('button');
+    if (!box || !btn) return;
+    btn.addEventListener('click', () => box.classList.toggle('open'));
+    btn.addEventListener('blur', () => box.classList.remove('open'));
+    box.addEventListener('keydown', (e) => { if (e.key === 'Escape') { box.classList.add('shut'); box.classList.remove('open'); } });
+    box.addEventListener('mouseleave', () => box.classList.remove('shut'));
+    btn.addEventListener('focus', () => box.classList.remove('shut'));
+  })();
+</script>

@@ -1,0 +1,25 @@
+---
+// Lights the beads of a doors-style form (.qe-form with .qe-rail[data-for="id id ..."] beside each .qe-step) as
+// its fields pass the browser's own rules: a bead is lit when every field it names is valid and every required one
+// is filled; the track between two lit beads fills. Without JavaScript the rail stays at rest (completion only).
+---
+<script>
+  for (const form of document.querySelectorAll<HTMLFormElement>('form.qe-form[data-rail-light]')) {
+    const rails = [...form.querySelectorAll<HTMLElement>('.qe-rail[data-for]')];
+    const ok = (id: string) => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+      if (!el) return true;
+      return el.checkValidity() && (!el.required || el.value.trim() !== '');
+    };
+    const update = () => {
+      const lit = rails.map((r) => r.dataset.for!.split(/\s+/).filter(Boolean).every(ok));
+      rails.forEach((r, i) => {
+        r.classList.toggle('lit', lit[i]);
+        r.classList.toggle('on', lit[i] && !!lit[i + 1]);
+      });
+    };
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+  }
+</script>

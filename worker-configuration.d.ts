@@ -11,6 +11,8 @@ interface __BaseEnv_Env {
 	EMAIL_API_URL: string;
 	GOOGLE_CLIENT_ID: string;
 	GOOGLE_CLIENT_SECRET: string;
+	LINKEDIN_CLIENT_ID: string;
+	LINKEDIN_CLIENT_SECRET: string;
 }
 declare namespace Cloudflare {
 	interface DevEnv {
@@ -24,6 +26,8 @@ declare namespace Cloudflare {
 		EMAIL_API_URL: string;
 		GOOGLE_CLIENT_ID: string;
 		GOOGLE_CLIENT_SECRET: string;
+		LINKEDIN_CLIENT_ID: string;
+		LINKEDIN_CLIENT_SECRET: string;
 	}
 	interface Env extends __BaseEnv_Env {}
 }
@@ -32,7 +36,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "SITE_URL" | "AUTH_SECRET" | "EMAIL_API_KEY" | "EMAIL_FROM" | "EMAIL_API_URL" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "SITE_URL" | "AUTH_SECRET" | "EMAIL_API_KEY" | "EMAIL_FROM" | "EMAIL_API_URL" | "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "LINKEDIN_CLIENT_ID" | "LINKEDIN_CLIENT_SECRET">> {}
 }
 declare module "*.txt" {
 	const value: string;

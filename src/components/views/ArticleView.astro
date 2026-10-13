@@ -1,13 +1,18 @@
 ---
+// An Insights essay or a press desk note (design: "the spring", layouts/Spring.astro): the scene, the title on
+// white with the line that says where it is filed, its read time, date and UN goals, then the piece as the first
+// stop on the river (lead photo, the text near 70 characters a line), the record (filed under, sources) and
+// "Read next" as the stops after it. Data, URL, SEO meta, structured data and every link are unchanged.
+import '../../styles/spring-reading.css';
 import { render } from 'astro:content';
-import Page from '../../layouts/Page.astro';
-import Media from '../Media.astro';
-import PageHead from '../page/PageHead.astro';
-import ArticleMeta from '../page/ArticleMeta.astro';
+import Spring from '../../layouts/Spring.astro';
+import RiverRail from '../spring/RiverRail.astro';
+import Bead from '../spring/Bead.astro';
+import GoalTags from '../page/GoalTags.astro';
 import InsightCard from '../page/InsightCard.astro';
 import { getSub } from '../../data/industries';
 import { site } from '../../data/site';
-import { type Article, articleToInsight, getStream, isoDate, readMinutes } from '../../lib/content';
+import { type Article, articleToInsight, formatDate, getStream, isoDate, readMinutes } from '../../lib/content';
 import { mediaShareUrl } from '../../lib/media';
 import { absolute, asset, page } from '../../lib/url';
 
@@ -38,47 +43,61 @@ const ld = {
   publisher: { '@type': 'Organization', name: site.name, logo: { '@type': 'ImageObject', url: absolute(asset('assets/logo.png'), Astro.site) } },
   mainEntityOfPage: absolute(page(article.id), Astro.site),
 };
+
+// the stops after the piece, so the river's last bead falls on whichever comes last
+const filed = data.subs.length > 0 || data.euRules;
+const stops = [filed && 'filed', data.sources.length > 0 && 'sources', related.length > 0 && 'next'].filter(Boolean) as string[];
+const last = (stop: string) => stops[stops.length - 1] === stop;
+// the source note sits under the sources, else under the filing, else under the piece
+const noteIn = data.sources.length > 0 ? 'sources' : filed ? 'filed' : 'read';
 ---
-<Page title={data.title} description={data.description} imageUrl={share} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}>
-  <PageHead title={data.title} crumbs={[list, { label: essay ? 'Insight' : 'Desk note' }]} width="col">
-    <ArticleMeta minutes={self.minutes} date={data.date} sdgs={data.sdgs} />
-  </PageHead>
+<Spring title={data.title} crumbs={[list]} description={data.description} imageUrl={share} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}
+  scene={data.image} sceneAlt={data.imageAlt}
+  say="Where sustainability is made, not performed." sub={`${essay ? 'Insight' : 'Press desk note'} · ${formatDate(data.date)}`}>
+  <div class="rd-meta">
+    <p class="byline">
+      <span>{self.minutes} min read</span>
+      <span><time datetime={isoDate(data.date)}>{formatDate(data.date)}</time></span>
+    </p>
+    <GoalTags sdgs={data.sdgs} />
+  </div>
 
-  <article class="page-body article-body">
-    <div class="col">
-      <figure class="lead-figure">
-        <Media name={data.image} alt={data.imageAlt} sizes="(max-width: 800px) calc(100vw - 32px), 760px" loading="eager" fetchpriority="high" />
-      </figure>
-      <div class="prose"><Content /></div>
+  <RiverRail class="reading">
+    <Bead last={stops.length === 0} />
+    <article class:list={['sp-stop', 'rd-read', { end: stops.length === 0 }]} aria-label={essay ? 'Insight' : 'Desk note'}>
+      <div class="rd-prose"><Content /></div>
+      {data.note && noteIn === 'read' && <p class="rd-note">{data.note}</p>}
+    </article>
 
-      <footer class="article-foot">
-        {(data.subs.length > 0 || data.euRules) && (
-          <div>
-            <h2>Filed under</h2>
-            <ul class="chips">
-              {data.subs.map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}
-              {data.euRules && <li><span class="chip">EU green-claims rules, all industries</span></li>}
-            </ul>
-          </div>
-        )}
-        {data.sources.length > 0 && (
-          <div>
-            <h2>Sources</h2>
-            <ol class="sources">{data.sources.map((u) => <li><a href={u} target="_blank" rel="noopener">{u}</a></li>)}</ol>
-          </div>
-        )}
-        {data.note && <p class="note-line">{data.note}</p>}
-      </footer>
-    </div>
-  </article>
+    {filed && (
+      <Bead last={last('filed')} />
+      <section class:list={['sp-stop', { end: last('filed') }]} aria-labelledby="filed-h">
+        <h2 id="filed-h">Filed under</h2>
+        <ul class="chips">
+          {data.subs.map((s) => <li><a class="chip has" href={page(s)}>{getSub(s).name}</a></li>)}
+          {data.euRules && <li><span class="chip">EU green-claims rules, all industries</span></li>}
+        </ul>
+        {data.note && noteIn === 'filed' && <p class="rd-note">{data.note}</p>}
+      </section>
+    )}
 
-  {related.length > 0 && (
-    <section class="page-body" aria-labelledby="related-h">
-      <div class="wide">
-        <hr class="rule">
-        <div class="section-title"><h2 id="related-h">Read next</h2></div>
+    {data.sources.length > 0 && (
+      <Bead last={last('sources')} />
+      <section class:list={['sp-stop', { end: last('sources') }]} aria-labelledby="sources-h">
+        <h2 id="sources-h">Sources</h2>
+        <div class="rd-foot">
+          <ol class="sources">{data.sources.map((u) => <li><a href={u} target="_blank" rel="noopener">{u}</a></li>)}</ol>
+          {data.note && noteIn === 'sources' && <p class="rd-note">{data.note}</p>}
+        </div>
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <Bead last />
+      <section class="sp-stop end" aria-labelledby="related-h">
+        <h2 id="related-h">Read next</h2>
         <div class="cards">{related.map((it) => <InsightCard item={it} />)}</div>
-      </div>
-    </section>
-  )}
-</Page>
+      </section>
+    )}
+  </RiverRail>
+</Spring>

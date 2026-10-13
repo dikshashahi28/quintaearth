@@ -133,3 +133,10 @@ html:not(.rail-live) .sp-rail[data-arrive] .qe-rail .fill { transform: none; tra
   .sp-door, .sp-door .stone, .sp-door .stone svg, .ophoto img { transition: none; }
   .offer:hover .ophoto img { transform: none; }
 }
+/* an industry icon in the trail (sub-category and industry pages) */
+.sp-crumbs .hi { width: 1.25em; height: 1.25em; margin-right: 6px; color: var(--gold); }
+.sp-crumbs li:last-child { min-width: 0; }
+.sp-crumbs [aria-current] { display: block; overflow: hidden; text-overflow: ellipsis; }
+.sp-crumbs [aria-current] .hi { vertical-align: -0.25em; }
+/* on a phone a deep trail ends at the parent: the h1 right under it already names this page */
+@media (max-width: 640px) { .sp-crumbs.deep li:last-child { display: none; } }
