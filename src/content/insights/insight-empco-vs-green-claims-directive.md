@@ -4,9 +4,9 @@ description: "Do not build compliance theatre for a stalled proposal. Build clai
 date: 2026-09-23
 topic: "Greentech"
 sdgs: [12, 13, 16]
-image: "../../assets/articles/insight-empco-vs-green-claims-directive.jpg"
-imageAlt: "Forked path or institutional building suggesting two different EU rule tracks"
-imageCredit: { label: "Veeterzy / Unsplash", href: "https://unsplash.com/photos/iOPsGlfe3tY" }
+image: "article-insight-empco-vs-gcd"
+imageAlt: "Three European Union flags fly in front of the glass facade of the European Commission building in Brussels"
+imageCredit: { label: "Carl Gruner / Unsplash", href: "https://unsplash.com/photos/dxQ6ISn7_tQ" }
 subs: []
 euRules: true
 sources:

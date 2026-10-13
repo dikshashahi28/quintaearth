@@ -6,27 +6,27 @@ import '../styles/members.css';
 import '../styles/members/account.css';
 import '../styles/members/spring.css';
 import FormFocus from '../components/members/forms/FormFocus.astro';
+import SpringScene from '../components/spring/SpringScene.astro';
 import { site } from '../data/site';
 import { asset, page } from '../lib/url';
-import { photo } from '../lib/images';
 
 interface Props {
   title: string;
   description: string;
-  /** a photo from src/assets/photos, of people doing the work */
+  /** a site photograph by name (src/data/media.json), of people doing the work */
   scene: string;
-  sceneAlt: string;
-  /** object-position for the photo */
+  /** the photo's own alt when unset */
+  sceneAlt?: string;
+  /** object-position for the photo; the photo's own focal point when unset */
   scenePos?: string;
+  /** object-position for the short band at 1100px and below; scenePos when unset */
+  scenePosSm?: string;
   /** the line on the photo */
   say: string;
   /** a gold line under it */
   sub?: string;
 }
-const { title, description, scene, sceneAlt, scenePos, say, sub } = Astro.props;
-// this page renders on request; the runtime image service is not served by the Worker, so the photo is the plain
-// build-time asset (about 1000px wide) rather than a resized set
-const shot = photo(scene);
+const { title, description, scene, sceneAlt, scenePos, scenePosSm, say, sub } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -44,20 +44,7 @@ const shot = photo(scene);
 </head>
 <body>
   <div class="qe-root">
-    <aside class="qe-scene" style={scenePos ? `--pos: ${scenePos}` : undefined}>
-      <img src={shot.src} width={shot.width} height={shot.height} alt={sceneAlt} loading="eager" fetchpriority="high" />
-      <div class="qe-wash"></div>
-      <svg class="qe-river" viewBox="0 0 140 1000" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
-        <path class="w" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
-        <path class="m" d="M70 -20 C 20 200, 130 380, 60 560 S 30 820, 92 933"></path>
-        <circle class="halo" cx="92" cy="933" r="7"></circle>
-        <circle class="spring" cx="92" cy="933" r="7"></circle>
-      </svg>
-      <div class="qe-foot">
-        <p class="say">{say}</p>
-        {sub && <p class="sub">{sub}</p>}
-      </div>
-    </aside>
+    <SpringScene scene={scene} sceneAlt={sceneAlt} scenePos={scenePos} scenePosSm={scenePosSm} sizes="(max-width: 1100px) 100vw, 50vw" say={say} sub={sub} />
     <main class="qe-pane" id="main">
       <header class="qe-top">
         <a class="logo" href={page('index')}><img src={asset('assets/logo.png')} alt="QuintaEarth" width="1088" height="231"></a>

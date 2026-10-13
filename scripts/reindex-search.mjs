@@ -33,7 +33,7 @@ const subName = new Map(allSubs.map((s) => [s.slug, s.name]));
 const countryName = new Map(countries.map((c) => [c.iso, c.name]));
 const names = (slugs, map) => slugs.map((s) => map.get(s)).filter(Boolean);
 
-const empty = () => ({ industry: [], sub: [], sdg: [], skill: [], serves: [] });
+const empty = () => ({ industry: [], sub: [], sdg: [], skill: [], serves: [], operates: [], language: [], open: [], service: [], tag: [] });
 const tags = new Map();
 for (const t of rows('SELECT entity_type, entity_id, kind, value FROM tags')) {
   const key = `${t.entity_type}:${t.entity_id}`;
@@ -41,24 +41,33 @@ for (const t of rows('SELECT entity_type, entity_id, kind, value FROM tags')) {
   tags.get(key)[t.kind]?.push(t.value);
 }
 const tagsOf = (type, id) => tags.get(`${type}:${id}`) ?? empty();
-const body = (parts) => parts.filter(Boolean).join('\n');
+// never an email address or phone number in the index (the same rule as src/lib/contact.ts scrub; keep in step)
+const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
+const PHONE_RUN = /(?<![\p{L}\p{N}.,/])\+?\d[\d ().\-\u00a0]{6,}\d(?![\p{L}\p{N}])/gu;
+const isPhone = (run) => { const d = run.replace(/\D/g, '').length; return d <= 15 && (d >= 10 || (run.startsWith('+') && d >= 8)); };
+const scrub = (t) => t.replace(EMAIL, '[contact hidden]').replace(PHONE_RUN, (m) => (isPhone(m) ? '[contact hidden]' : m));
+const body = (parts) => scrub(parts.filter(Boolean).join('\n'));
 
 const docs = [];
-for (const p of rows('SELECT p.id, u.name, p.headline, p.bio, p.city, p.country FROM profiles p JOIN user u ON u.id = p.user_id WHERE p.published = 1')) {
+// what is public: src/lib/visibility.ts (published, and wording not held for review)
+for (const p of rows('SELECT p.id, u.name, p.headline, p.role_title, p.company_name, p.bio, p.city, p.country FROM profiles p JOIN user u ON u.id = p.user_id WHERE p.published = 1')) {
   const t = tagsOf('profile', p.id);
-  docs.push(['profile', p.id, p.name ?? '', body([p.headline, p.bio, p.city, countryName.get(p.country), ...t.skill, ...names(t.industry, industryName), ...names(t.sub, subName)])]);
+  docs.push(['profile', p.id, p.name ?? '', body([p.headline, p.role_title, p.company_name, p.bio, p.city, countryName.get(p.country), ...t.skill, ...t.service, ...t.language,
+    ...names(t.industry, industryName), ...names(t.sub, subName)])]);
 }
-for (const o of rows('SELECT id, name, description, city, country FROM organizations WHERE published = 1')) {
+for (const o of rows("SELECT id, name, legal_name, CASE WHEN green_review NOT IN ('pending', 'rejected') THEN description END AS description, CASE WHEN green_review NOT IN ('pending', 'rejected') THEN research END AS research, city, country, CASE WHEN green_review NOT IN ('pending', 'rejected') THEN case_studies END AS case_studies FROM organizations WHERE published = 1")) {
   const t = tagsOf('organization', o.id);
-  docs.push(['organization', o.id, o.name, body([o.description, o.city, countryName.get(o.country), ...names(t.industry, industryName), ...names(t.sub, subName)])]);
+  const cases = o.case_studies ? JSON.parse(o.case_studies) : [];
+  docs.push(['organization', o.id, o.name, body([o.legal_name, o.description, o.research, o.city, countryName.get(o.country), ...names(t.operates, countryName),
+    ...names(t.industry, industryName), ...names(t.sub, subName), ...cases.flatMap((c) => [c.title, c.client, c.summary])])]);
 }
-for (const l of rows("SELECT l.id, l.name, l.description, o.name AS org FROM listings l JOIN organizations o ON o.id = l.organization_id WHERE l.status = 'published' AND o.published = 1")) {
+for (const l of rows("SELECT l.id, l.name, l.description, l.specs, o.name AS org FROM listings l JOIN organizations o ON o.id = l.organization_id WHERE l.status = 'published' AND l.green_review NOT IN ('pending', 'rejected') AND o.published = 1")) {
   const t = tagsOf('listing', l.id);
-  docs.push(['listing', l.id, l.name, body([l.description, l.org, ...names(t.sub, subName), ...names(t.serves, countryName)])]);
+  docs.push(['listing', l.id, l.name, body([l.description, l.specs, ...t.tag, l.org, ...names(t.sub, subName), ...names(t.serves, countryName)])]);
 }
 
 const q = (v) => `'${String(v).replaceAll("'", "''")}'`;
-const sqlText = ['DELETE FROM search;', ...docs.map((d) => `INSERT INTO search (entity_type, entity_id, name, body) VALUES (${d.map(q).join(', ')});`)].join('\n');
+const sqlText = ['DELETE FROM search;', ...docs.map(([type, id, name, text]) => `INSERT INTO search (entity_type, entity_id, name, body) VALUES (${[type, id, scrub(name), text].map(q).join(', ')});`)].join('\n');
 if (dry) { console.log(sqlText); process.exit(0); }
 
 const dir = mkdtempSync(join(tmpdir(), 'qe-reindex-'));

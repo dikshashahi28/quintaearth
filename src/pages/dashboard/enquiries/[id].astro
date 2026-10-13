@@ -32,31 +32,34 @@ const t = await thread(user.id, id);
 if (!t) return new Response(null, { status: 404 });
 if (t.side === 'buyer') return Astro.redirect(`/dashboard/messages/${id}`);
 
-// the enquiry decides which of the member's companies is open
+// the enquiry decides which of the member's companies is open; one written to the member in person opens their own inbox
+const personal = !!t.enquiry.toUserId;
 const url = new URL(Astro.url);
-url.searchParams.set('org', t.enquiry.organizationId);
+if (t.enquiry.organizationId) url.searchParams.set('org', t.enquiry.organizationId);
 const ctx = await dashContext(user, url);
-const company = ctx.company?.id === t.enquiry.organizationId ? ctx.company : null;
-if (!company) return new Response(null, { status: 404 });
+const company = !personal && ctx.company?.id === t.enquiry.organizationId ? ctx.company : null;
+if (!personal && !company) return new Response(null, { status: 404 });
+const receiverName = company ? company.name : user.name;
 
 const enquiry = t.enquiry;
 const show = enquiry.status === 'closed' ? 'closed' : 'open';
-const org = ctx.companies.length > 1 ? company.id : null;
+const org = company && ctx.companies.length > 1 ? company.id : null;
+const inboxParam = personal && ctx.company ? 'me' : null;
 // the list beside the thread is the first page of its tab; the open thread counts as read, since it is being read
-const { rows, counts } = await inbox(company.id, show);
+const { rows, counts } = await inbox(personal ? { userId: user.id } : { organizationId: company!.id }, show);
 const items = rows.map((e) => ({
   id: e.id, href: `/dashboard/enquiries/${e.id}`, source: e.fromCompany || 'Individual', date: listDate(e.updatedAt),
   name: e.fromName, subject: e.subject, isNew: e.companyUnread && e.id !== id,
 }));
 const [names, listing] = await Promise.all([authorNames(t.messages.map((m) => m.authorUserId)), listingName(enquiry.listingId)]);
-const back = withQuery('/dashboard/enquiries', { org, show: show === 'closed' ? 'closed' : null });
+const back = withQuery('/dashboard/enquiries', { org, inbox: inboxParam, show: show === 'closed' ? 'closed' : null });
 ---
 <Dashboard ctx={ctx} current="enquiries" title={enquiry.subject} heading="Enquiries"
   crumbs={[{ label: 'Enquiries', href: back }, { label: enquiry.subject }]}>
   <Inbox show={show} openCount={counts.open}
-    tabs={{ open: withQuery('/dashboard/enquiries', { org }), closed: withQuery('/dashboard/enquiries', { org, show: 'closed' }) }}
+    tabs={{ open: withQuery('/dashboard/enquiries', { org, inbox: inboxParam }), closed: withQuery('/dashboard/enquiries', { org, inbox: inboxParam, show: 'closed' }) }}
     items={items} currentId={id} label="Enquiries" mode="thread">
-    <Thread enquiry={enquiry} messages={t.messages} side="company" viewerId={user.id} companyName={company.name}
+    <Thread enquiry={enquiry} messages={t.messages} side="company" viewerId={user.id} companyName={receiverName}
       listing={listing} names={names} base={`/dashboard/enquiries/${id}`} error={error} unread={t.unread} />
   </Inbox>
 </Dashboard>

@@ -1,8 +1,8 @@
 ---
 // Accepting a team invitation. The token stays in the URL; accepting is a POST.
 import { actions } from 'astro:actions';
-import Member from '../layouts/Member.astro';
-import PageHead from '../components/page/PageHead.astro';
+import Account from '../layouts/Account.astro';
+import GoButton from '../components/members/forms/GoButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
 import { invitation } from '../components/members/forms/invitation';
 import '../styles/members/account.css';
@@ -18,22 +18,26 @@ const invite = await invitation(token);
 Astro.response.headers.set('Cache-Control', 'private, no-store');
 Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 ---
-<Member title="Join a company" description="Accept a team invitation." noindex>
-  <PageHead title={invite ? `Join ${invite.company}` : 'Join the team'} crumbs={[{ label: 'Invitation' }]} lede={`Signed in as ${Astro.locals.user.email}`} width="col" />
-  <section class="body">
-    <div class="col">
-      {!invite ? (
-        <p class="form-status bad" role="alert">This invitation has expired or was already used. Ask the company to send a new one.</p>
-      ) : invite.email !== Astro.locals.user.email.toLowerCase() ? (
-        <p class="form-status bad" role="alert">This invitation is for {invite.email}. Sign out, then sign in with that address.</p>
-      ) : (
-        <form class="form" method="POST" action={actions.company.acceptInvite}>
-          {result?.error && <p class="form-status bad" role="alert">{actionErrorMessage(result.error)}</p>}
-          <p>{invite.company} invited you to their team on QuintaEarth. You can edit its company page and listings.</p>
-          <input type="hidden" name="token" value={token}>
-          <div class="form-send"><button class="btn btn-fill" type="submit">Accept invitation</button></div>
-        </form>
-      )}
-    </div>
-  </section>
-</Member>
+<Account title="Join a company" description="Accept a team invitation." scene="scene-join"
+  say="Where sustainability is made, not performed." sub="A team invitation">
+  <form class="qe-form" method="POST" action={actions.company.acceptInvite}>
+    <h1 class="tight">{invite ? `Join ${invite.company}` : 'Join the team'}</h1>
+    <p class="signed">Signed in as {Astro.locals.user.email}</p>
+    {result?.error && <p class="form-status bad" role="alert">{actionErrorMessage(result.error)}</p>}
+    {!invite ? (
+      <p class="form-status bad" role="alert">This invitation has expired or was already used. Ask the company to send a new one.</p>
+    ) : invite.email !== Astro.locals.user.email.toLowerCase() ? (
+      <p class="form-status bad" role="alert">This invitation is for {invite.email}. Sign out, then sign in with that address.</p>
+    ) : (
+      <>
+        <input type="hidden" name="token" value={token}>
+        <div class="qe-grid">
+          <div class="qe-rail" data-for="*" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+          <div class="qe-step"><p>{invite.company} invited you to their team on QuintaEarth. You can edit its company page and listings.</p></div>
+          <div class="qe-rail last" data-for="*" aria-hidden="true"><span class="bead"></span></div>
+          <div class="qe-step end"><div class="acts"><GoButton label="Accept invitation" /></div></div>
+        </div>
+      </>
+    )}
+  </form>
+</Account>

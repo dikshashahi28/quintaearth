@@ -1,0 +1,142 @@
+/* Public pages in "the spring" (layouts/Spring.astro, 12 Oct 2026): the scene as a band under the site header,
+   the page on white beside its river rail, and the stops a page can carry: an offer (photo, name, line, a door
+   into the contact form), a dated clock, a legal section. The scene, rail, bead and go button come from
+   spring-core.css; this file only sizes them for a public page. The contact page carries the doors' form (a
+   step per bead, from the core) and so loads the shared fields (fields.css). Tokens from tokens.css. */
+@import './fields.css';
+
+/* ---------- the scene as a band ---------- */
+/* --fl is the left edge of the wide frame: the spring is moved to sit exactly above the rail's first bead
+   (bead centre = frame left + 12px; the spring is drawn at x 92 of the 140px river), and the brand line starts
+   where the content column starts (24px rail + 20px gap) */
+/* the band: tall enough for the statement's lines over the wash, short enough that the first stop's door is in the
+   first screen at 1440x900 */
+.sp-scene { --fl: max(var(--gut), calc((100% - var(--wide)) / 2)); min-height: clamp(380px, 46vh, 560px); }
+.sp-scene .qe-river { left: calc(var(--fl) - 80px); }
+.sp-scene .qe-foot { padding: 0 var(--fl) 52px calc(var(--fl) + 44px); }
+.sp-scene .qe-foot .say { max-width: 24ch; }
+
+/* ---------- the page on white ---------- */
+.sp-body { padding: 28px 0 clamp(72px, 9vw, 112px); }
+.sp-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+.sp-crumbs li { display: inline-flex; align-items: center; white-space: nowrap; }
+.sp-crumbs .sep { margin: 0 8px; }
+.sp-crumbs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--river); text-decoration: none; }
+.sp-crumbs a:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 4px; }
+.sp-body h1 { margin: 6px 0 36px; font: 400 clamp(38px, 3.6vw, 52px)/1.06 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; }
+.sp-lede { margin: -20px 0 36px; font-size: 17px; line-height: 1.55; color: var(--muted); max-width: 46ch; }
+
+/* ---------- the rail and its stops ---------- */
+/* a stop is the section beside a bead; the bead sits on the first line of its h2 */
+.sp-stop { min-width: 0; margin: 0 0 clamp(48px, 6vw, 72px); }
+.sp-stop.end { margin-bottom: 0; }
+.sp-stop h2 { margin: 0; font: 400 clamp(26px, 2.6vw, 32px)/1.15 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; }
+.sp-rail .qe-rail .bead { top: 12px; }
+.sp-rail .qe-rail .track { top: 31px; }
+/* without the script (or under reduced motion) the rail is fully drawn and lit: the river at rest */
+html:not(.rail-live) .sp-rail[data-arrive] .qe-rail .bead { background: var(--gold); border-color: var(--gold); }
+html:not(.rail-live) .sp-rail[data-arrive] .qe-rail .fill { transform: none; transition: none; }
+
+/* ---------- an offer: photo beside name, line and a door ---------- */
+.offer { display: grid; grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr); gap: clamp(24px, 4vw, 48px); align-items: start; scroll-margin-top: 96px; }
+.ophoto { margin: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--r); background: var(--shallow); }
+.ophoto img { width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--ease); }
+.offer:hover .ophoto img { transform: scale(1.04); }
+.otext { display: grid; gap: 14px; justify-items: start; }
+.otext p { margin: 0; max-width: 50ch; color: var(--text); }
+
+/* the door: a pill with a stone that fills River Green and an arrow that nudges, the way into the contact form */
+.sp-door { display: inline-flex; align-items: center; gap: 14px; min-height: 64px; margin-top: 6px; padding: 7px 26px 7px 7px; border: 1.5px solid var(--hair); border-radius: 100px; background: var(--page); color: var(--deep); font: 500 16px/1.2 var(--font-body); text-decoration: none; box-sizing: border-box; transition: border-color .25s, transform .35s var(--ease), box-shadow .35s; }
+.sp-door .stone { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--river); background: var(--page); color: var(--river); box-sizing: border-box; transition: background .35s, color .35s; }
+.sp-door .stone svg { width: 22px; height: 22px; fill: currentColor; transition: transform .35s var(--ease); }
+.sp-door:hover { border-color: var(--reed); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.sp-door:hover .stone { background: var(--river); color: var(--page); }
+.sp-door:hover .stone svg { transform: translateX(3px); }
+.sp-door:active { transform: scale(.98); box-shadow: none; }
+
+/* ---------- the dates that set a buyer's clock, in Literata tabular figures ---------- */
+.clock { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 24px 32px; margin: 28px 0 0; }
+.clock > div { display: grid; gap: 6px; padding-top: 18px; border-top: 1px solid var(--hair); }
+.clock dt { font: 400 clamp(26px, 2.4vw, 32px)/1.1 var(--font-display); color: var(--river); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.clock dd { margin: 0; font-size: 15.5px; line-height: 1.45; color: var(--muted); }
+.clock .past dt { color: var(--muted); }
+.clock-note { margin: 28px 0 0; max-width: 60ch; font-size: 15px; line-height: 1.55; color: var(--muted); }
+.sp-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 32px; }
+
+/* ---------- a legal section: a quieter read, lines near 70 characters ---------- */
+.sp-rail.legal .sp-stop { margin-bottom: 48px; }
+.sp-rail.legal .sp-stop.end { margin-bottom: 0; }
+.sp-prose { font-size: 17px; line-height: 1.65; color: var(--text); max-width: 68ch; }
+.sp-prose > * + * { margin-top: 1em; }
+.sp-prose h2 + * { margin-top: 14px; }
+.sp-prose h3 { margin-top: 1.5em; font: 400 22px/1.25 var(--font-display); letter-spacing: -0.01em; color: var(--deep); }
+.sp-prose h3 + * { margin-top: 8px; }
+.sp-prose a { color: var(--river); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.sp-prose a:hover { color: var(--river-deep); text-decoration-thickness: 2px; }
+.sp-prose strong { font-weight: 600; color: var(--deep); }
+.sp-prose ul { padding-left: 1.3em; list-style: disc; }
+.sp-prose li + li { margin-top: .4em; }
+.sp-prose li::marker { color: var(--reed); }
+.sp-after { margin: 40px 0 0 44px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 15px; line-height: 1.5; color: var(--text); }
+.sp-after a { color: var(--river); font-weight: 500; }
+
+/* ---------- a form on a public page: the contact page ---------- */
+/* the direct ways under the h1 (email, the WhatsApp community), then the form head and the doors' form rail */
+.sp-ways { display: flex; flex-wrap: wrap; align-items: center; gap: 0 32px; margin: -18px 0 32px; }
+.sp-ways .tlink { font-size: 16px; }
+.sp-ways .ic { width: 20px; height: 20px; }
+.sp-form { max-width: 760px; scroll-margin-top: 96px; }
+.sp-form > h2 { margin: 0; font: 400 clamp(26px, 2.6vw, 32px)/1.15 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; }
+.sp-form .sub { margin: 8px 0 24px; font-size: 17px; line-height: 1.55; color: var(--muted); max-width: 50ch; }
+.sp-form .form-status { margin: 0; font-size: 15px; color: var(--muted); }
+.sp-form .qe-step .hint { font-size: 14px; }
+/* the form and the thank-you stone swap: the grid's display must not outrank the hidden attribute */
+.sp-form [hidden] { display: none; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  .sp-scene { min-height: 360px; }
+}
+@media (max-width: 640px) {
+  /* a short band that keeps the brand line and the river's last bend; the content follows one short scroll down */
+  .sp-scene { min-height: 220px; }
+  .sp-scene .qe-foot { padding: 0 16px 20px 60px; }
+  .sp-body { padding-top: 16px; }
+  .sp-body h1 { margin-bottom: 24px; }
+  .sp-lede { margin-top: -12px; margin-bottom: 24px; }
+  .sp-stop h2 { font-size: 24px; }
+  .sp-rail .qe-rail .bead { top: 8px; }
+  .sp-rail .qe-rail .track { top: 27px; }
+  /* the name, line and door come first beside their bead, the photo follows, so the first offer's door sits inside
+     the first screen */
+  .offer { grid-template-columns: minmax(0, 1fr); row-gap: 18px; }
+  .otext { order: -1; }
+  .ophoto { aspect-ratio: 2 / 1; }
+  .sp-door { width: 100%; }
+  .sp-acts .qe-btn { flex: 1 1 100%; }
+  .clock { gap: 18px 24px; }
+  .sp-rail.legal .sp-stop { margin-bottom: 40px; }
+  .sp-prose { font-size: 16px; }
+  .sp-after { margin-left: 38px; }
+  /* phone text floor: 14px for fine print */
+  .clock dd, .sp-after { font-size: 15px; }
+  .sp-ways { gap: 0 20px; margin: -6px 0 28px; }
+  .sp-form .sub { margin: 8px 0 22px; font-size: 16px; }
+}
+@media (hover: none) {
+  .sp-door:hover { transform: none; box-shadow: none; border-color: var(--hair); }
+  .sp-door:hover .stone { background: var(--page); color: var(--river); }
+  .sp-door:hover .stone svg { transform: none; }
+  .offer:hover .ophoto img { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-door, .sp-door .stone, .sp-door .stone svg, .ophoto img { transition: none; }
+  .offer:hover .ophoto img { transform: none; }
+}
+/* an industry icon in the trail (sub-category and industry pages) */
+.sp-crumbs .hi { width: 1.25em; height: 1.25em; margin-right: 6px; color: var(--gold); }
+.sp-crumbs li:last-child { min-width: 0; }
+.sp-crumbs [aria-current] { display: block; overflow: hidden; text-overflow: ellipsis; }
+.sp-crumbs [aria-current] .hi { vertical-align: -0.25em; }
+/* on a phone a deep trail ends at the parent: the h1 right under it already names this page */
+@media (max-width: 640px) { .sp-crumbs.deep li:last-child { display: none; } }

@@ -45,7 +45,8 @@ const q = Astro.url.searchParams;
 const token = q.get('token') ?? '';
 const usable = /^[\w-]{8,200}$/.test(token);
 ---
-<Account title="Sign in" description="Sign in to QuintaEarth." scene="weaver-woman" sceneAlt="A weaver working threads at a wooden loom" scenePos="50% 40%"
+{/* the same door as /signin (the visitor asked for the link there and lands here to finish signing in), so the same photo */}
+<Account title="Sign in" description="Sign in to QuintaEarth." scene="scene-signin"
   say="Where sustainability is made, not performed.">
   {usable ? (
     <form class="qe-form" method="POST" action="/signin/link">

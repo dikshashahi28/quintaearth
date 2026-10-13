@@ -1,15 +1,15 @@
 ---
 import { site } from '../../data/site';
-import { Image } from 'astro:assets';
-import { photo } from '../../lib/images';
+import Media from '../Media.astro';
 import { page } from '../../lib/url';
 
+// one photo per stone (src/data/media.json); the alt comes with the photo
 const stones = [
-  { img: 'tea-path', alt: 'Workers walking a path between tea bushes', title: 'Scholars and students', line: 'Insights and press notes, filed by industry.', icon: 'book', cta: 'Start with Insights', href: page('insights') },
-  { img: 'people-circle', alt: 'A group of people gathered closely in conversation', title: 'Founders and professionals', line: 'A free community of people doing the same work.', icon: 'connect', cta: 'Join the community', href: site.whatsapp, external: true },
-  { img: 'pipes-street', alt: 'Industrial pipes stacked along a street', title: 'Companies and exporters', line: 'Show your green work, each claim linked to proof.', icon: 'frame', cta: 'Show your work', href: page('our-work') },
-  { img: 'planting', alt: 'Hands planting seedlings in soil', title: 'CSR teams and NGOs', line: 'CSR that goes beyond charity and plantations.', icon: 'sprout', cta: 'How we help with CSR', href: '#csr' },
-  { img: 'weaver-woman', alt: 'A weaver working at a carpet loom', title: 'Makers and volunteers', line: 'Craft and clean-up projects that need hands.', icon: 'reed', cta: 'Volunteer with us', href: page('volunteer') },
+  { img: 'who-stone-1', title: 'Scholars and students', line: 'Insights and press notes, filed by industry.', icon: 'book', cta: 'Start with Insights', href: page('insights') },
+  { img: 'who-stone-2', title: 'Founders and professionals', line: 'A free community of people doing the same work.', icon: 'connect', cta: 'Join the community', href: site.whatsapp, external: true },
+  { img: 'who-stone-3', title: 'Companies and exporters', line: 'Show your green work, each claim linked to proof.', icon: 'frame', cta: 'Show your work', href: page('our-work') },
+  { img: 'who-stone-4', title: 'CSR teams and NGOs', line: 'CSR that goes beyond charity and plantations.', icon: 'sprout', cta: 'How we help with CSR', href: '#csr' },
+  { img: 'who-stone-5', title: 'Makers and volunteers', line: 'Craft and clean-up projects that need hands.', icon: 'reed', cta: 'Volunteer with us', href: page('volunteer') },
 ];
 ---
 <section class="who" id="who" data-river="stones">
@@ -21,7 +21,7 @@ const stones = [
       <ul id="stones">
         {stones.map((s) => (
           <li class="rv">
-            <span class="stone" data-stop><Image src={photo(s.img)} alt={s.alt} width={216} height={216} densities={[1, 2]} loading="lazy" /></span>
+            <span class="stone" data-stop><Media name={s.img} sizes="(max-width: 640px) 80px, 106px" /></span>
             <h3>{s.title}</h3>
             <p>{s.line}</p>
             <a class="tag" href={s.href} {...(s.external ? { target: '_blank', rel: 'noopener' } : {})}>

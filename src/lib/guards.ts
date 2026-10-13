@@ -38,3 +38,10 @@ export async function isMember(userId: string, organizationId: string): Promise<
     columns: { role: true },
   }));
 }
+
+/** an admin may not review their own company (identity check, wording review): another admin must */
+export async function refuseOwnCompany(adminId: string, organizationId: string): Promise<void> {
+  if (await isMember(adminId, organizationId)) {
+    throw new ActionError({ code: 'FORBIDDEN', message: 'You are on this company’s team. Another admin must review it.' });
+  }
+}

@@ -1,10 +1,11 @@
 ---
 // Industries (with their sub-categories grouped under each) and the UN goals, for the profile and company editors.
-// Sub-category groups open when their industry or one of their subs is chosen. Leave out `sdgs` to hide the goals
-// (person profiles do not carry UN goals; companies do).
+// Sub-category groups open when their industry or one of their subs is chosen. Leave out `sdgs` to hide the goals.
+// UN goals are self-declared (people and companies, 12 Oct): labelled as such, never as a badge.
 import { industries } from '../../../data/industries';
 import { goals } from '../../../data/sdgs';
 import ChipPicker from './ChipPicker.astro';
+import { GOALS_HEADING } from '../../../lib/labels';
 
 interface Props {
   prefix: string;
@@ -23,10 +24,11 @@ const { prefix, industries: chosenInd, subs: chosenSubs, sdgs: chosenGoals, erro
     groups={industries.map((ind) => ({ label: ind.name, open: chosenInd.includes(ind.slug), options: ind.subs.map((s) => ({ value: s.slug, label: s.name })) }))} />
 </section>
 
+{chosenGoals && <slot name="goals-rail" />}
 {chosenGoals && (
   <section class="sec">
-    <h2>UN goals</h2>
-    <ChipPicker name="sdgs" legend="UN goals" quietLegend options={goals.map((g) => ({ value: String(g.n), label: g.title, goal: g.n }))}
+    <h2>{GOALS_HEADING}</h2>
+    <ChipPicker name="sdgs" legend={GOALS_HEADING} quietLegend options={goals.map((g) => ({ value: String(g.n), label: g.title, goal: g.n }))}
       selected={chosenGoals} errorId={`${prefix}-sdgs-error`} error={errors.sdgs} />
   </section>
 )}

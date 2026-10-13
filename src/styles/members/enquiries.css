@@ -30,6 +30,8 @@
 .eq-item .seg { position: absolute; left: 11px; top: -17px; bottom: -17px; width: 3px; background: var(--water); overflow: hidden; }
 .eq-item:first-child .seg { top: 24px; }
 .eq-item:last-child .seg { bottom: auto; height: 41px; }
+/* one enquiry alone has no bead to reach, so no stub of track hangs under its bead */
+.eq-item:only-child .seg { display: none; }
 .eq-item .seg > span { display: block; width: 100%; height: 100%; background: var(--river); transform-origin: top; animation: eq-grow .26s linear var(--d, 0s) both; }
 .eq-item:first-child .seg > span { animation-duration: .2s; }
 .eq-item .seg > span.half { height: 41px; }
@@ -37,6 +39,8 @@
 .eq-item .seg > span.end { animation-duration: .18s; animation-timing-function: var(--ease); }
 .eq-item .seg > span.none { display: none; }
 .eq-item .bead { top: 18px; }
+/* the reply row's bead sits level with the 16px "Reply" label (30px down, 22px line) rather than a message stone */
+.eq-thread .eq-row:last-child .bead { top: 35px; }
 .eq-item .bead.lit::after { animation-delay: calc(var(--d, 0s) + .2s); }
 .eq-item .stone { width: 48px; height: 48px; padding: 3px; border-width: 1.5px; }
 .eq-item .stone > span { font-size: 16px; }
@@ -63,7 +67,9 @@
 .eq-row .fill.on { transform: scaleY(1); }
 .eq-msg { padding: 22px 0 18px; min-width: 0; }
 .eq-msg.mine { padding-left: 28px; border-left: 2px solid var(--water); }
-.eq-msg .from { display: flex; align-items: center; gap: 14px; }
+.eq-msg .from { display: flex; align-items: flex-start; gap: 14px; }
+/* the stone keeps to the top of the row, level with its bead, when the name and date wrap on a narrow pane */
+.eq-msg .who { align-self: center; }
 .eq-msg .stone { width: 48px; height: 48px; padding: 3px; border-width: 1.5px; }
 .eq-msg .stone > span { font-size: 16px; }
 .eq-msg .who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; min-width: 0; font-size: 14px; color: var(--muted); }
@@ -77,7 +83,7 @@
 .eq-reply { display: flex; flex-direction: column; gap: 18px; }
 .eq-field { display: flex; flex-direction: column; gap: 8px; }
 .eq-field label { font-weight: 500; font-size: 16px; line-height: 1.4; color: var(--deep); }
-.eq-area { display: block; width: 100%; min-height: 128px; margin: 0; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--field-line); background: var(--page); font: 400 16px/1.55 var(--font-body); color: var(--text); box-sizing: border-box; resize: vertical; caret-color: var(--river); transition: border-color .2s, box-shadow .2s; }
+.eq-area { display: block; width: 100%; min-height: 128px; margin: 0; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--field-line); background: var(--page); font: 400 16px/1.55 var(--font-body); color: var(--text); box-sizing: border-box; resize: vertical; field-sizing: content; caret-color: var(--river); transition: border-color .2s, box-shadow .2s; }
 .eq-area::placeholder { color: var(--placeholder); }
 .eq-area:hover { border-color: var(--reed-ink); }
 .eq-area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
@@ -149,6 +155,52 @@
 .eq-co + * { margin-top: 28px; }
 .eq-as { font-size: 15px; color: var(--muted); }
 .eq-as b { font-weight: 500; color: var(--deep); }
+/* which inbox: the company's, or the one written to the member in person (?inbox=me); outlined pills, the current
+   one filled Shallow with a gold icon (gold marks the selected thing) */
+.eq-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.eq-switch a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 100px; border: 1px solid var(--hair); background: var(--page); color: var(--text); font-size: 15px; font-weight: 500; text-decoration: none; max-width: 100%; transition: border-color .2s, background .2s; }
+.eq-switch a .ms { flex: none; font-size: 18px; color: var(--river); }
+.eq-switch a:hover { border-color: var(--river); }
+.eq-switch a[aria-current] { background: var(--shallow); border-color: var(--shallow); color: var(--river-deep); }
+.eq-switch a[aria-current] .ms { color: var(--gold-ink); }
+.eq-switch .n { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 100px; background: var(--live-wash); color: var(--live-ink); font: 500 13px/1.3 var(--font-display); font-variant-numeric: tabular-nums; }
+.eq-switch .n::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.eq-switch .n .sr { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; clip-path: none; font: 600 12px/1.3 var(--font-body); }
+
+/* the enquiry form page, "the spring" (EnquireHead + the doors' rail form): on white, the recipient's stone beside
+   "Write to <name>", then a bead per step that lights as its fields pass (RailLight), the go button at the last */
+.eqp { padding: 20px 0 clamp(72px, 9vw, 112px); }
+.eqp-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+.eqp-crumbs li { display: inline-flex; align-items: center; white-space: nowrap; min-width: 0; }
+.eqp-crumbs .sep { margin: 0 8px; }
+.eqp-crumbs a { display: inline-flex; align-items: center; min-height: 44px; color: var(--river); text-decoration: none; }
+.eqp-crumbs a:hover { color: var(--river-deep); text-decoration: underline; text-underline-offset: 4px; }
+.eqp-crumbs li:has(a) { max-width: 22ch; }
+.eqp-crumbs li a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 44px; }
+.eqp-who { display: flex; align-items: center; gap: 22px; margin: 16px 0 40px; }
+.eqp-stone { flex: none; display: block; border-radius: 50%; text-decoration: none; transition: transform .35s var(--ease), box-shadow .35s; }
+.eqp-stone:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.eqp-txt { min-width: 0; }
+.eqp-who h1 { margin: 0; font: 400 clamp(32px, 3.4vw, 46px)/1.08 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; overflow-wrap: anywhere; }
+.eqp-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin-top: 10px; font-size: 15px; color: var(--muted); }
+.eqp-meta > span:not(.idc) { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; }
+.eqp-meta .ms { font-size: 18px; color: var(--reed-ink); }
+.eqp-meta .idc .ms { color: var(--muted); font-size: 16px; }
+.eqp-form, .eqp-state { max-width: 760px; }
+.eqp-form > .form-status { margin: 0 0 20px 44px; }
+.eqp-say { margin: 4px 0 0; font-size: 17px; line-height: 1.55; color: var(--ink-2); max-width: 52ch; }
+.eqp-state .qe-step.end { gap: 16px; }
+.eqp .qe-step .area.tall { min-height: 200px; }
+.eqp .qe-step .note { max-width: 56ch; }
+.eqp .qe-sent .tlink { margin-top: 8px; }
+@media (max-width: 640px) {
+  .eqp { padding-top: 12px; }
+  .eqp-who { flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
+  .eqp-crumbs li:has(a) { max-width: 14ch; }
+  .eqp-form > .form-status { margin-left: 38px; }
+  .eqp .qe-step .acts .qe-btn { width: 100%; }
+}
+
 /* honeypot: off-screen, out of the tab order and hidden from assistive tech; people never fill it */
 .eq-hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
@@ -158,6 +210,10 @@
   /* the rail ends with the last message instead of running on into the reply field below it */
   .eq-row:has(+ .eq-row:last-child) .track { bottom: 0; }
   .eq-pager .tlink { min-width: 44px; }
+  /* the company line keeps the name on one or two lines: the Identity checked pill drops under the name instead of
+     taking a third column that squeezed the name to one word per line */
+  .eq-co { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; row-gap: 10px; }
+  .eq-co > :last-child:not(:nth-child(2)) { grid-column: 2; justify-self: start; }
 }
 @media (hover: none) {
   .eq-item:hover, .eq-tabs a.chip:hover, .eq-btn:hover, .eq-btn:hover svg { transform: none; }

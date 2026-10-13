@@ -6,10 +6,11 @@ import Account from '../layouts/Account.astro';
 import PasswordField from '../components/members/forms/PasswordField.astro';
 import GoButton from '../components/members/forms/GoButton.astro';
 import GoogleButton from '../components/members/forms/GoogleButton.astro';
+import LinkedInButton from '../components/members/forms/LinkedInButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
 import InviteNote from '../components/members/forms/InviteNote.astro';
 import { invitationFromNext } from '../components/members/forms/invitation';
-import { googleSignIn } from '../lib/auth';
+import { googleSignIn, linkedinSignIn } from '../lib/auth';
 import { page } from '../lib/url';
 
 export const prerender = false;
@@ -21,11 +22,15 @@ const next = params.get('next') ?? '';
 const linkError = params.get('error') === 'link';
 // Google sends members back here when they cancel or the answer could not be used
 const googleError = params.get('error') === 'google';
+const linkedinError = params.get('error') === 'linkedin';
 const signIn = Astro.getActionResult(actions.account.signIn);
 if (signIn?.data) return Astro.redirect(signIn.data.next, 303);
 // "Continue with Google": the action answers with Google's account chooser address
 const google = Astro.getActionResult(actions.account.signInWithGoogle);
 if (google?.data) return Astro.redirect(google.data.url, 303);
+// "Continue with LinkedIn": the same, with LinkedIn's address
+const linkedin = Astro.getActionResult(actions.account.signInWithLinkedIn);
+if (linkedin?.data) return Astro.redirect(linkedin.data.url, 303);
 const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
 // after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
 // short-lived cookie, never the URL
@@ -40,7 +45,7 @@ if (sendLink?.data) {
 }
 const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
 const byLink = params.get('by') === 'link' || !!sendLink || linkError;
-const result = byLink ? sendLink : (google ?? signIn);
+const result = byLink ? sendLink : (google ?? linkedin ?? signIn);
 const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
 
@@ -64,7 +69,7 @@ const title = byLink ? 'Email me a link' : 'Sign in';
 // on the way to a team invitation: say so, naming the company
 const invite = await invitationFromNext(formNext);
 ---
-<Account title={title} description="Sign in to QuintaEarth." scene="weaver-woman" sceneAlt="A weaver working threads at a wooden loom" scenePos="50% 40%"
+<Account title={title} description="Sign in to QuintaEarth." scene="scene-signin"
   say="Where sustainability is made, not performed.">
   {!byLink && <p class="aside" slot="top"><span class="lead">New here?</span> <a href={withNext('/join')}>Create an account</a></p>}
   {byLink && sentTo ? (
@@ -111,13 +116,15 @@ const invite = await invitationFromNext(formNext);
       <h1>Sign in</h1>
       {invite && <InviteNote company={invite.company} />}
       {googleError && <p class="form-status bad" role="alert">Google sign-in did not finish. Try again, or sign in with your email.</p>}
+      {linkedinError && <p class="form-status bad" role="alert">LinkedIn sign-in did not finish. Try again, or sign in with your email.</p>}
       {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>
       <div class="qe-grid">
-        {googleSignIn && <>
+        {(googleSignIn || linkedinSignIn) && <>
           <div class="qe-rail" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
           <div class="qe-step tight">
-            <GoogleButton next={formNext} />
+            {googleSignIn && <GoogleButton />}
+            {linkedinSignIn && <LinkedInButton />}
             <p class="or" aria-hidden="true">or with your email</p>
           </div>
         </>}

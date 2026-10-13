@@ -4,9 +4,13 @@
 // Upload controls in those slots belong to their own forms elsewhere on the page (`form` attribute) and carry
 // the `data-autosave` mark: with script, a dirty listing is saved first so an upload never drops unsaved edits.
 // The buttons belong to the main form through the `form` attribute.
+import Icon from '../Icon.astro';
+import '../../../styles/members/trust.css';
 import ChipPicker from '../forms/ChipPicker.astro';
 import { industries } from '../../../data/industries';
 import { countries } from '../../../data/countries';
+import { PRICING_OPTIONS } from '../../../lib/labels';
+import { findGreenTerms, greenWarnings, listingGreenTexts } from '../../../lib/green-words';
 
 export interface ListingValues {
   id?: string;
@@ -15,7 +19,18 @@ export interface ListingValues {
   description: string | null;
   link: string | null;
   status: 'draft' | 'published';
+  pricingModel?: string | null;
+  leadTime?: string | null;
+  specs?: string | null;
+  /** comma separated */
+  tags?: string;
+  /** ids of linked company certifications */
+  certifications?: string[];
+  /** the wording review: "pending" / "rejected" hold the listing from the public */
+  greenReview?: string;
+  greenReason?: string | null;
 }
+export interface CertOption { id: string; name: string; expired: boolean }
 interface Props {
   /** form action URL (e.g. "?_action=listings.save") */
   action: string;
@@ -26,8 +41,15 @@ interface Props {
   errors?: Record<string, string[] | undefined>;
   /** a non-field error from the last save */
   failure?: string;
+  /** the company's certifications, to link */
+  certOptions?: CertOption[];
 }
-const { action, organizationId, values, subs, serves, errors = {}, failure } = Astro.props;
+const { action, organizationId, values, subs, serves, errors = {}, failure, certOptions = [] } = Astro.props;
+// green wording: the owner sees why the listing is held, and the EmpCo warning on neutrality claims
+const greenTexts = listingGreenTexts(values);
+const greenTerms = findGreenTerms(...greenTexts);
+const warnings = greenWarnings(...greenTexts);
+const linked = new Set(values.certifications ?? []);
 const isNew = !values.id;
 const live = values.status === 'published';
 const servesSet = new Set(serves);
@@ -40,6 +62,20 @@ const err = (k: string) => errors[k]?.join(' ') ?? '';
   <form id="listing-form" class="sec" method="POST" action={action} data-status={values.status} novalidate>
     <h2>Listing</h2>
     {failure && <p class="form-status bad" role="alert">{failure}</p>}
+    {values.greenReview === 'pending' && (
+      <div class="gw gw-wait" role="status" data-green="pending">
+        <Icon name="hourglass_top" />
+        <div><b>In wording review</b><p>It uses “{greenTerms.join('”, “')}”, so it stays off your company page until we approve it. Evidence helps.</p></div>
+      </div>
+    )}
+    {values.greenReview === 'rejected' && (
+      <div class="gw gw-back" role="status" data-green="rejected">
+        <Icon name="edit" />
+        <div><b>Sent back by the wording review</b><p>{values.greenReason} Edit and save to send it again.</p></div>
+      </div>
+    )}
+    {values.greenReview !== 'pending' && values.greenReview !== 'rejected' && greenTerms.length > 0 && <p class="hint gw-hint" data-green-hint>Words like “{greenTerms.join('”, “')}” send a listing to a short wording review before it is public.</p>}
+    {warnings.map((w) => <p class="gw-warn" role="note" data-green-warning><Icon name="info" />{w.message}</p>)}
     <input type="hidden" name="organizationId" value={organizationId}>
     <input type="hidden" name="listingId" value={values.id ?? ''}>
     <div class="form">
@@ -63,6 +99,42 @@ const err = (k: string) => errors[k]?.join(' ') ?? '';
           aria-invalid={err('description') ? 'true' : undefined} aria-describedby="l-desc-err">{values.description ?? ''}</textarea>
         <p class="err" id="l-desc-err">{err('description')}</p>
       </div>
+      <div class="row2">
+        <div class="field">
+          <label for="l-pricing">Pricing <span class="opt">(optional)</span></label>
+          <span class="selwrap">
+            <select class="sel" id="l-pricing" name="pricingModel" aria-describedby="l-pricing-err">
+              <option value="" selected={!values.pricingModel}>Not shown</option>
+              {PRICING_OPTIONS.map((o) => <option value={o.value} selected={values.pricingModel === o.value}>{o.label}</option>)}
+            </select>
+            <Icon name="expand_more" />
+          </span>
+          <p class="err" id="l-pricing-err">{err('pricingModel')}</p>
+        </div>
+        <div class="field">
+          <label for="l-lead">Lead time or availability <span class="opt">(optional)</span></label>
+          <input class="inp" id="l-lead" name="leadTime" type="text" maxlength="80" value={values.leadTime ?? ''} placeholder="4 to 6 weeks"
+            aria-invalid={err('leadTime') ? 'true' : undefined} aria-describedby="l-lead-err">
+          <p class="err" id="l-lead-err">{err('leadTime')}</p>
+        </div>
+      </div>
+      <div class="field">
+        <label for="l-specs">Specifications <span class="opt">(optional)</span></label>
+        <textarea class="area short" id="l-specs" name="specs" maxlength="3000"
+          aria-invalid={err('specs') ? 'true' : undefined} aria-describedby="l-specs-err">{values.specs ?? ''}</textarea>
+        <p class="err" id="l-specs-err">{err('specs')}</p>
+      </div>
+      <div class="field">
+        <label for="l-tags">Tags <span class="opt">(optional)</span></label>
+        <input class="inp" id="l-tags" name="tags" type="text" maxlength="400" value={values.tags ?? ''} placeholder="Solar pump, off-grid"
+          aria-invalid={err('tags') ? 'true' : undefined} aria-describedby="l-tags-hint l-tags-err">
+        <p class="hint" id="l-tags-hint">Separate with commas. People can search by them.</p>
+        <p class="err" id="l-tags-err">{err('tags')}</p>
+      </div>
+      {certOptions.length > 0 && (
+        <ChipPicker name="certifications" legend="Certifications" selected={[...linked]} errorId="l-certs-err" error={errors.certifications}
+          options={certOptions.map((c) => ({ value: c.id, label: c.expired ? `${c.name} (expired)` : c.name }))} />
+      )}
       <slot name="evidence" />
       <ChipPicker name="subs" legend="Sub-categories" selected={subs} errorId="l-subs-err" error={errors.subs}
         groups={industries.map((ind) => ({ label: ind.name, options: ind.subs.map((s) => ({ value: s.slug, label: s.name })) }))} />

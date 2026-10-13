@@ -1,0 +1,92 @@
+---
+// Admin queue for green wording: listings and company descriptions using words like "eco" or "carbon neutral"
+// (src/lib/green-words.ts) wait here, hidden from the public, until an admin approves or refuses that exact text.
+// Evidence on the listing helps decide. Every decision goes to the audit log.
+import { actions, isInputError } from 'astro:actions';
+import Dashboard from '../../layouts/Dashboard.astro';
+import { dashContext } from '../../lib/dash-context';
+import EmptyState from '../../components/members/EmptyState.astro';
+import Icon from '../../components/members/Icon.astro';
+import { actionErrorMessage } from '../../components/members/forms/errors';
+import { greenQueue } from '../../db/queries/dashboard';
+import { companyGreenTexts, greenWarnings, listingGreenTexts } from '../../lib/green-words';
+import { fileUrl } from '../../lib/storage-url';
+import '../../styles/members/account.css';
+
+export const prerender = false;
+
+// the middleware answers 404 to non-admins; this is a second lock
+const user = Astro.locals.user;
+if (!user) return Astro.redirect('/signin?next=%2Fadmin%2Freview');
+if (user.role !== 'admin') return new Response(null, { status: 404 });
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+const ctx = await dashContext(user, Astro.url);
+
+const result = Astro.getActionResult(actions.moderation.review);
+if (result?.data) return Astro.redirect(`/admin/review?done=${result.data.decision}`, 303);
+const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+const done = Astro.url.searchParams.get('done');
+const { listings, companies } = await greenQueue();
+const day = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+---
+<Dashboard ctx={ctx} current="review" title="Wording review" crumbs={[{ label: 'Wording review' }]}>
+  <div class="adm">
+      {failed && <p class="form-status bad adm-status" role="alert">{failed}</p>}
+      {errors.reason && <p class="form-status bad adm-status" role="alert">{errors.reason.join(' ')}</p>}
+      {done && <p class="notice adm-status" role="status">{done === 'approved' ? 'Approved: it is public now (if published).' : 'Sent back to the company with your note.'}</p>}
+      {listings.length + companies.length === 0 ? <EmptyState note="Nothing waiting." /> : (
+        <ul class="adm-queue" data-green-queue>
+          {listings.map((l) => (
+            <li class="adm-item" data-queue-item="listing" data-id={l.id}>
+              <h2>{l.name}</h2>
+              <p class="adm-kind">Listing of <a href={`/companies/${l.slug}`}>{l.company}</a> · {day(l.updatedAt)}{l.status === 'draft' ? ' · draft' : ''}</p>
+              <p class="adm-words"><span class="adm-lab">Words found</span>{(l.terms ?? "").split(/,\s*/).filter(Boolean).map((t) => <span class="adm-word">{t}</span>)}</p>
+              {greenWarnings(...listingGreenTexts(l)).map((w) => <p class="adm-warn" role="note"><Icon name="info" />{w.message}</p>)}
+              {l.description && <p class="adm-text">{l.description}</p>}
+              {l.specs && <p class="adm-text">{l.specs}</p>}
+              {l.leadTime && <p class="adm-text">Lead time: {l.leadTime}</p>}
+              {l.tags.length > 0 && <p class="adm-text">Tags: {l.tags.join(', ')}</p>}
+              <div class="adm-ev">
+                <h3>Evidence</h3>
+                {l.evidence.length > 0
+                  ? <ul class="adm-evl">{l.evidence.map((e) => <li><a href={fileUrl(e.key)} target="_blank" rel="noopener"><Icon name="description" /><span>{e.name}</span><span class="sr"> (opens in a new tab)</span></a></li>)}</ul>
+                  : <p class="adm-none">No evidence attached.</p>}
+              </div>
+              <form class="form adm-decide" method="POST" action={actions.moderation.review}>
+                <input type="hidden" name="type" value="listing" />
+                <input type="hidden" name="id" value={l.id} />
+                <input type="hidden" name="hash" value={l.hash ?? ''} />
+                <div class="field"><label for={`r-${l.id}`}>Note to the company <span class="opt">(needed to send back)</span></label><textarea class="area short" id={`r-${l.id}`} name="reason" maxlength="500"></textarea></div>
+                <div class="form-send">
+                  <button class="btn btn-fill" type="submit" name="decision" value="approved">Approve</button>
+                  <button class="btn btn-line" type="submit" name="decision" value="rejected">Send back</button>
+                </div>
+              </form>
+            </li>
+          ))}
+          {companies.map((c) => (
+            <li class="adm-item" data-queue-item="organization" data-id={c.id}>
+              <h2>{c.name}</h2>
+              <p class="adm-kind">Company description, research and case studies · {day(c.updatedAt)}</p>
+              <p class="adm-words"><span class="adm-lab">Words found</span>{(c.terms ?? "").split(/,\s*/).filter(Boolean).map((t) => <span class="adm-word">{t}</span>)}</p>
+              {greenWarnings(...companyGreenTexts(c)).map((w) => <p class="adm-warn" role="note"><Icon name="info" />{w.message}</p>)}
+              {c.description && <p class="adm-text">{c.description}</p>}
+              {c.research && <p class="adm-text">{c.research}</p>}
+              {(c.caseStudies ?? []).map((k) => <p class="adm-text"><b>{k.title}</b>{k.client && ` · ${k.client}`}{k.summary && <><br />{k.summary}</>}</p>)}
+              <form class="form adm-decide" method="POST" action={actions.moderation.review}>
+                <input type="hidden" name="type" value="organization" />
+                <input type="hidden" name="id" value={c.id} />
+                <input type="hidden" name="hash" value={c.hash ?? ''} />
+                <div class="field"><label for={`r-${c.id}`}>Note to the company <span class="opt">(needed to send back)</span></label><textarea class="area short" id={`r-${c.id}`} name="reason" maxlength="500"></textarea></div>
+                <div class="form-send">
+                  <button class="btn btn-fill" type="submit" name="decision" value="approved">Approve</button>
+                  <button class="btn btn-line" type="submit" name="decision" value="rejected">Send back</button>
+                </div>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )}
+  </div>
+</Dashboard>

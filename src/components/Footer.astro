@@ -9,10 +9,12 @@ const groups = [
     links: [
       { label: 'About', href: page('about') },
       { label: 'Our work', href: page('our-work') },
+      { label: 'Services', href: page('services') },
       { label: 'Volunteer', href: page('volunteer') },
       { label: 'Reviews', href: page('testimonials') },
       { label: 'Contact', href: page('contact') },
       { label: 'Privacy', href: page('privacy') },
+      { label: 'Terms', href: page('terms') },
     ],
   },
   {
@@ -59,6 +61,15 @@ const year = new Date().getFullYear();
     </g>
     <g id="mdSeeds"></g>
   </svg>
+  <form class="wide news" id="news-form" method="post" action="/newsletter?_action=newsletter.subscribe" novalidate>
+    <label for="news-email"><span class="news-bead" aria-hidden="true"></span>New Insights by email</label>
+    <div class="news-row">
+      <input id="news-email" name="email" type="email" autocomplete="email" inputmode="email" spellcheck="false" maxlength="100" required placeholder="you@company.com" aria-describedby="news-status">
+      <button class="btn btn-gold" type="submit">Subscribe</button>
+    </div>
+    <div class="hp" aria-hidden="true"><label for="news-website">Website</label><input id="news-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+    <p class="news-status" id="news-status" role="status" aria-live="polite"></p>
+  </form>
   <div class="wide grid">
     <div class="brand">
       <p class="wm">QuintaEarth</p>
@@ -85,5 +96,7 @@ const year = new Date().getFullYear();
 
 <script>
   import { initMeadow } from '../scripts/meadow';
+  import { initNewsletter } from '../scripts/newsletter';
   initMeadow();
+  initNewsletter();
 </script>

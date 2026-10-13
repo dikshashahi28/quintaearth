@@ -4,9 +4,9 @@ description: "Ferragamo’s reported origin visibility for most leather is a fir
 date: 2026-09-23
 topic: "Sustainable development"
 sdgs: [8, 12, 15]
-image: "../../assets/articles/insight-ferragamo-traceability-makers.jpg"
-imageAlt: "Leather workshop interior suggesting supply-chain origin work"
-imageCredit: { label: "Joseph Gonzalez / Unsplash (not Ferragamo imagery)", href: "https://unsplash.com/photos/aXXW355tfDQ" }
+image: "article-insight-ferragamo"
+imageAlt: "Cattle graze on a hillside pasture beneath a group of trees, with a patchwork of fields in the valley beyond"
+imageCredit: { label: "Jakob Cotton / Unsplash", href: "https://unsplash.com/photos/UQJf6y91zZs" }
 subs: ["transport-supply-chain"]
 project: "Ferragamo leather origin mapping"
 companies: ["Ferragamo"]

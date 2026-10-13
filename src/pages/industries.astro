@@ -1,42 +1,41 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// The eight industries as stops on the river (design: "the spring", layouts/Spring.astro): each one its photo,
+// name, how much is filed there and its sub-categories as chips, the count on each that has something filed.
+import '../styles/spring-industries.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import { industries } from '../data/industries';
-import { Image } from 'astro:assets';
+import Media from '../components/Media.astro';
 import { getStream, streamBySub } from '../lib/content';
-import { photo } from '../lib/images';
 import { page } from '../lib/url';
 
 const [stream, bySub] = await Promise.all([getStream(), streamBySub()]);
 const subCount = industries.reduce((n, i) => n + i.subs.length, 0);
 const filedIn = (slug: string) => bySub.get(slug)?.length ?? 0;
+const last = industries.length - 1;
 ---
-<Page title="Industries" description={`Eight green industries and ${subCount} sub-categories, each with the stories filed there.`} current="industries">
-  <PageHead
-    title="Eight industries"
-    crumbs={[{ label: 'Industries' }]}
-    lede="Pick a field and follow it. Every sub-category has its own page and the work filed there."
-    facts={[{ value: industries.length, label: 'industries' }, { value: subCount, label: 'sub-categories' }, { value: stream.length, label: 'Insights' }]}
-  />
-  <section class="page-body">
-    <div class="wide">
-      <ul class="ind-grid">
-        {industries.map((ind) => {
-          const total = ind.subs.reduce((n, s) => n + filedIn(s.slug), 0);
-          return (
-            <li class="ind-card rv">
-              <a class={`ind-photo ${ind.motion}`} href={page(`industries-${ind.slug}`)} tabindex="-1" aria-hidden="true">
-                <Image src={photo(ind.image)} alt="" widths={[480, 720, 960]} sizes="(max-width: 900px) calc(100vw - 32px), 520px" loading="lazy" />
-                <span class="badge"><svg class="hi"><use href={`#hi-${ind.icon}`} /></svg>{total} filed</span>
-              </a>
-              <h2><a href={page(`industries-${ind.slug}`)}>{ind.name}</a></h2>
-              <ul class="chips">
-                {ind.subs.map((s) => { const n = filedIn(s.slug); return <li><a class:list={['chip', { has: n > 0 }]} href={page(s.slug)}>{s.name}{n > 0 && <> <i>{n}</i></>}</a></li>; })}
-              </ul>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  </section>
-</Page>
+<Spring title="Industries" description={`Eight green industries and ${subCount} sub-categories, each with the stories filed there.`} current="industries"
+  scene="who-stone-4"
+  say="Where sustainability is made, not performed." sub={`${industries.length} industries · ${subCount} sub-categories · ${stream.length} Insights`}>
+  <RiverRail>
+    {industries.map((ind, i) => {
+      const total = ind.subs.reduce((n, s) => n + filedIn(s.slug), 0);
+      return (
+        <Bead last={i === last} />
+        <section class:list={['sp-stop', 'offer', 'ind', { end: i === last }]} id={ind.slug} aria-labelledby={`${ind.slug}-h`}>
+          <figure class="ophoto">
+            <Media name={ind.image} sizes="(max-width: 640px) calc(100vw - 70px), (max-width: 1179px) 36vw, 380px" loading={i < 2 ? 'eager' : 'lazy'} />
+          </figure>
+          <div class="otext">
+            <h2 id={`${ind.slug}-h`}><a href={page(`industries-${ind.slug}`)}>{ind.name}</a></h2>
+            <p class="filed"><svg class={`hi ${ind.motion}`} aria-hidden="true"><use href={`#hi-${ind.icon}`} /></svg>{total} filed</p>
+            <ul class="chips">
+              {ind.subs.map((s) => { const n = filedIn(s.slug); return <li><a class:list={['chip', { has: n > 0 }]} href={page(s.slug)}>{s.name}{n > 0 && <> <i>{n}</i></>}</a></li>; })}
+            </ul>
+          </div>
+        </section>
+      );
+    })}
+  </RiverRail>
+</Spring>

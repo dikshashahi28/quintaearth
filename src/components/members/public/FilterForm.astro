@@ -7,10 +7,17 @@
 import Icon from '../Icon.astro';
 import { industries } from '../../../data/industries';
 import { countries } from '../../../data/countries';
+import { SIZE_OPTIONS } from '../../../lib/labels';
+import type { DirectoryFacets } from '../../../db/queries/directory';
 
-export interface DirectoryState { q: string; type: '' | 'person' | 'company'; industry: string; sub: string; country: string; sdg: string; checked: boolean }
+export interface DirectoryState {
+  q: string; type: '' | 'person' | 'company'; industry: string; sub: string; country: string; sdg: string; checked: boolean;
+  cert: string; size: string; serves: string; offer: '' | 'product' | 'service'; recent: boolean;
+}
 interface Props {
   state: DirectoryState;
+  /** the options that still give results: the others are hidden (a chosen option always stays) */
+  facets: DirectoryFacets;
   /** the same search without industry, sub-category, country, goal and identity filters */
   clearHref: string;
   /** the same search without industry and sub-category */
@@ -20,10 +27,20 @@ interface Props {
   goalLabel: string;
   hasFilters: boolean;
 }
-const { state: s, clearHref, anyIndustryHref, noGoalHref, goalLabel, hasFilters } = Astro.props;
-const types = [['', 'All'], ['person', 'People'], ['company', 'Companies']] as const;
-// with an industry chosen (older links), only its sub-categories, so a pick can never contradict it
-const groups = s.industry ? industries.filter((i) => i.slug === s.industry) : industries;
+const { state: s, facets: fc, clearHref, anyIndustryHref, noGoalHref, goalLabel, hasFilters } = Astro.props;
+const types = ([['', 'All'], ['person', 'People'], ['company', 'Companies']] as const).filter(([v]) => !v || v === s.type || fc.type.has(v));
+// with an industry chosen (older links), only its sub-categories, so a pick can never contradict it; industries and
+// sub-categories with no results are left out (a chosen one stays)
+const groups = (s.industry ? industries.filter((i) => i.slug === s.industry) : industries)
+  .map((g) => ({ ...g, subs: g.subs.filter((x) => x.slug === s.sub || fc.sub.has(x.slug)) }))
+  .filter((g) => g.slug === s.industry || fc.industry.has(g.slug) || g.subs.length > 0);
+const ctyList = countries.filter((c) => c.iso === s.country || fc.country.has(c.iso));
+const servesList = countries.filter((c) => c.iso === s.serves || fc.serves.has(c.iso));
+const sizeList = SIZE_OPTIONS.filter((o) => o.value === s.size || fc.size.has(o.value));
+const certList = s.cert && !fc.cert.some((c) => c.toLowerCase() === s.cert.toLowerCase()) ? [s.cert, ...fc.cert] : fc.cert;
+const offers = ([['product', 'Products'], ['service', 'Services']] as const).filter(([v]) => v === s.offer || fc.offer.has(v));
+const servesLabel = s.serves ? countries.find((c) => c.iso === s.serves)?.name : undefined;
+const sizeLabelNow = s.size ? SIZE_OPTIONS.find((o) => o.value === s.size)?.label : undefined;
 const subLabel = s.sub ? industries.flatMap((i) => i.subs).find((x) => x.slug === s.sub)?.name : undefined;
 const indLabel = subLabel ?? (s.industry ? industries.find((i) => i.slug === s.industry)?.name : undefined);
 const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : undefined;
@@ -76,7 +93,7 @@ const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : 
         <fieldset class="qd-opts" data-qd-group>
           <legend class="sr">Country</legend>
           <label class="qd-opt"><input type="radio" name="country" value="" checked={!s.country} data-qd-auto><span>Any country</span><Icon name="check" /></label>
-          {countries.map((c) => (
+          {ctyList.map((c) => (
             <label class="qd-opt" data-qd-item><input type="radio" name="country" value={c.iso} checked={s.country === c.iso} data-qd-auto><span>{c.name}</span><Icon name="check" /></label>
           ))}
           <p class="qd-nomatch" hidden data-qd-none>No countries match.</p>
@@ -87,7 +104,61 @@ const ctyLabel = s.country ? countries.find((c) => c.iso === s.country)?.name : 
       </div>
     </details>
 
-    <label class="qd-fchip tog"><input type="checkbox" name="checked" value="1" checked={s.checked} data-qd-auto><span class="box" aria-hidden="true"><Icon name="check" /></span>Identity checked</label>
+    {certList.length > 0 && (
+      <details class="qd-fwrap" data-qd-pop data-filter="cert">
+        <summary class:list={['qd-fchip', { has: !!s.cert }]}><span>{s.cert || 'Certification'}</span><Icon name="expand_more" class="caret" /></summary>
+        <div class="qd-pop">
+          <fieldset class="qd-opts" data-qd-group>
+            <legend class="sr">Certification</legend>
+            <label class="qd-opt"><input type="radio" name="cert" value="" checked={!s.cert} data-qd-auto><span>Any certification</span><Icon name="check" /></label>
+            {certList.map((c) => <label class="qd-opt" data-qd-item><input type="radio" name="cert" value={c} checked={s.cert.toLowerCase() === c.toLowerCase()} data-qd-auto><span>{c}</span><Icon name="check" /></label>)}
+          </fieldset>
+          <div class="qd-popfoot end" data-qd-nojs><button class="qd-btn sm" type="submit">Done</button></div>
+        </div>
+      </details>
+    )}
+
+    {sizeList.length > 0 && (
+      <details class="qd-fwrap" data-qd-pop data-filter="size">
+        <summary class:list={['qd-fchip', { has: !!s.size }]}><span>{sizeLabelNow ? `${sizeLabelNow} people` : 'Company size'}</span><Icon name="expand_more" class="caret" /></summary>
+        <div class="qd-pop">
+          <fieldset class="qd-opts" data-qd-group>
+            <legend class="sr">Company size</legend>
+            <label class="qd-opt"><input type="radio" name="size" value="" checked={!s.size} data-qd-auto><span>Any size</span><Icon name="check" /></label>
+            {sizeList.map((o) => <label class="qd-opt" data-qd-item><input type="radio" name="size" value={o.value} checked={s.size === o.value} data-qd-auto><span>{o.label}</span><Icon name="check" /></label>)}
+          </fieldset>
+          <div class="qd-popfoot end" data-qd-nojs><button class="qd-btn sm" type="submit">Done</button></div>
+        </div>
+      </details>
+    )}
+
+    {servesList.length > 0 && (
+      <details class="qd-fwrap" data-qd-pop data-filter="serves">
+        <summary class:list={['qd-fchip', { has: !!servesLabel }]}><span>{servesLabel ? `Serves ${servesLabel}` : 'Countries served'}</span><Icon name="expand_more" class="caret" /></summary>
+        <div class="qd-pop cty">
+          <label class="sr" for="srv-q">Search countries served</label>
+          <span class="qd-inwrap" hidden data-qd-js><Icon name="search" /><input class="qd-inp" id="srv-q" type="search" maxlength="60" autocomplete="off" placeholder="Search countries" data-qd-find></span>
+          <fieldset class="qd-opts" data-qd-group>
+            <legend class="sr">Countries served</legend>
+            <label class="qd-opt"><input type="radio" name="serves" value="" checked={!s.serves} data-qd-auto><span>Any country</span><Icon name="check" /></label>
+            {servesList.map((c) => <label class="qd-opt" data-qd-item><input type="radio" name="serves" value={c.iso} checked={s.serves === c.iso} data-qd-auto><span>{c.name}</span><Icon name="check" /></label>)}
+            <p class="qd-nomatch" hidden data-qd-none>No countries match.</p>
+          </fieldset>
+          <div class="qd-popfoot end" data-qd-nojs><button class="qd-btn sm" type="submit">Done</button></div>
+        </div>
+      </details>
+    )}
+
+    {offers.length > 0 && (
+      <fieldset class="qd-seg" data-filter="offer">
+        <legend>Offers</legend>
+        <label><input type="radio" name="offer" value="" checked={!s.offer} data-qd-auto>Any</label>
+        {offers.map(([v, label]) => <label><input type="radio" name="offer" value={v} checked={s.offer === v} data-qd-auto>{label}</label>)}
+      </fieldset>
+    )}
+
+    {(s.checked || fc.checked) && <label class="qd-fchip tog"><input type="checkbox" name="checked" value="1" checked={s.checked} data-qd-auto><span class="box" aria-hidden="true"><Icon name="check" /></span>Identity checked</label>}
+    {(s.recent || fc.recent) && <label class="qd-fchip tog" data-filter="recent"><input type="checkbox" name="recent" value="1" checked={s.recent} data-qd-auto><span class="box" aria-hidden="true"><Icon name="check" /></span>Recently joined</label>}
 
     {s.sdg && (
       <span class="qd-fchip has goal"><input type="hidden" name="sdg" value={s.sdg}>{goalLabel}<a class="x" href={noGoalHref} aria-label={`Remove filter ${goalLabel}`}><Icon name="close" /></a></span>

@@ -49,6 +49,8 @@
 
 .lead-figure { margin-top: clamp(28px, 4vw, 44px); }
 .lead-figure img { width: 100%; max-height: 560px; object-fit: cover; border-radius: var(--r-lg); background: var(--shallow); }
+/* an Insight or press hero is a 3:2 frame whatever the photo's shape (portrait files would run 500px tall on a phone) */
+.article-body .lead-figure img { aspect-ratio: 3 / 2; }
 .lead-figure figcaption { margin-top: 10px; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .lead-figure figcaption a { color: inherit; }
 
@@ -107,17 +109,18 @@
 .field { display: grid; gap: 6px; }
 .field label, .field legend { font-weight: 500; font-size: 15px; color: var(--deep); }
 .field .req { color: var(--gold-dark); }
-.field input, .field select, .field textarea {
+/* zero specificity: these are the defaults, and a component class (.inp, .area, .sel, .drop-in) always wins */
+:where(.field input, .field select, .field textarea) {
   width: 100%; min-height: 48px; padding: 10px 16px; border-radius: var(--r); border: 1.5px solid var(--field-line);
   background: #fff; font: 400 16px/1.4 var(--font-body); color: var(--text); transition: border-color .2s;
 }
-.field input:not([type='checkbox'], [type='radio']), .field select { border-radius: 999px; padding-inline: 20px; }
-.field select {
+:where(.field input:not([type='checkbox'], [type='radio']), .field select) { border-radius: 999px; padding-inline: 20px; }
+:where(.field select) {
   appearance: none; padding-right: 48px; cursor: pointer;
   background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f6b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 18px center / 18px;
 }
-.field textarea { min-height: 128px; resize: vertical; }
-.field input::placeholder, .field textarea::placeholder { color: #5f6f60; }
+:where(.field textarea) { min-height: 128px; resize: vertical; field-sizing: content; }
+:where(.field input, .field textarea)::placeholder { color: #5f6f60; }
 .field :is(input, select, textarea):focus-visible { outline: 2px solid var(--river); outline-offset: 2px; border-color: var(--river); }
 .field [aria-invalid='true'] { border-color: #b3261e; }
 .field .err { font-size: 14px; color: #b3261e; min-height: 0; }
@@ -175,7 +178,9 @@
 .sub-block + .sub-block { padding-top: 0; }
 .sub-block .section-title h2 a { color: inherit; text-decoration: none; }
 .sub-block .section-title h2 a:hover { color: var(--river); }
-@media (max-width: 900px) {
+/* two across down to phone: a single column from 900px gave tablets eight full-width 480px-tall photos, each
+   dwarfing its industry name */
+@media (max-width: 640px) {
   .ind-grid { grid-template-columns: 1fr; }
 }
 
@@ -197,7 +202,11 @@
 .goal-card:has(h2 a:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
 .goal-card h2 a:focus-visible { outline: none; }
 .page-head .un-link { margin-top: 18px; }
-.reading a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-size: 14.5px; font-weight: 500; }
+/* the links run as text, so a title that wraps keeps its arrow after its last word instead of in a column of its own,
+   and every row has the same 9px above and below (the link's padding keeps a 40px target over it) */
+.reading li { padding-block: 9px; font-size: 14.5px; line-height: 1.5; text-wrap: pretty; }
+.reading a { padding-block: 9px; font-weight: 500; }
+.reading a .ic { display: inline-block; margin-left: 6px; vertical-align: -.2em; }
 .reading { margin-top: clamp(40px, 5vw, 64px); padding-top: 28px; border-top: 1px solid var(--hair); }
 .reading h2 { font-size: 24px; }
 .reading ul { margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 0 32px; }
@@ -259,12 +268,13 @@
 .phone { position: relative; display: flex; }
 .phone .cc-btn {
   display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 48px; padding: 0 12px;
-  border: 1.5px solid var(--field-line); border-right: 0; border-radius: var(--r) 0 0 var(--r); background: var(--sky);
+  border: 1.5px solid var(--field-line); border-right: 0; border-radius: 999px 0 0 999px; background: var(--sky);
   font: 500 16px/1 var(--font-body); color: var(--deep); font-variant-numeric: tabular-nums; cursor: pointer;
 }
 .phone .cc-btn .ic { width: 14px; height: 14px; color: var(--muted); transition: transform .2s var(--ease); }
 .phone .cc-btn[aria-expanded='true'] .ic { transform: rotate(180deg); }
-.phone > input { min-width: 0; border-radius: 0 var(--r) var(--r) 0; }
+.phone .cc-btn { padding-left: 18px; }
+.field .phone > input:not([type='checkbox'], [type='radio']) { min-width: 0; border-radius: 0 999px 999px 0; padding-left: 16px; }
 .cc-panel {
   position: absolute; z-index: 5; top: calc(100% + 6px); left: 0; width: max(100%, 260px); padding: 8px;
   border: 1px solid var(--hair); border-radius: var(--r); background: #fff; box-shadow: var(--shadow-card);
@@ -282,7 +292,7 @@
 .cc-empty { padding: 10px; font-size: 15px; color: var(--muted); }
 
 /* volunteer: résumé */
-.field input.file { padding: 7px 8px; cursor: pointer; }
+.field input.file { padding: 6.5px 8px; cursor: pointer; } /* 32px button + 13px + 3px border = the 48px of the fields around it */
 .field input.file::file-selector-button {
   margin-right: 12px; min-height: 32px; padding: 0 16px; border: 1.5px solid var(--river); border-radius: 100px;
   background: #fff; color: var(--river); font: 500 15px/1 var(--font-body); cursor: pointer;
@@ -334,7 +344,9 @@
 .filters button.chip { cursor: pointer; }
 .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .goal-select { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--deep); }
-.goal-select select { min-height: 44px; max-width: min(420px, 70vw); padding: 0 36px 0 14px; border-radius: 100px; border: 1.5px solid var(--field-line); background: #fff; font: 400 16px var(--font-body); color: var(--text); }
+.goal-select select { min-height: 44px; max-width: min(420px, 70vw); padding: 0 44px 0 18px; border-radius: 100px; border: 1.5px solid var(--field-line); font: 400 16px var(--font-body); color: var(--text); cursor: pointer;
+  /* the same River Green chevron as the form selects, not the browser's own arrow */
+  appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f6b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center / 18px; }
 .goal-select select:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 .result-count { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .card-slot { display: flex; }

@@ -81,7 +81,8 @@ export interface Insight {
   where: string;
   date?: Date;
   minutes: number;
-  image?: { src: ImageMetadata; alt: string };
+  /** a story's build-time asset (src/assets/stories), or an article's site photograph by name (src/data/media.json) */
+  image?: { src: ImageMetadata; alt: string } | { name: string; alt: string };
 }
 
 const whereOf = (subs: string[], fallback: string) => {
@@ -111,7 +112,7 @@ export function articleToInsight(a: Article): Insight {
     sdgs: a.data.sdgs, companies: a.data.companies, subs: a.data.subs,
     where: whereOf(a.data.subs, a.data.euRules ? 'EU green-claims rules' : a.data.topic),
     date: a.data.date, minutes: readMinutes(a.body),
-    image: { src: a.data.image, alt: a.data.imageAlt },
+    image: { name: a.data.image, alt: a.data.imageAlt },
   };
 }
 

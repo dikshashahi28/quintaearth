@@ -11,7 +11,10 @@ import { db, schema } from '../../db/client';
 import { getPublicCompany } from '../../db/queries/public';
 import { fileUrl } from '../../lib/storage-url';
 import { absolute, page } from '../../lib/url';
-import { countryName, goalLinks, industryLinks, ldJson, place, sizeLabel, subLinks, subName } from '../../lib/labels';
+import { GOALS_HEADING, countryName, goalLinks, hostOf, industryLinks, ldJson, place, pricingLabel, sizeLabel, subLinks, subName } from '../../lib/labels';
+import { IDENTITY_TOOLTIP } from '../../lib/identity';
+import IdentityTip from '../../components/members/IdentityTip.astro';
+import { certStatus } from '../../lib/certifications';
 import '../../styles/members/company.css';
 
 export const prerender = false;
@@ -43,7 +46,7 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 const industries = industryLinks(org.tags.industry);
 const subs = subLinks(org.tags.sub);
 const goals = goalLinks(org.tags.sdg);
-const hasAbout = !!org.description || industries.length + subs.length + goals.length > 0;
+const hasAbout = !!org.description || industries.length + subs.length + goals.length > 0 || org.tags.operates.length > 0;
 const hasTeam = org.team.length > 0;
 const rel = 'noopener nofollow ugc';
 
@@ -51,8 +54,25 @@ const listings = org.listings.map((l) => ({
   ...l,
   subs: l.tags.sub.map(subName).filter((s): s is string => !!s),
   serves: l.tags.serves.map(countryName).filter((s): s is string => !!s),
+  pricing: pricingLabel(l.pricingModel),
+  certs: l.certifications.map((c) => ({ name: c.name, expired: c.expired })),
 }));
+// new on 12 Oct: legal name, countries operated in, certifications (expired ones say so), gallery, research, case
+// studies, social links, last updated
+const operates = org.tags.operates.map(countryName).filter((s): s is string => !!s);
+const certs = org.certifications.map((c) => ({ ...c, status: certStatus(c) }));
+const updated = org.updatedAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+// social links carry the site's own UI marks (the footer's inline sprite); Facebook has none there, so a plain link mark
+const socials = [
+  org.youtube && { label: 'YouTube', href: org.youtube, icon: 'youtube' }, org.xUrl && { label: 'X', href: org.xUrl, icon: 'x' },
+  org.instagram && { label: 'Instagram', href: org.instagram, icon: 'instagram' }, org.facebook && { label: 'Facebook', href: org.facebook, icon: 'link' },
+].filter((x): x is { label: string; href: string; icon: string } => !!x);
+const cases = org.caseStudies ?? [];
 // the proof up front: how many evidence files the listings carry, linking to the first listing that has any
+// the river rail: one bead per section that is there, in page order (markers only: a public page completes nothing)
+const stops = [hasAbout && 'about', 'offer', certs.length > 0 && 'certs', org.gallery.length > 0 && 'gallery', !!org.research && 'research',
+  cases.length > 0 && 'cases', hasTeam && 'team'].filter((x): x is string => !!x);
+const railClass = (k: string) => ['qe-rail', { first: stops[0] === k, last: stops[stops.length - 1] === k }];
 const evidenceCount = listings.reduce((n, l) => n + l.evidence.length, 0);
 const firstEvidence = listings.find((l) => l.evidence.length > 0);
 
@@ -74,7 +94,8 @@ const orgLd = {
   ...(org.logoKey && { logo: absolute(fileUrl(org.logoKey), Astro.site) }),
   ...(org.foundedYear && { foundingDate: String(org.foundedYear) }),
   ...(where && { address: { '@type': 'PostalAddress', ...(org.city && { addressLocality: org.city }), ...(org.country && { addressCountry: org.country }) } }),
-  ...((org.website || org.linkedin) && { sameAs: [org.website, org.linkedin].filter(Boolean) }),
+  ...(org.legalName && { legalName: org.legalName }),
+  ...((org.website || org.linkedin || socials.length) && { sameAs: [org.website, org.linkedin, ...socials.map((x) => x.href)].filter(Boolean) }),
   ...(org.team.length && { member: org.team.map((t) => ({ '@type': 'Person', name: t.name, url: absolute(page(`people/${t.handle}`), Astro.site) })) }),
   ...(listings.length && {
     makesOffer: listings.map((l) => ({
@@ -104,12 +125,13 @@ const orgLd = {
           : <span class="qe-mark" role="img" aria-label={org.name}><Icon name="storefront" /></span>}
         <div class="qe-who-t">
           <h1>{org.name}</h1>
+          {org.legalName && <p class="qe-legal" data-legal-name>Registered as {org.legalName}</p>}
           {(where || size || org.foundedYear || org.identityChecked || evidenceCount > 0) && (
             <div class="qe-meta">
               {where && <span><Icon name="location_on" />{where}</span>}
               {size && <span><Icon name="group" />{size}</span>}
               {org.foundedYear && <span><Icon name="calendar_today" />Founded {org.foundedYear}</span>}
-              {org.identityChecked && <span class="qe-idc"><Icon name="badge" />Identity checked</span>}
+              {org.identityChecked && <IdentityTip tip={IDENTITY_TOOLTIP} small />}
               {firstEvidence && <a class="qe-idc qe-evc" href={`#evidence-${firstEvidence.slug}`}><Icon name="attach_file" />{evidenceCount} evidence {evidenceCount === 1 ? 'file' : 'files'}</a>}
             </div>
           )}
@@ -118,6 +140,7 @@ const orgLd = {
       <div class="qe-head-acts">
         {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
         {org.website && <a class="qe-tlink" href={org.website} target="_blank" rel={rel}><Icon name="language" />Website<span class="sr"> (opens in a new tab)</span></a>}
+        {socials.map((x) => <a class="qe-tlink" href={x.href} target="_blank" rel={rel} data-social><svg aria-hidden="true"><use href={`#i-${x.icon}`} /></svg>{x.label}<span class="sr"> (opens in a new tab)</span></a>)}
         {org.linkedin && (
           <a class="qe-tlink" href={org.linkedin} target="_blank" rel={rel}>
             <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z" /></svg>LinkedIn<span class="sr"> (opens in a new tab)</span>
@@ -130,11 +153,11 @@ const orgLd = {
       <div class="qe-spine">
         {hasAbout && (
           <>
-            <div class="qe-rail first" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+            <div class:list={railClass('about')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
             <section class="qe-sec" aria-labelledby="about-h" data-step>
               <h2 id="about-h" class="sr">About</h2>
               {org.description && <p class="qe-lead">{org.description}</p>}
-              {industries.length + subs.length + goals.length > 0 && (
+              {industries.length + subs.length + goals.length + operates.length > 0 && (
                 <div class="qe-tags">
                   {industries.length > 0 && (
                     <div>
@@ -148,9 +171,15 @@ const orgLd = {
                       <div class="qe-chips">{subs.map((f) => <a class="qe-chip has" href={f.href}>{f.label}</a>)}</div>
                     </div>
                   )}
+                  {operates.length > 0 && (
+                    <div data-operates>
+                      <h3 class="qe-tagh">Operates in</h3>
+                      <div class="qe-chips">{operates.map((c) => <span class="qe-chip">{c}</span>)}</div>
+                    </div>
+                  )}
                   {goals.length > 0 && (
                     <div>
-                      <h3 class="qe-tagh">UN goals</h3>
+                      <h3 class="qe-tagh">{GOALS_HEADING}</h3>
                       <div class="qe-chips">{goals.map((g) => <a class="qe-chip goal" href={g.href}><span class="qe-goal">{g.n}</span>{g.title}</a>)}</div>
                     </div>
                   )}
@@ -160,7 +189,7 @@ const orgLd = {
           </>
         )}
 
-        <div class:list={['qe-rail', { last: !hasTeam }]} aria-hidden="true"><span class="bead"></span>{hasTeam && <span class="track"><span class="fill"></span></span>}</div>
+        <div class:list={railClass('offer')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
         <section class="qe-sec" aria-labelledby="offer-h" data-step>
           <h2 id="offer-h" class="qe-h2">Products and services</h2>
           {listings.length === 0
@@ -169,24 +198,82 @@ const orgLd = {
               <ul class="qe-lgrid">
                 {listings.map((l) => (
                   <CompanyListingCard id={l.id} slug={l.slug} name={l.name} kind={l.kind} description={l.description} photoKey={l.photoKey} link={l.link}
-                    subs={l.subs} serves={l.serves} evidence={l.evidence} enquire={enquire} />
+                    subs={l.subs} serves={l.serves} evidence={l.evidence} enquire={enquire}
+                    pricing={l.pricing} leadTime={l.leadTime} specs={l.specs} tags={l.tags.tag} certifications={l.certs} />
                 ))}
               </ul>
             )}
-          {!hasTeam && (
-            <div class="qe-end">
-              <div class="qe-end-who">
-                <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
-                <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
-              </div>
-              {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
-            </div>
-          )}
         </section>
+
+        {certs.length > 0 && (
+          <>
+            <div class:list={railClass('certs')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
+            <section class="qe-sec" aria-labelledby="certs-h" id="certifications" data-certifications>
+              <h2 id="certs-h" class="qe-h2">Certifications</h2>
+              <ul class="qe-certs">
+                {certs.map((c) => (
+                  <li class:list={['qe-cert', { expired: c.status.expired }]} data-cert={c.status.expired ? 'expired' : 'current'}>
+                    <b class="qe-cert-name">{c.name}</b>
+                    <span class="qe-cert-by">{c.issuer}</span>
+                    <small class="qe-cert-st">{c.status.expired ? <strong>Expired</strong> : <><Icon name="calendar_today" />{c.status.text}</>}</small>
+                    {(c.registryUrl || c.file) && (
+                      <span class="qe-cert-links">
+                        {c.registryUrl && <a class="qe-tlink" href={c.registryUrl} target="_blank" rel={rel}><Icon name="open_in_new" />Registry<span class="sr"> entry for {c.name} (opens in a new tab)</span></a>}
+                        {c.file && <a class="qe-tlink" href={fileUrl(c.file.key)} target="_blank" rel="noopener"><Icon name="description" />Certificate<span class="sr"> for {c.name} (opens in a new tab)</span></a>}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )}
+
+        {org.gallery.length > 0 && (
+          <>
+            <div class:list={railClass('gallery')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
+            <section class="qe-sec" aria-labelledby="gallery-h" data-gallery>
+              <h2 id="gallery-h" class="qe-h2">Pictures</h2>
+              <ul class="qe-gallery">
+                {org.gallery.map((g) => (
+                  <li><figure><span class="qe-gph"><img src={fileUrl(g.key)} alt={g.caption ?? ''} loading="lazy" width="480" height="360" /></span>{g.caption && <figcaption>{g.caption}</figcaption>}</figure></li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )}
+
+        {org.research && (
+          <>
+            <div class:list={railClass('research')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
+            <section class="qe-sec" aria-labelledby="research-h" data-research>
+              <h2 id="research-h" class="qe-h2">Research, data and technology</h2>
+              <p class="qe-prose">{org.research}</p>
+            </section>
+          </>
+        )}
+
+        {cases.length > 0 && (
+          <>
+            <div class:list={railClass('cases')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
+            <section class="qe-sec" aria-labelledby="cases-h" data-cases>
+              <h2 id="cases-h" class="qe-h2">Case studies and clients</h2>
+              <ul class="qe-cases">
+                {cases.map((c) => (
+                  <li>
+                    <h3>{c.title}</h3>
+                    {c.client && <p class="qe-case-client"><Icon name="group" />{c.client}</p>}
+                    {c.summary && <p class="qe-case-sum">{c.summary}</p>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )}
 
         {hasTeam && (
           <>
-            <div class="qe-rail last" aria-hidden="true"><span class="bead"></span></div>
+            <div class:list={railClass('team')} aria-hidden="true"><span class="bead"></span><span class="track"></span></div>
             <section class="qe-sec" aria-labelledby="team-h" data-step>
               <h2 id="team-h" class="qe-h2">Team</h2>
               <ul class="qe-people">
@@ -199,16 +286,16 @@ const orgLd = {
                   </li>
                 ))}
               </ul>
-              <div class="qe-end">
-                <div class="qe-end-who">
-                  <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
-                  <span><b>{org.name}</b>{where && <small>{where}</small>}</span>
-                </div>
-                {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
-              </div>
             </section>
           </>
         )}
+      </div>
+      <div class="qe-end">
+        <div class="qe-end-who">
+          <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
+          <span><b>{org.name}</b>{where && <small>{where}</small>}<small class="qe-updated" data-updated>Last updated {updated}</small></span>
+        </div>
+        {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
       </div>
     </div>
   </div>

@@ -13,11 +13,11 @@
 
 /* the river rail */
 .pe-rail { position: relative; width: 24px; }
-.pe-rail .track { position: absolute; left: 11px; top: 28px; bottom: -10px; width: 3px; border-radius: 2px; background: var(--water); }
+.pe-rail .track { position: absolute; left: 10.5px; top: 28px; bottom: -10px; width: 3px; border-radius: 2px; background: var(--water); }
 .pe-rail .track.to-end { bottom: -20px; }
 .pe-rail .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; transition: transform .6s var(--ease); }
 .pe-rail .fill.on { transform: scaleY(1); animation: pe-grow .34s var(--ease) both; animation-delay: var(--d, 0s); }
-.pe-rail .bead { position: absolute; z-index: 1; left: 5px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
+.pe-rail .bead { position: absolute; z-index: 1; left: 6px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; transition: background .35s, border-color .35s, transform .35s; }
 .pe-rail .bead.lit { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
 .pe-rail .bead.lit::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: pe-ring 1.2s ease-out 1 both; animation-delay: var(--d, 0s); }
 .pe-rail.end { height: 52px; }
@@ -33,6 +33,9 @@
 .pe .hint { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
 .pe .inp, .pe .sel, .pe .area { min-height: 50px; padding: 10px 22px; transition: border-color .2s, box-shadow .2s; }
 .pe .sel { padding-right: 48px; }
+/* pages.css pads every .field input at 20px with a stronger selector; without this the inputs sat 2px left of the
+   selects beside them */
+.pe .field .inp { padding-inline: 22px; }
 .pe .area { padding: 12px 18px; }
 .pe .inp:hover, .pe .sel:hover, .pe .area:hover { border-color: var(--reed-ink); }
 .pe .inp:focus, .pe .sel:focus, .pe .area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
@@ -100,3 +103,12 @@
   .pe .drop:hover { transform: none; box-shadow: none; border-color: var(--field-line); }
   .pe .pe-send .btn-fill:hover { transform: none; box-shadow: none; background: var(--river); }
 }
+
+/* the LinkedIn stop: the same outlined pill as "Continue with Google" on the doors; once linked, the neutral mark */
+.pe-li .pe-li-say { margin: 0 0 16px; font-size: 16px; line-height: 1.55; color: var(--ink-2); max-width: 52ch; }
+.pe-li .gform { display: block; }
+.pe-li .btn-google { gap: 12px; min-height: 50px; border-color: var(--field-line); color: var(--deep); }
+.pe-li .btn-google:hover { border-color: var(--river); }
+.pe-li .btn-google .glogo { flex: none; }
+.pe-li .pe-li-done { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0; font-size: 16px; color: var(--ink-2); }
+@media (max-width: 640px) { .pe > .err-sum { grid-column: 1; } }

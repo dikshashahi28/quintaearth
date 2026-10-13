@@ -4,6 +4,8 @@ import { company } from './company';
 import { enquiries } from './enquiries';
 import { identity } from './identity';
 import { listings } from './listings';
+import { moderation } from './moderation';
+import { newsletter } from './newsletter';
 import { profile } from './profile';
 
-export const server = { account, profile, company, listings, enquiries, identity };
+export const server = { account, profile, company, listings, enquiries, identity, moderation, newsletter };

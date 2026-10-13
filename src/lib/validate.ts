@@ -3,6 +3,7 @@
 // checks sit on the items and duplicates are dropped with uniq() in the handlers.
 import { z } from 'astro/zod';
 import { countryCodes, industrySlugs, sdgNumbers, subSlugs } from './taxonomy';
+import { contactIn } from './contact';
 
 // invisible format characters (zero-width spaces and joiners, direction marks, BOM) at either end, plus any
 // value made only of them, would pass as "filled in" while showing nothing; they are cut before trimming.
@@ -14,9 +15,18 @@ const unpad = (v: unknown) => (typeof v === 'string' ? v.replace(INVISIBLE_EDGES
 export const optText = (max: number) =>
   z.preprocess(unpad, z.string().max(max).nullish()).transform((v) => (v ? v : null));
 
+// phone numbers and email addresses are never public (src/lib/contact.ts)
+export { contactIn };
+export const NO_CONTACT = 'Leave out phone numbers and email addresses: people contact you through enquiries.';
+/** optional text shown publicly: no phone numbers or email addresses */
+export const publicText = (max: number) => optText(max).refine((v) => !v || !contactIn(v), NO_CONTACT);
+
 /** required text: a missing field (null) gets the same friendly message as an empty one */
 export const reqText = (min: number, max: number, error: string) =>
   z.preprocess((v) => unpad(v ?? ''), z.string({ error }).min(min, error).max(max));
+
+/** a required name shown publicly (a person's, a company's, a listing's): no phone numbers or email addresses */
+export const publicName = (min: number, max: number, error: string) => reqText(min, max, error).refine((v) => !contactIn(v), NO_CONTACT);
 
 /** an http(s) URL, or null */
 export const optUrl = z.string().trim().max(300).nullish().transform((v, ctx) => {
@@ -45,6 +55,23 @@ export const optLinkedIn = (example: string) => optUrl.transform((v, ctx) => {
   return z.NEVER;
 });
 
+/** a profile address on one of `hosts` (or a subdomain), or null */
+export const optSocial = (hosts: string[], label: string, example: string) => optUrl.transform((v, ctx) => {
+  if (!v) return null;
+  const host = new URL(v).hostname.toLowerCase();
+  if (hosts.some((h) => host === h || host.endsWith(`.${h}`))) return v;
+  ctx.addIssue({ code: 'custom', message: `Enter a ${label} address, like ${example}.` });
+  return z.NEVER;
+});
+
+/**
+ * A row id: a UUID, or a demo row's readable id ("demo-org-sunward-grid-collective", scripts/seed-demo), so the
+ * seeded demo community can be edited like real data. Anything else is an input error.
+ */
+export const entityId = () => z.uuid().or(z.string().regex(/^demo-[a-z0-9-]{1,100}$/));
+/** an id as a page route parameter or query value: same rule as entityId */
+export const isEntityId = (v: string | null | undefined) => !!v && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) || /^demo-[a-z0-9-]{1,100}$/.test(v));
+
 export const optCountry = z.string().nullish().transform((v) => v || null)
   .refine((v) => v === null || countryCodes.has(v), 'Choose a country from the list.');
 
@@ -60,13 +87,24 @@ export const sdgsField = multi(sdgNumbers, 17, 'goal');
 export const countriesField = multi(countryCodes, 60, 'country');
 
 /** "PV design, ESG , pv  design" -> ["PV design", "ESG"]: the member's capitals kept, repeats dropped whatever their case */
-export const skillsField = z.string().max(400).nullish().transform((v) => {
+const commaList = (maxChars: number, maxItems: number) => z.string().max(maxChars).nullish().transform((v) => {
   const seen = new Map<string, string>();
   for (const s of (v ?? '').split(',').map((x) => x.trim().replace(/\s+/g, ' '))) {
     if (s.length >= 2 && s.length <= 40 && !seen.has(s.toLowerCase())) seen.set(s.toLowerCase(), s);
   }
-  return [...seen.values()].slice(0, 15);
-});
+  return [...seen.values()].slice(0, maxItems);
+}).refine((vs) => vs.every((x) => !contactIn(x)), NO_CONTACT);
+export const skillsField = commaList(400, 15);
+/** a person's languages, typed: "English, Hindi, Marathi" */
+export const languagesField = commaList(300, 10);
+/** what a person offers ("Energy audits, Grant writing") */
+export const servicesField = commaList(400, 15);
+/** a listing's free tags, searchable */
+export const listingTagsField = commaList(400, 20);
+
+/** what a person is open to (fixed choices) */
+export const OPEN_TO = ['partnerships', 'advisory', 'hiring', 'work', 'volunteer'] as const;
+export const openToField = multi(new Set(OPEN_TO), OPEN_TO.length, 'choice');
 
 /** an unchecked checkbox sends nothing */
 export const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean());

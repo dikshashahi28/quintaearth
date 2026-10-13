@@ -190,8 +190,10 @@
 .filed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 40px;margin-top:10px}
 .filed li{display:grid;grid-template-columns:52px 1fr;column-gap:10px;padding:8px 0;font-size:15.5px;line-height:1.45}
 .filed span{font-size:12.5px;font-weight:600;color:var(--muted);padding-top:2px}
-.filed a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--hair);transition:color .2s,border-color .2s;justify-self:start}
-.filed a:hover{color:var(--river);border-color:var(--river)}
+/* an underline per line, not a border under the block: a title that wraps to three lines on phone drew one
+   full-width rule under the block that read as a row divider between the title and its sub-category */
+.filed a{color:var(--text);text-decoration:underline 1px var(--hair);text-underline-offset:4px;transition:color .2s,text-decoration-color .2s;justify-self:start}
+.filed a:hover{color:var(--river);text-decoration-color:var(--river)}
 .filed em{grid-column:2;margin-top:2px;font-style:normal;font-size:13px;color:var(--reed-ink)}
 .allof{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:18px;font-weight:600;font-size:15px;color:var(--river);text-decoration:none}
 .allof .ic{transition:transform .25s var(--ease)}.allof:hover .ic{transform:translateX(4px)}
@@ -294,7 +296,9 @@
   .stones li:nth-child(odd){padding-top:0}
 }
 @media (max-width:640px){
-  .flow > section:not(.hero) > .in{padding-left:22px}
+  /* on a phone the river would hug the screen edge and stop short of the page's end: the sections stand on their own */
+  .flow > .river,.hero .source{display:none}
+  .flow > section:not(.hero) > .in{padding-left:0}
   .scene .sun-m,.scene .phone-only{display:block}
   .scene svg.sun-d{display:none}
   .scene .fly.f3{animation:fly-m 30s linear infinite;animation-delay:-8s}

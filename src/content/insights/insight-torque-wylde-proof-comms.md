@@ -4,9 +4,9 @@ description: "Torque and Wylde’s public tie-up mirrors a market correction —
 date: 2026-09-23
 topic: "Greentech"
 sdgs: [12, 13, 17]
-image: "../../assets/articles/insight-torque-wylde-proof-comms.jpg"
-imageAlt: "Team reviewing plans together, suggesting strategy and communications alignment"
-imageCredit: { label: "Campaign Creators / Unsplash", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
+image: "article-insight-torque"
+imageAlt: "Two women read a sheet together beside a wall pinned with fabric swatches and notes"
+imageCredit: { label: "Vitaly Gariev / Unsplash", href: "https://unsplash.com/photos/Pqa0-ucJLZA" }
 subs: []
 companies: ["Torque Agency Group", "Wylde Connections"]
 euRules: true

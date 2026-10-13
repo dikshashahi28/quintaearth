@@ -7,10 +7,11 @@ import Account from '../layouts/Account.astro';
 import Doors from '../components/members/forms/Doors.astro';
 import GoButton from '../components/members/forms/GoButton.astro';
 import GoogleButton from '../components/members/forms/GoogleButton.astro';
+import LinkedInButton from '../components/members/forms/LinkedInButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
 import InviteNote from '../components/members/forms/InviteNote.astro';
 import { invitationFromNext } from '../components/members/forms/invitation';
-import { googleSignIn } from '../lib/auth';
+import { googleSignIn, linkedinSignIn } from '../lib/auth';
 import { page } from '../lib/url';
 
 export const prerender = false;
@@ -21,6 +22,8 @@ const params = Astro.url.searchParams;
 const next = params.get('next') ?? '';
 const google = Astro.getActionResult(actions.account.signInWithGoogle);
 if (google?.data) return Astro.redirect(google.data.url, 303);
+const linkedin = Astro.getActionResult(actions.account.signInWithLinkedIn);
+if (linkedin?.data) return Astro.redirect(linkedin.data.url, 303);
 const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
 // after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
 // short-lived cookie, never the URL
@@ -34,7 +37,7 @@ if (sendLink?.data) {
   return Astro.redirect(`/join?${q}`, 303);
 }
 const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
-const result = google ?? sendLink;
+const result = google ?? linkedin ?? sendLink;
 const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
 
@@ -53,7 +56,7 @@ const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '
 // company account at setup, so no type is sent)
 const invite = await invitationFromNext(formNext);
 ---
-<Account title="Join QuintaEarth" description="Create your QuintaEarth account." scene="tea-harvest" sceneAlt="Two tea pickers smiling among rows of bright green tea bushes"
+<Account title="Join QuintaEarth" description="Create your QuintaEarth account." scene="scene-join"
   say="Where sustainability is made, not performed." sub="Joining is totally free">
   <p class="aside" slot="top"><span class="lead">Already a member?</span> <a href={signinHref}>Sign in</a></p>
   {sentTo ? (
@@ -75,10 +78,11 @@ const invite = await invitationFromNext(formNext);
       {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>
       <div class="qe-grid">
-        {googleSignIn && <>
+        {(googleSignIn || linkedinSignIn) && <>
           <div class="qe-rail" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
           <div class="qe-step tight">
-            <GoogleButton next={formNext} label="Join with Google" />
+            {googleSignIn && <GoogleButton label="Join with Google" />}
+            {linkedinSignIn && <LinkedInButton label="Join with LinkedIn" />}
             <p class="or" aria-hidden="true">or with your email</p>
           </div>
         </>}
@@ -110,7 +114,7 @@ const invite = await invitationFromNext(formNext);
         <div class="qe-step end">
           <div class="acts"><GoButton label="Create account" /></div>
           <p class="note">We email you a link to confirm your address. Then you choose a password.</p>
-          <p class="small">By joining you agree to our <a href={page('privacy')}>privacy notice</a>.</p>
+          <p class="small">By joining you agree to our <a href={page('terms')}>terms of use</a> and <a href={page('privacy')}>privacy notice</a>.</p>
         </div>
       </div>
     </form>

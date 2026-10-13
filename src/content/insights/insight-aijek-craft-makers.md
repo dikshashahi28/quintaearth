@@ -4,9 +4,9 @@ description: "A Singapore relaunch that bans polyester blends and centres Baline
 date: 2026-09-23
 topic: "Sustainable development"
 sdgs: [8, 12, 15]
-image: "../../assets/articles/insight-aijek-craft-makers.jpg"
-imageAlt: "Artisan embroidery on natural cloth suggesting kerawang-style cutwork"
-imageCredit: { label: "rawpixel / Unsplash (not Aijek products)", href: "https://unsplash.com/photos/5QgIuuBxKwM" }
+image: "article-insight-aijek"
+imageAlt: "A woman in a batik workshop holds up a white shirt with a hand-drawn pattern"
+imageCredit: { label: "Joshua Kuswardi / Unsplash", href: "https://unsplash.com/photos/Z6y68ndU_ac" }
 subs: ["materials-sustainable-textiles"]
 project: "Aijek’s Singapore relaunch"
 companies: ["Aijek"]

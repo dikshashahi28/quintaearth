@@ -1,0 +1,41 @@
+---
+// Head of an enquiry form (/companies/<slug>/enquire, /people/<handle>/enquire), "the spring" member pattern: on
+// white, the breadcrumb with "›" separators, then the recipient's stone beside "Write to <name>" and their place.
+// The form below runs on the doors' rail (spring-core .qe-form), styled in styles/members/enquiries.css (.eqp).
+import Avatar from '../Avatar.astro';
+import Icon from '../Icon.astro';
+import { page } from '../../../lib/url';
+import '../../../styles/spring-core.css';
+
+interface Props {
+  name: string;
+  imageKey?: string | null;
+  kind?: 'person' | 'company';
+  /** the recipient's own page */
+  href: string;
+  where?: string | null;
+}
+const { name, imageKey, kind = 'person', href, where } = Astro.props;
+---
+<header class="eqp-head">
+  <nav class="eqp-crumbs" aria-label="Breadcrumb">
+    <ol>
+      <li><a href={page('index')}>Home</a></li>
+      <li><span class="sep" aria-hidden="true">›</span><a href={page('directory')}>Directory</a></li>
+      <li><span class="sep" aria-hidden="true">›</span><a href={href}>{name}</a></li>
+      <li><span class="sep" aria-hidden="true">›</span><span aria-current="page">Enquiry</span></li>
+    </ol>
+  </nav>
+  <div class="eqp-who">
+    <a class="eqp-stone" href={href} tabindex="-1" aria-hidden="true"><Avatar name={name} imageKey={imageKey} kind={kind} size="sm" /></a>
+    <div class="eqp-txt">
+      <h1>Write to {name}</h1>
+      {(where || Astro.slots.has('meta')) && (
+        <div class="eqp-meta">
+          {where && <span><Icon name="location_on" />{where}</span>}
+          <slot name="meta" />
+        </div>
+      )}
+    </div>
+  </div>
+</header>

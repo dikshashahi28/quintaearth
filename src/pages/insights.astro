@@ -1,6 +1,11 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// The Insights stream (design: "the spring", layouts/Spring.astro): the scene, then two stops on the river: the
+// stream with its filters (industry chips, a UN goal select, pages of 24 from scripts/insight-filters.ts; without
+// JavaScript every card shows), and the press desk. Data, ids, URLs and the filter script are unchanged.
+import '../styles/spring-reading.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import InsightCard from '../components/page/InsightCard.astro';
 import { getSub, industries } from '../data/industries';
 import { goals } from '../data/sdgs';
@@ -11,17 +16,14 @@ const [items, press] = await Promise.all([getStream(), getPress()]);
 const industryOf = (subs: string[]) => (subs[0] ? getSub(subs[0]).industry.slug : 'eu-rules');
 const goalCount = (n: number) => items.filter((it) => it.sdgs.includes(n)).length;
 const euCount = items.filter((it) => !it.subs.length).length;
+const goalsServed = goals.filter((g) => goalCount(g.n)).length;
 ---
-<Page title="Insights" description={`${items.length} evidence-linked Insights on green industries: what companies make, what it proves, and which UN goals it serves.`} current="insights">
-  <PageHead
-    title="Insights"
-    crumbs={[{ label: 'Insights' }]}
-    lede="What companies in each green industry are making, the evidence behind it, and the rules that shape it."
-    facts={[{ value: items.length, label: 'Insights' }, { value: industries.length, label: 'industries' }, { value: goals.filter((g) => goalCount(g.n)).length, label: 'UN goals' }]}
-  />
-
-  <section class="page-body" aria-labelledby="all-h">
-    <div class="wide">
+<Spring title="Insights" description={`${items.length} evidence-linked Insights on green industries: what companies make, what it proves, and which UN goals it serves.`} current="insights"
+  scene="article-press-torque"
+  say="Where sustainability is made, not performed." sub={`${items.length} Insights · ${industries.length} industries · ${goalsServed} UN goals`}>
+  <RiverRail class="reading">
+    <Bead />
+    <section class="sp-stop" aria-labelledby="all-h">
       <h2 class="sr" id="all-h">All Insights</h2>
       <div class="filters" id="filters" hidden>
         <div class="chips" role="group" aria-label="Industry">
@@ -49,16 +51,14 @@ const euCount = items.filter((it) => !it.subs.length).length;
       </div>
       <p class="empty-note" id="noResults" hidden>No Insights match these filters.</p>
       <p class="more-row"><button class="btn btn-line" type="button" id="showMore" hidden>Show more</button></p>
-    </div>
-  </section>
+    </section>
 
-  <section class="page-body" aria-labelledby="press-h">
-    <div class="wide">
-      <hr class="rule">
-      <div class="section-title"><h2 id="press-h">Press desk notes</h2><a class="tlink" href={page('press')}>All {press.length} desk notes<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></div>
-    </div>
-  </section>
-</Page>
+    <Bead last />
+    <section class="sp-stop end" aria-labelledby="press-h">
+      <div class="rd-head"><h2 id="press-h">Press desk notes</h2><a class="tlink" href={page('press')}>All {press.length} desk notes<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg></a></div>
+    </section>
+  </RiverRail>
+</Spring>
 
 <script>
   import { initInsightFilters } from '../scripts/insight-filters';

@@ -11,6 +11,8 @@ import { hashPassword, verifyPassword } from './password';
 
 /** whether the Google button is offered: both halves of the Google client must be configured */
 export const googleSignIn = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+/** whether "Continue with LinkedIn" is offered: both halves of the LinkedIn client must be configured */
+export const linkedinSignIn = !!(env.LINKEDIN_CLIENT_ID && env.LINKEDIN_CLIENT_SECRET);
 
 export const auth = betterAuth({
   appName: 'QuintaEarth',
@@ -44,9 +46,19 @@ export const auth = betterAuth({
   // "Continue with Google": on only where both secrets are set (wrangler secret put GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET).
   // Google's redirect URI for the client is `${SITE_URL}/api/auth/callback/google`. A Google account whose address
   // matches an existing member is linked to that member (Google vouches for the address, and ours was proved by link).
-  socialProviders: googleSignIn ? {
-    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, prompt: 'select_account' },
-  } : {},
+  // "Continue with LinkedIn" the same way (LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET; redirect URI
+  // `${SITE_URL}/api/auth/callback/linkedin`). A member with a LinkedIn account linked earns the person
+  // "Identity checked" badge (src/lib/person-identity.ts); a signed-in member links one from the profile editor.
+  socialProviders: {
+    ...(googleSignIn ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, prompt: 'select_account' as const } } : {}),
+    ...(linkedinSignIn ? { linkedin: { clientId: env.LINKEDIN_CLIENT_ID, clientSecret: env.LINKEDIN_CLIENT_SECRET } } : {}),
+  },
+  // a signed-in member may link a LinkedIn account whose email differs from theirs (LinkedIn vouches for the person).
+  // Only Google is trusted to vouch for an address: a trusted provider's login is linked to the member with the same
+  // email even when the provider says that email is unverified. LinkedIn is not trusted, so a LinkedIn login links to
+  // an existing member (and a signed-in member links LinkedIn) only when LinkedIn reports the email as verified;
+  // otherwise anyone could add a member's address to a LinkedIn account and sign in as that member.
+  account: { accountLinking: { enabled: true, trustedProviders: ['google'], allowDifferentEmails: true } },
   advanced: { cookiePrefix: 'qe' },
   telemetry: { enabled: false },
   plugins: [

@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import Media from '../Media.astro';
 import type { CollectionEntry } from 'astro:content';
 import { page } from '../../lib/url';
 import { formatDate, isoDate } from '../../lib/content';
@@ -13,7 +13,7 @@ const { feature, rest } = Astro.props;
     <h2 class="rv" data-dot>Latest Insights</h2>
     <div class="feat rv">
       <a href={page(feature.id)}>
-        <figure><Image src={feature.data.image} alt="" widths={[400, 600, 800]} sizes="(max-width: 900px) calc(100vw - 32px), 330px" loading="lazy" /></figure>
+        <figure><Media name={feature.data.image} alt="" sizes="(max-width: 900px) calc(100vw - 32px), 330px" /></figure>
         <div>
           <p class="meta"><svg class="hi" aria-hidden="true"><use href="#hi-leaf" /></svg>Insight · <time datetime={isoDate(feature.data.date)}>{formatDate(feature.data.date)}</time></p>
           <h3>{feature.data.title}</h3>
@@ -26,7 +26,7 @@ const { feature, rest } = Astro.props;
         <li class="rv">
           <a href={page(a.id)}>
             <div><time datetime={isoDate(a.data.date)}>{formatDate(a.data.date)}</time><h3>{a.data.title}</h3></div>
-            <figure><Image src={a.data.image} alt="" width={264} height={192} densities={[1, 2]} loading="lazy" /></figure>
+            <figure><Media name={a.data.image} alt="" sizes="(max-width: 640px) 84px, 132px" /></figure>
           </a>
         </li>
       ))}

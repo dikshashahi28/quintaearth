@@ -10,3 +10,7 @@ EMAIL_API_URL=
 # optional: "Continue with Google" (OAuth client in Google Cloud; redirect URI <SITE_URL>/api/auth/callback/google)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
+# optional: "Continue with LinkedIn" and the person "Identity checked" badge (an app in the LinkedIn developer portal with
+# "Sign In with LinkedIn using OpenID Connect"; redirect URL <SITE_URL>/api/auth/callback/linkedin). Button hidden without both.
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=

@@ -29,7 +29,10 @@ p { text-wrap: pretty; }
 input, textarea, select { caret-color: var(--river); }
 [id] { scroll-margin-top: 88px; }
 :is(a, button, input, select, textarea, summary) { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-:is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--river); outline-offset: 3px; border-radius: 6px; }
+:is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--river); outline-offset: 3px; }
+/* the 6px corner is for plain links and bare controls; at zero specificity it never squares off a pill, circle or
+   field that sets its own radius */
+:where(a, button, input, select, textarea, summary):focus-visible { border-radius: 6px; }
 
 .skip {
   position: absolute; left: 12px; top: -64px; z-index: 50;
@@ -123,4 +126,11 @@ a.chip:is(:hover, :focus-visible) { border-color: var(--river); color: var(--riv
   .btn:hover { transform: none; box-shadow: none; }
   a.chip:hover:not(:focus-visible) { transform: none; }
   .tlink:hover .ic, .btn:hover .ic.arr { transform: none; }
+}
+
+/* phones (13 Oct, Paras): no river anywhere. Every rail (spring pages, forms, member pages, dashboard, enquiries,
+   the scene line) is hidden and its grid closes up to one column. */
+@media (max-width: 640px) {
+  .qe-rail, .pp-rail, .pe-rail, .dhome-rail, .eq-row > .rc, .eq-item > .rc, .qe-scene .qe-river, .flow > .river, .hero .source { display: none !important; }
+  :is(.qe-grid, .dhome-row, .eq-row, .eq-item):has(> :is(.qe-rail, .dhome-rail, .rc)), :has(> .pp-rail), .pe { grid-template-columns: minmax(0, 1fr) !important; column-gap: 0 !important; }
 }

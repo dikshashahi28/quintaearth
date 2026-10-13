@@ -1,9 +1,12 @@
 // Replace one kind of tag on one entity. Returns statements so callers can put them in their D1 batch.
 import { and, eq } from 'drizzle-orm';
 import { db, schema } from '../db/client';
+import { TAG_KINDS } from '../db/schema/accounts';
 
 type EntityType = 'profile' | 'organization' | 'listing';
-type Kind = 'industry' | 'sub' | 'sdg' | 'skill' | 'serves';
+export type Kind = (typeof TAG_KINDS)[number];
+export type TagSet = Record<Kind, string[]>;
+export const emptyTags = (): TagSet => Object.fromEntries(TAG_KINDS.map((k) => [k, []])) as unknown as TagSet;
 
 export function setTags(entityType: EntityType, entityId: string, kind: Kind, values: string[]) {
   const t = schema.tags;
@@ -22,7 +25,7 @@ export function clearAllTags(entityType: EntityType, entityId: string) {
 export async function tagsOf(entityType: EntityType, entityId: string) {
   const rows = await db.select({ kind: schema.tags.kind, value: schema.tags.value }).from(schema.tags)
     .where(and(eq(schema.tags.entityType, entityType), eq(schema.tags.entityId, entityId)));
-  const out: Record<Kind, string[]> = { industry: [], sub: [], sdg: [], skill: [], serves: [] };
+  const out = emptyTags();
   for (const r of rows) out[r.kind].push(r.value);
   return out;
 }

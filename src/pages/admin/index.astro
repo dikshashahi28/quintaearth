@@ -1,13 +1,15 @@
 ---
-// Admin queue for "Identity checked": oldest request first, one open at a time beside the decision form.
+// Admin queue for "Identity checked": oldest request first, one open at a time beside the fixed checklist and the
+// decision form. Ticks and decisions go to the audit log (/admin/audit).
 import { actions, isInputError } from 'astro:actions';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../../db/client';
 import { pendingChecks } from '../../db/queries/dashboard';
 import { countries } from '../../data/countries';
 import { fileUrl } from '../../lib/storage-url';
-import Member from '../../layouts/Member.astro';
-import PageHead from '../../components/page/PageHead.astro';
+import { checklist, isFreeMail } from '../../lib/identity';
+import Dashboard from '../../layouts/Dashboard.astro';
+import { dashContext } from '../../lib/dash-context';
 import Icon from '../../components/members/Icon.astro';
 import StatusPill from '../../components/members/StatusPill.astro';
 import EmptyState from '../../components/members/EmptyState.astro';
@@ -21,11 +23,14 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect('/signin?next=%2Fadmin');
 if (user.role !== 'admin') return new Response(null, { status: 404 });
 Astro.response.headers.set('Cache-Control', 'private, no-store');
+const ctx = await dashContext(user, Astro.url);
 
 const result = Astro.getActionResult(actions.identity.review);
-if (result?.data) return Astro.redirect(`/admin?done=${result.data.decision}`);
+if (result?.data) return Astro.redirect(`/admin?done=${result.data.decision}`, 303);
+const ticked = Astro.getActionResult(actions.identity.tick);
+if (ticked?.data) return Astro.redirect(`/admin?check=${encodeURIComponent(Astro.url.searchParams.get('check') ?? '')}&done=ticked`, 303);
 const errors = result?.error && isInputError(result.error) ? result.error.fields : {};
-const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
+const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : ticked?.error ? actionErrorMessage(ticked.error) : null;
 const done = Astro.url.searchParams.get('done');
 
 const queue = await pendingChecks();
@@ -41,13 +46,13 @@ const hostOf = (url: string | null) => { try { return url ? new URL(url).hostnam
 const site = hostOf(open?.website ?? null);
 const mailDomain = open?.check.workEmail.split('@')[1] ?? '';
 const matches = !!site && (mailDomain === site || mailDomain.endsWith(`.${site}`));
+const list = open ? checklist(open.check, open.website) : null;
+const tickAction = (id: string) => `?check=${encodeURIComponent(id)}&${actions.identity.tick.queryString.slice(1)}`;
 ---
-<Member title="Identity checks" description="Identity check requests waiting for review." noindex>
-  <PageHead title="Identity checks" crumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Identity checks' }]} />
-  <section class="body">
-    <div class="wide">
+<Dashboard ctx={ctx} current="admin" title="Identity checks" crumbs={[{ label: 'Identity checks' }]}>
+  <div class="adm">
       {failed && <p class="form-status bad adm-status" role="alert">{failed}</p>}
-      {done && <p class="notice adm-status" role="status">{done === 'approved' ? 'Marked Identity checked.' : 'Asked the company for more.'}</p>}
+      {done && <p class="notice adm-status" role="status">{done === 'approved' ? 'Marked Identity checked.' : done === 'ticked' ? 'Checklist updated.' : 'Asked the company for more.'}</p>}
       {queue.length === 0 ? (
         <EmptyState note="Nothing waiting." />
       ) : (<>
@@ -85,8 +90,30 @@ const matches = !!site && (mailDomain === site || mailDomain.endsWith(`.${site}`
                   <li><span class="ft"><Icon name="description" /></span><div><b>Registration document</b><small>Private to the team and admins</small></div><a class="tlink" href={fileUrl(open.check.documentKey)} target="_blank" rel="noopener">Open</a></li>
                 )}
                 <li><span class="ft"><Icon name="tag" /></span><div><b>{open.check.registrationNumber}</b><small>Registration number, {country(open.check.registrationCountry)}</small></div><span></span></li>
-                <li><span class="ft"><Icon name="alternate_email" /></span><div><b>{open.check.workEmail}</b><small>Work email</small></div><StatusPill status={matches ? 'plain' : 'wait'} label={matches ? 'Matches website' : 'Does not match website'} /></li>
+                <li><span class="ft"><Icon name="alternate_email" /></span><div><b>{open.check.workEmail}</b><small>Work email{isFreeMail(open.check.workEmail) ? ' · free email domain: a short call is needed' : ''}</small></div><StatusPill status={matches ? 'plain' : 'wait'} label={matches ? 'Matches website' : 'Does not match website'} /></li>
               </ul>
+              {list && (
+                <div data-admin-checklist>
+                  <h3>Checklist</h3>
+                  <ul class="need">
+                    {list.items.map((i) => (
+                      <li data-item={i.key} data-done={i.done ? '1' : '0'}>
+                        <Icon name={i.done ? 'check_circle' : 'hourglass_top'} class={i.done ? 'ok' : undefined} />
+                        <div><b>{i.label}</b><small>{i.note}</small></div>
+                        {i.by === 'admin' ? (
+                          <form method="POST" action={tickAction(open.check.id)}>
+                            <input type="hidden" name="checkId" value={open.check.id} />
+                            <input type="hidden" name="item" value={i.key} />
+                            {!i.done && <input type="hidden" name="done" value="on" />}
+                            <button class="tlink" type="submit">{i.done ? 'Untick' : 'Tick'}</button>
+                          </form>
+                        ) : <span></span>}
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="hint">{list.complete ? 'Checklist complete.' : 'Approval needs the checklist complete: registration, business email and website, or a short call for what is missing.'} <a class="tlink" href={`/admin/audit?org=${open.check.organizationId}`}>Audit log</a></p>
+                </div>
+              )}
             </div>
             <form class="form" method="POST" action={actions.identity.review}>
               <h2 class="dec">Decision</h2>
@@ -97,6 +124,8 @@ const matches = !!site && (mailDomain === site || mailDomain.endsWith(`.${site}`
                   aria-invalid={errors.reason ? 'true' : undefined} aria-describedby="adm-reason-error"></textarea>
                 <p class="err" id="adm-reason-error">{errors.reason?.join(' ')}</p>
               </div>
+              {!open.check.registrationCheckedAt && <label class="check"><input type="checkbox" name="registration" /><span>Registration number matched in the registry</span></label>}
+              {!open.check.callDoneAt && <label class="check"><input type="checkbox" name="call" /><span>Short call done (edge cases)</span></label>}
               <div class="form-send">
                 <details class="adm-grant">
                   <summary class="btn btn-fill"><span class="shut">Grant Identity checked</span><span class="opened">Cancel</span></summary>
@@ -111,9 +140,8 @@ const matches = !!site && (mailDomain === site || mailDomain.endsWith(`.${site}`
           </div>
         )}
       </>)}
-    </div>
-  </section>
-</Member>
+  </div>
+</Dashboard>
 
 <style>
   /* granting is a two-step: the first button opens the question, Confirm sends it (works without JS) */

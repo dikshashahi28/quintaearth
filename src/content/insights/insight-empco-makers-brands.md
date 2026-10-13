@@ -4,9 +4,9 @@ description: "From 27 Sep 2026, EU consumer rules reward makers who can scope a 
 date: 2026-09-23
 topic: "Greentech"
 sdgs: [12, 13, 16]
-image: "../../assets/articles/insight-empco-makers-brands.jpg"
-imageAlt: "Hands checking a textile label, suggesting claim substantiation in making"
-imageCredit: { label: "Marcus Loke / Unsplash", href: "https://unsplash.com/photos/mEZ3PoFGs_k" }
+image: "article-insight-empco-makers"
+imageAlt: "Hands stitch a small care label onto a folded linen garment"
+imageCredit: { label: "byhome work / Unsplash", href: "https://unsplash.com/photos/x19mK3HcG7M" }
 subs: []
 euRules: true
 sources:

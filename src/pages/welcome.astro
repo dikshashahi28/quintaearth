@@ -24,7 +24,8 @@ const errors = result?.error && isInputError(result.error) ? result.error.fields
 const failed = result?.error && !isInputError(result.error);
 // joined a team by invitation: the account type is settled, only the name is asked
 // an invitation not yet opened counts too: setup accepts it (see account.chooseAccountType)
-const team = (await myCompanies(user.id))[0] ?? (await pendingInvites(user.email))[0];
+// (only for a proved address: setup joins nothing for an unverified one, so it is asked the type like anyone else)
+const team = (await myCompanies(user.id))[0] ?? (user.emailVerified ? (await pendingInvites(user.email))[0] : undefined);
 // came in with Google: no password to choose (one can be set later on /dashboard/password)
 const viaGoogle = await signsInWithGoogle(user.id);
 // the library names new members after their email; offer an empty field instead. After a failed post, show
@@ -50,7 +51,7 @@ if (askType) rails.push('type');
 if (askCompany) rails.push(typeValue === 'company' ? 'welcome-company' : '');
 if (!viaGoogle) rails.push('welcome-password');
 ---
-<Account title="Welcome" description="Set up your QuintaEarth account." scene="solar-field" sceneAlt="Rows of solar panels across a farm, seen from above" scenePos="50% 50%"
+<Account title="Welcome" description="Set up your QuintaEarth account." scene="scene-welcome"
   say="Where sustainability is made, not performed." sub="A few details and you are in">
   <form class="qe-form" method="POST" action={actions.account.chooseAccountType}>
     <h1 class="tight">Welcome to QuintaEarth</h1>

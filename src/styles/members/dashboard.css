@@ -34,17 +34,42 @@
 
 /* ---------- home ---------- */
 /* the one next step for an account that is not all live */
+/* profile completeness first (12 Oct): the figure in Literata, a gold bar (gold marks how far the river has come),
+   and the one next step as a door */
+.dhome-complete { display: flex; align-items: center; gap: 24px; margin: 0 0 28px 44px; padding: 20px 24px; border-radius: var(--r-lg); background: var(--shallow); }
+.dhome-complete .dc-num { flex: none; display: flex; align-items: baseline; margin: 0; font-family: var(--font-display); color: var(--deep); font-variant-numeric: tabular-nums; }
+.dhome-complete .dc-num b { font-weight: 400; font-size: 48px; line-height: 1; letter-spacing: -0.02em; }
+.dhome-complete .dc-num > span:not(.sr) { font-size: 22px; margin-left: 2px; color: var(--river-deep); }
+.dhome-complete .dc-txt { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 24px; row-gap: 8px; }
+.dhome-complete .dc-h { grid-column: 1; margin: 0; font-size: 15px; font-weight: 500; color: var(--river-deep); }
+.dhome-complete .dc-bar { grid-column: 1; display: block; height: 6px; border-radius: 3px; background: var(--page); overflow: hidden; }
+.dhome-complete .dc-bar > span { display: block; height: 100%; border-radius: 3px; background: var(--gold); transform-origin: left; }
+.dhome-complete .dc-next { grid-column: 2; grid-row: 1 / span 2; display: inline-flex; flex-direction: column; justify-content: center; min-height: 52px; padding: 6px 20px 6px 22px; border-radius: 100px; background: var(--page); border: 1.5px solid var(--river); color: var(--river); text-decoration: none; transition: background .2s, transform .35s var(--ease), box-shadow .35s; }
+.dhome-complete .dc-lab { font-size: 12.5px; line-height: 1.3; color: var(--muted); }
+.dhome-complete .dc-go { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; line-height: 1.3; }
+.dhome-complete .dc-go .ms { font-size: 18px; transition: transform .35s var(--ease); }
+.dhome-complete .dc-next:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.dhome-complete .dc-next:hover .dc-go .ms { transform: translateX(4px); }
+@media (max-width: 640px) {
+  .dhome-complete { margin-left: 0; padding: 18px; gap: 16px; align-items: flex-start; }
+  .dhome-complete .dc-num b { font-size: 40px; }
+  .dhome-complete .dc-txt { grid-template-columns: 1fr; }
+  .dhome-complete .dc-next { grid-column: 1; grid-row: auto; margin-top: 6px; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .dhome-complete .dc-next:hover, .dhome-complete .dc-next:hover .dc-go .ms { transform: none; box-shadow: none; }
+}
 .dhome-next { margin: 0 0 20px 44px; font-size: 16px; line-height: 1.5; color: var(--text); }
 .dhome-pw { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0 0 24px 44px; font-size: 15px; line-height: 1.5; }
 .dhome-rows { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
 .dhome-row { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 20px; }
 .dhome-rail { position: relative; width: 24px; }
-.dhome-rail .track { position: absolute; left: 11px; top: 50%; width: 3px; height: 100%; border-radius: 2px; background: var(--water); overflow: hidden; }
+.dhome-rail .track { position: absolute; left: 10.5px; top: 50%; width: 3px; height: 100%; border-radius: 2px; background: var(--water); overflow: hidden; }
 .dhome-row:last-child .dhome-rail .track { display: none; }
 /* the lit state is set statically (a background tab never shows an unlit frame); only the ring around a lit bead moves */
 .dhome-rail .fill { display: block; width: 100%; height: 100%; border-radius: 2px; background: var(--river); transform: scaleY(0); transform-origin: top; }
 .dhome-rail .fill.draw { transform: scaleY(1); }
-.dhome-rail .bead { position: absolute; z-index: 1; left: 5px; top: calc(50% - 6px); width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
+.dhome-rail .bead { position: absolute; z-index: 1; left: 6px; top: calc(50% - 6px); width: 12px; height: 12px; border-radius: 50%; background: var(--page); border: 2px solid var(--river); box-sizing: border-box; }
 .dhome-rail .bead.lit { background: var(--gold); border-color: var(--gold); transform: scale(1.15); }
 .dhome-rail .bead.lit::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; animation: dh-ring 1.2s ease-out var(--d, 0s) 1 forwards; }
 

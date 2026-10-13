@@ -1,7 +1,9 @@
 // What companies show and what buyers send: listings, their files, enquiries.
-import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { createdAt, updatedAt, user } from './auth';
-import { organizations } from './accounts';
+import { greenReviewColumns, organizations } from './accounts';
+
+export const FILE_PURPOSES = ['photo', 'logo', 'listing-photo', 'evidence', 'identity', 'certificate', 'gallery'] as const;
 
 /** a product or service on a company page */
 export const listings = sqliteTable('listings', {
@@ -13,30 +15,71 @@ export const listings = sqliteTable('listings', {
   description: text('description'),
   link: text('link'),
   photoKey: text('photo_key'),
+  /** how it is priced; prices themselves are never shown */
+  pricingModel: text('pricing_model', { enum: ['quote', 'fixed', 'subscription'] }),
+  /** lead time or availability, short text ("4 to 6 weeks", "In stock") */
+  leadTime: text('lead_time'),
+  /** specifications, searchable */
+  specs: text('specs'),
   status: text('status', { enum: ['draft', 'published'] }).notNull().default('draft'),
+  ...greenReviewColumns(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-}, (t) => [uniqueIndex('listings_org_slug_idx').on(t.organizationId, t.slug)]);
+}, (t) => [uniqueIndex('listings_org_slug_idx').on(t.organizationId, t.slug), index('listings_green_idx').on(t.greenReview)]);
 
-/** uploaded files: photos, logos, listing evidence, identity-check documents */
+/**
+ * A company's certification: one source of truth that its listings link to. Evidence is an uploaded file
+ * (`evidenceKey`, a key in `files`), a registry link, or both. Expiry is required; an expired one is shown as
+ * expired, decided when the page is read (src/lib/certifications.ts), never stored.
+ */
+export const certifications = sqliteTable('certifications', {
+  id: text('id').primaryKey(),
+  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  issuer: text('issuer').notNull(),
+  evidenceKey: text('evidence_key'),
+  registryUrl: text('registry_url'),
+  issuedOn: integer('issued_on', { mode: 'timestamp_ms' }),
+  expiresOn: integer('expires_on', { mode: 'timestamp_ms' }).notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index('certifications_org_idx').on(t.organizationId)]);
+
+/** which of the company's certifications a listing claims */
+export const listingCertifications = sqliteTable('listing_certifications', {
+  listingId: text('listing_id').notNull().references(() => listings.id, { onDelete: 'cascade' }),
+  certificationId: text('certification_id').notNull().references(() => certifications.id, { onDelete: 'cascade' }),
+}, (t) => [primaryKey({ columns: [t.listingId, t.certificationId] }), index('listing_certifications_cert_idx').on(t.certificationId)]);
+
+/** uploaded files: photos, logos, listing evidence, certificates, the company gallery, identity-check documents */
 export const files = sqliteTable('files', {
   key: text('key').primaryKey(),
   ownerUserId: text('owner_user_id').references(() => user.id, { onDelete: 'set null' }),
   organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
   listingId: text('listing_id').references(() => listings.id, { onDelete: 'cascade' }),
-  purpose: text('purpose', { enum: ['photo', 'logo', 'listing-photo', 'evidence', 'identity'] }).notNull(),
+  purpose: text('purpose', { enum: FILE_PURPOSES }).notNull(),
   name: text('name').notNull(),
   contentType: text('content_type').notNull(),
   size: integer('size').notNull(),
-  /** public files are served to anyone while the page showing them is published, else to its editors; private ones (identity documents) only to the owner company and admins */
+  /**
+   * public files are served to anyone while the page showing them is public, else to its editors; private ones only
+   * to the company's team and admins. Evidence and certificates start private; the owner can make each one public.
+   * Identity documents are never public.
+   */
   public: integer('public', { mode: 'boolean' }).notNull().default(true),
+  /** gallery pictures: a short caption */
+  caption: text('caption'),
   createdAt: createdAt(),
 }, (t) => [index('files_listing_idx').on(t.listingId), index('files_org_idx').on(t.organizationId)]);
 
-/** a buyer's message to a company; replies live in enquiry_messages */
+/**
+ * A message to a company (organizationId) or to a person (toUserId): exactly one is set. Replies live in
+ * enquiry_messages. The receiving side is called "company" in the columns for both.
+ */
 export const enquiries = sqliteTable('enquiries', {
   id: text('id').primaryKey(),
-  organizationId: text('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  toUserId: text('to_user_id').references(() => user.id, { onDelete: 'cascade' }),
   listingId: text('listing_id').references(() => listings.id, { onDelete: 'set null' }),
   fromUserId: text('from_user_id').references(() => user.id, { onDelete: 'set null' }),
   fromName: text('from_name').notNull(),
@@ -50,7 +93,7 @@ export const enquiries = sqliteTable('enquiries', {
   buyerUnread: integer('buyer_unread', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-}, (t) => [index('enquiries_org_idx').on(t.organizationId, t.status), index('enquiries_from_idx').on(t.fromUserId)]);
+}, (t) => [index('enquiries_org_idx').on(t.organizationId, t.status), index('enquiries_from_idx').on(t.fromUserId), index('enquiries_to_user_idx').on(t.toUserId, t.status)]);
 
 export const enquiryMessages = sqliteTable('enquiry_messages', {
   id: text('id').primaryKey(),

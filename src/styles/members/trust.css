@@ -1,0 +1,35 @@
+/* Phase 2 trust pieces shared by the member pages (12 Oct 2026): the "Identity checked" note (IdentityTip),
+   imported by IdentityTip.astro; the green-wording notices, imported by the listing and company editors. Tokens only. */
+
+/* "Identity checked" with its note: the neutral pill as a button; the note opens on hover, focus or tap */
+.idt { position: relative; display: inline-flex; vertical-align: middle; }
+.idt-btn { position: relative; font: inherit; font-size: 14px; font-weight: 500; cursor: help; transition: border-color .2s, color .2s; }
+.idt-btn.sm { font-size: 13px; }
+.idt-btn .ms.idt-i { font-size: 15px; margin-left: 1px; color: var(--placeholder); }
+.idt-btn:hover, .idt-btn:focus-visible, .idt.open .idt-btn { border-color: var(--field-line); color: var(--deep); }
+.idt-btn:focus-visible { outline: 2px solid var(--river); outline-offset: 3px; }
+/* a 44px hit area around the 28-32px pill */
+.idt-btn::after { content: ""; position: absolute; inset: -8px -2px; }
+.idt-tip { position: absolute; z-index: 20; left: 0; top: calc(100% + 10px); width: max-content; max-width: min(320px, calc(100vw - 48px)); padding: 12px 14px; border-radius: var(--r-sm); border: 1px solid var(--hair); background: var(--page); color: var(--ink-2); font: 400 14px/1.5 var(--font-body); white-space: normal; text-align: left; box-shadow: 0 16px 32px rgba(20, 48, 28, .1); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .2s, transform .25s var(--ease), visibility 0s .25s; pointer-events: none; }
+.idt-tip::before { content: ""; position: absolute; left: 18px; top: -6px; width: 10px; height: 10px; border-left: 1px solid var(--hair); border-top: 1px solid var(--hair); background: var(--page); transform: rotate(45deg); }
+.idt:hover .idt-tip, .idt:focus-within .idt-tip, .idt.open .idt-tip { opacity: 1; visibility: visible; transform: none; transition: opacity .2s, transform .25s var(--ease), visibility 0s; }
+.idt.shut .idt-tip { opacity: 0; visibility: hidden; }
+/* closed, the note takes no room (so it never widens a phone page) */
+.idt:not(:hover, :focus-within, .open) .idt-tip, .idt.shut .idt-tip { display: none; }
+/* on a phone the note rises from the bottom of the window, full width, instead of hanging off the pill */
+@media (max-width: 640px) {
+  .idt-tip { position: fixed; left: 16px; right: 16px; top: auto; bottom: 16px; width: auto; max-width: none; padding: 14px 16px; font-size: 15px; box-shadow: 0 16px 40px rgba(20, 48, 28, .22); }
+  .idt-tip::before { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .idt-tip { transition: none; transform: none; } }
+
+/* green wording: why a listing or a company description is held, and the EmpCo warning on offset-based neutrality claims */
+.gw { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0 0; padding: 14px 16px; border-radius: var(--r); background: var(--shallow); }
+.gw > .ms { flex: none; font-size: 22px; margin-top: 1px; color: var(--river); }
+.gw b { display: block; font-weight: 600; font-size: 15px; color: var(--deep); }
+.gw p { margin: 2px 0 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.gw-back { background: var(--page); border: 1px solid var(--danger-line); }
+.gw-back > .ms { color: var(--danger); }
+.gw-hint { margin-top: 14px; }
+.gw-warn { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 0; padding: 12px 14px; border-radius: var(--r); border: 1px solid var(--danger-line); background: var(--page); color: var(--danger); font-size: 15px; line-height: 1.5; }
+.gw-warn .ms { flex: none; font-size: 20px; margin-top: 1px; }

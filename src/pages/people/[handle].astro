@@ -1,6 +1,6 @@
 ---
 // Public person page (design: Person, "the spring": styles/members/person.css). Only published profiles exist here; anything else is a 404.
-import { and, inArray, eq } from 'drizzle-orm';
+import { and, inArray, eq, sql } from 'drizzle-orm';
 import Member from '../../layouts/Member.astro';
 import PersonHead from '../../components/members/public/PersonHead.astro';
 import Avatar from '../../components/members/Avatar.astro';
@@ -10,7 +10,9 @@ import { inChunks } from '../../db/chunks';
 import { getPublicPerson } from '../../db/queries/public';
 import { fileUrl } from '../../lib/storage-url';
 import { absolute, page } from '../../lib/url';
-import { industryLinks, ldJson, place, subLinks } from '../../lib/labels';
+import { GOALS_HEADING, goalLinks, industryLinks, ldJson, openToLabel, place, subLinks } from '../../lib/labels';
+import { identityCheckedSql } from '../../lib/identity';
+import { PERSON_TOOLTIP } from '../../lib/person-identity';
 import '../../styles/members/person.css';
 
 export const prerender = false;
@@ -32,20 +34,30 @@ if (preview) {
 
 // logo, place and trust mark for the "Works at" cards (getPublicPerson only returns name and slug)
 const slugs = person.companies.map((c) => c.slug);
-const orgs = await inChunks(slugs, (slice) => db.select({ slug: schema.organizations.slug, logoKey: schema.organizations.logoKey, city: schema.organizations.city, country: schema.organizations.country, checkedAt: schema.organizations.identityCheckedAt })
+const orgs = await inChunks(slugs, (slice) => db.select({ slug: schema.organizations.slug, logoKey: schema.organizations.logoKey, city: schema.organizations.city, country: schema.organizations.country,
+  checked: sql<number>`${identityCheckedSql(schema.organizations.identityCheckedAt)}` })
   .from(schema.organizations).where(and(inArray(schema.organizations.slug, slice), eq(schema.organizations.published, true))));
 const orgBySlug = new Map(orgs.map((o) => [o.slug, o]));
 const companies = person.companies.map((c) => {
   const o = orgBySlug.get(c.slug);
-  return { ...c, logoKey: o?.logoKey ?? null, place: place(o?.city, o?.country), checked: !!o?.checkedAt };
+  return { ...c, logoKey: o?.logoKey ?? null, place: place(o?.city, o?.country), checked: !!o?.checked };
 });
 
 const where = place(person.city, person.country);
 const skills = person.tags.skill;
 const fields = [...industryLinks(person.tags.industry), ...subLinks(person.tags.sub)];
-// the river rail on the left: one bead per part that is there (bio, skills), marking the parts only, so every bead stays at rest
-const hasBio = !!person.bio;
-const hasSkills = skills.length > 0;
+// new on 12 Oct: role and company, languages, "open to", services, self-declared UN goals, member since
+const goals = goalLinks(person.tags.sdg);
+const languages = person.tags.language;
+const openTo = person.tags.open.map(openToLabel).filter((x): x is string => !!x);
+const services = person.tags.service;
+const memberSince = person.memberSince.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const enquire = page(`people/${person.handle}/enquire`);
+// the river rail on the left: one bead per part that is there, in page order (like the company page), marking the
+// parts only, so every bead stays at rest
+const stops = [!!person.bio && 'bio', skills.length > 0 && 'skills', companies.length > 0 && 'works', fields.length > 0 && 'industries', services.length > 0 && 'services',
+  openTo.length > 0 && 'open', languages.length > 0 && 'languages', goals.length > 0 && 'goals'].filter((x): x is string => !!x);
+const isLast = (k: string) => stops[stops.length - 1] === k;
 const url = absolute(Astro.url.pathname, Astro.site);
 const description = (person.headline ?? person.bio ?? `${person.name} on QuintaEarth`).replace(/\s+/g, ' ').slice(0, 160);
 
@@ -60,54 +72,102 @@ const personLd = {
   ...(where && { homeLocation: { '@type': 'Place', name: where } }),
   ...(companies.length && { worksFor: companies.map((c) => ({ '@type': 'Organization', name: c.name, url: absolute(page(`companies/${c.slug}`), Astro.site) })) }),
   ...(skills.length && { knowsAbout: skills }),
+  ...(languages.length && { knowsLanguage: languages }),
+  ...(person.roleTitle && { jobTitle: person.roleTitle }),
   ...((person.website || person.linkedin) && { sameAs: [person.website, person.linkedin].filter(Boolean) }),
 };
 ---
 <Member title={person.name} description={description} current="directory" noindex={preview}>
   <script slot="head" type="application/ld+json" set:html={ldJson(personLd)} />
   {preview && <div class="wide pp-preview"><p class="notice" role="status">Only you can see this page until you publish it.</p></div>}
-  <PersonHead name={person.name} line={person.headline} imageKey={person.photoKey} where={where} website={person.website} linkedin={person.linkedin} />
+  <PersonHead name={person.name} line={person.headline} imageKey={person.photoKey} where={where} website={person.website} linkedin={person.linkedin}
+    since={memberSince} checkedTip={person.identityChecked ? PERSON_TOOLTIP : null} enquire={preview ? null : enquire}>
+    {(person.roleTitle || person.companyName) && (
+      <Fragment slot="role">
+        {person.roleTitle}{person.roleTitle && person.companyName && ' at '}
+        {person.companyLink ? <a href={page(`companies/${person.companyLink.slug}`)}>{person.companyLink.name}</a> : person.companyName}
+      </Fragment>
+    )}
+  </PersonHead>
   <section class="pp-body" aria-label="Profile">
-    <div class="wide pp-two">
-      {(hasBio || hasSkills) && (
+    <div class="wide">
+      {stops.length > 0 && (
         <div class="pp-spine">
-          {hasBio && (
+          {person.bio && (
             <>
-              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: !hasSkills }]}></span></div>
-              <div class:list={['pp-part', { last: !hasSkills }]}><p class="pp-bio">{person.bio}</p></div>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('bio') }]}></span></div>
+              <div class:list={['pp-part', { last: isLast('bio') }]}><p class="pp-bio">{person.bio}</p></div>
             </>
           )}
-          {hasSkills && (
+          {skills.length > 0 && (
             <>
-              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class="track tail"></span></div>
-              <div class="pp-part pp-sec last">
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('skills') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('skills') }]} data-skills>
                 <h2>Skills</h2>
                 <div class="pp-chips">{skills.map((s) => <span class="chip">{s.charAt(0).toUpperCase() + s.slice(1)}</span>)}</div>
-              </div>
+              </section>
             </>
           )}
-        </div>
-      )}
-      {(companies.length > 0 || fields.length > 0) && (
-        <div class="pp-side">
           {companies.length > 0 && (
-            <section class="pp-sec">
-              <h2>Works at</h2>
-              <div class="pp-workats">
-                {companies.map((c) => (
-                  <a class="pp-workat" href={page(`companies/${c.slug}`)}>
-                    <Avatar name={c.name} imageKey={c.logoKey} kind="company" size="sm" />
-                    <span class="txt"><b>{c.name}</b>{c.place && <small>{c.place}</small>}{c.checked && <IdentityMark small />}</span>
-                  </a>
-                ))}
-              </div>
-            </section>
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('works') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('works') }]} data-works-at>
+                <h2>Works at</h2>
+                <div class="pp-workats">
+                  {companies.map((c) => (
+                    <a class="pp-workat" href={page(`companies/${c.slug}`)}>
+                      <Avatar name={c.name} imageKey={c.logoKey} kind="company" size="sm" />
+                      <span class="txt"><b>{c.name}</b>{c.place && <small>{c.place}</small>}{c.checked && <IdentityMark small />}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            </>
           )}
           {fields.length > 0 && (
-            <section class="pp-sec">
-              <h2>Industries</h2>
-              <div class="pp-chips">{fields.map((f) => <a class="chip has" href={f.href}>{f.label}</a>)}</div>
-            </section>
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('industries') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('industries') }]} data-industries>
+                <h2>Industries</h2>
+                <div class="pp-chips">{fields.map((f) => <a class="chip has" href={f.href}>{f.label}</a>)}</div>
+              </section>
+            </>
+          )}
+          {services.length > 0 && (
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('services') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('services') }]} data-services>
+                <h2>Services</h2>
+                <div class="pp-chips">{services.map((s) => <span class="chip">{s}</span>)}</div>
+              </section>
+            </>
+          )}
+          {openTo.length > 0 && (
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('open') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('open') }]} data-open-to>
+                <h2>Open to</h2>
+                <div class="pp-chips">{openTo.map((s) => <span class="chip">{s}</span>)}</div>
+              </section>
+            </>
+          )}
+          {languages.length > 0 && (
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('languages') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('languages') }]} data-languages>
+                <h2>Languages</h2>
+                <div class="pp-chips">{languages.map((s) => <span class="chip">{s}</span>)}</div>
+              </section>
+            </>
+          )}
+          {goals.length > 0 && (
+            <>
+              <div class="pp-rail" aria-hidden="true"><span class="bead"></span><span class:list={['track', { tail: isLast('goals') }]}></span></div>
+              <section class:list={['pp-part pp-sec', { last: isLast('goals') }]} data-goals>
+                <h2>{GOALS_HEADING}</h2>
+                <div class="pp-chips">{goals.map((g) => <a class="chip pp-goal" href={g.href}><span class="goal">{g.n}</span>{g.title}</a>)}</div>
+              </section>
+            </>
           )}
         </div>
       )}

@@ -1,24 +1,29 @@
 ---
-import Page from '../layouts/Page.astro';
-import PageHead from '../components/page/PageHead.astro';
+// The press desk (design: "the spring", layouts/Spring.astro): the scene, then the desk notes as cards beside
+// the river, which ends at the press address. Data, URLs and the cards are unchanged.
+import '../styles/spring-reading.css';
+import Spring from '../layouts/Spring.astro';
+import RiverRail from '../components/spring/RiverRail.astro';
+import Bead from '../components/spring/Bead.astro';
 import InsightCard from '../components/page/InsightCard.astro';
 import { articleToInsight, getPress } from '../lib/content';
 import { site } from '../data/site';
 
 const press = (await getPress()).map(articleToInsight);
 ---
-<Page current="press" title="Press releases" description="QuintaEarth press desk notes: public announcements in green industries, read for what they can prove.">
-  <PageHead
-    title="Press releases"
-    crumbs={[{ label: 'Press' }]}
-    lede="Public announcements in green industries, read for what they can prove."
-    facts={[{ value: press.length, label: 'desk notes' }]}
-  />
-  <section class="page-body" aria-labelledby="notes-h">
-    <div class="wide">
+<Spring current="press" title="Press releases" description="QuintaEarth press desk notes: public announcements in green industries, read for what they can prove."
+  scene="offer-sponsored"
+  say="Where sustainability is made, not performed." sub={`${press.length} desk notes`}>
+  <RiverRail class="reading">
+    <Bead />
+    <section class="sp-stop" aria-labelledby="notes-h">
       <h2 class="sr" id="notes-h">Desk notes</h2>
       <div class="cards">{press.map((it) => <InsightCard item={it} />)}</div>
-      <p class="press-mail">Press enquiries: <a href={`mailto:${site.pressEmail}`}>{site.pressEmail}</a></p>
-    </div>
-  </section>
-</Page>
+    </section>
+
+    <Bead last />
+    <section class="sp-stop end">
+      <p class="rd-mail">Press enquiries: <a href={`mailto:${site.pressEmail}`}>{site.pressEmail}</a></p>
+    </section>
+  </RiverRail>
+</Spring>

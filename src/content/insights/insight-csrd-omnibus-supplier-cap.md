@@ -4,9 +4,9 @@ description: "Omnibus-era rules draw a line around what under-1,000-employee sup
 date: 2026-09-23
 topic: "Sustainable development"
 sdgs: [8, 12, 16]
-image: "../../assets/articles/insight-csrd-omnibus-supplier-cap.jpg"
-imageAlt: "Small manufacturing workshop suggesting right-sized supplier disclosure"
-imageCredit: { label: "Bannerbogdan / Unsplash", href: "https://unsplash.com/photos/H2J9hsK3cKk" }
+image: "article-insight-csrd"
+imageAlt: "A machinist in a waistcoat works at an old green lathe in a small workshop"
+imageCredit: { label: "ammar ahsan / Unsplash", href: "https://unsplash.com/photos/SsTd-oR60S4" }
 subs: []
 euRules: true
 sources:

@@ -12,10 +12,17 @@ import TagFields from '../../components/members/forms/TagFields.astro';
 import FormStatus from '../../components/members/forms/FormStatus.astro';
 import FileDrop from '../../components/members/forms/FileDrop.astro';
 import EmptyState from '../../components/members/EmptyState.astro';
+import IdentityMark from '../../components/members/IdentityMark.astro';
+import LinkedInButton from '../../components/members/forms/LinkedInButton.astro';
 import Rail from '../../components/members/profile/Rail.astro';
 import { actionErrorMessage } from '../../components/members/forms/errors';
+import ChipPicker from '../../components/members/forms/ChipPicker.astro';
 import { dashContext } from '../../lib/dash-context';
 import { myProfile } from '../../db/queries/dashboard';
+import { OPEN_TO } from '../../lib/validate';
+import { OPEN_TO_LABELS } from '../../lib/labels';
+import { linkedinSignIn } from '../../lib/auth';
+import { personChecked } from '../../lib/person-identity';
 import '../../styles/members/editors.css';
 import '../../styles/members/profile-editor.css';
 
@@ -25,6 +32,9 @@ const user = Astro.locals.user;
 if (!user) return Astro.redirect('/signin?next=%2Fdashboard%2Fprofile');
 
 const updated = Astro.getActionResult(actions.profile.update);
+// "Link LinkedIn": the action answers with LinkedIn's address
+const linking = Astro.getActionResult(actions.account.linkLinkedIn);
+if (linking?.data) return Astro.redirect(linking.data.url, 303);
 const photoSet = Astro.getActionResult(actions.profile.setPhoto);
 const photoRemoved = Astro.getActionResult(actions.profile.removePhoto);
 // post, redirect, get: a reload never posts twice
@@ -56,6 +66,13 @@ const v = {
   country: text('country', profile?.country),
   linkedin: text('linkedin', profile?.linkedin),
   website: text('website', profile?.website),
+  roleTitle: text('roleTitle', profile?.roleTitle),
+  companyName: text('companyName', profile?.companyName),
+  companyOrgId: text('companyOrgId', profile?.companyOrgId),
+  services: text('services', profile?.tags.service.join(', ')),
+  languages: text('languages', profile?.tags.language.join(', ')),
+  openTo: list('openTo', profile?.tags.open ?? []),
+  sdgs: list('sdgs', profile?.tags.sdg ?? []),
   // stored lowercase; shown with a capital first letter (saving lowercases again)
   skills: text('skills', profile?.tags.skill.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')),
   industries: list('industries', profile?.tags.industry ?? []),
@@ -64,6 +81,8 @@ const v = {
 };
 
 const savedFlag = Astro.url.searchParams.get('saved');
+const linkedinLinked = await personChecked(user.id);
+const linkedinError = Astro.url.searchParams.get('error') === 'linkedin' || !!linking?.error;
 const savedDetails = savedFlag === 'details' && !sent ? (profile?.published ? 'Saved. Your profile is live.' : 'Saved. Your profile is hidden from the public.') : null;
 const savedPhoto = savedFlag === 'photo' ? 'Photo saved.' : savedFlag === 'nophoto' ? 'Photo removed.' : null;
 const pageUrl = profile ? `/people/${profile.handle}` : null;
@@ -75,13 +94,18 @@ const lit = {
   photo: !!profile?.photoKey,
   details: has(v.name) && has(v.headline) && has(v.bio),
   tags: v.industries.length > 0 || v.subs.length > 0,
+  goals: v.sdgs.length > 0,
   skills: has(v.skills),
   links: has(v.linkedin) || has(v.website),
+  linkedin: linkedinLinked,
   page: v.published,
   save: !!savedDetails,
 };
-const order = Object.values(lit);
-const on = (i: number) => order[i] && order[i + 1];
+type Step = keyof typeof lit;
+// the LinkedIn stop is there only when LinkedIn sign-in is set up (or already linked)
+const showLinkedIn = linkedinSignIn || linkedinLinked;
+const steps = (Object.keys(lit) as Step[]).filter((k) => k !== 'linkedin' || showLinkedIn);
+const on = (k: Step) => { const i = steps.indexOf(k); return lit[k] && !!steps[i + 1] && lit[steps[i + 1]!]; };
 ---
 <Dashboard ctx={ctx} current="profile" title="Your profile" crumbs={[{ label: 'Your profile' }]}>
   {!profile ? (
@@ -90,7 +114,7 @@ const on = (i: number) => order[i] && order[i + 1];
     </div>
   ) : (
     <div class="pe" data-photo={lit.photo ? '1' : undefined}>
-      <Rail step="photo" lit={lit.photo} on={on(0)} delay={0.1} />
+      <Rail step="photo" lit={lit.photo} on={on('photo')} delay={0.1} />
       <section class="sec" aria-labelledby="photo-h" data-save-first>
         <h2 id="photo-h">Photo</h2>
         <div class="upload">
@@ -111,12 +135,29 @@ const on = (i: number) => order[i] && order[i + 1];
       </section>
 
       <form class="secs" method="POST" action={actions.profile.update} data-main>
-        <Rail step="details" lit={lit.details} on={on(1)} delay={0.3} />
+        <Rail step="details" lit={lit.details} on={on('details')} delay={0.3} />
         <section class="sec" aria-labelledby="details-h">
           <h2 id="details-h">Details</h2>
           <div class="form">
             <Field id="p-name" name="name" label="Name" value={v.name} error={errors.name} maxlength={80} required autocomplete="name" />
             <Field id="p-head" name="headline" label="Headline" value={v.headline} error={errors.headline} maxlength={120} count />
+            <div class="row2">
+              <Field id="p-role" name="roleTitle" label="Current role" value={v.roleTitle} error={errors.roleTitle} maxlength={80} optional autocomplete="organization-title" />
+              <Field id="p-company" name="companyName" label="Company" value={v.companyName} error={errors.companyName} maxlength={120} optional autocomplete="organization"
+                hint={ctx.companies.length ? 'Links to the company page when you are on its team.' : undefined} />
+            </div>
+            {ctx.companies.length > 0 && (
+              <div class="field">
+                <label for="p-company-org">Link to one of your companies</label>
+                <span class="selwrap">
+                  <select class="sel" id="p-company-org" name="companyOrgId">
+                    <option value="" selected={!v.companyOrgId}>No link</option>
+                    {ctx.companies.map((c) => <option value={c.id} selected={c.id === v.companyOrgId}>{c.name}</option>)}
+                  </select>
+                  <Icon name="expand_more" />
+                </span>
+              </div>
+            )}
             <div class="row2">
               <Field id="p-city" name="city" label="City" value={v.city} error={errors.city} maxlength={80} autocomplete="address-level2" />
               <CountrySelect id="p-country" name="country" label="Country" value={v.country} error={errors.country} />
@@ -125,17 +166,27 @@ const on = (i: number) => order[i] && order[i + 1];
           </div>
         </section>
 
-        <Rail step="tags" lit={lit.tags} on={on(2)} delay={0.44} />
-        <TagFields prefix="p" industries={v.industries} subs={v.subs} errors={errors} />
+        <Rail step="tags" lit={lit.tags} on={on('tags')} delay={0.44} />
+        <TagFields prefix="p" industries={v.industries} subs={v.subs} sdgs={v.sdgs} errors={errors}>
+          <Rail slot="goals-rail" step="goals" lit={lit.goals} on={on('goals')} delay={0.5} />
+        </TagFields>
 
-        <Rail step="skills" lit={lit.skills} on={on(3)} delay={0.58} />
+        <Rail step="skills" lit={lit.skills} on={on('skills')} delay={0.58} />
         <section class="sec" aria-labelledby="skills-h">
           <h2 id="skills-h">Skills</h2>
+          <div class="form">
           <Field id="p-skills" name="skills" label="Skills" value={v.skills} error={errors.skills} maxlength={400}
             hint="Separate with commas, up to 15." placeholder="Solar PV design, grid integration" />
+          <Field id="p-services" name="services" label="Services you provide" value={v.services} error={errors.services} maxlength={400} optional
+            hint="Separate with commas, up to 15." placeholder="Energy audits, grant writing" />
+          <Field id="p-langs" name="languages" label="Languages" value={v.languages} error={errors.languages} maxlength={300} optional
+            hint="Separate with commas." placeholder="English, Hindi" />
+          <ChipPicker name="openTo" legend="Open to" options={OPEN_TO.map((o) => ({ value: o, label: OPEN_TO_LABELS[o]! }))} selected={v.openTo}
+            errorId="p-open-error" error={errors.openTo} />
+          </div>
         </section>
 
-        <Rail step="links" lit={lit.links} on={on(4)} delay={0.72} />
+        <Rail step="links" lit={lit.links} on={on('links')} delay={0.72} />
         <section class="sec" aria-labelledby="links-h">
           <h2 id="links-h">Links</h2>
           <div class="form">
@@ -144,7 +195,21 @@ const on = (i: number) => order[i] && order[i + 1];
           </div>
         </section>
 
-        <Rail step="page" lit={lit.page} on={on(5)} delay={0.86} toEnd />
+        {showLinkedIn && <Rail step="linkedin" lit={lit.linkedin} on={on('linkedin')} delay={0.8} />}
+        {showLinkedIn && (
+          <section class="sec pe-li" aria-labelledby="li-h" data-linkedin>
+            <h2 id="li-h">Identity checked</h2>
+            {linkedinLinked
+              ? <p class="pe-li-done"><IdentityMark /><span>LinkedIn linked. Your page shows it.</span></p>
+              : <>
+                  <p class="pe-li-say">Link your LinkedIn account and your page shows “Identity checked”.</p>
+                  {linkedinError && <p class="form-status bad" role="alert">LinkedIn did not finish. Try again.</p>}
+                  <LinkedInButton formaction={actions.account.linkLinkedIn} label="Link LinkedIn" />
+                </>}
+          </section>
+        )}
+
+        <Rail step="page" lit={lit.page} on={on('page')} delay={0.86} toEnd />
         <section class="sec" aria-labelledby="page-h">
           <h2 id="page-h">Your page</h2>
           <div class="pe-page">
@@ -213,6 +278,8 @@ const on = (i: number) => order[i] && order[i + 1];
         photo: root.dataset.photo === '1',
         details: val('p-name') && val('p-head') && val('p-bio'),
         tags: !!main.querySelector('input[name="industries"]:checked, input[name="subs"]:checked'),
+        goals: !!main.querySelector('input[name="sdgs"]:checked'),
+        linkedin: !!root.querySelector('.pe-li-done'),
         skills: val('p-skills'),
         links: val('p-li') || val('p-web'),
         page: !!main.querySelector<HTMLInputElement>('input[name="published"]')?.checked,
