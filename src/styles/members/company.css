@@ -30,11 +30,12 @@
 .qe-co .qe-meta svg.ms { font-size: 18px; color: var(--reed-ink); }
 .qe-co .qe-meta .qe-idc { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 10px 2px 7px; border-radius: 100px; border: 1px solid var(--id-line); background: var(--page); color: var(--ink-2); font-size: 13px; font-weight: 500; white-space: nowrap; box-sizing: border-box; }
 .qe-co .qe-meta .qe-idc svg.ms { font-size: 16px; color: var(--muted); }
-/* the evidence count: the same quiet pill, as a link down to the files */
-.qe-co .qe-meta a.qe-evc { color: var(--ink-2); text-decoration: none; transition: border-color .2s, color .2s; }
-.qe-co .qe-meta a.qe-evc:hover { border-color: var(--river); color: var(--river-deep); }
-.qe-co .qe-meta a.qe-evc { position: relative; }
-.qe-co .qe-meta a.qe-evc::after { content: ""; position: absolute; inset: -8px 0; }
+/* the evidence count: a river text link down to the files (Identity checked stays the only pill-shaped mark) */
+.qe-co .qe-meta a.qe-evc { position: relative; display: inline-flex; align-items: center; gap: 5px; min-height: 32px; color: var(--river); font-weight: 500; text-decoration: none; transition: color .2s; }
+.qe-co .qe-meta a.qe-evc svg.ms { font-size: 18px; color: var(--river); }
+.qe-co .qe-meta a.qe-evc .n { font-family: var(--font-display); font-variant-numeric: lining-nums tabular-nums; font-size: 16px; }
+.qe-co .qe-meta a.qe-evc:hover { color: var(--river-deep); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.qe-co .qe-meta a.qe-evc::after { content: ""; position: absolute; inset: -6px 0; }
 .qe-co .qe-head-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 24px; }
 
 /* button and text links */
@@ -186,7 +187,8 @@
   .qe-co .qe-h2 { font-size: 24px; }
   .qe-co .qe-end { margin-top: 40px; padding-top: 24px; }
   .qe-co .qe-end .qe-btn { width: 100%; }
-  .qe-co .qe-body > .qe-end { margin-left: 38px; padding-bottom: 64px; }
+  /* the rail is gone on phones (base.css), so the closing band sits on the page edge like the sections above it */
+  .qe-co .qe-body > .qe-end { margin-left: 0; padding-bottom: 64px; }
   .qe-co .qe-gallery { grid-template-columns: 1fr; gap: 20px; }
   .qe-co .qe-cert { grid-template-columns: 1fr; }
   .qe-co .qe-cert-st { grid-column: 1; grid-row: auto; margin-top: 6px; white-space: normal; }
@@ -200,6 +202,7 @@
 /* phone pass: small print at 14px, and a listing with no photo gets a short band instead of a tall empty box */
 @media (max-width: 640px) {
   .qe-co .qe-meta .qe-idc, .qe-co .qe-files-note, .qe-co .qe-files li small { font-size: 14px; }
+  .qe-co .qe-meta a.qe-evc { font-size: 15px; }
   .qe-co .qe-ph:not(:has(img)) { aspect-ratio: 2 / 1; }
 }
 @media (hover: none) {

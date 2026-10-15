@@ -34,9 +34,10 @@ const goalsServed = goals.filter((g) => goalCount(g.n)).length;
         <div class="filter-row">
           <label class="goal-select">
             <span>UN goal</span>
+            {/* the counts are for the whole stream; the script recounts them for the chosen industry */}
             <select id="goalFilter">
               <option value="">All goals</option>
-              {goals.filter((g) => goalCount(g.n)).map((g) => <option value={g.n}>Goal {g.n}: {g.title} ({goalCount(g.n)})</option>)}
+              {goals.filter((g) => goalCount(g.n)).map((g) => <option value={g.n} data-label={`Goal ${g.n}: ${g.title}`}>Goal {g.n}: {g.title} ({goalCount(g.n)})</option>)}
             </select>
           </label>
           <p class="result-count" id="resultCount" aria-live="polite">{items.length} Insights</p>
@@ -49,7 +50,7 @@ const goalsServed = goals.filter((g) => goalCount(g.n)).length;
           </div>
         ))}
       </div>
-      <p class="empty-note" id="noResults" hidden>No Insights match these filters.</p>
+      <p class="empty-note" id="noResults" hidden>No Insights match these filters. <a class="tlink" id="clearFilters" href={page('insights')}>Clear filters</a></p>
       <p class="more-row"><button class="btn btn-line" type="button" id="showMore" hidden>Show more</button></p>
     </section>
 

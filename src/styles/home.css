@@ -56,7 +56,8 @@
 .hero h1{font-size:clamp(42px,5.2vw,76px);line-height:1.04}
 /* always two lines: "One hub for <word>" / "in sustainability" */
 .hero h1 .ln{display:block;white-space:nowrap}
-.rot{display:inline-block;min-width:0;white-space:nowrap;text-align:center;font-style:italic;color:var(--gold-ink);transition:opacity .32s var(--ease),transform .32s var(--ease),width .4s var(--ease)}
+/* the slot's width is set once by hero.ts and never tweened (a width transition re-lays out the headline every turn) */
+.rot{display:inline-block;min-width:0;white-space:nowrap;text-align:center;font-style:italic;color:var(--gold-ink);transition:opacity .32s var(--ease),transform .32s var(--ease)}
 .rot.out{opacity:0;transform:translateY(-12px)}
 .rot.show{animation:rotin .45s var(--ease)}
 @keyframes rotin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -155,11 +156,13 @@
 .pebble:hover .pb,.pebble:focus-visible .pb{transform:translateY(-5px) scale(1.08);background:var(--shallow);border-color:var(--river-deep);color:var(--river-deep);box-shadow:0 12px 24px rgba(20,48,28,.16)}
 .pebble:hover .pl{color:var(--river)}
 .pebble:active .pb{transform:translateY(-2px) scale(1.02)}
-.pebble:focus-visible{outline:none}
 .pebble.lit .pb{border-color:var(--river)}
 .pebble[aria-current="true"]{color:var(--deep);font-weight:600}
 .pebble[aria-current="true"] .pb{background:var(--river);border-color:var(--river);color:#fff;transform:scale(1.1)}
 .pebble[aria-current="true"] .pb::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid var(--river);opacity:.5;animation:pebring 1.2s ease-out 1}
+/* the keyboard ring sits on the circle, not the whole column, and the current (filled) pebble gets the same one */
+.pebble:focus-visible{outline:none}
+.pebble:focus-visible .pb{outline:2px solid var(--river);outline-offset:4px}
 @keyframes pebring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.15);opacity:.5}}
 .slide{margin-top:44px}
 .slide{touch-action:pan-y}
@@ -240,18 +243,18 @@
 .press .more{margin-top:28px}
 
 /* CSR band, deep water */
-.csr{background:var(--deep);text-align:center;color:#e4efe2}
+.csr{background:var(--deep);text-align:center;color:var(--on-deep)}
 .csr .orn{width:72px;height:72px;margin:0 auto 18px;color:var(--gold-light)}
 .csr .big{font-size:clamp(34px,4.6vw,60px);line-height:1.1;max-width:20ch;margin-inline:auto;color:#fff}
-.csr .second{margin-top:20px;font-size:clamp(19px,1.7vw,22px);color:#cfe0cc}
+.csr .second{margin-top:20px;font-size:clamp(19px,1.7vw,22px);color:var(--mist)}
 .fact-row{display:flex;align-items:center;justify-content:center;gap:40px;margin-top:56px;text-align:left}
 .ring{position:relative;width:188px;height:188px;flex:none}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring circle{fill:none;stroke:var(--gold-light);stroke-width:2;stroke-linecap:round}
 .ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:400 56px/1 var(--font-display);color:#fff;font-variant-numeric:tabular-nums}
-.fact-row p{max-width:30ch;font-size:18px;line-height:1.55;color:#e4efe2}
+.fact-row p{max-width:30ch;font-size:18px;line-height:1.55;color:var(--on-deep)}
 .csr .ask{margin-top:40px}
-.mail{margin-top:16px;font-size:16px;color:#cfe0cc}
+.mail{margin-top:16px;font-size:16px;color:var(--mist)}
 .mail a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--gold-light)}
 
 /* community pool */

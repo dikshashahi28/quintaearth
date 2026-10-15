@@ -27,17 +27,19 @@
 @keyframes shine { 0% { opacity: 1; transform: translateX(-110%); } 100% { opacity: 1; transform: translateX(110%); } }
 
 .nav { display: flex; align-items: center; gap: 24px; }
-.nav > a {
+/* the Industries disclosure is a button and, without JavaScript, a link inside <noscript>: both wear the nav link look */
+.nav > :is(a, button), .nav > noscript > a {
+  appearance: none; background: none; border: 0; margin: 0; padding: 0; cursor: pointer; font: inherit;
   position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
   color: var(--text); text-decoration: none; font-weight: 500; font-size: 16px; white-space: nowrap; transition: color .2s;
 }
-.nav > a:hover { color: var(--river); }
-.nav > a::after {
+.nav > :is(a, button):hover, .nav > noscript > a:hover { color: var(--river); }
+.nav > :is(a, button)::after, .nav > noscript > a::after {
   content: ""; position: absolute; left: 50%; bottom: 2px; width: 5px; height: 5px; border-radius: 50%;
   background: var(--gold); transform: translateX(-50%) scale(0); transition: transform .25s var(--ease);
 }
-.nav > a.active { color: var(--river-deep); }
-.nav > a.active::after { transform: translateX(-50%) scale(1); }
+.nav > :is(a, button).active, .nav > noscript > a.active { color: var(--river-deep); }
+.nav > :is(a, button).active::after, .nav > noscript > a.active::after { transform: translateX(-50%) scale(1); }
 #indLink .ic { width: .9em; height: .9em; transform-box: fill-box; transform-origin: center; transition: transform .25s var(--ease); }
 .hdr.mega-open #indLink .ic { transform: rotate(180deg); }
 
@@ -101,7 +103,7 @@
 }
 @media (max-width: 1180px) and (min-width: 901px) {
   .nav { gap: 20px; }
-  .nav > a { font-size: 15px; }
+  .nav > :is(a, button), .nav > noscript > a { font-size: 15px; }
 }
 @media (max-width: 960px) and (min-width: 901px) {
   .hdr .wide, .nav { gap: 16px; }
@@ -118,9 +120,9 @@
     padding: 4px var(--gut) 16px; background: #fff; border-bottom: 1px solid var(--hair);
     box-shadow: 0 16px 32px rgba(20, 48, 28, .1);
   }
-  .hdr.open .nav > a { min-height: 52px; font-size: 18px; border-bottom: 1px solid var(--hair); }
-  .hdr.open .nav > a::after { display: none; }
-  .hdr.open .nav > a.active { color: var(--river); }
+  .hdr.open .nav > :is(a, button), .hdr.open .nav > noscript > a { min-height: 52px; font-size: 18px; border-bottom: 1px solid var(--hair); }
+  .hdr.open .nav > :is(a, button)::after, .hdr.open .nav > noscript > a::after { display: none; }
+  .hdr.open .nav > :is(a, button).active, .hdr.open .nav > noscript > a.active { color: var(--river); }
   .mega { position: static; box-shadow: none; border: 0; padding: 0 0 8px 12px; }
   .mega-grid { width: auto; margin: 0; grid-template-columns: 1fr; gap: 14px; padding-top: 8px; }
   .mega-h a { min-height: 40px; }

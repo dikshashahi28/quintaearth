@@ -48,7 +48,9 @@
 .news-row .btn { flex: none; }
 .site-foot .news .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .news-status { grid-column: 2; min-height: 0; font-size: 14.5px; line-height: 1.5; color: var(--gold-light); }
-.news-status:empty { display: none; }
+/* the live region stays in the page while empty (a region shown and filled in one go is not announced),
+   out of the grid's flow so no row opens until there is an answer */
+.news-status:empty { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .news-status.bad { color: var(--on-deep); }
 .news-status.wait { color: var(--on-deep-muted); }
 

@@ -6,7 +6,7 @@ type State = 'open' | 'next' | 'later';
 const parts: { name: string; icon: string; motion: string; state: State; line: string; cta?: { label: string; href: string; external?: boolean } }[] = [
   { name: 'Learn', icon: 'book', motion: 'm-open', state: 'open', line: 'Insights and press releases, tagged with UN goals.', cta: { label: 'Read the latest', href: page('insights') } },
   { name: 'Connect', icon: 'connect', motion: 'm-bounce', state: 'open', line: 'The Green Tech Community, and volunteering.', cta: { label: 'Join the community', href: site.whatsapp, external: true } },
-  { name: 'Showcase', icon: 'frame', motion: 'm-wobble', state: 'next', line: 'Profiles and a directory where each claim links to its proof.' },
+  { name: 'Showcase', icon: 'frame', motion: 'm-wobble', state: 'open', line: 'Profiles and a directory where each claim links to its proof.', cta: { label: 'Browse the directory', href: '/directory' } },
   { name: 'Solve', icon: 'bulb', motion: 'm-glow', state: 'later', line: 'Real problems, answered with solutions.' },
   { name: 'Trade', icon: 'basket', motion: 'm-shake', state: 'later', line: 'A marketplace for sustainable products.' },
 ];
@@ -15,7 +15,7 @@ const parts: { name: string; icon: string; motion: string; state: State; line: s
   <div class="in wide">
     <p class="kicker rv"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">03</span>The hub</p>
     <h2 class="rv">Five parts of one hub</h2>
-    <p class="lede rv">Two are open, one is next, two come later. The stream reaches each one in turn.</p>
+    <p class="lede rv">Three are open, two come later. The stream reaches each one in turn.</p>
     <ol class="trib">
       {parts.map((p) => (
         <li class={`part ${p.state} rv`}>
@@ -27,7 +27,7 @@ const parts: { name: string; icon: string; motion: string; state: State; line: s
           <p>{p.line}</p>
           {p.cta && (
             <a class="go" href={p.cta.href} {...(p.cta.external ? { target: '_blank', rel: 'noopener' } : {})}>
-              {p.cta.label}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg>
+              {p.cta.label}{p.cta.external && <span class="sr"> (opens in a new tab)</span>}<svg class="ic" aria-hidden="true"><use href="#i-arrow-right" /></svg>
             </a>
           )}
         </li>

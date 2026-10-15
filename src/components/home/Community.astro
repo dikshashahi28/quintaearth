@@ -13,12 +13,12 @@ const linkedin = site.socials.find((s) => s.icon === 'linkedin')!;
       <p class="kicker"><svg class="hi" aria-hidden="true"><use href="#hi-sprig" /></svg><span class="num">09</span>Community</p>
       <h2>Join the Green Tech Community</h2>
       <p class="lede">A WhatsApp circle for founders, collaborators and professionals. Joining is totally free.</p>
-      <a class="btn btn-fill join" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the community</a>
+      <a class="btn btn-fill join" href={site.whatsapp} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg>Join the community<span class="sr"> (opens in a new tab)</span></a>
       <p class="qr"><img src={asset('green-tech-community-qr.jpg')} alt="QR code for the Green Tech Community WhatsApp group" width="72" height="72" loading="lazy">Or scan to join on your phone.</p>
       <p class="follow">New Insights also go out on
-        <a href={telegram.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-telegram" /></svg>Telegram</a>
+        <a href={telegram.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-telegram" /></svg>Telegram<span class="sr"> (opens in a new tab)</span></a>
         and
-        <span><a href={linkedin.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-linkedin" /></svg>LinkedIn</a>.</span>
+        <span><a href={linkedin.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-linkedin" /></svg>LinkedIn<span class="sr"> (opens in a new tab)</span></a>.</span>
       </p>
     </div>
   </div>

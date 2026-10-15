@@ -34,7 +34,7 @@ const total = slides.length;
         <p class="sr" id="sStatus" aria-live="polite"></p>
         <div class="top">
           <figure class="ph">
-            <img id="sImg" src={first.image} alt={first.imageAlt} width="1000" height="800" decoding="async" style={`object-position: ${first.focal}`}>
+            <img id="sImg" src={first.image} alt={first.imageAlt} width="1000" height="800" loading="lazy" decoding="async" style={`object-position: ${first.focal}`}>
             <span class="badge"><svg class="hi" aria-hidden="true"><use id="sBadgeIco" href={`#hi-${first.icon}`} /></svg><span id="sBadgeTxt">{first.subs.length} sub-categories</span></span>
           </figure>
           <div class="info">

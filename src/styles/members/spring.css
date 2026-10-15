@@ -23,13 +23,17 @@
 .qe-form h1 { margin: 0 0 36px 0; font: 400 clamp(38px, 3.6vw, 52px)/1.06 var(--font-display); letter-spacing: -0.01em; color: var(--deep); text-wrap: balance; }
 .qe-form h1.tight { margin-bottom: 14px; }
 .qe-form .lede { margin: 0 0 36px 0; font-size: 17px; line-height: 1.55; color: var(--muted); max-width: 46ch; }
-.qe-form .signed { margin: 0 0 36px 0; font-size: 15px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+/* "Signed in as …" and, on the same line when it fits, the way out for the wrong account */
+.qe-form .signed { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; margin: 0 0 36px 0; font-size: 15px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.qe-form .signed p { margin: 0; }
+.qe-form .signed .tlink { font-size: inherit; }
 .qe-form .notice { margin: 0 0 28px 0; }
 .qe-form .form-status.bad { margin: 0 0 24px 0; }
 .qe-form .err-sum { margin-bottom: 24px; }
 
 .qe-step .gform { display: block; }
-.qe-step .btn-google { min-height: 52px; }
+/* the full column, so Google, the "or" line and the fields share one edge */
+.qe-step .btn-google { min-height: 52px; max-width: none; }
 .qe-step .or { margin: 0; }
 .qe-after { margin: 36px 0 0 0; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 15px; line-height: 1.5; color: var(--text); }
 .qe-after a { color: var(--river); font-weight: 500; }
@@ -48,7 +52,14 @@
 .qe-door:has(input:focus-visible) { outline: 2px solid var(--river); outline-offset: 3px; }
 .qe-door .txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .qe-door b { font-weight: 500; font-size: 16px; color: var(--deep); }
-.qe-door small { font-size: 13.5px; line-height: 1.4; color: var(--muted); }
+.qe-door small { font-size: 14px; line-height: 1.4; color: var(--muted); }
+
+/* welcome: with the doors on the page, the company name shows once the Company door is chosen (no script needed);
+   while it is hidden the track above it reaches down to the last bead, as it does when the step is not there.
+   The attribute value stays unquoted: this CSS is inlined into the page, and the member tests look for the quoted
+   form in the HTML to tell whether the doors are there */
+.qe-grid:not(:has(input[name=type][value="company"]:checked)) .co-only { display: none; }
+.qe-grid:not(:has(input[name=type][value="company"]:checked)) .qe-rail:has(+ .qe-step + .co-only + .co-only + .qe-rail.last) .track { bottom: -26px; }
 
 @media (max-width: 1100px) {
   /* stacked: the photo keeps its band height and the form takes the rest, even on a short form */
@@ -72,7 +83,6 @@
   .qe-door { min-height: 72px; padding: 10px 16px 10px 10px; gap: 12px; }
   .qe-door .stone { width: 48px; height: 48px; padding: 3px; }
   .qe-door .stone .ms { font-size: 22px; }
-  .qe-door small { font-size: 14px; }
 }
 @media (max-width: 360px) {
   /* logo and the top link share one line at 320 */

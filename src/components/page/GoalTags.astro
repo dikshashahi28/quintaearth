@@ -7,17 +7,22 @@ interface Props {
   sdgs: number[];
   /** compact: numbered dots for cards; full: number and goal name for article heads */
   variant?: 'compact' | 'full';
+  /** full tags that become the numbered dots on a phone (article heads, so the piece starts sooner) */
+  phone?: 'compact';
 }
-const { sdgs, variant = 'full' } = Astro.props;
+const { sdgs, variant = 'full', phone } = Astro.props;
 const goals = sdgs.map((n) => goalByNumber.get(n)).filter((g) => g !== undefined);
+// the word the site uses for a goal everywhere a reader sees it ("UN goal", as the Insights filter says)
+const name = (g: { n: number; title: string }) => `UN goal ${g.n}: ${g.title}`;
+const dots = variant === 'compact' || phone === 'compact';
 ---
 {goals.length > 0 && (
-  <ul class:list={['goals', variant]} aria-label="UN Sustainable Development Goals">
-    {variant === 'compact' && <li class="goals-label" aria-hidden="true">SDG</li>}
+  <ul class:list={['goals', variant, { 'phone-compact': phone === 'compact' }]} aria-label="UN Sustainable Development Goals">
+    {dots && <li class="goals-label" aria-hidden="true">{goals.length === 1 ? 'UN goal' : 'UN goals'}</li>}
     {goals.map((g) => (
       <li>
-        <a class="goal" href={page(`sdgs/goal-${g.n}`)} title={variant === 'compact' ? `Goal ${g.n}: ${g.title}` : undefined}>
-          <b>{g.n}</b>{variant === 'full' ? g.title : <span class="sr">Goal {g.n}: {g.title}</span>}
+        <a class="goal" href={page(`sdgs/goal-${g.n}`)} title={variant === 'compact' ? name(g) : undefined}>
+          <b>{g.n}</b>{variant === 'full' ? <span class="name">{g.title}</span> : <span class="sr">{name(g)}</span>}
         </a>
       </li>
     ))}

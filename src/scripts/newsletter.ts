@@ -10,10 +10,14 @@ export function initNewsletter(): void {
   if (!(form instanceof HTMLFormElement) || !status || !(input instanceof HTMLInputElement)) return;
   const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
 
+  // one live region, set up before anything is written into it: a role changed in the same tick as the text
+  // is missed by screen readers. Every answer, including an error, is read in full as a polite status.
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  status.setAttribute('aria-atomic', 'true');
   const say = (text: string, tone: '' | 'bad' | 'wait' = '') => {
     status.textContent = text;
     status.className = `news-status${tone ? ` ${tone}` : ''}`;
-    status.setAttribute('role', tone === 'bad' ? 'alert' : 'status');
   };
   input.addEventListener('input', () => {
     if (input.getAttribute('aria-invalid') === 'true') { input.removeAttribute('aria-invalid'); say(''); }

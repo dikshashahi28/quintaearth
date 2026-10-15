@@ -91,7 +91,9 @@
 .org-review .qe-form .field > label { font-size: 16px; }
 .org-review .qe-form :is(.inp, .sel) { min-height: 50px; padding: 10px 22px; }
 .org-review .qe-form :is(.inp, .sel, .area):hover { border-color: var(--reed-ink); }
-.org-review .qe-form :is(.inp, .sel, .area):focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+.org-review .qe-form :is(.inp, .sel, .area):focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); }
+/* the site's focus ring on top of the halo (a text field counts as keyboard focus; forced colours keep the outline) */
+.org-review .qe-form :is(.inp, .sel, .area):focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 .org-review .qe-form [aria-invalid="true"] { border-color: var(--danger); }
 .org-review .qe-form .field .err { font-size: 14px; color: var(--danger); }
 .org-review .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }

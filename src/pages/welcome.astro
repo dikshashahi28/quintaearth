@@ -41,21 +41,26 @@ const given = Astro.url.searchParams.get('type');
 const givenType = given === 'individual' || given === 'company' ? given : '';
 const typeValue = sent ? String(sent.get('type') ?? '') : givenType;
 const companyValue = sent ? String(sent.get('company') ?? '') : '';
-// steps shown, in order: name (if not known), type (if not given and no team), company (type is or may be company), password
+// steps shown, in order: name (if not known), type (if not given and no team), company (type is or may be company),
+// password. With the doors on the page, the company step stays hidden until the Company door is chosen (spring.css)
 const askName = !knownName || !!sent?.get('name') && String(sent.get('name')) !== knownName;
 const askType = !team && !givenType;
 const askCompany = !team && typeValue !== 'individual';
 const rails: string[] = [];
 if (askName) rails.push('welcome-name');
 if (askType) rails.push('type');
-if (askCompany) rails.push(typeValue === 'company' ? 'welcome-company' : '');
+if (askCompany) rails.push('welcome-company');
 if (!viaGoogle) rails.push('welcome-password');
 ---
 <Account title="Welcome" description="Set up your QuintaEarth account." scene="scene-welcome"
   say="Where sustainability is made, not performed." sub="A few details and you are in">
   <form class="qe-form" method="POST" action={actions.account.chooseAccountType}>
     <h1 class="tight">Welcome to QuintaEarth</h1>
-    <p class="signed">Signed in as {user.email}{viaGoogle ? ' with Google' : ''}</p>
+    <div class="signed">
+      <p>Signed in as {user.email}{viaGoogle ? ' with Google' : ''}</p>
+      {/* the wrong Google account can leave: sign out is its own post (pages/signout.ts), not part of this form */}
+      <button class="tlink" type="submit" form="welcome-signout">Not you? Sign out</button>
+    </div>
     {failed && <p class="form-status bad" role="alert">{actionErrorMessage(result?.error)}</p>}
     {team && <p class="notice" role="status">You are joining {team.name}.</p>}
     {!askName && <input type="hidden" name="name" value={knownName}>}
@@ -77,10 +82,10 @@ if (!viaGoogle) rails.push('welcome-password');
         <div class="qe-step"><Doors value={typeValue} error={errors.type} /></div>
       </>}
       {askCompany && <>
-        <div class="qe-rail" data-for={typeValue === 'company' ? 'welcome-company' : 'type welcome-company'} aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
-        <div class="qe-step">
+        <div class:list={['qe-rail', { 'co-only': askType }]} data-for="welcome-company" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+        <div class:list={['qe-step', { 'co-only': askType }]}>
           <div class="field">
-            <label for="welcome-company">Company name {typeValue !== 'company' && <span class="opt">(companies only)</span>}</label>
+            <label for="welcome-company">Company name</label>
             <input class="inp" id="welcome-company" name="company" type="text" autocomplete="organization" minlength="2" maxlength="120" required={typeValue === 'company'} value={companyValue}
               aria-invalid={errors.company ? 'true' : undefined} aria-describedby="welcome-company-error">
             <p class="err" id="welcome-company-error">{errors.company?.join(' ')}</p>
@@ -97,8 +102,20 @@ if (!viaGoogle) rails.push('welcome-password');
       </>}
       <div class="qe-rail last" data-for="*" aria-hidden="true"><span class="bead"></span></div>
       <div class="qe-step end">
-        <div class="acts"><GoButton label="Continue" /></div>
+        <div class="acts"><GoButton label="Continue" pending="Setting up…" /></div>
       </div>
     </div>
   </form>
+  <form id="welcome-signout" method="POST" action="/signout"></form>
+  <script>
+  // the company name is required once the Company door is chosen (the server checks it too), so the last bead
+  // waits for it; chosen as an individual, the hidden field must not block the browser's checks
+  const company = document.getElementById('welcome-company') as HTMLInputElement | null;
+  const doors = [...document.querySelectorAll<HTMLInputElement>('input[name="type"]')];
+  if (company && doors.length) {
+    const update = () => { company.required = doors.some((d) => d.checked && d.value === 'company'); };
+    for (const d of doors) d.addEventListener('change', update);
+    update();
+  }
+  </script>
 </Account>

@@ -4,6 +4,7 @@ import { and, inArray, eq, sql } from 'drizzle-orm';
 import Member from '../../layouts/Member.astro';
 import PersonHead from '../../components/members/public/PersonHead.astro';
 import Avatar from '../../components/members/Avatar.astro';
+import Icon from '../../components/members/Icon.astro';
 import IdentityMark from '../../components/members/IdentityMark.astro';
 import { db, schema } from '../../db/client';
 import { inChunks } from '../../db/chunks';
@@ -173,7 +174,13 @@ const personLd = {
       )}
     </div>
   </section>
-  <div class="wide pp-end"></div>
+  <div class="wide pp-end">
+    <div class="pp-end-who">
+      <Avatar name={person.name} imageKey={person.photoKey} size="xs" />
+      <span><b>{person.name}</b>{where && <small>{where}</small>}</span>
+    </div>
+    {!preview && <a class="btn btn-fill pp-enq" href={enquire}><Icon name="mail" />Send an enquiry</a>}
+  </div>
 </Member>
 
 <style>

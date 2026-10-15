@@ -38,7 +38,9 @@
 .pe .field .inp { padding-inline: 22px; }
 .pe .area { padding: 12px 18px; }
 .pe .inp:hover, .pe .sel:hover, .pe .area:hover { border-color: var(--reed-ink); }
-.pe .inp:focus, .pe .sel:focus, .pe .area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+.pe .inp:focus, .pe .sel:focus, .pe .area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); }
+/* the site's focus ring on top of the halo (a text field counts as keyboard focus; forced colours keep the outline) */
+.pe .inp:focus-visible, .pe .sel:focus-visible, .pe .area:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 
 /* chips and sub-category groups */
 .pe .pickchip { transition: border-color .2s, background .2s; }

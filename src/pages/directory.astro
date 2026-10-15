@@ -152,7 +152,7 @@ const clearSearchHref = state.q ? without({ q: '' }) : '';
         <ol><li><a href={pageUrl('index')}>Home</a></li><li><span aria-hidden="true" class="sep">›</span><span aria-current="page">Directory</span></li></ol>
       </nav>
       <h1>Directory</h1>
-      <FilterForm state={state} facets={facets} clearHref={clearHref} anyIndustryHref={without({ industry: '', sub: '' })} noGoalHref={without({ sdg: '' })} goalLabel={goalLabel} hasFilters={hasFilters} />
+      <FilterForm state={state} facets={facets} clearHref={clearHref} without={without} goalLabel={goalLabel} hasFilters={hasFilters} />
     </div>
 
     <section class="qd-results" aria-label="Results">
@@ -179,12 +179,13 @@ const clearSearchHref = state.q ? without({ q: '' }) : '';
                 <div class="qd-block">
                   <h2 class="sr">Companies</h2>
                   <ul class="qd-cgrid">
-                    {companies.map((c) => (
+                    {companies.map((c, i) => (
                       <li>
                         <article class:list={['qd-card', { noph: !c.photo }]}>
                           <div class="qd-ph">
+                            {/* the first row of photos is the largest paint on the page: those load at once, the rest lazily */}
                             {c.photo
-                              ? <img class:list={{ logo: c.photo.logo }} src={c.photo.url} alt="" width="640" height="400" loading="lazy" decoding="async" data-qd-img />
+                              ? <img class:list={{ logo: c.photo.logo }} src={c.photo.url} alt="" width="640" height="400" loading={i < 3 ? undefined : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" data-qd-img />
                               : <span class="qd-blank" aria-hidden="true"><Icon name="storefront" /></span>}
                             <span class="qd-mark" aria-hidden="true">{c.logo ? <img src={fileUrl(c.logo)} alt="" width="40" height="40" loading="lazy" data-qd-img /> : <span><Icon name="storefront" /></span>}</span>
                           </div>
@@ -201,7 +202,7 @@ const clearSearchHref = state.q ? without({ q: '' }) : '';
                             <div class="qd-cfoot">
                               {(c.docs > 0 || c.listings > 0) && (
                                 <p class="qd-proof">
-                                  {c.docs > 0 && <span><span class="n">{c.docs}</span> evidence</span>}
+                                  {c.docs > 0 && <span class="ev"><Icon name="attach_file" /><span class="n">{c.docs}</span> evidence {plural(c.docs, 'file', 'files')}</span>}
                                   {c.docs > 0 && c.listings > 0 && <span class="sep" aria-hidden="true">·</span>}
                                   {c.listings > 0 && <span><span class="n">{c.listings}</span> {plural(c.listings, 'listing', 'listings')}</span>}
                                 </p>

@@ -1,5 +1,6 @@
 ---
-// Send a published company an enquiry. Senders must be signed in; signed-out visitors get a sign-in button.
+// Send a published company an enquiry. Senders must be signed in; signed-out visitors get two doors, join (free)
+// or sign in, both leading back here.
 // ?listing=<id> picks which listing it is about. ?sent=<id> shows the sent state after the post.
 import { isEntityId } from '../../../lib/validate';
 import { actions, isInputError } from 'astro:actions';
@@ -81,8 +82,11 @@ const message = typed.message ?? '';
         <div class="qe-grid eqp-state">
           <div class="qe-rail last" aria-hidden="true"><span class="bead"></span></div>
           <div class="qe-step end">
-            <p class="eqp-say">Sign in to message {org.name}. Replies come to your email.</p>
-            <div class="acts"><a class="qe-btn" href={`/signin?next=${encodeURIComponent(nextUrl)}`}>Sign in to send<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a></div>
+            <p class="eqp-say">Join or sign in to message {org.name}. Joining is totally free. Replies come to your email.</p>
+            <div class="acts">
+              <a class="qe-btn" href={`/join?next=${encodeURIComponent(nextUrl)}`}>Join free to send<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></a>
+              <a class="tlink" href={`/signin?next=${encodeURIComponent(nextUrl)}`}>Sign in</a>
+            </div>
           </div>
         </div>
       ) : (

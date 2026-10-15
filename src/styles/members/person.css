@@ -64,9 +64,19 @@
 .pp-workat small { display: block; margin-top: 2px; font-size: 14px; color: var(--muted); }
 .pp-workat .idc { margin-top: 8px; }
 
-.pp-end { border-top: 1px solid var(--hair); }
+/* the closing band, as on the company page: the person again, their place, and the enquiry button; it sits on the
+   content line past the rail, inside the spine's width */
+.pp-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 32px; box-sizing: border-box; padding: 32px 0 96px 44px; margin-top: -40px; border-top: 1px solid var(--hair); }
+.pp-end-who { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.pp-end-who b { display: block; font: 400 22px/1.2 var(--font-display); letter-spacing: -0.01em; color: var(--deep); overflow-wrap: anywhere; }
+.pp-end-who small { display: block; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.pp-end .pp-enq { gap: 10px; }
+.pp-end .pp-enq .ms { font-size: 18px; }
+.pp-end .pp-enq:hover .ms { transform: translateX(3px); }
 
 @media (max-width: 640px) {
+  .pp-end { padding: 24px 0 64px 0; margin-top: -48px; }
+  .pp-end .pp-enq { width: 100%; }
   .pp-who { flex-direction: column; align-items: flex-start; gap: 18px; }
   .pp-line { font-size: 17px; }
   .pp-meta { flex-direction: column; align-items: flex-start; gap: 2px; }

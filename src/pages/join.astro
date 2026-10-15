@@ -11,6 +11,7 @@ import LinkedInButton from '../components/members/forms/LinkedInButton.astro';
 import { actionErrorMessage } from '../components/members/forms/errors';
 import InviteNote from '../components/members/forms/InviteNote.astro';
 import { invitationFromNext } from '../components/members/forms/invitation';
+import { readSent, rememberSent } from '../components/members/forms/sent';
 import { googleSignIn, linkedinSignIn } from '../lib/auth';
 import { page } from '../lib/url';
 
@@ -25,18 +26,24 @@ if (google?.data) return Astro.redirect(google.data.url, 303);
 const linkedin = Astro.getActionResult(actions.account.signInWithLinkedIn);
 if (linkedin?.data) return Astro.redirect(linkedin.data.url, 303);
 const sendLink = Astro.getActionResult(actions.account.sendSignInLink);
-// after sending, redirect to a plain page so a reload does not post (and email) again; the address rides in a
-// short-lived cookie, never the URL
-const SENT = 'qe.sent';
+// after sending, redirect to a plain page so a reload does not post (and email) again; what was posted rides in a
+// short-lived cookie, never the URL (forms/sent.ts)
 if (sendLink?.data) {
-  Astro.cookies.set(SENT, sendLink.data.email, { path: '/', maxAge: 600, httpOnly: true, sameSite: 'lax', secure: Astro.url.protocol === 'https:' });
-  let back = '';
-  try { back = String((await Astro.request.formData()).get('next') ?? ''); } catch { back = ''; }
+  let back = '', name = '', type = '';
+  try {
+    const posted = await Astro.request.formData();
+    back = String(posted.get('next') ?? '');
+    name = String(posted.get('name') ?? '').slice(0, 80);
+    type = String(posted.get('type') ?? '');
+  } catch { back = ''; }
+  rememberSent(Astro.cookies, { email: sendLink.data.email, name, type }, Astro.url.protocol === 'https:');
   const q = new URLSearchParams({ sent: '1' });
   if (back) q.set('next', back);
   return Astro.redirect(`/join?${q}`, 303);
 }
-const sentTo = params.get('sent') === '1' ? Astro.cookies.get(SENT)?.value ?? null : null;
+const sent = params.get('sent') === '1' ? readSent(Astro.cookies) : null;
+// ?sent=1 with no cookie: the note has timed out (or the address was never ours to show), so the form comes back
+const timedOut = params.get('sent') === '1' && !sent;
 const result = google ?? linkedin ?? sendLink;
 const fieldErrors: Record<string, string[] | undefined> = result?.error && isInputError(result.error) ? result.error.fields : {};
 const failed = result?.error && !isInputError(result.error) ? actionErrorMessage(result.error) : null;
@@ -46,12 +53,17 @@ let formNext = next;
 let typed = { name: '', email: '', type: '' };
 if (result && Astro.request.method === 'POST') {
   try {
-    const sent = await Astro.request.formData();
-    formNext = String(sent.get('next') ?? '');
-    typed = { name: String(sent.get('name') ?? '').slice(0, 80), email: String(sent.get('email') ?? '').slice(0, 100), type: String(sent.get('type') ?? '') };
+    const posted = await Astro.request.formData();
+    formNext = String(posted.get('next') ?? '');
+    typed = { name: String(posted.get('name') ?? '').slice(0, 80), email: String(posted.get('email') ?? '').slice(0, 100), type: String(posted.get('type') ?? '') };
   } catch { formNext = next; }
 }
 const signinHref = formNext ? `/signin?next=${encodeURIComponent(formNext)}` : '/signin';
+const againHref = formNext ? `/join?next=${encodeURIComponent(formNext)}` : '/join';
+// "Send it again" posts back to this sent page, so a refusal (the hourly limit) shows on the note, not on a fresh form
+const sentQuery = new URLSearchParams({ sent: '1' });
+if (formNext) sentQuery.set('next', formNext);
+const againAction = `/join?${sentQuery}&${actions.account.sendSignInLink.queryString.slice(1)}`;
 // on the way to a team invitation: name the company and skip the type doors (joining a team makes the account a
 // company account at setup, so no type is sent)
 const invite = await invitationFromNext(formNext);
@@ -59,15 +71,26 @@ const invite = await invitationFromNext(formNext);
 <Account title="Join QuintaEarth" description="Create your QuintaEarth account." scene="scene-join"
   say="Where sustainability is made, not performed." sub="Joining is totally free">
   <p class="aside" slot="top"><span class="lead">Already a member?</span> <a href={signinHref}>Sign in</a></p>
-  {sentTo ? (
+  {sent ? (
     <div class="qe-form">
       <h1>Join QuintaEarth</h1>
+      {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <div class="qe-grid">
         <div class="qe-rail sent lit" aria-hidden="true"><span class="bead"></span></div>
-        <div class="qe-sent" role="status">
-          <h2>Check your email</h2>
-          <p>We sent a link to <b>{sentTo}</b>. It works once and expires in 10 minutes. Then you choose a password.</p>
-          <a class="tlink" href={formNext ? `/join?next=${encodeURIComponent(formNext)}` : '/join'}>Use another address</a>
+        <div class="qe-sent">
+          <div role="status">
+            <h2>Check your email</h2>
+            <p>We sent a link to <b>{sent.email}</b>. It works once and expires in 10 minutes. Then you choose a password.</p>
+            <p>Not there? Check spam, or send it again.</p>
+          </div>
+          <form class="again" method="POST" action={againAction}>
+            <input type="hidden" name="next" value={formNext}>
+            <input type="hidden" name="email" value={sent.email}>
+            {sent.name && <input type="hidden" name="name" value={sent.name}>}
+            {sent.type && <input type="hidden" name="type" value={sent.type}>}
+            <GoButton label="Send it again" pending="Sending…" line />
+            <a class="tlink" href={againHref}>Use another address</a>
+          </form>
         </div>
       </div>
     </div>
@@ -75,11 +98,15 @@ const invite = await invitationFromNext(formNext);
     <form class="qe-form" method="POST" action={actions.account.sendSignInLink}>
       <h1>Join QuintaEarth</h1>
       {invite && <InviteNote company={invite.company} join />}
+      {timedOut && <p class="notice" role="status">That page timed out. Enter your email again.</p>}
       {failed && <p class="form-status bad" role="alert">{failed}</p>}
       <input type="hidden" name="next" value={formNext}>
+      {/* Enter in a field presses the form's first submit button: this hidden one, not Google's (which skips the
+          checks and posts elsewhere) */}
+      <button class="sr" type="submit" tabindex="-1" aria-hidden="true">Create account</button>
       <div class="qe-grid">
         {(googleSignIn || linkedinSignIn) && <>
-          <div class="qe-rail" aria-hidden="true"><span class="bead"></span><span class="track"><span class="fill"></span></span></div>
+          <div aria-hidden="true"></div>
           <div class="qe-step tight">
             {googleSignIn && <GoogleButton label="Join with Google" />}
             {linkedinSignIn && <LinkedInButton label="Join with LinkedIn" />}
@@ -104,7 +131,10 @@ const invite = await invitationFromNext(formNext);
           </div>
           <div class="field">
             <label for="join-email">Email</label>
+            {/* the pattern wants a dot after the @, as the server does: the bead must not light beside an
+                address the server would refuse */}
             <input class="inp" id="join-email" name="email" type="email" autocomplete="email" maxlength="100" required spellcheck="false" value={typed.email}
+              pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}" title="An address like name@example.com"
               aria-invalid={fieldErrors.email ? 'true' : undefined} aria-describedby="join-email-error">
             <p class="err" id="join-email-error">{fieldErrors.email?.join(' ')}</p>
           </div>
@@ -112,7 +142,7 @@ const invite = await invitationFromNext(formNext);
 
         <div class="qe-rail last" data-for="*" aria-hidden="true"><span class="bead"></span></div>
         <div class="qe-step end">
-          <div class="acts"><GoButton label="Create account" /></div>
+          <div class="acts"><GoButton label="Create account" pending="Sending…" /></div>
           <p class="note">We email you a link to confirm your address. Then you choose a password.</p>
           <p class="small">By joining you agree to our <a href={page('terms')}>terms of use</a> and <a href={page('privacy')}>privacy notice</a>.</p>
         </div>
