@@ -52,6 +52,15 @@ export default defineConfig({
       },
     },
   ],
+  // drizzle-orm stays in one server chunk: split across two, the chunks imported each other and the Worker failed on
+  // every on-demand route ("Cannot read properties of undefined (reading 'Symbol')") while `astro dev` still worked
+  vite: {
+    build: {
+      rolldownOptions: {
+        output: { codeSplitting: { groups: [{ name: 'drizzle-orm', test: /[\\/]node_modules[\\/](\.pnpm[\\/][^\\/]+[\\/]node_modules[\\/])?drizzle-orm[\\/]/ }] } },
+      },
+    },
+  },
   devToolbar: { enabled: false },
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
 });
