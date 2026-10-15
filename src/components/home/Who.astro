@@ -25,7 +25,7 @@ const stones = [
             <h3>{s.title}</h3>
             <p>{s.line}</p>
             <a class="tag" href={s.href} {...(s.external ? { target: '_blank', rel: 'noopener' } : {})}>
-              <svg class="hi" aria-hidden="true"><use href={`#hi-${s.icon}`} /></svg>{s.cta}
+              <svg class="hi" aria-hidden="true"><use href={`#hi-${s.icon}`} /></svg>{s.cta}{s.external && <span class="sr"> (opens in a new tab)</span>}
             </a>
           </li>
         ))}

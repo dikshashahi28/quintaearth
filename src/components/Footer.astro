@@ -86,7 +86,7 @@ const year = new Date().getFullYear();
       <h2>Follow</h2>
       <ul>
         {site.socials.map((s) => (
-          <li><a href={s.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href={`#i-${s.icon}`} /></svg>{s.label}</a></li>
+          <li><a href={s.href} target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href={`#i-${s.icon}`} /></svg>{s.label}<span class="sr"> (opens in a new tab)</span></a></li>
         ))}
       </ul>
     </div>

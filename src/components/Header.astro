@@ -27,13 +27,14 @@ const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.path
 <header class="hdr" id="top">
   <div class="wide">
     <a class="logo" href={page('index')} aria-label="QuintaEarth home" aria-current={isHome ? 'page' : undefined}>
-      <img src={asset('assets/logo.png')} alt="QuintaEarth" width="1088" height="231">
+      <img src={asset('assets/logo.png')} alt="QuintaEarth" width="600" height="127">
     </a>
     <nav class="nav" id="nav" aria-label="Main">
       <a href={page('about')} class:list={{ active: current === 'about' }} aria-current={current === 'about' ? 'page' : undefined}>About</a>
-      <a href={page('industries')} id="indLink" role="button" class:list={{ active: current === 'industries' }} aria-expanded="false" aria-controls="mega">
+      <button id="indLink" type="button" class:list={{ active: current === 'industries' }} aria-expanded="false" aria-controls="mega">
         Industries<svg class="ic" aria-hidden="true"><use href="#i-caret-down" /></svg>
-      </a>
+      </button>
+      <noscript><style>#indLink { display: none; }</style><a href={page('industries')} class:list={{ active: current === 'industries' }} aria-current={current === 'industries' ? 'page' : undefined}>Industries</a></noscript>
       <div class="mega" id="mega">
         <div class="mega-grid">
           {industries.map((ind) => (
@@ -61,7 +62,7 @@ const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.path
       <script is:inline>(function(){var v=document.documentElement.dataset.member,e=document.querySelector('.hdr .me-i');if(v&&e&&!e.textContent)e.textContent=v})()</script>
       <a class="signin" href="/signin">Sign in</a>
       <a class="btn btn-fill join" href={site.whatsapp} target="_blank" rel="noopener">
-        <svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg><span>Join<span class="full"> the community</span></span>
+        <svg class="ic" aria-hidden="true"><use href="#i-whatsapp" /></svg><span>Join<span class="full"> the community</span><span class="sr"> (opens in a new tab)</span></span>
       </a>
       <button class="menu" id="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menu">
         <svg class="ic b" aria-hidden="true"><use href="#i-menu" /></svg><svg class="ic x" aria-hidden="true"><use href="#i-close" /></svg>
@@ -69,6 +70,7 @@ const isHome = Astro.url.pathname === import.meta.env.BASE_URL || Astro.url.path
     </div>
   </div>
 </header>
+
 
 <script>
   import { initHeader } from '../scripts/header';

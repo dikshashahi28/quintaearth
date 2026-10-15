@@ -136,7 +136,9 @@ html:not(.rail-live) .sp-rail[data-arrive] .qe-rail .fill { transform: none; tra
 /* an industry icon in the trail (sub-category and industry pages) */
 .sp-crumbs .hi { width: 1.25em; height: 1.25em; margin-right: 6px; color: var(--gold); }
 .sp-crumbs li:last-child { min-width: 0; }
-.sp-crumbs [aria-current] { display: block; overflow: hidden; text-overflow: ellipsis; }
-.sp-crumbs [aria-current] .hi { vertical-align: -0.25em; }
+/* the current page: its icon sits centred beside the name on one line; a long article title is still cut with
+   an ellipsis (the icon is inline, so the cut falls on the text) */
+.sp-crumbs [aria-current] { display: block; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-crumbs [aria-current] .hi { display: inline-block; vertical-align: -0.3em; }
 /* on a phone a deep trail ends at the parent: the h1 right under it already names this page */
 @media (max-width: 640px) { .sp-crumbs.deep li:last-child { display: none; } }

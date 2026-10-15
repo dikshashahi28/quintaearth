@@ -37,6 +37,14 @@
 .qe-btn svg { width: 18px; height: 18px; fill: currentColor; transition: transform .35s var(--ease); }
 .qe-btn:hover svg { transform: translateX(3px); }
 .qe-btn:active { transform: scale(.98); box-shadow: none; }
+/* outlined: a second action after the main one (sending the link again) */
+.qe-btn.line { background: var(--page); color: var(--river); border: 1.5px solid var(--river); }
+.qe-btn.line:hover { background: var(--shallow); color: var(--river); }
+/* pressed and waiting for the server: no lift, the arrow keeps nudging until the next page arrives */
+.qe-btn:disabled, .qe-btn:disabled:hover { transform: none; box-shadow: none; cursor: progress; }
+.qe-btn[aria-busy="true"]:not(.line) { background: var(--river-deep); }
+.qe-btn[aria-busy="true"] svg { animation: qe-go .9s var(--ease) infinite; }
+.qe-btn[aria-busy="true"]:hover svg { transform: none; }
 
 /* ---------- the form: a step beside each bead (the account doors, the contact page) ---------- */
 /* .qe-form holds the steps; a .qe-step is the fields of one bead; the fields themselves (.field, .inp, .sel,
@@ -60,7 +68,10 @@
    outranks members.css's .pwwrap padding) */
 .qe-step .pwwrap .inp { padding-right: 56px; }
 .qe-step :is(.inp, .sel, .area):hover { border-color: var(--reed-ink); }
-.qe-step :is(.inp, .sel, .area):focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+.qe-step :is(.inp, .sel, .area):focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); }
+/* the site's focus ring (base.css) on top of the halo: a text field counts as keyboard focus, and forced-colours
+   mode keeps the outline where it drops the halo */
+.qe-step :is(.inp, .sel, .area):focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 .qe-step .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
 .qe-step .note { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); max-width: 44ch; }
 .qe-step .small { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
@@ -71,6 +82,9 @@
 .qe-sent p { margin: 8px 0 0 0; font-size: 16px; line-height: 1.55; color: var(--muted); }
 .qe-sent b { font-weight: 500; color: var(--text); }
 .qe-sent .tlink { margin-top: 16px; }
+/* "Send it again" and "Use another address" on one row under the note */
+.qe-sent .again { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 22px; }
+.qe-sent .again .tlink { margin-top: 0; }
 .qe-rail.sent { padding: 22px 0 0 0; border: 0; border-radius: 0; background: none; }
 .qe-rail.sent .bead { top: 31px; }
 
@@ -79,6 +93,7 @@
 @keyframes qe-halo { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(3.4); } }
 @keyframes qe-ring { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
 @keyframes qe-settle { to { transform: scale(1); } }
+@keyframes qe-go { 50% { transform: translateX(4px); } }
 
 @media (max-width: 1100px) {
   /* the short band shows a different slice of the photo: a page can set it with scenePosSm (--pos-sm) */
@@ -98,7 +113,7 @@
   .qe-step { margin-bottom: 28px; }
   .qe-step.tight { margin-bottom: 22px; }
   /* the go button is a full-width thumb target */
-  .qe-step .acts .qe-btn { flex: 1 1 100%; }
+  .qe-step .acts .qe-btn, .qe-sent .again .qe-btn { flex: 1 1 100%; }
   /* phone text floor: 16px for reading text, 14px for fine print */
   .qe-step .note { font-size: 16px; }
   .qe-step .hint { font-size: 14px; }
@@ -111,10 +126,12 @@
   .qe-scene img { animation: none; transform: none; }
   .qe-rail .fill, .qe-rail .bead, .qe-btn { transition: none; }
   .qe-rail.lit .bead::after { animation: none; opacity: 0; }
+  .qe-btn[aria-busy="true"] svg { animation: none; }
 }
 @media (hover: none) {
   /* no hover lift left stuck on a tapped button */
   .qe-btn:hover { transform: none; box-shadow: none; background: var(--river); }
+  .qe-btn.line:hover { background: var(--page); }
   .qe-btn:hover svg { transform: none; }
   .qe-step :is(.inp, .sel, .area):hover:not(:focus):not([aria-invalid="true"]) { border-color: var(--field-line); }
 }

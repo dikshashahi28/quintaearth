@@ -40,20 +40,13 @@ export function initHeader(): void {
     if (open) document.querySelector<HTMLElement>('#nav a')?.focus();
   });
 
-  // "Industries" opens the menu instead of navigating; the menu itself links to the industries index.
-  // With a mouse, hovering has already opened it, so the click that follows must not toggle it shut.
+  // "Industries" is a disclosure button (Enter and Space both click it); the menu itself links to the industries
+  // index. With a mouse, hovering has already opened it, so the click that follows must not toggle it shut.
   let hoverOpenedAt = 0;
-  indLink.addEventListener('click', (e) => {
-    e.preventDefault();
+  indLink.addEventListener('click', () => {
     const justHovered = performance.now() - hoverOpenedAt < 800;
     setMega(justHovered || !hdr.classList.contains('mega-open'));
     hoverOpenedAt = 0;
-  });
-  // it behaves as a disclosure button, so Space opens it too
-  indLink.addEventListener('keydown', (e) => {
-    if (e.key !== ' ') return;
-    e.preventDefault();
-    setMega(!hdr.classList.contains('mega-open'));
   });
   let closeTimer: number | undefined;
   indLink.addEventListener('mouseenter', () => {

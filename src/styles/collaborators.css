@@ -1,5 +1,5 @@
-/* Collaborators band: one compact tinted panel, text left, actions right. */
-.collab .panel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(20px,3vw,40px);margin-top:20px;padding:clamp(24px,3.5vw,44px);background:var(--sky);border:1px solid var(--hair);border-radius:var(--r-lg)}
+/* Collaborators band: mark, text and actions in one row on the white page, like every other section (no fills, no boxes). */
+.collab .panel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:clamp(20px,3vw,40px);margin-top:28px}
 .collab .mark{width:68px;height:68px;border-radius:50%;background:#fff;border:2px solid var(--river);display:grid;place-items:center;color:var(--river)}
 .collab .mark .hi{width:2em;height:2em}
 .collab h2{font-size:clamp(26px,2.8vw,36px);line-height:1.15;max-width:22ch;text-wrap:balance}

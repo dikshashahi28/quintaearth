@@ -121,8 +121,8 @@ const orgLd = {
       {preview && <p class="notice qe-preview" role="status">Only your team can see this page until you publish it.</p>}
       <div class="qe-who">
         {org.logoKey
-          ? <span class="qe-mark"><img src={fileUrl(org.logoKey)} alt={org.name} width="118" height="118" /></span>
-          : <span class="qe-mark" role="img" aria-label={org.name}><Icon name="storefront" /></span>}
+          ? <span class="qe-mark"><img src={fileUrl(org.logoKey)} alt="" width="118" height="118" /></span>
+          : <span class="qe-mark" aria-hidden="true"><Icon name="storefront" /></span>}
         <div class="qe-who-t">
           <h1>{org.name}</h1>
           {org.legalName && <p class="qe-legal" data-legal-name>Registered as {org.legalName}</p>}
@@ -132,7 +132,7 @@ const orgLd = {
               {size && <span><Icon name="group" />{size}</span>}
               {org.foundedYear && <span><Icon name="calendar_today" />Founded {org.foundedYear}</span>}
               {org.identityChecked && <IdentityTip tip={IDENTITY_TOOLTIP} small />}
-              {firstEvidence && <a class="qe-idc qe-evc" href={`#evidence-${firstEvidence.slug}`}><Icon name="attach_file" />{evidenceCount} evidence {evidenceCount === 1 ? 'file' : 'files'}</a>}
+              {firstEvidence && <a class="qe-evc" href={`#evidence-${firstEvidence.slug}`}><Icon name="attach_file" /><span class="n">{evidenceCount}</span> evidence {evidenceCount === 1 ? 'file' : 'files'}</a>}
             </div>
           )}
         </div>
@@ -293,7 +293,7 @@ const orgLd = {
       <div class="qe-end">
         <div class="qe-end-who">
           <span class="qe-end-mark" aria-hidden="true">{org.logoKey ? <img src={fileUrl(org.logoKey)} alt="" width="48" height="48" loading="lazy" /> : <Icon name="storefront" />}</span>
-          <span><b>{org.name}</b>{where && <small>{where}</small>}<small class="qe-updated" data-updated>Last updated {updated}</small></span>
+          <span><b>{org.name}</b>{where && <small>{where}</small>}<small class="qe-updated" data-updated>Last updated <time datetime={org.updatedAt.toISOString().slice(0, 10)}>{updated}</time></small></span>
         </div>
         {!preview && <a class="qe-btn" href={enquire}><Icon name="mail" />Send an enquiry</a>}
       </div>

@@ -45,6 +45,16 @@ function normalizeWebsite(raw: string): string {
   return /^https?:\/\//i.test(s) ? s : `https://${s}`;
 }
 
+/**
+ * "+91 98765 43210" becomes "+919876543210": the digits, with the leading plus kept so a country code survives
+ * (the sheet still receives one string in the phone column, as before). Spaces, brackets and dashes are typing
+ * aids only.
+ */
+function normalizePhone(raw: string): string {
+  const s = raw.trim();
+  return (s.startsWith('+') ? '+' : '') + s.replace(/\D/g, '');
+}
+
 function isHttpUrl(s: string): boolean {
   try {
     const u = new URL(s);
@@ -62,7 +72,7 @@ export function normalizePartner(raw: PartnerFields): PartnerFields {
     company: collapse(raw.company),
     company_type: raw.company_type,
     website: normalizeWebsite(raw.website),
-    phone: raw.phone.replace(/\D/g, ''),
+    phone: normalizePhone(raw.phone),
     place: collapse(raw.place),
     email: collapse(raw.email).toLowerCase(),
     contact_name: collapse(raw.contact_name),
@@ -89,8 +99,10 @@ export function validatePartner(v: PartnerFields, purposePrefix = '', proposal =
   if (!v.website) e.website = 'Enter your website.';
   else if (!isHttpUrl(v.website)) e.website = 'Enter a valid http(s) URL.';
 
+  // 6 to 15 digits: the longest a number can be with its country code (E.164)
+  const digits = v.phone.replace(/\D/g, '');
   if (!v.phone) e.phone = 'Enter a phone number.';
-  else if (v.phone.length < 6 || v.phone.length > 12) e.phone = 'Enter a valid phone number.';
+  else if (digits.length < 6 || digits.length > 15) e.phone = 'Enter a valid phone number.';
 
   text('place', 'Enter your place.', 'Enter a real place name.', 2, 80);
 
@@ -185,14 +197,14 @@ function setError(id: string, message: string): void {
   else field.removeAttribute('aria-invalid');
 }
 
-/** Phone boxes take digits only, at most 12. */
-function digitsOnly(input: HTMLInputElement): void {
+/** Phone boxes take digits and the marks people type between them (+ ( ) - and spaces), at most 20 characters. */
+function phoneChars(input: HTMLInputElement): void {
   input.addEventListener('input', () => {
-    const digits = input.value.replace(/\D/g, '').slice(0, 12);
-    if (input.value !== digits) input.value = digits;
+    const kept = input.value.replace(/[^\d+()\- ]/g, '').slice(0, 20);
+    if (input.value !== kept) input.value = kept;
   });
   input.addEventListener('keydown', (e) => {
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && /\D/.test(e.key)) e.preventDefault();
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && /[^\d+()\- ]/.test(e.key)) e.preventDefault();
   });
 }
 
@@ -218,7 +230,7 @@ export function initPartnerForm(): void {
     consent: el('consent').checked,
   });
 
-  digitsOnly(el('phone'));
+  phoneChars(el('phone'));
   const light = lightBeads(form, read, purposePrefix, proposal);
   form.addEventListener('input', light);
   form.addEventListener('change', light);

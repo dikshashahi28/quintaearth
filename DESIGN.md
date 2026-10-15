@@ -10,7 +10,8 @@ colors:
   reed: "#7fa26b"
   reed-ink: "#4d6e3d"
   gold: "#b8912f"
-  gold-ink: "#8a6a1c"
+  gold-ink: "#245a2e"
+  gold-dark: "#8a6a1c"
   gold-light: "#d9b85a"
   mist: "#cfe0cc"
   water: "#d3e7df"
@@ -205,7 +206,7 @@ A green-forward palette of river, reed and forest, lit by a single gold, on whit
 
 ### Secondary
 - **Bead Gold** (gold): arrival. River beads when lit, the stone and part rims when the river reaches them, the current pebble and current dot fills, the hero spring, progress bars, and icon strokes inside kickers and pills. Strokes and fills only.
-- **Gold Ink** (gold-ink): the only gold that may carry text on light grounds: the rotating hero word, kicker numerals, chip counts.
+- **Gold Ink** (gold-ink): despite the name, deep green (#245a2e) since 8 Oct 2026 (Paras: "change the brown color"): the rotating hero word, kicker numerals, chip counts. The old brown text gold is kept as **Gold Dark** (gold-dark, #8a6a1c, 5:1 on white), the only gold that may carry text on light grounds.
 - **Lantern Gold** (gold-light): gold on the deep band: the CSR ring stroke, the CSR ornament, the gold pill button and email link inside the band, and the sun and glints in the hero illustration.
 
 ### Tertiary
@@ -262,7 +263,7 @@ Within sections, the forms are: a centred hero; a five-across stone row with odd
 Responsive behaviour:
 - **1179px and below:** the river straightens into a fixed left rail (18px in), the wide frame becomes full width minus gutters, section content shifts right 34px to clear the rail, the part grid goes to three columns.
 - **900px and below:** the header nav becomes a menu button with a drop panel; spreads, the industry stage, the feature card and the pool become single column; stones auto-fit at 150px; footer goes to two columns.
-- **640px and below:** body drops to 16px, header to 64px, the rail moves to 12px and content in by 22px; stones and parts become rows (circle left, text right); industry pebbles become a horizontal scroll-snap strip; the email form stacks with a full-width button. Both hero buttons stay above the fold on phone.
+- **640px and below:** body drops to 16px, header to 64px, every river rail and the scene river are hidden and content uses the full width (owner decision, 13 Oct 2026: "no river anywhere" on phones; base.css collapses each rail grid to one column); stones and parts become rows (circle left, text right); industry pebbles become a horizontal scroll-snap strip; the email form stacks with a full-width button. Both hero buttons stay above the fold on phone.
 
 **The River Lane Rule.** Nothing but the river lives in the left lane. Content clears the rail at every breakpoint.
 
@@ -282,7 +283,7 @@ Flat at rest. Depth comes from the illustrated hero's parallax layers, outlined 
 
 ## Shapes
 
-Round and outlined. Controls are full pills (100px). Furniture is circular: stones (118px, 88px on phone), part circles (68px, 56px on phone), pebbles (58px), river beads (6px radius, 5px on phone), the pond (up to 400px). Circles carry a 2px River Green outline that turns gold when the river reaches them, and a lit circle gains a second 1.5px gold ring 7px outside. Not-yet-open parts use a dashed outline.
+Round and outlined. Controls are full pills (100px). Furniture is circular: stones (118px, 88px on phone), part circles (68px, 56px on phone), pebbles (58px), river beads (6px radius; none on phone), the pond (up to 400px). Circles carry a 2px River Green outline that turns gold when the river reaches them, and a lit circle gains a second 1.5px gold ring 7px outside. Not-yet-open parts use a dashed outline.
 
 Photographs sit in 12px-radius frames, the feature card in 16px, small fills (QR, flash rows) in 8px. The industry photo is the one organic silhouette: a pebble-shaped blob (`44% 56% 52% 48% / 46% 44% 56% 54%`).
 
@@ -346,6 +347,9 @@ Built from the approved "QuintaEarth member pages" canvas; styles in `src/styles
 - **Lists:** hairline rows whose title link covers the whole row; inbox is two panes with a gold dot on new threads, stacking on phone.
 - **Admin table:** bordered, scrolls sideways on small screens.
 - **Hit areas:** breadcrumb links and chips are 44px tall on member pages.
+- **Directory filters (15 Oct 2026):** the bar shows the type segment, Industry, Country and Identity checked; the rarer company filters sit behind one "More filters (n)" disclosure (hidden for People). Each chosen filter chip carries its own remove ×. A pick by pointer applies at once; keyboard users move through the radios freely and apply with Enter or "Show results" (WCAG 3.2.2). At 640px and below the whole set sits behind one "Filters (n)" button that opens a full-screen sheet (Clear / Show results, Escape closes, focus returns). Proof on cards reads "N evidence file(s)" in River Green with the paperclip; on the company header the evidence count is a River Green text link, so Identity checked stays the only trust pill.
+- **Gated actions:** where an action needs an account (an enquiry), the signed-out page offers two doors: "Join free to send" (go button) and "Sign in" (text link), both carrying `next`.
+- **Sent state:** after an email link is sent, the stone shows the address, "Not there? Check spam, or send it again." and an outlined "Send it again"; if the short-lived note has expired, the form returns with "That page timed out. Enter your email again." Go buttons show a pending label and refuse a second submit while waiting.
 
 ### Member pages, "the spring" (added 11 Oct 2026)
 The member screens were redesigned on the "QuintaEarth member pages · the spring" canvas and ported on 11 Oct 2026. The account doors (`/join`, `/signin`, `/welcome`; `src/layouts/Account.astro`, `src/styles/members/spring.css`) are a full-screen split: a photo of people doing the work on the left under a Forest Deep wash, the brand line in Literata and a gold sub-line, a mist river that draws itself down to a gold spring; the form on white on the right beside its own river rail. The dashboard, enquiries, profile editor, public pages and the directory keep the site header and the dashboard shell and carry the rail in their body (`src/styles/members/dashboard.css`, `enquiries.css`, `profile-editor.css`, `company.css`, `person.css`, `directory.css`).
@@ -362,7 +366,7 @@ The first builds of /services and /terms used the plain inner-page pattern (`src
 - **`src/layouts/Spring.astro`**: site header and footer, the scene as a band (its spring moved to sit exactly above the rail's first bead, the brand line starting on the content column), then on white a breadcrumb (`Home › Page`), the h1, and the page's own stops. Props: `title`, `scene`, `sceneAlt`, `scenePos`, `say`, `sub`, optional `lede`. The h1 on white is the page's name ("Services", "Terms of use"), the statement on the photo is the brand or positioning line, and the gold line is one short fact ("Every claim linked to its evidence", "Last updated 12 October 2026").
 - **The scene's subject is people doing the work**, on every spring page including the legal ones (owner decision, 12 Oct 2026; no landscape exception): /services a chemist over a rack of samples (`scene-services`), /terms a carpenter marking a plank (`scene-terms`), /privacy a grain warehouse with a worker (`scene-privacy`), /contact a farm worker walking the paddy path toward the camera (`scene-contact`); the doors use the fisherman casting a net (`scene-join`), the workshop technician (`scene-signin`, shared with its magic-link page, the same door) and the beekeeper (`scene-welcome`). The scene takes a photo by name (see Photographs below); its focal point is the default `scenePos`, and a page overrides it only when the people need to sit higher above the wash.
 - **Band sizes:** `clamp(380px, 46vh, 560px)` on desktop (414px at 1440x900, so the first stop's door is inside the first screen), 360px at 1100 and below, 220px at 640 and below. The statement on a band runs to 24ch (the doors' runs to 14ch); the phone band keeps the 22px statement and the river's last bend.
-- **Which layout:** `Spring.astro` for every public page with the site header (/services, /terms, /privacy, /contact, and every page to come: it opens on the photo and the river); `Account.astro` for a form with steps and no site header (/join, /signin, /welcome); `Dashboard.astro` / `Member.astro` for member screens, which carry the rail in their body. **`Page.astro` is not to be used for new pages.** The pages still on it (about, insights, press, industries, stories, our work, volunteer, reviews, UN goals) are the 9 Oct rebuild and move to the spring as they are next touched.
+- **Which layout:** `Spring.astro` for every public page with the site header (/services, /terms, /privacy, /contact, and every page to come: it opens on the photo and the river); `Account.astro` for a form with steps and no site header (/join, /signin, /welcome); `Dashboard.astro` / `Member.astro` for member screens, which carry the rail in their body. **`Page.astro` is not to be used for new pages.** Every public page is on the spring as of 13 Oct 2026.
 - **Beads on public pages mark arrival, on member pages completion.** A public page has nothing to complete, so its beads light as the reader reaches each section (the home page's rule) and the lit state does not depend on the script: without JavaScript, or under reduced motion, the rail renders fully drawn and lit. On member pages a bead lights only for something completed (the rail's one rule above).
 - **A form on a public page (/contact, 12 Oct 2026):** the doors' form is part of the core, so a public page can carry it: `.qe-form` with a `.qe-grid` of `.qe-rail[data-for]` + `.qe-step` pairs (the 50px pill field, select and textarea, the 52px go button at the last bead, the `.qe-sent` stone for the sent state), the fields themselves from `styles/fields.css` (shared with members.css). Its beads mark completion, as on the doors: on /contact one bead per group (your company, who to reach, what you need, send), lit from the form's own rules in `scripts/partner-form.ts`, so a bead never lights beside a value the form would reject; without JavaScript the rail is unlit. The direct ways (email, the WhatsApp community) are two text links under the h1, and the form head ("Partner with us", or "Ask for a proposal" with the offer named when a /services door sent the reader) sits above the rail the way the doors' h1 does.
 - **The door:** on /services each offer ends in a door (`.sp-door`): a pill with a stone (a 48px white circle, 2px River Green ring, the arrow inside) and the label "Ask for a proposal" (the free listing's reads "Join free"). On hover the stone fills River Green, the arrow nudges, the pill lifts. It is the only action on an offer; the page closes on the solid go button beside the email link.

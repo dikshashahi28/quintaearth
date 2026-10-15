@@ -1,6 +1,38 @@
 ---
-// the send button of an account form: a pill with an arrow
-interface Props { label: string }
-const { label } = Astro.props;
+// the send button of an account form: a pill with an arrow. Once pressed it waits (disabled, aria-busy, the
+// pending label) so a double click cannot post twice; without JavaScript the form still submits as before.
+interface Props {
+  label: string;
+  /** the label while the form posts */
+  pending?: string;
+  /** outlined: a second action after the main one, such as sending the link again */
+  line?: boolean;
+}
+const { label, pending = 'One moment…', line = false } = Astro.props;
 ---
-<button class="qe-btn" type="submit">{label}<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button>
+<button class:list={['qe-btn', { line }]} type="submit" data-pending={pending}><span class="qe-btn-l">{label}</span><svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button>
+<script>
+  // the form's submit event fires only after the browser's own checks pass, so an invalid form never locks the
+  // button. The back/forward cache restores the page with the button still waiting: pageshow puts it back.
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('button.qe-btn[data-pending]')];
+  const wait = (b: HTMLButtonElement, on: boolean) => {
+    const label = b.querySelector<HTMLElement>('.qe-btn-l');
+    if (label) {
+      if (on) b.dataset.label = label.textContent ?? '';
+      label.textContent = (on ? b.dataset.pending : b.dataset.label) ?? '';
+    }
+    b.disabled = on;
+    if (on) b.setAttribute('aria-busy', 'true'); else b.removeAttribute('aria-busy');
+  };
+  for (const b of buttons) {
+    b.form?.addEventListener('submit', (e) => {
+      // another submit button with its own formaction (Google, LinkedIn) posts elsewhere: this one is not waiting
+      const by = e.submitter;
+      if (by && by !== b && by.hasAttribute('formaction')) return;
+      // a second Enter while waiting (the hidden default button is not disabled) must not post again
+      if (b.disabled) { e.preventDefault(); return; }
+      wait(b, true);
+    });
+  }
+  window.addEventListener('pageshow', (e) => { if (e.persisted) for (const b of buttons) wait(b, false); });
+</script>

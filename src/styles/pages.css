@@ -120,15 +120,15 @@
   background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f6b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 18px center / 18px;
 }
 :where(.field textarea) { min-height: 128px; resize: vertical; field-sizing: content; }
-:where(.field input, .field textarea)::placeholder { color: #5f6f60; }
+:where(.field input, .field textarea)::placeholder { color: var(--placeholder); }
 .field :is(input, select, textarea):focus-visible { outline: 2px solid var(--river); outline-offset: 2px; border-color: var(--river); }
-.field [aria-invalid='true'] { border-color: #b3261e; }
-.field .err { font-size: 14px; color: #b3261e; min-height: 0; }
+.field [aria-invalid='true'] { border-color: var(--danger); }
+.field .err { font-size: 14px; color: var(--danger); min-height: 0; }
 .field .hint { font-size: 13.5px; color: var(--muted); }
 .check { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; font-size: 15px; }
 .check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--river); }
 .form-status { font-size: 15px; }
-.form-status.bad { color: #b3261e; }
+.form-status.bad { color: var(--danger); }
 .thanks { padding: 28px; border-radius: var(--r-lg); background: var(--sky); border: 1px solid var(--shallow); }
 .thanks h2 { font-size: 28px; }
 .thanks p { margin-top: 8px; color: var(--muted); }
@@ -328,7 +328,7 @@
 .rate-stars label:hover svg { transform: scale(1.12); }
 .rate-stars label:has(input:checked) svg, .rate-stars label:has(~ label input:checked) svg { fill: var(--gold); stroke: var(--gold-dark); }
 .rate-stars label:has(input:focus-visible) { outline: 2px solid var(--river); outline-offset: 2px; }
-.rate[aria-invalid='true'] .rate-stars svg { stroke: #b3261e; }
+.rate[aria-invalid='true'] .rate-stars svg { stroke: var(--danger); }
 @media (prefers-reduced-motion: reduce) {
   .rate-stars svg, .phone .cc-btn .ic, .ways a { transition: none; }
   .rate-stars label:hover svg { transform: none; }

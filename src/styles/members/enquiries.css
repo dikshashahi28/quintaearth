@@ -86,7 +86,9 @@
 .eq-area { display: block; width: 100%; min-height: 128px; margin: 0; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--field-line); background: var(--page); font: 400 16px/1.55 var(--font-body); color: var(--text); box-sizing: border-box; resize: vertical; field-sizing: content; caret-color: var(--river); transition: border-color .2s, box-shadow .2s; }
 .eq-area::placeholder { color: var(--placeholder); }
 .eq-area:hover { border-color: var(--reed-ink); }
-.eq-area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); outline: none; }
+.eq-area:focus { border-color: var(--river); box-shadow: 0 0 0 4px var(--shallow); }
+/* the site's focus ring on top of the halo (a text field counts as keyboard focus; forced colours keep the outline) */
+.eq-area:focus-visible { outline: 2px solid var(--river); outline-offset: 2px; }
 .eq-area[aria-invalid="true"] { border-color: var(--danger); }
 .eq-err { margin: 0; font-size: 14px; color: var(--danger); }
 .eq-err:empty { display: none; }

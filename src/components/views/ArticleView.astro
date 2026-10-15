@@ -50,16 +50,20 @@ const stops = [filed && 'filed', data.sources.length > 0 && 'sources', related.l
 const last = (stop: string) => stops[stops.length - 1] === stop;
 // the source note sits under the sources, else under the filing, else under the piece
 const noteIn = data.sources.length > 0 ? 'sources' : filed ? 'filed' : 'read';
+// a source is shown by its site (the data holds URLs only, no titles): "lexology.com"
+const host = (u: string) => new URL(u).hostname.replace(/^www\./, '');
 ---
+{/* the gold line on the photo names the kind of piece only; the byline under the title carries the date */}
 <Spring title={data.title} crumbs={[list]} description={data.description} imageUrl={share} type="article" jsonLd={[ld]} current={essay ? 'insights' : 'press'}
   scene={data.image} sceneAlt={data.imageAlt}
-  say="Where sustainability is made, not performed." sub={`${essay ? 'Insight' : 'Press desk note'} · ${formatDate(data.date)}`}>
+  say="Where sustainability is made, not performed." sub={essay ? 'Insight' : 'Press desk note'}>
   <div class="rd-meta">
     <p class="byline">
       <span>{self.minutes} min read</span>
       <span><time datetime={isoDate(data.date)}>{formatDate(data.date)}</time></span>
+      {data.sources.length > 0 && <span><a href="#sources">{data.sources.length} {data.sources.length === 1 ? 'source' : 'sources'}</a></span>}
     </p>
-    <GoalTags sdgs={data.sdgs} />
+    <GoalTags sdgs={data.sdgs} phone="compact" />
   </div>
 
   <RiverRail class="reading">
@@ -83,10 +87,10 @@ const noteIn = data.sources.length > 0 ? 'sources' : filed ? 'filed' : 'read';
 
     {data.sources.length > 0 && (
       <Bead last={last('sources')} />
-      <section class:list={['sp-stop', { end: last('sources') }]} aria-labelledby="sources-h">
+      <section class:list={['sp-stop', { end: last('sources') }]} id="sources" aria-labelledby="sources-h">
         <h2 id="sources-h">Sources</h2>
         <div class="rd-foot">
-          <ol class="sources">{data.sources.map((u) => <li><a href={u} target="_blank" rel="noopener">{u}</a></li>)}</ol>
+          <ol class="sources">{data.sources.map((u) => <li><a href={u} target="_blank" rel="noopener">{host(u)}<svg class="ic" aria-hidden="true"><use href="#i-arrow-up-right" /></svg><span class="sr">(opens in a new tab)</span></a></li>)}</ol>
           {data.note && noteIn === 'sources' && <p class="rd-note">{data.note}</p>}
         </div>
       </section>

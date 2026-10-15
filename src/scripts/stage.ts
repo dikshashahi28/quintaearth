@@ -54,11 +54,24 @@ export function initStage(): void {
   const reduce = prefersReducedMotion();
   const $ = <T extends Element = HTMLElement>(id: string) => document.getElementById(id) as unknown as T;
 
-  // warm the cache so switching never shows an empty frame
-  slides.forEach((s) => { new Image().src = s.image; });
-
   let cur = 0;
   let busy = false;
+
+  // warm only the two neighbours, once the stage is in view, so switching never shows an empty frame
+  // without fetching all eight photos at page load (the stage sits well below the fold)
+  const warmed = new Set<number>([0]);
+  const warm = () => {
+    for (const i of [cur - 1, cur + 1]) {
+      const k = (i + slides.length) % slides.length;
+      if (warmed.has(k)) continue;
+      warmed.add(k);
+      new Image().src = slides[k]!.image;
+    }
+  };
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { warm(); io.disconnect(); } }, { rootMargin: '200px' });
+    io.observe(stage);
+  } else warm();
 
   const paint = () => {
     const o = slides[cur]!;
@@ -96,6 +109,7 @@ export function initStage(): void {
     if (i === cur || busy) return;
     const d = dir ?? (i > cur ? 1 : -1);
     cur = i;
+    warm();
     if (reduce) { paint(); return; }
     busy = true;
     slide.classList.remove('in-l', 'in-r');

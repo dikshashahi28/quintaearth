@@ -10,7 +10,7 @@ import { prefersReducedMotion } from './motion';
  */
 type Pt = [number, number];
 interface Dot { el: SVGCircleElement; halo: SVGCircleElement; y: number }
-interface Branch { paths: SVGPathElement[]; flow: SVGPathElement | null; items: Element[]; y: number }
+interface Branch { paths: SVGPathElement[]; flow: SVGPathElement | null; items: Element[]; y: number; len: number }
 
 const NS = 'http://www.w3.org/2000/svg';
 const f = (n: number) => n.toFixed(1);
@@ -42,6 +42,10 @@ export function initRiver(): void {
   const pond = document.getElementById('pond');
   if (!main || !svg || !path || !water || !flow || !maskP || !maskEl || !grad || !dotsG || !crossG) return;
   const reduce = prefersReducedMotion();
+  // phones hide the river (base.css, home.css): nothing is measured or drawn there until the layout widens
+  const phone = window.matchMedia('(max-width: 640px)');
+  // the rail's colours come from the tokens, so a palette change never leaves the river on the old green
+  const token = (name: string, fallback: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
   let L = 0;
   let table: [number, number][] = [];
@@ -62,6 +66,7 @@ export function initRiver(): void {
   };
 
   function build() {
+    if (phone.matches) { table = []; dots = []; branches = []; return; }
     const W = main!.clientWidth, H = main!.scrollHeight;
     const pts: Pt[] = [], ds: Pt[] = [];
     svg!.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -98,7 +103,7 @@ export function initRiver(): void {
           pts.push([x, b.top - 10]);
           stops.sort((a, c) => a.cy - c.cy).forEach((o, i) => {
             ds.push([x, o.cy]);
-            branches.push({ paths: [], flow: null, items: [o.li], y: o.cy });
+            branches.push({ paths: [], flow: null, items: [o.li], y: o.cy, len: 0 });
             o.li.style.transitionDelay = `${i * .12}s`;
           });
           pts.push([x, b.bottom + 10]);
@@ -123,7 +128,7 @@ export function initRiver(): void {
         [pw, p, pf].forEach((q) => { q.setAttribute('d', d); crossG!.appendChild(q); });
         const len = p.getTotalLength();
         [pw, p].forEach((q) => { q.style.strokeDasharray = `${len} ${len}`; q.style.strokeDashoffset = String(len); });
-        branches.push({ paths: [pw, p], flow: pf, items: order.map((o) => o.li), y: jy });
+        branches.push({ paths: [pw, p], flow: pf, items: order.map((o) => o.li), y: jy, len });
         pts.push([x, b.top - 10], [x, jy], [x, b.bottom + 10]);
         ds.push([x, jy]);
         return;
@@ -153,7 +158,7 @@ export function initRiver(): void {
     // the rail turns pale where it crosses the deep CSR band
     grad!.replaceChildren();
     const stop = (off: number, col: string) => { const s = mk('stop'); s.setAttribute('offset', String(off)); s.setAttribute('stop-color', col); grad!.appendChild(s); };
-    const green = '#2f6b3a', pale = '#cfe0cc';
+    const green = token('--river', '#2f6b3a'), pale = token('--mist', '#cfe0cc');
     if (deepTop !== null && deepBottom !== null && H > 0) {
       stop(0, green); stop(deepTop / H, green); stop(deepTop / H, pale); stop(deepBottom / H, pale); stop(deepBottom / H, green); stop(1, green);
     } else { stop(0, green); stop(1, green); }
@@ -205,7 +210,7 @@ export function initRiver(): void {
     for (const o of dots) { const on = o.y <= y || atEnd; o.el.classList.toggle('on', on); o.halo.classList.toggle('on', on); }
     for (const br of branches) {
       const go = br.y <= y || atEnd;
-      br.paths.forEach((p) => { p.style.strokeDashoffset = go ? '0' : String(p.getTotalLength()); });
+      br.paths.forEach((p) => { p.style.strokeDashoffset = go ? '0' : String(br.len); });
       br.flow?.classList.toggle('go', go);
       br.items.forEach((li) => li.classList.toggle('lit', go));
     }
@@ -217,6 +222,7 @@ export function initRiver(): void {
   let timer: number | undefined;
   const rebuild = () => { window.clearTimeout(timer); timer = window.setTimeout(build, 60); };
   window.addEventListener('resize', rebuild);
+  phone.addEventListener('change', rebuild);
   if ('ResizeObserver' in window) new ResizeObserver(rebuild).observe(main);
   window.addEventListener('load', build);
   document.fonts?.ready.then(build);
