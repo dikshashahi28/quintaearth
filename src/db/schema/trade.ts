@@ -1,4 +1,5 @@
 // What companies show and what buyers send: listings, their files, enquiries.
+import { sql } from 'drizzle-orm';
 import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { createdAt, updatedAt, user } from './auth';
 import { greenReviewColumns, organizations } from './accounts';
@@ -43,7 +44,7 @@ export const certifications = sqliteTable('certifications', {
   expiresOn: integer('expires_on', { mode: 'timestamp_ms' }).notNull(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-}, (t) => [index('certifications_org_idx').on(t.organizationId)]);
+}, (t) => [index('certifications_org_idx').on(t.organizationId), index('certifications_evidence_key_idx').on(t.evidenceKey).where(sql`evidence_key is not null`)]);
 
 /** which of the company's certifications a listing claims */
 export const listingCertifications = sqliteTable('listing_certifications', {
@@ -70,7 +71,7 @@ export const files = sqliteTable('files', {
   /** gallery pictures: a short caption */
   caption: text('caption'),
   createdAt: createdAt(),
-}, (t) => [index('files_listing_idx').on(t.listingId), index('files_org_idx').on(t.organizationId)]);
+}, (t) => [index('files_listing_idx').on(t.listingId), index('files_org_idx').on(t.organizationId), index('files_owner_idx').on(t.ownerUserId)]);
 
 /**
  * A message to a company (organizationId) or to a person (toUserId): exactly one is set. Replies live in
@@ -93,7 +94,7 @@ export const enquiries = sqliteTable('enquiries', {
   buyerUnread: integer('buyer_unread', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-}, (t) => [index('enquiries_org_idx').on(t.organizationId, t.status), index('enquiries_from_idx').on(t.fromUserId), index('enquiries_to_user_idx').on(t.toUserId, t.status)]);
+}, (t) => [index('enquiries_org_idx').on(t.organizationId, t.status), index('enquiries_from_idx').on(t.fromUserId), index('enquiries_to_user_idx').on(t.toUserId, t.status), index('enquiries_listing_idx').on(t.listingId), index('enquiries_org_updated_idx').on(t.organizationId, t.updatedAt), index('enquiries_to_updated_idx').on(t.toUserId, t.updatedAt), index('enquiries_from_updated_idx').on(t.fromUserId, t.updatedAt)]);
 
 export const enquiryMessages = sqliteTable('enquiry_messages', {
   id: text('id').primaryKey(),
@@ -103,4 +104,4 @@ export const enquiryMessages = sqliteTable('enquiry_messages', {
   side: text('side', { enum: ['buyer', 'company'] }).notNull(),
   body: text('body').notNull(),
   createdAt: createdAt(),
-}, (t) => [index('enquiry_messages_enquiry_idx').on(t.enquiryId)]);
+}, (t) => [index('enquiry_messages_enquiry_idx').on(t.enquiryId), index('enquiry_messages_author_idx').on(t.authorUserId)]);
