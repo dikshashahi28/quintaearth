@@ -45,7 +45,7 @@ export const identityChecks = sqliteTable('identity_checks', {
   updatedAt: updatedAt(),
 }, (t) => [index('identity_checks_status_idx').on(t.status, t.createdAt), index('identity_checks_org_idx').on(t.organizationId),
   // one pending request per company (migrations/0004_identity_one_pending.sql)
-  uniqueIndex('identity_checks_one_pending_idx').on(t.organizationId).where(sql`status = 'pending'`)]);
+  uniqueIndex('identity_checks_one_pending_idx').on(t.organizationId).where(sql`status = 'pending'`), index('identity_checks_requested_by_idx').on(t.requestedBy)]);
 
 /**
  * Who checked what, when, with what result: every identity-check step and every green-wording decision. Rows are
@@ -63,4 +63,4 @@ export const auditLog = sqliteTable('audit_log', {
   result: text('result', { enum: ['pass', 'fail', 'info'] }).notNull(),
   detail: text('detail'),
   createdAt: createdAt(),
-}, (t) => [index('audit_log_org_idx').on(t.organizationId, t.createdAt), index('audit_log_subject_idx').on(t.subjectType, t.subjectId)]);
+}, (t) => [index('audit_log_org_idx').on(t.organizationId, t.createdAt), index('audit_log_subject_idx').on(t.subjectType, t.subjectId), index('audit_log_actor_idx').on(t.actorUserId), index('audit_log_created_idx').on(t.createdAt)]);

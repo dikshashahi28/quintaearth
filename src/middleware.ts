@@ -28,6 +28,21 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     return res;
   }
 
+  // Signed-out visitors get identical HTML for the public directory and profile/company pages (the header initials
+  // are filled in the browser from a cookie, not baked into the HTML), so serve those from the edge cache. `caches`
+  // is a Worker global; guard it so `astro dev` (no Cache API) simply skips caching.
+  const noSession = !(ctx.cookies.has('qe.session_token') || ctx.cookies.has('__Secure-qe.session_token'));
+  const cachePath = cleanPath(ctx.url.pathname);
+  const edgeCacheable = noSession && ctx.request.method === 'GET'
+    && (cachePath === '/directory' || /^\/people\/[^/]+$/.test(cachePath) || /^\/companies\/[^/]+$/.test(cachePath));
+  // only in the built Worker: `astro dev` must not cache, or the harness could read a stale public page
+  const edgeCache = edgeCacheable && !import.meta.env.DEV && typeof caches !== 'undefined' ? await caches.open('qe:public') : null;
+  const cacheKey = edgeCache ? new Request(ctx.url.toString(), { method: 'GET' }) : null;
+  if (edgeCache && cacheKey) {
+    const hit = await edgeCache.match(cacheKey);
+    if (hit) return hit;
+  }
+
   // imported here so the build-time prerender never loads Worker-only modules
   const { auth } = await import('./lib/auth');
   // returnHeaders: the library may refresh the session cookies, and those must reach the browser
@@ -65,9 +80,17 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   if (!setByPage.has(HINT) && (hinted !== want || (want !== null && isMemberArea(path)))) {
     res.headers.append('Set-Cookie', hintCookie(want, ctx.url.protocol === 'https:'));
   }
+  // /files and /media set their own cache header per asset (immutable for public, no-store for private); the
+  // signed-in override below must not stomp it, or members re-download every image on each view.
+  const routeManagesCache = path.startsWith('/files/') || path.startsWith('/media/');
   // member pages are personal, and any page rendered for a signed-in member carries their initials: never cache them
-  if (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user) {
+  if (!routeManagesCache && (isMemberArea(path) || isAdminArea(path) || cleanPath(path) === '/signin' || cleanPath(path).startsWith('/signin/') || ctx.locals.user)) {
     res.headers.set('Cache-Control', 'private, no-store');
+  }
+  // store a signed-out 200 for the public pages identified above (no Set-Cookie, so nothing personal leaks)
+  if (edgeCache && cacheKey && !ctx.locals.user && res.status === 200 && res.headers.getSetCookie().length === 0) {
+    res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    await edgeCache.put(cacheKey, res.clone());
   }
   return res;
 });

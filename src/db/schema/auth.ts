@@ -65,4 +65,4 @@ export const signInFailures = sqliteTable('sign_in_failures', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   key: text('key').notNull(),
   at: integer('at', { mode: 'timestamp_ms' }).notNull().default(now),
-}, (t) => [index('sign_in_failures_key_at_idx').on(t.key, t.at)]);
+}, (t) => [index('sign_in_failures_key_at_idx').on(t.key, t.at), index('sign_in_failures_at_idx').on(t.at)]);

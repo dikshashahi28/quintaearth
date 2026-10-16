@@ -1,4 +1,5 @@
 // People and companies. Fields follow the list sent to Diksha on 10 Oct 2026; change here when she confirms.
+import { sql } from 'drizzle-orm';
 import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { createdAt, updatedAt, user } from './auth';
 
@@ -44,7 +45,10 @@ export const profiles = sqliteTable('profiles', {
   published: integer('published', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-});
+}, (t) => [
+  index('profiles_photo_key_idx').on(t.photoKey).where(sql`photo_key is not null`),
+  index('profiles_company_org_idx').on(t.companyOrgId),
+]);
 
 /** a company's public page: /companies/[slug] */
 export const organizations = sqliteTable('organizations', {
@@ -78,7 +82,10 @@ export const organizations = sqliteTable('organizations', {
   ...greenReviewColumns(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
-});
+}, (t) => [
+  index('organizations_logo_key_idx').on(t.logoKey).where(sql`logo_key is not null`),
+  index('organizations_green_idx').on(t.greenReview),
+]);
 
 /** who can edit a company page */
 export const members = sqliteTable('members', {
@@ -99,7 +106,7 @@ export const invites = sqliteTable('invites', {
   expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
   acceptedAt: integer('accepted_at', { mode: 'timestamp_ms' }),
   createdAt: createdAt(),
-}, (t) => [uniqueIndex('invites_org_email_idx').on(t.organizationId, t.email)]);
+}, (t) => [uniqueIndex('invites_org_email_idx').on(t.organizationId, t.email), index('invites_email_idx').on(t.email), index('invites_invited_by_idx').on(t.invitedBy)]);
 
 /**
  * Filterable labels on people, companies and listings: industry and sub-category slugs
@@ -114,5 +121,5 @@ export const tags = sqliteTable('tags', {
   value: text('value').notNull(),
 }, (t) => [
   primaryKey({ columns: [t.entityType, t.entityId, t.kind, t.value] }),
-  index('tags_lookup_idx').on(t.kind, t.value, t.entityType),
+  index('tags_lookup_cover_idx').on(t.kind, t.value, t.entityType, t.entityId),
 ]);
