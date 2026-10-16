@@ -128,12 +128,24 @@ export function isPublicWebHost(hostname: string): boolean {
 /** whether the website's home page carries <meta name="quintaearth-verify" content="<token>"> (first 512 KB only) */
 export async function hasMetaTag(website: string, token: string, fetcher: typeof fetch = fetch): Promise<boolean> {
   try {
-    const u = new URL(website);
-    if (u.protocol !== 'https:' && u.protocol !== 'http:') return false;
-    // SSRF guard: refuse internal/private hosts, and do not follow redirects (a public host could 302 inward).
-    if (!isPublicWebHost(u.hostname)) return false;
-    const res = await fetcher(u.origin + '/', { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { accept: 'text/html' } });
-    if (!res.ok || !res.body) return false;
+    const first = new URL(website);
+    if (first.protocol !== 'https:' && first.protocol !== 'http:') return false;
+    if (!isPublicWebHost(first.hostname)) return false;
+    // Follow redirects by hand, re-checking each hop's host: a real home page that 301s (http->https, apex->www)
+    // still verifies, while a redirect aimed at an internal address (SSRF) is refused.
+    let target = first.origin + '/';
+    let res: Response | null = null;
+    for (let hop = 0; hop < 5; hop++) {
+      res = await fetcher(target, { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { accept: 'text/html' } });
+      if (res.status < 300 || res.status >= 400) break;
+      const loc = res.headers.get('location');
+      if (!loc) return false;
+      const next = new URL(loc, target);
+      if ((next.protocol !== 'https:' && next.protocol !== 'http:') || !isPublicWebHost(next.hostname)) return false;
+      target = next.toString();
+      res = null;
+    }
+    if (!res || !res.ok || !res.body) return false;
     const reader = res.body.getReader();
     let html = '', bytes = 0;
     const dec = new TextDecoder();
