@@ -112,12 +112,27 @@ export async function txtRecords(domain: string, fetcher: typeof fetch = fetch):
   }
 }
 
+/**
+ * Block server-side fetches to hosts an attacker could use for SSRF: loopback, private, link-local (cloud
+ * metadata) and any bare IP literal. A company proves website ownership on a real domain, never an IP address,
+ * so IP literals are refused outright; this also closes 127.0.0.1, 169.254.169.254 and the RFC1918 ranges.
+ */
+export function isPublicWebHost(hostname: string): boolean {
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (!h || h === 'localhost' || h.endsWith('.localhost')) return false;
+  if (h.includes(':')) return false; // IPv6 literal (::1 loopback, fc00::/7 ULA, fe80::/10 link-local, mapped)
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(h)) return false; // any IPv4 literal: a website proof must use a domain
+  return true;
+}
+
 /** whether the website's home page carries <meta name="quintaearth-verify" content="<token>"> (first 512 KB only) */
 export async function hasMetaTag(website: string, token: string, fetcher: typeof fetch = fetch): Promise<boolean> {
   try {
     const u = new URL(website);
     if (u.protocol !== 'https:' && u.protocol !== 'http:') return false;
-    const res = await fetcher(u.origin + '/', { redirect: 'follow', signal: AbortSignal.timeout(8000), headers: { accept: 'text/html' } });
+    // SSRF guard: refuse internal/private hosts, and do not follow redirects (a public host could 302 inward).
+    if (!isPublicWebHost(u.hostname)) return false;
+    const res = await fetcher(u.origin + '/', { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { accept: 'text/html' } });
     if (!res.ok || !res.body) return false;
     const reader = res.body.getReader();
     let html = '', bytes = 0;
